@@ -8,7 +8,7 @@ import { z } from 'zod';
 // `prefill=style` narrows that to style-only — select the style but leave the
 // prompt blank (the styles page "Use this style" CTA). Optional, no default —
 // a bare `/` must stay a bare URL (no 307 rewrite).
-// Copy mode (`from`) stays on the signed-in alias `/sequences/new` only — a
+// Copy mode (`from`) stays on the signed-in alias `/films/new` only — a
 // public `/?from=` would skeleton/error for anonymous users (#1104 review).
 const searchSchema = z.object({
   style: z.string().optional(),
@@ -18,7 +18,7 @@ const searchSchema = z.object({
 });
 
 /**
- * App home at `/`. Same composer as `/sequences/new`, open to anonymous
+ * App home at `/`. Same composer as `/films/new`, open to anonymous
  * visitors (actions still gate behind login). Lives under `_app` so it shares
  * AppLayout, session prefetch, and the app error boundary (#1104).
  */

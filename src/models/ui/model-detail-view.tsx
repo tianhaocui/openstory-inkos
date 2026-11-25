@@ -388,7 +388,7 @@ const VariantSwitcher: FC<{ model: ModelDetail['model'] }> = ({ model }) => {
       onValueChange={(endpointId) => {
         if (endpointId == null) return;
         void navigate({
-          to: '/models/$',
+          to: '/library/models/$',
           params: { _splat: endpointId },
           search: { activity: model.activity },
         });

@@ -100,7 +100,7 @@ export const ElementDetailView: React.FC<ElementDetailViewProps> = ({
         onSuccess: () => {
           toast.success(`已删除 ${element?.token ?? '元素'}`);
           void navigate({
-            to: '/sequences/$id/elements',
+            to: '/films/$id/elements',
             params: { id: sequenceId },
           });
         },
@@ -149,7 +149,7 @@ export const ElementDetailView: React.FC<ElementDetailViewProps> = ({
         <div className="text-center">
           <p className="text-sm font-medium">未找到元素</p>
           <Link
-            to="/sequences/$id/elements"
+            to="/films/$id/elements"
             params={{ id: sequenceId }}
             className="mt-2 text-sm text-primary hover:underline"
           >
@@ -164,7 +164,7 @@ export const ElementDetailView: React.FC<ElementDetailViewProps> = ({
     <div className="flex h-full min-h-0 flex-col overflow-hidden">
       <div className="flex shrink-0 items-center gap-3 border-b px-4 py-3">
         <Link
-          to="/sequences/$id/elements"
+          to="/films/$id/elements"
           params={{ id: sequenceId }}
           className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-muted"
           aria-label="返回元素列表"

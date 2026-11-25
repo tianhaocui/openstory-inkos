@@ -4,15 +4,15 @@ import { SITE_CONFIG } from '@/ui/marketing/constants';
 
 // Static pages that serve a 200 to anonymous visitors. `/docs` is deliberately
 // absent — it redirects to the first doc, and sitemap URLs must not 30x (#814).
-// `/sequences/new` requires login (#1104), so it is not listed.
+// `/films/new` requires login (#1104), so it is not listed.
 const SITEMAP_PAGES = [
   '/',
   '/login',
-  '/sequences',
-  '/images',
-  '/videos',
-  '/talent',
-  '/locations',
+  '/films',
+  '/studio/images',
+  '/studio/videos',
+  '/library/talent',
+  '/library/locations',
   '/docs/faq',
   '/docs/dependency-graph',
   '/terms',

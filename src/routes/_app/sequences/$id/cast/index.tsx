@@ -1,13 +1,8 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
 
-/** Cast index is now the nothing-selected Cast facet (#986). */
+/** 兼容层：旧路径保留一版，重定向到规范路径并保留查询参数。 */
 export const Route = createFileRoute('/_app/sequences/$id/cast/')({
-  beforeLoad: ({ params }) => {
-    throw redirect({
-      to: '/sequences/$id/scenes',
-      params: { id: params.id },
-      search: { facet: 'cast' },
-    });
+  beforeLoad: ({ params, location }) => {
+    throw redirect({ href: `/films/${params.id}/cast${location.searchStr}` });
   },
-  staticData: { breadcrumb: 'Cast' },
 });

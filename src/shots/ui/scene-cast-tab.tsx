@@ -54,7 +54,7 @@ const CastCard: React.FC<CastCardProps> = ({
   return (
     <div className="group relative">
       <Link
-        to="/sequences/$id/cast/$characterId"
+        to="/films/$id/cast/$characterId"
         params={{ id: sequenceId, characterId: character.id }}
         className="block overflow-hidden rounded-lg bg-card cursor-pointer"
       >

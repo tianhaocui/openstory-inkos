@@ -11,5 +11,5 @@
 
 /** Default deep-link for a sequence breadcrumb / "open sequence" landing. */
 export function getDefaultSequenceTabPath(sequenceId: string): string {
-  return `/sequences/${sequenceId}/script`;
+  return `/films/${sequenceId}/script`;
 }

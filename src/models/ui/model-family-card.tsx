@@ -21,7 +21,7 @@ export const ModelFamilyCard: FC<{ family: ModelFamily }> = ({ family }) => {
 
   return (
     <Link
-      to="/models/family/$"
+      to="/library/models/family/$"
       params={{ _splat: family.family }}
       search={{ activity: family.activity }}
       aria-label={`${family.title} 模型系列`}

@@ -1,45 +1,10 @@
-import { routeParams } from '@/ui/layout/breadcrumbs';
-import { CharacterDetailView } from '@/cast/ui/talent/character-detail-view';
-import { useSequenceCharacters } from '@/cast/ui/use-sequence-characters';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 
-function CharacterCrumbLabel({
-  sequenceId,
-  characterId,
-}: {
-  sequenceId: string;
-  characterId: string;
-}) {
-  const { data: characters } = useSequenceCharacters(sequenceId);
-  const character = characters?.find((c) => c.id === characterId);
-  return <>{character?.name ?? '…'}</>;
-}
-
+/** 兼容层：旧路径保留一版，重定向到规范路径并保留查询参数。 */
 export const Route = createFileRoute('/_app/sequences/$id/cast/$characterId')({
-  component: CharacterDetailPage,
-  staticData: {
-    breadcrumb: (match) => {
-      const { id, characterId } = routeParams<{
-        id: string;
-        characterId: string;
-      }>(match);
-      return {
-        label: (
-          <CharacterCrumbLabel sequenceId={id} characterId={characterId} />
-        ),
-      };
-    },
+  beforeLoad: ({ params, location }) => {
+    throw redirect({
+      href: `/films/${params.id}/cast/${params.characterId}${location.searchStr}`,
+    });
   },
 });
-
-function CharacterDetailPage() {
-  const { id: sequenceId, characterId } = Route.useParams();
-
-  return (
-    <CharacterDetailView
-      key={characterId}
-      sequenceId={sequenceId}
-      characterId={characterId}
-    />
-  );
-}

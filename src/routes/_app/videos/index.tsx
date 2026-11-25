@@ -1,21 +1,8 @@
-import { StudioView } from '@/studio/ui/studio-view';
-import { studioListSearchSchema } from '@/studio/ui/list-prefs';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 
+/** 兼容层：旧路径保留一版，重定向到规范路径并保留查询参数。 */
 export const Route = createFileRoute('/_app/videos/')({
-  validateSearch: studioListSearchSchema,
-  component: VideosPage,
-  staticData: { breadcrumb: '视频' },
+  beforeLoad: ({ location }) => {
+    throw redirect({ href: `/studio/videos${location.searchStr}` });
+  },
 });
-
-function VideosPage() {
-  const search = Route.useSearch();
-  const navigate = Route.useNavigate();
-  return (
-    <StudioView
-      activity="video"
-      search={search}
-      navigate={(opts) => navigate(opts)}
-    />
-  );
-}

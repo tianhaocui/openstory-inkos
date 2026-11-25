@@ -45,6 +45,8 @@ import { Route as OauthLoginRouteImport } from './routes/oauth/login'
 import { Route as R2SplatRouteImport } from './routes/r2.$'
 import { Route as AppAdminModerationRouteImport } from './routes/_app/admin/moderation'
 import { Route as AppAdminUsageRouteImport } from './routes/_app/admin/usage'
+import { Route as AppFilmsIndexRouteImport } from './routes/_app/films/index'
+import { Route as AppFilmsIdRouteRouteImport } from './routes/_app/films/$id/route'
 import { Route as AppGalleryIndexRouteImport } from './routes/_app/gallery/index'
 import { Route as AppImagesIndexRouteImport } from './routes/_app/images/index'
 import { Route as AppLocationsIndexRouteImport } from './routes/_app/locations/index'
@@ -83,13 +85,29 @@ import { Route as ApiV1IndexRouteImport } from './routes/api/v1/index'
 import { Route as ApiV1OpenapiDotjsonRouteImport } from './routes/api/v1/openapi[.]json'
 import { Route as ApiV1SequencesRouteImport } from './routes/api/v1/sequences'
 import { Route as ApiV1StylesRouteImport } from './routes/api/v1/styles'
+import { Route as AppFilmsIdMusicRouteImport } from './routes/_app/films/$id/music'
+import { Route as AppFilmsIdScenesRouteImport } from './routes/_app/films/$id/scenes'
+import { Route as AppFilmsIdScriptRouteImport } from './routes/_app/films/$id/script'
+import { Route as AppFilmsIdTheatreRouteImport } from './routes/_app/films/$id/theatre'
+import { Route as AppFilmsNewIndexRouteImport } from './routes/_app/films/new/index'
+import { Route as AppFilmsNewScenesRouteImport } from './routes/_app/films/new/scenes'
+import { Route as AppLibraryLocationsIndexRouteImport } from './routes/_app/library/locations/index'
+import { Route as AppLibraryLocationsLocationIdRouteImport } from './routes/_app/library/locations/$locationId'
+import { Route as AppLibraryModelsIndexRouteImport } from './routes/_app/library/models/index'
+import { Route as AppLibraryModelsSplatRouteImport } from './routes/_app/library/models/$'
+import { Route as AppLibraryStylesIndexRouteImport } from './routes/_app/library/styles/index'
+import { Route as AppLibraryTalentIndexRouteImport } from './routes/_app/library/talent/index'
+import { Route as AppLibraryTalentIdRouteImport } from './routes/_app/library/talent/$id'
 import { Route as AppModelsFamilySplatRouteImport } from './routes/_app/models/family/$'
+import { Route as AppSequencesIdIndexRouteImport } from './routes/_app/sequences/$id/index'
 import { Route as AppSequencesIdMusicRouteImport } from './routes/_app/sequences/$id/music'
 import { Route as AppSequencesIdScenesRouteImport } from './routes/_app/sequences/$id/scenes'
 import { Route as AppSequencesIdScriptRouteImport } from './routes/_app/sequences/$id/script'
 import { Route as AppSequencesIdTheatreRouteImport } from './routes/_app/sequences/$id/theatre'
 import { Route as AppSequencesNewIndexRouteImport } from './routes/_app/sequences/new/index'
 import { Route as AppSequencesNewScenesRouteImport } from './routes/_app/sequences/new/scenes'
+import { Route as AppStudioImagesIndexRouteImport } from './routes/_app/studio/images/index'
+import { Route as AppStudioVideosIndexRouteImport } from './routes/_app/studio/videos/index'
 import { Route as ApiIntegrationsInkosLaunchRouteImport } from './routes/api/integrations/inkos/launch'
 import { Route as ApiIntegrationsInkosSyncRouteImport } from './routes/api/integrations/inkos/sync'
 import { Route as ApiV1DeviceCodeRouteImport } from './routes/api/v1/device.code'
@@ -97,6 +115,13 @@ import { Route as ApiV1DeviceTokenRouteImport } from './routes/api/v1/device.tok
 import { Route as ApiV1ScriptsEnhanceRouteImport } from './routes/api/v1/scripts.enhance'
 import { Route as ApiV1SequencesIdRouteImport } from './routes/api/v1/sequences.$id'
 import { Route as ApiV1StylesIdRouteImport } from './routes/api/v1/styles.$id'
+import { Route as AppFilmsIdCastIndexRouteImport } from './routes/_app/films/$id/cast/index'
+import { Route as AppFilmsIdCastCharacterIdRouteImport } from './routes/_app/films/$id/cast/$characterId'
+import { Route as AppFilmsIdElementsIndexRouteImport } from './routes/_app/films/$id/elements/index'
+import { Route as AppFilmsIdElementsElementIdRouteImport } from './routes/_app/films/$id/elements/$elementId'
+import { Route as AppFilmsIdLocationsIndexRouteImport } from './routes/_app/films/$id/locations/index'
+import { Route as AppFilmsIdLocationsLocationIdRouteImport } from './routes/_app/films/$id/locations/$locationId'
+import { Route as AppLibraryModelsFamilySplatRouteImport } from './routes/_app/library/models/family/$'
 import { Route as AppSequencesIdCastIndexRouteImport } from './routes/_app/sequences/$id/cast/index'
 import { Route as AppSequencesIdCastCharacterIdRouteImport } from './routes/_app/sequences/$id/cast/$characterId'
 import { Route as AppSequencesIdElementsIndexRouteImport } from './routes/_app/sequences/$id/elements/index'
@@ -282,6 +307,16 @@ const AppAdminUsageRoute = AppAdminUsageRouteImport.update({
   id: '/usage',
   path: '/usage',
   getParentRoute: () => AppAdminRouteRoute,
+} as any)
+const AppFilmsIndexRoute = AppFilmsIndexRouteImport.update({
+  id: '/films/',
+  path: '/films/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppFilmsIdRouteRoute = AppFilmsIdRouteRouteImport.update({
+  id: '/films/$id',
+  path: '/films/$id',
+  getParentRoute: () => AppRouteRoute,
 } as any)
 const AppGalleryIndexRoute = AppGalleryIndexRouteImport.update({
   id: '/gallery/',
@@ -473,10 +508,82 @@ const ApiV1StylesRoute = ApiV1StylesRouteImport.update({
   path: '/api/v1/styles',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppFilmsIdMusicRoute = AppFilmsIdMusicRouteImport.update({
+  id: '/music',
+  path: '/music',
+  getParentRoute: () => AppFilmsIdRouteRoute,
+} as any)
+const AppFilmsIdScenesRoute = AppFilmsIdScenesRouteImport.update({
+  id: '/scenes',
+  path: '/scenes',
+  getParentRoute: () => AppFilmsIdRouteRoute,
+} as any)
+const AppFilmsIdScriptRoute = AppFilmsIdScriptRouteImport.update({
+  id: '/script',
+  path: '/script',
+  getParentRoute: () => AppFilmsIdRouteRoute,
+} as any)
+const AppFilmsIdTheatreRoute = AppFilmsIdTheatreRouteImport.update({
+  id: '/theatre',
+  path: '/theatre',
+  getParentRoute: () => AppFilmsIdRouteRoute,
+} as any)
+const AppFilmsNewIndexRoute = AppFilmsNewIndexRouteImport.update({
+  id: '/films/new/',
+  path: '/films/new/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppFilmsNewScenesRoute = AppFilmsNewScenesRouteImport.update({
+  id: '/films/new/scenes',
+  path: '/films/new/scenes',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppLibraryLocationsIndexRoute =
+  AppLibraryLocationsIndexRouteImport.update({
+    id: '/library/locations/',
+    path: '/library/locations/',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
+const AppLibraryLocationsLocationIdRoute =
+  AppLibraryLocationsLocationIdRouteImport.update({
+    id: '/library/locations/$locationId',
+    path: '/library/locations/$locationId',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
+const AppLibraryModelsIndexRoute = AppLibraryModelsIndexRouteImport.update({
+  id: '/library/models/',
+  path: '/library/models/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppLibraryModelsSplatRoute = AppLibraryModelsSplatRouteImport.update({
+  id: '/library/models/$',
+  path: '/library/models/$',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppLibraryStylesIndexRoute = AppLibraryStylesIndexRouteImport.update({
+  id: '/library/styles/',
+  path: '/library/styles/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppLibraryTalentIndexRoute = AppLibraryTalentIndexRouteImport.update({
+  id: '/library/talent/',
+  path: '/library/talent/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppLibraryTalentIdRoute = AppLibraryTalentIdRouteImport.update({
+  id: '/library/talent/$id',
+  path: '/library/talent/$id',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppModelsFamilySplatRoute = AppModelsFamilySplatRouteImport.update({
   id: '/models/family/$',
   path: '/models/family/$',
   getParentRoute: () => AppRouteRoute,
+} as any)
+const AppSequencesIdIndexRoute = AppSequencesIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppSequencesIdRouteRoute,
 } as any)
 const AppSequencesIdMusicRoute = AppSequencesIdMusicRouteImport.update({
   id: '/music',
@@ -506,6 +613,16 @@ const AppSequencesNewIndexRoute = AppSequencesNewIndexRouteImport.update({
 const AppSequencesNewScenesRoute = AppSequencesNewScenesRouteImport.update({
   id: '/sequences/new/scenes',
   path: '/sequences/new/scenes',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppStudioImagesIndexRoute = AppStudioImagesIndexRouteImport.update({
+  id: '/studio/images/',
+  path: '/studio/images/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppStudioVideosIndexRoute = AppStudioVideosIndexRouteImport.update({
+  id: '/studio/videos/',
+  path: '/studio/videos/',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const ApiIntegrationsInkosLaunchRoute =
@@ -545,6 +662,46 @@ const ApiV1StylesIdRoute = ApiV1StylesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => ApiV1StylesRoute,
 } as any)
+const AppFilmsIdCastIndexRoute = AppFilmsIdCastIndexRouteImport.update({
+  id: '/cast/',
+  path: '/cast/',
+  getParentRoute: () => AppFilmsIdRouteRoute,
+} as any)
+const AppFilmsIdCastCharacterIdRoute =
+  AppFilmsIdCastCharacterIdRouteImport.update({
+    id: '/cast/$characterId',
+    path: '/cast/$characterId',
+    getParentRoute: () => AppFilmsIdRouteRoute,
+  } as any)
+const AppFilmsIdElementsIndexRoute = AppFilmsIdElementsIndexRouteImport.update({
+  id: '/elements/',
+  path: '/elements/',
+  getParentRoute: () => AppFilmsIdRouteRoute,
+} as any)
+const AppFilmsIdElementsElementIdRoute =
+  AppFilmsIdElementsElementIdRouteImport.update({
+    id: '/elements/$elementId',
+    path: '/elements/$elementId',
+    getParentRoute: () => AppFilmsIdRouteRoute,
+  } as any)
+const AppFilmsIdLocationsIndexRoute =
+  AppFilmsIdLocationsIndexRouteImport.update({
+    id: '/locations/',
+    path: '/locations/',
+    getParentRoute: () => AppFilmsIdRouteRoute,
+  } as any)
+const AppFilmsIdLocationsLocationIdRoute =
+  AppFilmsIdLocationsLocationIdRouteImport.update({
+    id: '/locations/$locationId',
+    path: '/locations/$locationId',
+    getParentRoute: () => AppFilmsIdRouteRoute,
+  } as any)
+const AppLibraryModelsFamilySplatRoute =
+  AppLibraryModelsFamilySplatRouteImport.update({
+    id: '/library/models/family/$',
+    path: '/library/models/family/$',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
 const AppSequencesIdCastIndexRoute = AppSequencesIdCastIndexRouteImport.update({
   id: '/cast/',
   path: '/cast/',
@@ -619,6 +776,7 @@ export interface FileRoutesByFullPath {
   '/oauth/login': typeof OauthLoginRoute
   '/r2/$': typeof R2SplatRoute
   '/docs/': typeof DocsIndexRoute
+  '/films/$id': typeof AppFilmsIdRouteRouteWithChildren
   '/sequences/$id': typeof AppSequencesIdRouteRouteWithChildren
   '/admin/moderation': typeof AppAdminModerationRoute
   '/admin/usage': typeof AppAdminUsageRoute
@@ -647,6 +805,7 @@ export interface FileRoutesByFullPath {
   '/api/v1/openapi.json': typeof ApiV1OpenapiDotjsonRoute
   '/api/v1/sequences': typeof ApiV1SequencesRouteWithChildren
   '/api/v1/styles': typeof ApiV1StylesRouteWithChildren
+  '/films/': typeof AppFilmsIndexRoute
   '/gallery/': typeof AppGalleryIndexRoute
   '/images/': typeof AppImagesIndexRoute
   '/locations/': typeof AppLocationsIndexRoute
@@ -659,6 +818,14 @@ export interface FileRoutesByFullPath {
   '/talent/': typeof AppTalentIndexRoute
   '/videos/': typeof AppVideosIndexRoute
   '/api/v1/': typeof ApiV1IndexRoute
+  '/films/$id/music': typeof AppFilmsIdMusicRoute
+  '/films/$id/scenes': typeof AppFilmsIdScenesRoute
+  '/films/$id/script': typeof AppFilmsIdScriptRoute
+  '/films/$id/theatre': typeof AppFilmsIdTheatreRoute
+  '/films/new/scenes': typeof AppFilmsNewScenesRoute
+  '/library/locations/$locationId': typeof AppLibraryLocationsLocationIdRoute
+  '/library/models/$': typeof AppLibraryModelsSplatRoute
+  '/library/talent/$id': typeof AppLibraryTalentIdRoute
   '/models/family/$': typeof AppModelsFamilySplatRoute
   '/sequences/$id/music': typeof AppSequencesIdMusicRoute
   '/sequences/$id/scenes': typeof AppSequencesIdScenesRoute
@@ -672,11 +839,26 @@ export interface FileRoutesByFullPath {
   '/api/v1/scripts/enhance': typeof ApiV1ScriptsEnhanceRoute
   '/api/v1/sequences/$id': typeof ApiV1SequencesIdRouteWithChildren
   '/api/v1/styles/$id': typeof ApiV1StylesIdRoute
+  '/films/new/': typeof AppFilmsNewIndexRoute
+  '/library/locations/': typeof AppLibraryLocationsIndexRoute
+  '/library/models/': typeof AppLibraryModelsIndexRoute
+  '/library/styles/': typeof AppLibraryStylesIndexRoute
+  '/library/talent/': typeof AppLibraryTalentIndexRoute
+  '/sequences/$id/': typeof AppSequencesIdIndexRoute
   '/sequences/new/': typeof AppSequencesNewIndexRoute
+  '/studio/images/': typeof AppStudioImagesIndexRoute
+  '/studio/videos/': typeof AppStudioVideosIndexRoute
+  '/films/$id/cast/$characterId': typeof AppFilmsIdCastCharacterIdRoute
+  '/films/$id/elements/$elementId': typeof AppFilmsIdElementsElementIdRoute
+  '/films/$id/locations/$locationId': typeof AppFilmsIdLocationsLocationIdRoute
+  '/library/models/family/$': typeof AppLibraryModelsFamilySplatRoute
   '/sequences/$id/cast/$characterId': typeof AppSequencesIdCastCharacterIdRoute
   '/sequences/$id/elements/$elementId': typeof AppSequencesIdElementsElementIdRoute
   '/sequences/$id/locations/$locationId': typeof AppSequencesIdLocationsLocationIdRoute
   '/api/v1/sequences/$id/exports': typeof ApiV1SequencesIdExportsRoute
+  '/films/$id/cast/': typeof AppFilmsIdCastIndexRoute
+  '/films/$id/elements/': typeof AppFilmsIdElementsIndexRoute
+  '/films/$id/locations/': typeof AppFilmsIdLocationsIndexRoute
   '/sequences/$id/cast/': typeof AppSequencesIdCastIndexRoute
   '/sequences/$id/elements/': typeof AppSequencesIdElementsIndexRoute
   '/sequences/$id/locations/': typeof AppSequencesIdLocationsIndexRoute
@@ -712,7 +894,7 @@ export interface FileRoutesByTo {
   '/oauth/login': typeof OauthLoginRoute
   '/r2/$': typeof R2SplatRoute
   '/docs': typeof DocsIndexRoute
-  '/sequences/$id': typeof AppSequencesIdRouteRouteWithChildren
+  '/films/$id': typeof AppFilmsIdRouteRouteWithChildren
   '/admin/moderation': typeof AppAdminModerationRoute
   '/admin/usage': typeof AppAdminUsageRoute
   '/locations/$locationId': typeof AppLocationsLocationIdRoute
@@ -740,6 +922,7 @@ export interface FileRoutesByTo {
   '/api/v1/openapi.json': typeof ApiV1OpenapiDotjsonRoute
   '/api/v1/sequences': typeof ApiV1SequencesRouteWithChildren
   '/api/v1/styles': typeof ApiV1StylesRouteWithChildren
+  '/films': typeof AppFilmsIndexRoute
   '/gallery': typeof AppGalleryIndexRoute
   '/images': typeof AppImagesIndexRoute
   '/locations': typeof AppLocationsIndexRoute
@@ -752,6 +935,14 @@ export interface FileRoutesByTo {
   '/talent': typeof AppTalentIndexRoute
   '/videos': typeof AppVideosIndexRoute
   '/api/v1': typeof ApiV1IndexRoute
+  '/films/$id/music': typeof AppFilmsIdMusicRoute
+  '/films/$id/scenes': typeof AppFilmsIdScenesRoute
+  '/films/$id/script': typeof AppFilmsIdScriptRoute
+  '/films/$id/theatre': typeof AppFilmsIdTheatreRoute
+  '/films/new/scenes': typeof AppFilmsNewScenesRoute
+  '/library/locations/$locationId': typeof AppLibraryLocationsLocationIdRoute
+  '/library/models/$': typeof AppLibraryModelsSplatRoute
+  '/library/talent/$id': typeof AppLibraryTalentIdRoute
   '/models/family/$': typeof AppModelsFamilySplatRoute
   '/sequences/$id/music': typeof AppSequencesIdMusicRoute
   '/sequences/$id/scenes': typeof AppSequencesIdScenesRoute
@@ -765,11 +956,26 @@ export interface FileRoutesByTo {
   '/api/v1/scripts/enhance': typeof ApiV1ScriptsEnhanceRoute
   '/api/v1/sequences/$id': typeof ApiV1SequencesIdRouteWithChildren
   '/api/v1/styles/$id': typeof ApiV1StylesIdRoute
+  '/films/new': typeof AppFilmsNewIndexRoute
+  '/library/locations': typeof AppLibraryLocationsIndexRoute
+  '/library/models': typeof AppLibraryModelsIndexRoute
+  '/library/styles': typeof AppLibraryStylesIndexRoute
+  '/library/talent': typeof AppLibraryTalentIndexRoute
+  '/sequences/$id': typeof AppSequencesIdIndexRoute
   '/sequences/new': typeof AppSequencesNewIndexRoute
+  '/studio/images': typeof AppStudioImagesIndexRoute
+  '/studio/videos': typeof AppStudioVideosIndexRoute
+  '/films/$id/cast/$characterId': typeof AppFilmsIdCastCharacterIdRoute
+  '/films/$id/elements/$elementId': typeof AppFilmsIdElementsElementIdRoute
+  '/films/$id/locations/$locationId': typeof AppFilmsIdLocationsLocationIdRoute
+  '/library/models/family/$': typeof AppLibraryModelsFamilySplatRoute
   '/sequences/$id/cast/$characterId': typeof AppSequencesIdCastCharacterIdRoute
   '/sequences/$id/elements/$elementId': typeof AppSequencesIdElementsElementIdRoute
   '/sequences/$id/locations/$locationId': typeof AppSequencesIdLocationsLocationIdRoute
   '/api/v1/sequences/$id/exports': typeof ApiV1SequencesIdExportsRoute
+  '/films/$id/cast': typeof AppFilmsIdCastIndexRoute
+  '/films/$id/elements': typeof AppFilmsIdElementsIndexRoute
+  '/films/$id/locations': typeof AppFilmsIdLocationsIndexRoute
   '/sequences/$id/cast': typeof AppSequencesIdCastIndexRoute
   '/sequences/$id/elements': typeof AppSequencesIdElementsIndexRoute
   '/sequences/$id/locations': typeof AppSequencesIdLocationsIndexRoute
@@ -810,6 +1016,7 @@ export interface FileRoutesById {
   '/r2/$': typeof R2SplatRoute
   '/_app/': typeof AppIndexRoute
   '/docs/': typeof DocsIndexRoute
+  '/_app/films/$id': typeof AppFilmsIdRouteRouteWithChildren
   '/_app/sequences/$id': typeof AppSequencesIdRouteRouteWithChildren
   '/_app/admin/moderation': typeof AppAdminModerationRoute
   '/_app/admin/usage': typeof AppAdminUsageRoute
@@ -838,6 +1045,7 @@ export interface FileRoutesById {
   '/api/v1/openapi.json': typeof ApiV1OpenapiDotjsonRoute
   '/api/v1/sequences': typeof ApiV1SequencesRouteWithChildren
   '/api/v1/styles': typeof ApiV1StylesRouteWithChildren
+  '/_app/films/': typeof AppFilmsIndexRoute
   '/_app/gallery/': typeof AppGalleryIndexRoute
   '/_app/images/': typeof AppImagesIndexRoute
   '/_app/locations/': typeof AppLocationsIndexRoute
@@ -850,6 +1058,14 @@ export interface FileRoutesById {
   '/_app/talent/': typeof AppTalentIndexRoute
   '/_app/videos/': typeof AppVideosIndexRoute
   '/api/v1/': typeof ApiV1IndexRoute
+  '/_app/films/$id/music': typeof AppFilmsIdMusicRoute
+  '/_app/films/$id/scenes': typeof AppFilmsIdScenesRoute
+  '/_app/films/$id/script': typeof AppFilmsIdScriptRoute
+  '/_app/films/$id/theatre': typeof AppFilmsIdTheatreRoute
+  '/_app/films/new/scenes': typeof AppFilmsNewScenesRoute
+  '/_app/library/locations/$locationId': typeof AppLibraryLocationsLocationIdRoute
+  '/_app/library/models/$': typeof AppLibraryModelsSplatRoute
+  '/_app/library/talent/$id': typeof AppLibraryTalentIdRoute
   '/_app/models/family/$': typeof AppModelsFamilySplatRoute
   '/_app/sequences/$id/music': typeof AppSequencesIdMusicRoute
   '/_app/sequences/$id/scenes': typeof AppSequencesIdScenesRoute
@@ -863,11 +1079,26 @@ export interface FileRoutesById {
   '/api/v1/scripts/enhance': typeof ApiV1ScriptsEnhanceRoute
   '/api/v1/sequences/$id': typeof ApiV1SequencesIdRouteWithChildren
   '/api/v1/styles/$id': typeof ApiV1StylesIdRoute
+  '/_app/films/new/': typeof AppFilmsNewIndexRoute
+  '/_app/library/locations/': typeof AppLibraryLocationsIndexRoute
+  '/_app/library/models/': typeof AppLibraryModelsIndexRoute
+  '/_app/library/styles/': typeof AppLibraryStylesIndexRoute
+  '/_app/library/talent/': typeof AppLibraryTalentIndexRoute
+  '/_app/sequences/$id/': typeof AppSequencesIdIndexRoute
   '/_app/sequences/new/': typeof AppSequencesNewIndexRoute
+  '/_app/studio/images/': typeof AppStudioImagesIndexRoute
+  '/_app/studio/videos/': typeof AppStudioVideosIndexRoute
+  '/_app/films/$id/cast/$characterId': typeof AppFilmsIdCastCharacterIdRoute
+  '/_app/films/$id/elements/$elementId': typeof AppFilmsIdElementsElementIdRoute
+  '/_app/films/$id/locations/$locationId': typeof AppFilmsIdLocationsLocationIdRoute
+  '/_app/library/models/family/$': typeof AppLibraryModelsFamilySplatRoute
   '/_app/sequences/$id/cast/$characterId': typeof AppSequencesIdCastCharacterIdRoute
   '/_app/sequences/$id/elements/$elementId': typeof AppSequencesIdElementsElementIdRoute
   '/_app/sequences/$id/locations/$locationId': typeof AppSequencesIdLocationsLocationIdRoute
   '/api/v1/sequences/$id/exports': typeof ApiV1SequencesIdExportsRoute
+  '/_app/films/$id/cast/': typeof AppFilmsIdCastIndexRoute
+  '/_app/films/$id/elements/': typeof AppFilmsIdElementsIndexRoute
+  '/_app/films/$id/locations/': typeof AppFilmsIdLocationsIndexRoute
   '/_app/sequences/$id/cast/': typeof AppSequencesIdCastIndexRoute
   '/_app/sequences/$id/elements/': typeof AppSequencesIdElementsIndexRoute
   '/_app/sequences/$id/locations/': typeof AppSequencesIdLocationsIndexRoute
@@ -907,6 +1138,7 @@ export interface FileRouteTypes {
     | '/oauth/login'
     | '/r2/$'
     | '/docs/'
+    | '/films/$id'
     | '/sequences/$id'
     | '/admin/moderation'
     | '/admin/usage'
@@ -935,6 +1167,7 @@ export interface FileRouteTypes {
     | '/api/v1/openapi.json'
     | '/api/v1/sequences'
     | '/api/v1/styles'
+    | '/films/'
     | '/gallery/'
     | '/images/'
     | '/locations/'
@@ -947,6 +1180,14 @@ export interface FileRouteTypes {
     | '/talent/'
     | '/videos/'
     | '/api/v1/'
+    | '/films/$id/music'
+    | '/films/$id/scenes'
+    | '/films/$id/script'
+    | '/films/$id/theatre'
+    | '/films/new/scenes'
+    | '/library/locations/$locationId'
+    | '/library/models/$'
+    | '/library/talent/$id'
     | '/models/family/$'
     | '/sequences/$id/music'
     | '/sequences/$id/scenes'
@@ -960,11 +1201,26 @@ export interface FileRouteTypes {
     | '/api/v1/scripts/enhance'
     | '/api/v1/sequences/$id'
     | '/api/v1/styles/$id'
+    | '/films/new/'
+    | '/library/locations/'
+    | '/library/models/'
+    | '/library/styles/'
+    | '/library/talent/'
+    | '/sequences/$id/'
     | '/sequences/new/'
+    | '/studio/images/'
+    | '/studio/videos/'
+    | '/films/$id/cast/$characterId'
+    | '/films/$id/elements/$elementId'
+    | '/films/$id/locations/$locationId'
+    | '/library/models/family/$'
     | '/sequences/$id/cast/$characterId'
     | '/sequences/$id/elements/$elementId'
     | '/sequences/$id/locations/$locationId'
     | '/api/v1/sequences/$id/exports'
+    | '/films/$id/cast/'
+    | '/films/$id/elements/'
+    | '/films/$id/locations/'
     | '/sequences/$id/cast/'
     | '/sequences/$id/elements/'
     | '/sequences/$id/locations/'
@@ -1000,7 +1256,7 @@ export interface FileRouteTypes {
     | '/oauth/login'
     | '/r2/$'
     | '/docs'
-    | '/sequences/$id'
+    | '/films/$id'
     | '/admin/moderation'
     | '/admin/usage'
     | '/locations/$locationId'
@@ -1028,6 +1284,7 @@ export interface FileRouteTypes {
     | '/api/v1/openapi.json'
     | '/api/v1/sequences'
     | '/api/v1/styles'
+    | '/films'
     | '/gallery'
     | '/images'
     | '/locations'
@@ -1040,6 +1297,14 @@ export interface FileRouteTypes {
     | '/talent'
     | '/videos'
     | '/api/v1'
+    | '/films/$id/music'
+    | '/films/$id/scenes'
+    | '/films/$id/script'
+    | '/films/$id/theatre'
+    | '/films/new/scenes'
+    | '/library/locations/$locationId'
+    | '/library/models/$'
+    | '/library/talent/$id'
     | '/models/family/$'
     | '/sequences/$id/music'
     | '/sequences/$id/scenes'
@@ -1053,11 +1318,26 @@ export interface FileRouteTypes {
     | '/api/v1/scripts/enhance'
     | '/api/v1/sequences/$id'
     | '/api/v1/styles/$id'
+    | '/films/new'
+    | '/library/locations'
+    | '/library/models'
+    | '/library/styles'
+    | '/library/talent'
+    | '/sequences/$id'
     | '/sequences/new'
+    | '/studio/images'
+    | '/studio/videos'
+    | '/films/$id/cast/$characterId'
+    | '/films/$id/elements/$elementId'
+    | '/films/$id/locations/$locationId'
+    | '/library/models/family/$'
     | '/sequences/$id/cast/$characterId'
     | '/sequences/$id/elements/$elementId'
     | '/sequences/$id/locations/$locationId'
     | '/api/v1/sequences/$id/exports'
+    | '/films/$id/cast'
+    | '/films/$id/elements'
+    | '/films/$id/locations'
     | '/sequences/$id/cast'
     | '/sequences/$id/elements'
     | '/sequences/$id/locations'
@@ -1097,6 +1377,7 @@ export interface FileRouteTypes {
     | '/r2/$'
     | '/_app/'
     | '/docs/'
+    | '/_app/films/$id'
     | '/_app/sequences/$id'
     | '/_app/admin/moderation'
     | '/_app/admin/usage'
@@ -1125,6 +1406,7 @@ export interface FileRouteTypes {
     | '/api/v1/openapi.json'
     | '/api/v1/sequences'
     | '/api/v1/styles'
+    | '/_app/films/'
     | '/_app/gallery/'
     | '/_app/images/'
     | '/_app/locations/'
@@ -1137,6 +1419,14 @@ export interface FileRouteTypes {
     | '/_app/talent/'
     | '/_app/videos/'
     | '/api/v1/'
+    | '/_app/films/$id/music'
+    | '/_app/films/$id/scenes'
+    | '/_app/films/$id/script'
+    | '/_app/films/$id/theatre'
+    | '/_app/films/new/scenes'
+    | '/_app/library/locations/$locationId'
+    | '/_app/library/models/$'
+    | '/_app/library/talent/$id'
     | '/_app/models/family/$'
     | '/_app/sequences/$id/music'
     | '/_app/sequences/$id/scenes'
@@ -1150,11 +1440,26 @@ export interface FileRouteTypes {
     | '/api/v1/scripts/enhance'
     | '/api/v1/sequences/$id'
     | '/api/v1/styles/$id'
+    | '/_app/films/new/'
+    | '/_app/library/locations/'
+    | '/_app/library/models/'
+    | '/_app/library/styles/'
+    | '/_app/library/talent/'
+    | '/_app/sequences/$id/'
     | '/_app/sequences/new/'
+    | '/_app/studio/images/'
+    | '/_app/studio/videos/'
+    | '/_app/films/$id/cast/$characterId'
+    | '/_app/films/$id/elements/$elementId'
+    | '/_app/films/$id/locations/$locationId'
+    | '/_app/library/models/family/$'
     | '/_app/sequences/$id/cast/$characterId'
     | '/_app/sequences/$id/elements/$elementId'
     | '/_app/sequences/$id/locations/$locationId'
     | '/api/v1/sequences/$id/exports'
+    | '/_app/films/$id/cast/'
+    | '/_app/films/$id/elements/'
+    | '/_app/films/$id/locations/'
     | '/_app/sequences/$id/cast/'
     | '/_app/sequences/$id/elements/'
     | '/_app/sequences/$id/locations/'
@@ -1448,6 +1753,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminUsageRouteImport
       parentRoute: typeof AppAdminRouteRoute
     }
+    '/_app/films/': {
+      id: '/_app/films/'
+      path: '/films'
+      fullPath: '/films/'
+      preLoaderRoute: typeof AppFilmsIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/films/$id': {
+      id: '/_app/films/$id'
+      path: '/films/$id'
+      fullPath: '/films/$id'
+      preLoaderRoute: typeof AppFilmsIdRouteRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/_app/gallery/': {
       id: '/_app/gallery/'
       path: '/gallery'
@@ -1714,12 +2033,110 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiV1StylesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/films/$id/music': {
+      id: '/_app/films/$id/music'
+      path: '/music'
+      fullPath: '/films/$id/music'
+      preLoaderRoute: typeof AppFilmsIdMusicRouteImport
+      parentRoute: typeof AppFilmsIdRouteRoute
+    }
+    '/_app/films/$id/scenes': {
+      id: '/_app/films/$id/scenes'
+      path: '/scenes'
+      fullPath: '/films/$id/scenes'
+      preLoaderRoute: typeof AppFilmsIdScenesRouteImport
+      parentRoute: typeof AppFilmsIdRouteRoute
+    }
+    '/_app/films/$id/script': {
+      id: '/_app/films/$id/script'
+      path: '/script'
+      fullPath: '/films/$id/script'
+      preLoaderRoute: typeof AppFilmsIdScriptRouteImport
+      parentRoute: typeof AppFilmsIdRouteRoute
+    }
+    '/_app/films/$id/theatre': {
+      id: '/_app/films/$id/theatre'
+      path: '/theatre'
+      fullPath: '/films/$id/theatre'
+      preLoaderRoute: typeof AppFilmsIdTheatreRouteImport
+      parentRoute: typeof AppFilmsIdRouteRoute
+    }
+    '/_app/films/new/': {
+      id: '/_app/films/new/'
+      path: '/films/new'
+      fullPath: '/films/new/'
+      preLoaderRoute: typeof AppFilmsNewIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/films/new/scenes': {
+      id: '/_app/films/new/scenes'
+      path: '/films/new/scenes'
+      fullPath: '/films/new/scenes'
+      preLoaderRoute: typeof AppFilmsNewScenesRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/library/locations/': {
+      id: '/_app/library/locations/'
+      path: '/library/locations'
+      fullPath: '/library/locations/'
+      preLoaderRoute: typeof AppLibraryLocationsIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/library/locations/$locationId': {
+      id: '/_app/library/locations/$locationId'
+      path: '/library/locations/$locationId'
+      fullPath: '/library/locations/$locationId'
+      preLoaderRoute: typeof AppLibraryLocationsLocationIdRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/library/models/': {
+      id: '/_app/library/models/'
+      path: '/library/models'
+      fullPath: '/library/models/'
+      preLoaderRoute: typeof AppLibraryModelsIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/library/models/$': {
+      id: '/_app/library/models/$'
+      path: '/library/models/$'
+      fullPath: '/library/models/$'
+      preLoaderRoute: typeof AppLibraryModelsSplatRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/library/styles/': {
+      id: '/_app/library/styles/'
+      path: '/library/styles'
+      fullPath: '/library/styles/'
+      preLoaderRoute: typeof AppLibraryStylesIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/library/talent/': {
+      id: '/_app/library/talent/'
+      path: '/library/talent'
+      fullPath: '/library/talent/'
+      preLoaderRoute: typeof AppLibraryTalentIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/library/talent/$id': {
+      id: '/_app/library/talent/$id'
+      path: '/library/talent/$id'
+      fullPath: '/library/talent/$id'
+      preLoaderRoute: typeof AppLibraryTalentIdRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/_app/models/family/$': {
       id: '/_app/models/family/$'
       path: '/models/family/$'
       fullPath: '/models/family/$'
       preLoaderRoute: typeof AppModelsFamilySplatRouteImport
       parentRoute: typeof AppRouteRoute
+    }
+    '/_app/sequences/$id/': {
+      id: '/_app/sequences/$id/'
+      path: '/'
+      fullPath: '/sequences/$id/'
+      preLoaderRoute: typeof AppSequencesIdIndexRouteImport
+      parentRoute: typeof AppSequencesIdRouteRoute
     }
     '/_app/sequences/$id/music': {
       id: '/_app/sequences/$id/music'
@@ -1761,6 +2178,20 @@ declare module '@tanstack/react-router' {
       path: '/sequences/new/scenes'
       fullPath: '/sequences/new/scenes'
       preLoaderRoute: typeof AppSequencesNewScenesRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/studio/images/': {
+      id: '/_app/studio/images/'
+      path: '/studio/images'
+      fullPath: '/studio/images/'
+      preLoaderRoute: typeof AppStudioImagesIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/studio/videos/': {
+      id: '/_app/studio/videos/'
+      path: '/studio/videos'
+      fullPath: '/studio/videos/'
+      preLoaderRoute: typeof AppStudioVideosIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/api/integrations/inkos/launch': {
@@ -1811,6 +2242,55 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/v1/styles/$id'
       preLoaderRoute: typeof ApiV1StylesIdRouteImport
       parentRoute: typeof ApiV1StylesRoute
+    }
+    '/_app/films/$id/cast/': {
+      id: '/_app/films/$id/cast/'
+      path: '/cast'
+      fullPath: '/films/$id/cast/'
+      preLoaderRoute: typeof AppFilmsIdCastIndexRouteImport
+      parentRoute: typeof AppFilmsIdRouteRoute
+    }
+    '/_app/films/$id/cast/$characterId': {
+      id: '/_app/films/$id/cast/$characterId'
+      path: '/cast/$characterId'
+      fullPath: '/films/$id/cast/$characterId'
+      preLoaderRoute: typeof AppFilmsIdCastCharacterIdRouteImport
+      parentRoute: typeof AppFilmsIdRouteRoute
+    }
+    '/_app/films/$id/elements/': {
+      id: '/_app/films/$id/elements/'
+      path: '/elements'
+      fullPath: '/films/$id/elements/'
+      preLoaderRoute: typeof AppFilmsIdElementsIndexRouteImport
+      parentRoute: typeof AppFilmsIdRouteRoute
+    }
+    '/_app/films/$id/elements/$elementId': {
+      id: '/_app/films/$id/elements/$elementId'
+      path: '/elements/$elementId'
+      fullPath: '/films/$id/elements/$elementId'
+      preLoaderRoute: typeof AppFilmsIdElementsElementIdRouteImport
+      parentRoute: typeof AppFilmsIdRouteRoute
+    }
+    '/_app/films/$id/locations/': {
+      id: '/_app/films/$id/locations/'
+      path: '/locations'
+      fullPath: '/films/$id/locations/'
+      preLoaderRoute: typeof AppFilmsIdLocationsIndexRouteImport
+      parentRoute: typeof AppFilmsIdRouteRoute
+    }
+    '/_app/films/$id/locations/$locationId': {
+      id: '/_app/films/$id/locations/$locationId'
+      path: '/locations/$locationId'
+      fullPath: '/films/$id/locations/$locationId'
+      preLoaderRoute: typeof AppFilmsIdLocationsLocationIdRouteImport
+      parentRoute: typeof AppFilmsIdRouteRoute
+    }
+    '/_app/library/models/family/$': {
+      id: '/_app/library/models/family/$'
+      path: '/library/models/family/$'
+      fullPath: '/library/models/family/$'
+      preLoaderRoute: typeof AppLibraryModelsFamilySplatRouteImport
+      parentRoute: typeof AppRouteRoute
     }
     '/_app/sequences/$id/cast/': {
       id: '/_app/sequences/$id/cast/'
@@ -1895,11 +2375,42 @@ const AppSettingsRouteRouteChildren: AppSettingsRouteRouteChildren = {
 const AppSettingsRouteRouteWithChildren =
   AppSettingsRouteRoute._addFileChildren(AppSettingsRouteRouteChildren)
 
+interface AppFilmsIdRouteRouteChildren {
+  AppFilmsIdMusicRoute: typeof AppFilmsIdMusicRoute
+  AppFilmsIdScenesRoute: typeof AppFilmsIdScenesRoute
+  AppFilmsIdScriptRoute: typeof AppFilmsIdScriptRoute
+  AppFilmsIdTheatreRoute: typeof AppFilmsIdTheatreRoute
+  AppFilmsIdCastCharacterIdRoute: typeof AppFilmsIdCastCharacterIdRoute
+  AppFilmsIdElementsElementIdRoute: typeof AppFilmsIdElementsElementIdRoute
+  AppFilmsIdLocationsLocationIdRoute: typeof AppFilmsIdLocationsLocationIdRoute
+  AppFilmsIdCastIndexRoute: typeof AppFilmsIdCastIndexRoute
+  AppFilmsIdElementsIndexRoute: typeof AppFilmsIdElementsIndexRoute
+  AppFilmsIdLocationsIndexRoute: typeof AppFilmsIdLocationsIndexRoute
+}
+
+const AppFilmsIdRouteRouteChildren: AppFilmsIdRouteRouteChildren = {
+  AppFilmsIdMusicRoute: AppFilmsIdMusicRoute,
+  AppFilmsIdScenesRoute: AppFilmsIdScenesRoute,
+  AppFilmsIdScriptRoute: AppFilmsIdScriptRoute,
+  AppFilmsIdTheatreRoute: AppFilmsIdTheatreRoute,
+  AppFilmsIdCastCharacterIdRoute: AppFilmsIdCastCharacterIdRoute,
+  AppFilmsIdElementsElementIdRoute: AppFilmsIdElementsElementIdRoute,
+  AppFilmsIdLocationsLocationIdRoute: AppFilmsIdLocationsLocationIdRoute,
+  AppFilmsIdCastIndexRoute: AppFilmsIdCastIndexRoute,
+  AppFilmsIdElementsIndexRoute: AppFilmsIdElementsIndexRoute,
+  AppFilmsIdLocationsIndexRoute: AppFilmsIdLocationsIndexRoute,
+}
+
+const AppFilmsIdRouteRouteWithChildren = AppFilmsIdRouteRoute._addFileChildren(
+  AppFilmsIdRouteRouteChildren,
+)
+
 interface AppSequencesIdRouteRouteChildren {
   AppSequencesIdMusicRoute: typeof AppSequencesIdMusicRoute
   AppSequencesIdScenesRoute: typeof AppSequencesIdScenesRoute
   AppSequencesIdScriptRoute: typeof AppSequencesIdScriptRoute
   AppSequencesIdTheatreRoute: typeof AppSequencesIdTheatreRoute
+  AppSequencesIdIndexRoute: typeof AppSequencesIdIndexRoute
   AppSequencesIdCastCharacterIdRoute: typeof AppSequencesIdCastCharacterIdRoute
   AppSequencesIdElementsElementIdRoute: typeof AppSequencesIdElementsElementIdRoute
   AppSequencesIdLocationsLocationIdRoute: typeof AppSequencesIdLocationsLocationIdRoute
@@ -1913,6 +2424,7 @@ const AppSequencesIdRouteRouteChildren: AppSequencesIdRouteRouteChildren = {
   AppSequencesIdScenesRoute: AppSequencesIdScenesRoute,
   AppSequencesIdScriptRoute: AppSequencesIdScriptRoute,
   AppSequencesIdTheatreRoute: AppSequencesIdTheatreRoute,
+  AppSequencesIdIndexRoute: AppSequencesIdIndexRoute,
   AppSequencesIdCastCharacterIdRoute: AppSequencesIdCastCharacterIdRoute,
   AppSequencesIdElementsElementIdRoute: AppSequencesIdElementsElementIdRoute,
   AppSequencesIdLocationsLocationIdRoute:
@@ -1935,6 +2447,7 @@ interface AppRouteRouteChildren {
   AppReportRoute: typeof AppReportRoute
   AppTermsRoute: typeof AppTermsRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppFilmsIdRouteRoute: typeof AppFilmsIdRouteRouteWithChildren
   AppSequencesIdRouteRoute: typeof AppSequencesIdRouteRouteWithChildren
   AppLocationsLocationIdRoute: typeof AppLocationsLocationIdRoute
   AppModelsSplatRoute: typeof AppModelsSplatRoute
@@ -1942,6 +2455,7 @@ interface AppRouteRouteChildren {
   AppStoriesIdRoute: typeof AppStoriesIdRoute
   AppStoriesNewRoute: typeof AppStoriesNewRoute
   AppTalentIdRoute: typeof AppTalentIdRoute
+  AppFilmsIndexRoute: typeof AppFilmsIndexRoute
   AppGalleryIndexRoute: typeof AppGalleryIndexRoute
   AppImagesIndexRoute: typeof AppImagesIndexRoute
   AppLocationsIndexRoute: typeof AppLocationsIndexRoute
@@ -1952,9 +2466,21 @@ interface AppRouteRouteChildren {
   AppStylesIndexRoute: typeof AppStylesIndexRoute
   AppTalentIndexRoute: typeof AppTalentIndexRoute
   AppVideosIndexRoute: typeof AppVideosIndexRoute
+  AppFilmsNewScenesRoute: typeof AppFilmsNewScenesRoute
+  AppLibraryLocationsLocationIdRoute: typeof AppLibraryLocationsLocationIdRoute
+  AppLibraryModelsSplatRoute: typeof AppLibraryModelsSplatRoute
+  AppLibraryTalentIdRoute: typeof AppLibraryTalentIdRoute
   AppModelsFamilySplatRoute: typeof AppModelsFamilySplatRoute
   AppSequencesNewScenesRoute: typeof AppSequencesNewScenesRoute
+  AppFilmsNewIndexRoute: typeof AppFilmsNewIndexRoute
+  AppLibraryLocationsIndexRoute: typeof AppLibraryLocationsIndexRoute
+  AppLibraryModelsIndexRoute: typeof AppLibraryModelsIndexRoute
+  AppLibraryStylesIndexRoute: typeof AppLibraryStylesIndexRoute
+  AppLibraryTalentIndexRoute: typeof AppLibraryTalentIndexRoute
   AppSequencesNewIndexRoute: typeof AppSequencesNewIndexRoute
+  AppStudioImagesIndexRoute: typeof AppStudioImagesIndexRoute
+  AppStudioVideosIndexRoute: typeof AppStudioVideosIndexRoute
+  AppLibraryModelsFamilySplatRoute: typeof AppLibraryModelsFamilySplatRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
@@ -1967,6 +2493,7 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppReportRoute: AppReportRoute,
   AppTermsRoute: AppTermsRoute,
   AppIndexRoute: AppIndexRoute,
+  AppFilmsIdRouteRoute: AppFilmsIdRouteRouteWithChildren,
   AppSequencesIdRouteRoute: AppSequencesIdRouteRouteWithChildren,
   AppLocationsLocationIdRoute: AppLocationsLocationIdRoute,
   AppModelsSplatRoute: AppModelsSplatRoute,
@@ -1974,6 +2501,7 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppStoriesIdRoute: AppStoriesIdRoute,
   AppStoriesNewRoute: AppStoriesNewRoute,
   AppTalentIdRoute: AppTalentIdRoute,
+  AppFilmsIndexRoute: AppFilmsIndexRoute,
   AppGalleryIndexRoute: AppGalleryIndexRoute,
   AppImagesIndexRoute: AppImagesIndexRoute,
   AppLocationsIndexRoute: AppLocationsIndexRoute,
@@ -1984,9 +2512,21 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppStylesIndexRoute: AppStylesIndexRoute,
   AppTalentIndexRoute: AppTalentIndexRoute,
   AppVideosIndexRoute: AppVideosIndexRoute,
+  AppFilmsNewScenesRoute: AppFilmsNewScenesRoute,
+  AppLibraryLocationsLocationIdRoute: AppLibraryLocationsLocationIdRoute,
+  AppLibraryModelsSplatRoute: AppLibraryModelsSplatRoute,
+  AppLibraryTalentIdRoute: AppLibraryTalentIdRoute,
   AppModelsFamilySplatRoute: AppModelsFamilySplatRoute,
   AppSequencesNewScenesRoute: AppSequencesNewScenesRoute,
+  AppFilmsNewIndexRoute: AppFilmsNewIndexRoute,
+  AppLibraryLocationsIndexRoute: AppLibraryLocationsIndexRoute,
+  AppLibraryModelsIndexRoute: AppLibraryModelsIndexRoute,
+  AppLibraryStylesIndexRoute: AppLibraryStylesIndexRoute,
+  AppLibraryTalentIndexRoute: AppLibraryTalentIndexRoute,
   AppSequencesNewIndexRoute: AppSequencesNewIndexRoute,
+  AppStudioImagesIndexRoute: AppStudioImagesIndexRoute,
+  AppStudioVideosIndexRoute: AppStudioVideosIndexRoute,
+  AppLibraryModelsFamilySplatRoute: AppLibraryModelsFamilySplatRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(

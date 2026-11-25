@@ -1,45 +1,12 @@
-import { routeParams } from '@/ui/layout/breadcrumbs';
-import { LocationDetailView } from '@/cast/ui/locations/location-detail-view';
-import { useSequenceLocations } from '@/cast/ui/use-sequence-locations';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 
-function LocationCrumbLabel({
-  sequenceId,
-  locationId,
-}: {
-  sequenceId: string;
-  locationId: string;
-}) {
-  const { data: locations } = useSequenceLocations(sequenceId);
-  const location = locations?.find((l) => l.id === locationId);
-  return <>{location?.name ?? '…'}</>;
-}
-
+/** 兼容层：旧路径保留一版，重定向到规范路径并保留查询参数。 */
 export const Route = createFileRoute(
   '/_app/sequences/$id/locations/$locationId'
 )({
-  component: LocationDetailPage,
-  staticData: {
-    breadcrumb: (match) => {
-      const { id, locationId } = routeParams<{
-        id: string;
-        locationId: string;
-      }>(match);
-      return {
-        label: <LocationCrumbLabel sequenceId={id} locationId={locationId} />,
-      };
-    },
+  beforeLoad: ({ params, location }) => {
+    throw redirect({
+      href: `/films/${params.id}/locations/${params.locationId}${location.searchStr}`,
+    });
   },
 });
-
-function LocationDetailPage() {
-  const { id: sequenceId, locationId } = Route.useParams();
-
-  return (
-    <LocationDetailView
-      key={locationId}
-      sequenceId={sequenceId}
-      locationId={locationId}
-    />
-  );
-}

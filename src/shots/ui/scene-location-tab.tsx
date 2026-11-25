@@ -169,7 +169,7 @@ export const SceneLocationTab: React.FC<SceneLocationTabProps> = ({
             </div>
             <div className="flex items-center gap-1">
               <Link
-                to="/sequences/$id/locations/$locationId"
+                to="/films/$id/locations/$locationId"
                 params={{ id: sequenceId, locationId: shotLocation.id }}
                 className="flex items-center gap-1 text-xs text-primary hover:underline"
               >

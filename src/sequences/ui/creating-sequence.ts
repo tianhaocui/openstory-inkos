@@ -1,10 +1,10 @@
 /**
  * In-flight Generate (#1601).
  *
- * The click leaves the composer immediately for `/sequences/new/scenes`,
+ * The click leaves the composer immediately for `/films/new/scenes`,
  * which paints the script while `createSequenceFn` runs. The id is not
  * minted on the client — when create returns, the creating page
- * `replace`s the URL with `/sequences/$id/scenes`.
+ * `replace`s the URL with `/films/$id/scenes`.
  *
  * Memory for the same tick; sessionStorage so a fast remount still has it.
  * Short expiry: a stale park must not fire a generation the user no longer

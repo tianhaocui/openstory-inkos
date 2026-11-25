@@ -1,13 +1,10 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
 
-/** Locations index is now the nothing-selected Locations facet (#986). */
+/** 兼容层：旧路径保留一版，重定向到规范路径并保留查询参数。 */
 export const Route = createFileRoute('/_app/sequences/$id/locations/')({
-  beforeLoad: ({ params }) => {
+  beforeLoad: ({ params, location }) => {
     throw redirect({
-      to: '/sequences/$id/scenes',
-      params: { id: params.id },
-      search: { facet: 'location' },
+      href: `/films/${params.id}/locations${location.searchStr}`,
     });
   },
-  staticData: { breadcrumb: 'Locations' },
 });

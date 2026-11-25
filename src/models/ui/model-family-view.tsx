@@ -136,7 +136,7 @@ const ModelFamilyContent: FC<{
                   className="border-b last:border-b-0"
                 >
                   <Link
-                    to="/models/$"
+                    to="/library/models/$"
                     params={{ _splat: variant.endpointId }}
                     search={{ activity: variant.activity }}
                     className="flex items-center justify-between gap-3 px-4 py-3 text-sm hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"

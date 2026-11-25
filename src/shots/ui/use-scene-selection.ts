@@ -37,7 +37,7 @@ export function useSceneSelection({
   const setSelection = useCallback(
     (next: SceneSelection, facet?: SceneFacet, replace = false) => {
       void navigate({
-        to: '/sequences/$id/scenes',
+        to: '/films/$id/scenes',
         params: { id: sequenceId },
         search: selectionToSearchParams(
           next,
@@ -53,7 +53,7 @@ export function useSceneSelection({
   const setView = useCallback(
     (next: CanvasView) => {
       void navigate({
-        to: '/sequences/$id/scenes',
+        to: '/films/$id/scenes',
         params: { id: sequenceId },
         search: selectionToSearchParams(selection, search.facet, next),
         replace: true,
@@ -108,7 +108,7 @@ export function useSceneSelection({
   const setFacet = useCallback(
     (facet: SceneFacet) => {
       void navigate({
-        to: '/sequences/$id/scenes',
+        to: '/films/$id/scenes',
         params: { id: sequenceId },
         search: selectionToSearchParams(selection, facet, search.view),
         replace: true,

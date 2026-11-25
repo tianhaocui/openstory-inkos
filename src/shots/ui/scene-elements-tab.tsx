@@ -294,7 +294,7 @@ export const SceneElementsTab: React.FC<SceneElementsTabProps> = ({
         {sceneElements.map((el) => (
           <Link
             key={el.id}
-            to="/sequences/$id/elements/$elementId"
+            to="/films/$id/elements/$elementId"
             params={{ id: sequenceId, elementId: el.id }}
             className="group relative block overflow-hidden rounded-lg bg-card"
           >

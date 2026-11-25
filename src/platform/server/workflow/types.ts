@@ -311,7 +311,7 @@ export interface StoryboardWorkflowInput extends SequenceWorkflowContext {
    * no address on the team — the ready-email step then no-ops.
    */
   ownerEmail?: string | null;
-  /** Absolute `/sequences/:id/scenes` URL, snapshotted with the app origin. */
+  /** Absolute `/films/:id/scenes` URL, snapshotted with the app origin. */
   sequenceUrl: string;
   /**
    * When false, skip the ready email. API-key `/api/v1` callers poll and

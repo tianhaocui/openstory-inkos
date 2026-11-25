@@ -246,7 +246,7 @@ export const ScriptView: FC<{
    * Normally that text is read-only here: it's the composed scene-script
    * document, whose canonical home is `scene_script_versions` and whose editor
    * is the Scenes script view — typing into it would edit nothing. On the
-   * copy-a-sequence path (`/sequences/new?from=`, logged-in) it's just the seed for a new
+   * copy-a-sequence path (`/films/new?from=`, logged-in) it's just the seed for a new
    * analysis, so it must be editable.
    */
   allowScriptEdit?: boolean;
@@ -947,7 +947,7 @@ export const ScriptView: FC<{
       sourceSequenceId: isEditing ? sequence.id : undefined,
     };
     // Leave the composer on this tick (#1601). Create runs on
-    // `/sequences/new/scenes`; that page replace()s in the real id.
+    // `/films/new/scenes`; that page replace()s in the real id.
     if (peekCreatingSequence()) return;
     parkCreatingSequence({
       payload,
@@ -955,7 +955,7 @@ export const ScriptView: FC<{
       stopAt: runUntil,
       generateStartFrames,
     });
-    void navigate({ to: '/sequences/new/scenes' });
+    void navigate({ to: '/films/new/scenes' });
   };
 
   const requestGenerate = () => {

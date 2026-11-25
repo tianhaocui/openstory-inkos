@@ -53,7 +53,7 @@ const SEQUENCE_LEVEL_BY_DESIGN: Record<string, string> = {
   'src/sequences/ui/use-draft-generation-estimate.ts':
     'whole-run credit estimate',
   // Continue-stage prefetch for the whole sequence, not a per-shot render.
-  'src/routes/_app/sequences/$id/scenes.tsx':
+  'src/routes/_app/films/$id/scenes.tsx':
     'sequence-wide continue-stage estimate',
   // Plan snapshot of the sequence row. Per-shot answers are frozen onto each
   // PlanTarget as `usesStartFrame`.
@@ -61,7 +61,7 @@ const SEQUENCE_LEVEL_BY_DESIGN: Record<string, string> = {
   // The composer edits the SEQUENCE default before any shot exists.
   'src/sequences/ui/script/script-view.tsx': 'composer editing the default',
   // Create-in-flight shell: parked composer default, no shot exists yet.
-  'src/routes/_app/sequences/new/scenes.tsx':
+  'src/routes/_app/films/new/scenes.tsx':
     'create-time default — no shot exists yet',
   // Holds the row for the page and hands the default to the per-shot
   // resolvers (`rendersReferenceOnly`, `sequenceReferenceOnly`); the phase

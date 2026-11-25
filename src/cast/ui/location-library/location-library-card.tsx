@@ -25,7 +25,7 @@ export const LocationLibraryCard: React.FC<LocationLibraryCardProps> = ({
           Cmd/Ctrl/middle-click. Interactive overlays live as siblings
           outside the anchor. */}
       <Link
-        to="/locations/$locationId"
+        to="/library/locations/$locationId"
         params={{ locationId: location.id }}
         aria-label={location.name}
         className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"

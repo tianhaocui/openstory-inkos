@@ -390,7 +390,7 @@ const UserRow: React.FC<{ row: UserActivityRow }> = ({ row }) => {
       <td className="px-4 py-3">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           <Link
-            to="/sequences"
+            to="/films"
             search={{ user: row.email }}
             className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
             aria-label={`打开 ${row.email} 的故事序列支持视图`}
@@ -399,7 +399,7 @@ const UserRow: React.FC<{ row: UserActivityRow }> = ({ row }) => {
             故事序列
           </Link>
           <Link
-            to="/images"
+            to="/studio/images"
             search={{ user: row.email }}
             className="text-sm text-primary hover:underline"
             aria-label={`打开 ${row.email} 的图像支持视图`}
@@ -407,7 +407,7 @@ const UserRow: React.FC<{ row: UserActivityRow }> = ({ row }) => {
             图像
           </Link>
           <Link
-            to="/videos"
+            to="/studio/videos"
             search={{ user: row.email }}
             className="text-sm text-primary hover:underline"
             aria-label={`打开 ${row.email} 的视频支持视图`}

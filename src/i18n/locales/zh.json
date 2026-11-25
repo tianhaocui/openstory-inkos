@@ -56,8 +56,10 @@
     "required": "必填"
   },
   "nav": {
-    "newSequence": "新建序列",
-    "sequences": "我的序列",
+    "newSequence": "新建影片",
+    "films": "我的影片",
+    "stories": "我的故事",
+    "sequences": "我的影片",
     "characters": "角色",
     "styles": "风格",
     "settings": "设置",

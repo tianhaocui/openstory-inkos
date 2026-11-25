@@ -29,9 +29,14 @@ UI 层三层：**Story（故事）→ Scene（分镜场景）→ Shot（镜头�
 | Frame / Keyframe / Variant / Take | Shot 的属性               |
 | Video Clip / Theatre              | 成片 Tab                  |
 
-路由：`/sequences→/stories`、`/sequences/new→/stories/new`、`/sequences/$id/scenes→/stories/$id/scenes`、
-`/images→/studio/images`、`/videos→/studio/videos`、`/talent|locations|styles|models→/library/*`。
+路由（**2026-11-25 PM 修正**）：`/stories` 已被本地小说/影视模式完整占用，
+故影片线规范路径改为 `/films`：`/sequences→/films`、`/sequences/new→/films/new`、
+`/sequences/$id/scenes→/films/$id/scenes`；小说模式保持 `/stories/*` 不变。
+另：`/images→/studio/images`、`/videos→/studio/videos`、`/talent|locations|styles|models→/library/*`。
 用 TanStack `beforeLoad` 抛 redirect，保留一个版本。侧栏改「创作 / 资产库 / 产出 / 系统」四组。
+
+> 方案 §1 术语映射表里的「Sequence→Story」指 UI 概念命名，与 URL 路径 `/films` 不冲突：
+> 影片线对外文案用「影片/项目」，小说线用「故事」。ViewModel 仍统一三层 Story/Scene/Shot。
 
 ## 2. 双主题 token
 

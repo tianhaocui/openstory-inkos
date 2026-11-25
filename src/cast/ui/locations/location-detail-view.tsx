@@ -102,7 +102,7 @@ export const LocationDetailView: React.FC<LocationDetailViewProps> = ({
           onSuccess: () => {
             setIsRemoveConfirmOpen(false);
             void navigate({
-              to: '/sequences/$id/locations',
+              to: '/films/$id/locations',
               params: { id: sequenceId },
             });
             toast(`已移除 ${name}`, {
@@ -394,7 +394,7 @@ export const LocationDetailView: React.FC<LocationDetailViewProps> = ({
         <div className="text-center">
           <p className="text-sm font-medium">未找到场景</p>
           <Link
-            to="/sequences/$id/locations"
+            to="/films/$id/locations"
             params={{ id: sequenceId }}
             className="mt-2 text-sm text-primary hover:underline"
           >
@@ -410,7 +410,7 @@ export const LocationDetailView: React.FC<LocationDetailViewProps> = ({
       {/* Header with back button */}
       <div className="flex shrink-0 items-center gap-3 border-b px-4 py-3">
         <Link
-          to="/sequences/$id/locations"
+          to="/films/$id/locations"
           params={{ id: sequenceId }}
           className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-muted"
         >

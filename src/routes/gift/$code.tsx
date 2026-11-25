@@ -138,7 +138,7 @@ function AutoRedeemView({ code }: GiftCodeViewProps) {
         localStorage.removeItem(RETURN_KEY);
         void navigate({ to: returnTo });
       } else {
-        void navigate({ to: '/sequences' });
+        void navigate({ to: '/films' });
       }
     },
   });

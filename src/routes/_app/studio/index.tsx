@@ -10,7 +10,7 @@ export const Route = createFileRoute('/_app/studio/')({
   validateSearch: searchParamsSchema,
   beforeLoad: ({ search }) => {
     throw redirect({
-      to: search.kind === 'video' ? '/videos' : '/images',
+      to: search.kind === 'video' ? '/studio/videos' : '/studio/images',
       search: {
         sort: search.sort,
         favorites: search.favorites,
@@ -22,5 +22,5 @@ export const Route = createFileRoute('/_app/studio/')({
     });
   },
   component: () => null,
-  staticData: { breadcrumb: 'Images' },
+  staticData: { breadcrumb: '工作室' },
 });

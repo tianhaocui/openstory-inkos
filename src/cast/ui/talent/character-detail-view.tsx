@@ -117,7 +117,7 @@ export const CharacterDetailView: React.FC<CharacterDetailViewProps> = ({
           onSuccess: () => {
             setIsRemoveConfirmOpen(false);
             void navigate({
-              to: '/sequences/$id/cast',
+              to: '/films/$id/cast',
               params: { id: sequenceId },
             });
             toast(`已移除 ${name}`, {
@@ -404,7 +404,7 @@ export const CharacterDetailView: React.FC<CharacterDetailViewProps> = ({
         <div className="text-center">
           <p className="text-sm font-medium">未找到角色</p>
           <Link
-            to="/sequences/$id/cast"
+            to="/films/$id/cast"
             params={{ id: sequenceId }}
             className="mt-2 text-sm text-primary hover:underline"
           >
@@ -420,7 +420,7 @@ export const CharacterDetailView: React.FC<CharacterDetailViewProps> = ({
       {/* Header with back button */}
       <div className="flex shrink-0 items-center gap-3 border-b px-4 py-3">
         <Link
-          to="/sequences/$id/cast"
+          to="/films/$id/cast"
           params={{ id: sequenceId }}
           className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-muted"
         >

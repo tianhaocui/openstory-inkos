@@ -1,0 +1,54 @@
+import { PageContainer } from '@/ui/layout/page-container';
+import { ModelCatalogView } from '@/models/ui/model-catalog-view';
+import { PageIntro } from '@/ui/typography/page-intro';
+import { MODELS_ENABLED } from '@/platform/flags';
+import { CATALOG_ACTIVITIES } from '@/models/catalog';
+import { createFileRoute, notFound, useNavigate } from '@tanstack/react-router';
+import { z } from 'zod';
+
+// No `.default()` (mirrors the styles route): a default rewrites bare /models
+// to a redirect, which sours the sitemap. Fallbacks live in the component.
+const searchParamsSchema = z.object({
+  activity: z.enum(CATALOG_ACTIVITIES).optional(),
+  q: z.string().optional(),
+});
+
+export const Route = createFileRoute('/_app/library/models/')({
+  beforeLoad: () => {
+    if (!MODELS_ENABLED) throw notFound();
+  },
+  validateSearch: searchParamsSchema,
+  component: ModelsPage,
+  staticData: { breadcrumb: '模型' },
+});
+
+function ModelsPage() {
+  const { activity, q } = Route.useSearch();
+  const navigate = useNavigate();
+
+  return (
+    <div className="h-full overflow-auto">
+      <PageIntro title="模型" maxWidth="wide">
+        体验最新的生成模型，有时甚至早于官方发布。
+      </PageIntro>
+      <PageContainer maxWidth="wide" padding="none" className="pb-8">
+        <ModelCatalogView
+          activity={activity}
+          q={q}
+          onActivityChange={(next) =>
+            void navigate({
+              to: '/library/models',
+              search: (prev) => ({ ...prev, activity: next }),
+            })
+          }
+          onSearchChange={(next) =>
+            void navigate({
+              to: '/library/models',
+              search: (prev) => ({ ...prev, q: next }),
+            })
+          }
+        />
+      </PageContainer>
+    </div>
+  );
+}

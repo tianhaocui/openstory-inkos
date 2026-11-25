@@ -1,48 +1,10 @@
-import { PageContainer } from '@/ui/layout/page-container';
-import { ModelFamilyView } from '@/models/ui/model-family-view';
-import { MODELS_ENABLED } from '@/platform/flags';
-import { CATALOG_ACTIVITIES } from '@/models/catalog';
-import { createFileRoute, Link, notFound } from '@tanstack/react-router';
-import { ArrowLeft } from 'lucide-react';
-import { z } from 'zod';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 
-// Splat route: family paths contain slashes (`fal-ai/kling-video`), so the
-// whole path is the `_splat`. The activity travels as a search param — the
-// catalog fetch needs both (when absent, the view probes each activity in
-// turn). The static `family` segment keeps this from colliding with the
-// endpoint-id splat at /models/$.
-const searchParamsSchema = z.object({
-  activity: z.enum(CATALOG_ACTIVITIES).optional(),
-});
-
+/** 兼容层：旧路径保留一版，重定向到规范路径并保留查询参数。 */
 export const Route = createFileRoute('/_app/models/family/$')({
-  beforeLoad: () => {
-    if (!MODELS_ENABLED) throw notFound();
+  beforeLoad: ({ params, location }) => {
+    throw redirect({
+      href: `/library/models/family/${params._splat}${location.searchStr}`,
+    });
   },
-  validateSearch: searchParamsSchema,
-  component: ModelFamilyPage,
-  staticData: { breadcrumb: '模型系列' },
 });
-
-function ModelFamilyPage() {
-  const { _splat: family } = Route.useParams();
-  const { activity } = Route.useSearch();
-
-  return (
-    <div className="h-full overflow-auto">
-      <PageContainer maxWidth="wide">
-        <Link
-          to="/models"
-          search={{ activity }}
-          className="flex w-fit items-center gap-2 text-sm text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          <ArrowLeft aria-hidden="true" className="size-4" />
-          返回模型库
-        </Link>
-        {family ? (
-          <ModelFamilyView family={family} activity={activity} />
-        ) : null}
-      </PageContainer>
-    </div>
-  );
-}

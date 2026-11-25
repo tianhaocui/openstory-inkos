@@ -1,13 +1,8 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
 
-/** Music index is now the nothing-selected Music facet (#986). */
+/** 兼容层：旧路径保留一版，重定向到规范路径并保留查询参数。 */
 export const Route = createFileRoute('/_app/sequences/$id/music')({
-  beforeLoad: ({ params }) => {
-    throw redirect({
-      to: '/sequences/$id/scenes',
-      params: { id: params.id },
-      search: { facet: 'music' },
-    });
+  beforeLoad: ({ params, location }) => {
+    throw redirect({ href: `/films/${params.id}/music${location.searchStr}` });
   },
-  staticData: { breadcrumb: 'Music' },
 });

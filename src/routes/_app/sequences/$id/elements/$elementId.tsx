@@ -1,39 +1,12 @@
-import { routeParams } from '@/ui/layout/breadcrumbs';
-import { ElementDetailView } from '@/cast/ui/element/element-detail-view';
-import { useSequenceElements } from '@/cast/ui/use-sequence-elements';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 
-function ElementCrumbLabel({
-  sequenceId,
-  elementId,
-}: {
-  sequenceId: string;
-  elementId: string;
-}) {
-  const { data: elements } = useSequenceElements(sequenceId);
-  const element = elements?.find((el) => el.id === elementId);
-  return <>{element?.token ?? '…'}</>;
-}
-
+/** 兼容层：旧路径保留一版，重定向到规范路径并保留查询参数。 */
 export const Route = createFileRoute('/_app/sequences/$id/elements/$elementId')(
   {
-    component: ElementDetailPage,
-    staticData: {
-      breadcrumb: (match) => {
-        const { id, elementId } = routeParams<{
-          id: string;
-          elementId: string;
-        }>(match);
-        return {
-          label: <ElementCrumbLabel sequenceId={id} elementId={elementId} />,
-        };
-      },
+    beforeLoad: ({ params, location }) => {
+      throw redirect({
+        href: `/films/${params.id}/elements/${params.elementId}${location.searchStr}`,
+      });
     },
   }
 );
-
-function ElementDetailPage() {
-  const { id: sequenceId, elementId } = Route.useParams();
-
-  return <ElementDetailView sequenceId={sequenceId} elementId={elementId} />;
-}

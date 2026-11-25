@@ -78,7 +78,7 @@ type StudioViewProps = {
 export function StudioView({ activity, search, navigate }: StudioViewProps) {
   const { isAuthenticated } = useAuthGate();
   const { prefs, setPrefs } = useStudioListPrefs(search, navigate);
-  const to = activity === 'video' ? '/videos' : '/images';
+  const to = activity === 'video' ? '/studio/videos' : '/studio/images';
 
   const { data: adminStatus, isLoading: adminStatusLoading } = useQuery({
     queryKey: ['system-admin-status'],
@@ -208,7 +208,7 @@ function StudioToolbar({
   hideInternalAvailable,
   hideInternalLocked,
 }: {
-  to: '/images' | '/videos';
+  to: '/studio/images' | '/studio/videos';
   prefs: StudioListPrefs;
   setPrefs: (prefs: StudioListPrefs) => void;
   currentUser?: string;

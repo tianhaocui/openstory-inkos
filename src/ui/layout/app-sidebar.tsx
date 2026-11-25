@@ -6,6 +6,7 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -16,14 +17,17 @@ import { MODELS_ENABLED } from '@/platform/flags';
 import { Link, useRouterState } from '@tanstack/react-router';
 import { useCallback, useEffect, useRef } from 'react';
 import {
+  type LucideIcon,
   BookOpenIcon,
   Boxes,
   Clapperboard,
+  CoinsIcon,
   Film,
   Images,
   MapPin,
   Palette,
   Plus,
+  SettingsIcon,
   Users,
   Video,
 } from 'lucide-react';
@@ -143,19 +147,65 @@ function useLowBalanceWarning() {
   }, [balance, fireToast, isLowBalance, isZeroBalance, lowBalanceThreshold]);
 }
 
-const navLinks = [
-  { to: '/sequences', label: '我的序列', icon: Video },
-  { to: '/stories', label: '故事创作', icon: BookOpenIcon },
-  { to: '/images', label: '图片', icon: Images },
-  { to: '/videos', label: '视频', icon: Film },
+/** 创作：影片线与本地故事线并存，各自保留独立入口。 */
+const creationLinks = [
+  { to: '/films', label: '我的影片', icon: Video },
+  { to: '/stories', label: '我的故事', icon: BookOpenIcon },
+] as const;
+
+/** 资产库：角色 / 场景 / 风格 / 模型是全局共享资产。 */
+const libraryLinks = [
+  { to: '/library/talent', label: '角色', icon: Users },
+  { to: '/library/locations', label: '场景', icon: MapPin },
+  { to: '/library/styles', label: '风格', icon: Palette },
   ...(MODELS_ENABLED
-    ? [{ to: '/models', label: '模型', icon: Boxes } as const]
+    ? [{ to: '/library/models', label: '模型', icon: Boxes } as const]
     : []),
-  { to: '/styles', label: '风格', icon: Palette },
-  { to: '/talent', label: '角色', icon: Users },
-  { to: '/locations', label: '场景', icon: MapPin },
+] as const;
+
+/** 产出：图片 / 视频生成结果，以及公开作品集。 */
+const outputLinks = [
+  { to: '/studio/images', label: '图片', icon: Images },
+  { to: '/studio/videos', label: '视频', icon: Film },
   { to: '/gallery', label: '作品集', icon: Clapperboard },
 ] as const;
+
+const systemLinks = [
+  { to: '/settings', label: '设置', icon: SettingsIcon },
+  { to: '/credits', label: '点数', icon: CoinsIcon },
+] as const;
+
+function NavGroup({
+  label,
+  links,
+}: {
+  label: string;
+  links: ReadonlyArray<{ to: string; label: string; icon: LucideIcon }>;
+}) {
+  return (
+    <SidebarGroup>
+      <SidebarGroupLabel>{label}</SidebarGroupLabel>
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {links.map(({ to, label: itemLabel, icon: Icon }) => (
+            <SidebarMenuItem key={itemLabel}>
+              <SidebarMenuButton asChild tooltip={itemLabel}>
+                <Link
+                  to={to}
+                  activeProps={{ 'data-active': 'true' }}
+                  activeOptions={{ exact: false }}
+                >
+                  <Icon />
+                  <span>{itemLabel}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  );
+}
 
 export function AppSidebar() {
   useLowBalanceWarning();
@@ -181,12 +231,13 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
+          <SidebarGroupLabel>创作</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="新建序列">
+                <SidebarMenuButton asChild tooltip="新建影片">
                   {/* `/` is the free composer for everyone (#1104); the
-                      signed-in alias `/sequences/new` is for copy/breadcrumb
+                      signed-in alias `/films/new` is for copy/breadcrumb
                       entry points that require a session. */}
                   <Link
                     to="/"
@@ -197,11 +248,11 @@ export function AppSidebar() {
                     }
                   >
                     <Plus />
-                    <span>新建序列</span>
+                    <span>新建影片</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              {navLinks.map(({ to, label, icon: Icon }) => (
+              {creationLinks.map(({ to, label, icon: Icon }) => (
                 <SidebarMenuItem key={label}>
                   <SidebarMenuButton asChild tooltip={label}>
                     <Link
@@ -218,6 +269,9 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        <NavGroup label="资产库" links={libraryLinks} />
+        <NavGroup label="产出" links={outputLinks} />
+        <NavGroup label="系统" links={systemLinks} />
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>

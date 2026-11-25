@@ -9,7 +9,7 @@ export const Route = createFileRoute('/_app/admin')({
     await requireSessionOrRedirect(queryClient, location.href);
     const { isAdmin } = await isSystemAdminFn();
     if (!isAdmin) {
-      throw redirect({ to: '/sequences' });
+      throw redirect({ to: '/films' });
     }
   },
   component: AdminLayout,

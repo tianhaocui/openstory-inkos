@@ -56,14 +56,14 @@ type NewSequencePageProps = {
   from?: string;
   /**
    * Path used when the composer echoes its style pick into `?style=`.
-   * Home lives at `/`; the logged-in alias is `/sequences/new`.
+   * Home lives at `/`; the logged-in alias is `/films/new`.
    */
-  composerPath: '/' | '/sequences/new';
+  composerPath: '/' | '/films/new';
 };
 
 /**
  * Shared composer used by the root home (`/`) and the logged-in alias
- * (`/sequences/new`). Anonymous visitors get the marketing lead-in;
+ * (`/films/new`). Anonymous visitors get the marketing lead-in;
  * signed-in users get a full-height composer.
  */
 export function NewSequencePage({
@@ -218,7 +218,7 @@ export function NewSequencePage({
         // No explicit view: ScenesView forces the script view while the split
         // streams, then auto-reveals the canvas at the first preview (#1091).
         void navigate({
-          to: '/sequences/$id/scenes',
+          to: '/films/$id/scenes',
           params: { id: firstId },
         });
       }
@@ -230,7 +230,7 @@ export function NewSequencePage({
   // blank composer — you came from somewhere specific.
   const handleCancelCopy = useCallback(() => {
     if (!from) return;
-    void navigate({ to: '/sequences/$id/scenes', params: { id: from } });
+    void navigate({ to: '/films/$id/scenes', params: { id: from } });
   }, [from, navigate]);
 
   const billingGate = (

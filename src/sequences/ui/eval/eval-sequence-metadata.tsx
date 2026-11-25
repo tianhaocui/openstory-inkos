@@ -19,6 +19,7 @@ import {
 import { getAspectRatioData } from '@/models/aspect-ratios';
 import { errorMessage } from '@/platform/errors';
 import { formatDistanceToNow } from '@/ui/format-date';
+import { filmToStoryView } from '@/ui/view-models/story-view';
 import { Link } from '@tanstack/react-router';
 import {
   AlertTriangle,
@@ -60,12 +61,12 @@ export const EvalSequenceMetadata: React.FC<EvalSequenceMetadataProps> = ({
       )}
       <div className="flex shrink-0 items-start gap-1">
         <Link
-          to="/sequences/$id/scenes"
+          to="/films/$id/scenes"
           params={{ id: sequence.id }}
           className="min-w-0 flex-1 font-medium text-sm text-foreground line-clamp-2 hover:underline"
-          title={sequence.title || '未命名序列'}
+          title={filmToStoryView(sequence).title}
         >
-          {sequence.title || '未命名序列'}
+          {filmToStoryView(sequence).title}
         </Link>
         <SequenceRowMenu sequence={sequence} />
       </div>

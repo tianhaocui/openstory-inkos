@@ -8,7 +8,7 @@
  * came from — each block edits exactly the `scene_script_versions` row it
  * displays.
  *
- * It replaces the old `/sequences/$id/script` page, which showed the composed
+ * It replaces the old `/films/$id/script` page, which showed the composed
  * document through the *creation* composer: read-only after analysis, with a
  * full re-analysis fork as the only way to change anything.
  *

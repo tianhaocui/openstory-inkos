@@ -18,6 +18,7 @@ import { Link } from '@tanstack/react-router';
 import { ChevronRight, Mail, User } from 'lucide-react';
 import { SequenceListStatus } from './eval-sequence-metadata';
 import { getCreatorIdentity } from './creator-identity';
+import { filmToStoryView } from '@/ui/view-models/story-view';
 
 // Strip cell height in px. Widths follow each sequence's aspect ratio so the
 // strip stays visually coherent inside one row.
@@ -178,12 +179,12 @@ const MobileReelRow: React.FC<MobileReelRowProps> = ({
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <Link
-            to="/sequences/$id/scenes"
+            to="/films/$id/scenes"
             params={{ id: sequence.id }}
             className="font-medium text-sm text-foreground line-clamp-1 hover:underline"
-            title={sequence.title || '未命名序列'}
+            title={filmToStoryView(sequence).title}
           >
-            {sequence.title || '未命名序列'}
+            {filmToStoryView(sequence).title}
           </Link>
           <CreatorIdentity sequence={sequence} />
           <SequenceListStatus sequence={sequence} />
@@ -203,7 +204,7 @@ const MobileReelRow: React.FC<MobileReelRowProps> = ({
             className="h-8 w-8"
             aria-label="打开序列"
           >
-            <Link to="/sequences/$id/scenes" params={{ id: sequence.id }}>
+            <Link to="/films/$id/scenes" params={{ id: sequence.id }}>
               <ChevronRight className="h-4 w-4" />
             </Link>
           </Button>
@@ -341,9 +342,9 @@ const SequencePosterCell: React.FC<SequencePosterCellProps> = ({
   );
 
   const linkProps = {
-    to: '/sequences/$id/scenes',
+    to: '/films/$id/scenes',
     params: { id: sequence.id },
-    'aria-label': `Open ${sequence.title || 'sequence'}`,
+    'aria-label': `打开影片：${filmToStoryView(sequence).title}`,
   } as const;
 
   const previewUrl = sequence.shots[0]?.image?.url ?? sequence.posterUrl;

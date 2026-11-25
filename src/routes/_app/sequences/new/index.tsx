@@ -1,34 +1,8 @@
-import { NewSequencePage } from '@/sequences/ui/script/new-sequence-page';
-import { requireSessionOrRedirect } from '@/platform/ui/auth/route-guards';
-import { createFileRoute } from '@tanstack/react-router';
-import { z } from 'zod';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 
-// Logged-in alias of the home composer. Style/prefill match `/`; `from` is
-// copy-a-sequence only (#1037) and must not appear on public `/`. Optional, no
-// default — a bare /sequences/new must stay a bare URL.
-const searchSchema = z.object({
-  style: z.string().optional(),
-  prefill: z.enum(['style']).optional(),
-  from: z.string().optional(),
-});
-
+/** 兼容层：旧路径保留一版，重定向到规范路径并保留查询参数。 */
 export const Route = createFileRoute('/_app/sequences/new/')({
-  validateSearch: searchSchema,
-  beforeLoad: async ({ context: { queryClient }, location }) => {
-    // Home is at `/` for everyone; this path is the signed-in alias
-    // (Generate Copy, breadcrumbs). Shell "New sequence" links to `/`. #1104
-    await requireSessionOrRedirect(queryClient, location.href);
-  },
-  component: NewSequenceRoutePage,
-  staticData: {
-    breadcrumb: [
-      { label: 'Sequences', to: '/sequences' },
-      { label: 'New sequence' },
-    ],
+  beforeLoad: ({ location }) => {
+    throw redirect({ href: `/films/new${location.searchStr}` });
   },
 });
-
-function NewSequenceRoutePage() {
-  const search = Route.useSearch();
-  return <NewSequencePage {...search} composerPath="/sequences/new" />;
-}

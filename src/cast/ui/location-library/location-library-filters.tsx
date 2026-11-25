@@ -18,7 +18,7 @@ export const LocationLibraryFilters: React.FC<LocationLibraryFiltersProps> = ({
     const timer = setTimeout(() => {
       if (searchValue !== (currentSearch ?? '')) {
         void navigate({
-          to: '/locations',
+          to: '/library/locations',
           search: {
             search: searchValue || undefined,
           },

@@ -122,7 +122,7 @@ const SceneListItemComponent: React.FC<SceneListItemProps> = ({
         // does. z-10 puts it above the thumbnail wrapper; the corner dot comes
         // later in the DOM so it still wins.
         <Link
-          from="/sequences/$id/scenes"
+          from="/films/$id/scenes"
           search={(prev) => ({ ...prev, scenes: undefined, shot: shot.id })}
           aria-label={linkLabel}
           className="absolute inset-0 z-10 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"

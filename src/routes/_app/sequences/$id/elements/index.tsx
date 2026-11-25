@@ -1,13 +1,10 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
 
-/** Elements index is now the nothing-selected Elements facet (#986). */
+/** 兼容层：旧路径保留一版，重定向到规范路径并保留查询参数。 */
 export const Route = createFileRoute('/_app/sequences/$id/elements/')({
-  beforeLoad: ({ params }) => {
+  beforeLoad: ({ params, location }) => {
     throw redirect({
-      to: '/sequences/$id/scenes',
-      params: { id: params.id },
-      search: { facet: 'elements' },
+      href: `/films/${params.id}/elements${location.searchStr}`,
     });
   },
-  staticData: { breadcrumb: 'Elements' },
 });

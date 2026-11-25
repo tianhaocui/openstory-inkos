@@ -35,7 +35,7 @@ export function categoryLabel(category: string): string {
 
 /**
  * One model tile in the catalog grid, linking to the model's detail page
- * (`/models/fal-ai/flux-1/dev` — the endpoint id is the splat, the activity
+ * (`/library/models/fal-ai/flux-1/dev` — the endpoint id is the splat, the activity
  * travels as a search param because the schema API needs both). modelschemas
  * carries no thumbnails for fal, so the visual is an activity glyph.
  */
@@ -44,7 +44,7 @@ export const ModelCard: FC<{ model: CatalogModel }> = ({ model }) => {
 
   return (
     <Link
-      to="/models/$"
+      to="/library/models/$"
       params={{ _splat: model.endpointId }}
       search={{ activity: model.activity }}
       aria-label={`${model.displayName} 模型详情`}

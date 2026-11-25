@@ -165,7 +165,7 @@ export const SceneModelBar: React.FC<SceneModelBarProps> = ({
           {sequenceId && (
             <Button variant="outline" size="sm" className="w-full" asChild>
               <Link
-                to="/sequences/new"
+                to="/films/new"
                 search={{ from: sequenceId }}
                 onClick={() =>
                   posthog.capture('make_another_clicked', {

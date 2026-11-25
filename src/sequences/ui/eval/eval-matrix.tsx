@@ -81,7 +81,7 @@ export const EvalMatrix: React.FC<EvalMatrixProps> = ({
     const sequence = sequences[sequenceIndex];
     if (!sequence) return;
     void navigate({
-      to: '/sequences/$id/theatre',
+      to: '/films/$id/theatre',
       params: { id: sequence.id },
     });
   };

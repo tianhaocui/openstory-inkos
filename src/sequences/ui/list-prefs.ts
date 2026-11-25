@@ -2,7 +2,7 @@
  * Sequences list toolbar prefs (#1314).
  *
  * Live state lives in the /sequences search params (shareable, back/forward).
- * localStorage is the memory for a bare `/sequences` visit (sidebar, breadcrumb).
+ * localStorage is the memory for a bare `/films` visit (sidebar, breadcrumb).
  *
  * No `.default()` on the search schema: a default rewrites bare /sequences with
  * a 307, which sours the sitemap entry (#814).

@@ -41,7 +41,7 @@ export const TalentLibraryCard: React.FC<TalentLibraryCardProps> = ({
           Cmd/Ctrl/middle-click. Interactive overlays (favorite, staleness)
           live as siblings outside the anchor. */}
       <Link
-        to="/talent/$id"
+        to="/library/talent/$id"
         params={{ id: talent.id }}
         aria-label={talent.name}
         className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"

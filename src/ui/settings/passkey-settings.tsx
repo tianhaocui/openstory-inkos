@@ -85,12 +85,12 @@ export function PasskeySettings({ isSetupFlow }: PasskeySettingsProps) {
   });
 
   const handleContinue = () => {
-    void navigate({ to: '/sequences' });
+    void navigate({ to: '/films' });
   };
 
   const handleSkip = () => {
     localStorage.setItem('openstory-passkey-skip', 'true');
-    void navigate({ to: '/sequences' });
+    void navigate({ to: '/films' });
   };
 
   const content = (
