@@ -23,14 +23,14 @@ type DivergentAlternateBannerProps = {
 };
 
 const ARTIFACT_LABEL: Record<StalenessArtifact, string> = {
-  thumbnail: 'image',
-  video: 'video',
-  audio: 'audio',
-  sheet: 'sheet',
-  'visual-prompt': 'visual prompt',
-  'motion-prompt': 'motion prompt',
-  'music-prompt': 'music prompt',
-  music: 'music',
+  thumbnail: '图片',
+  video: '视频',
+  audio: '音频',
+  sheet: '设定图',
+  'visual-prompt': '图片提示词',
+  'motion-prompt': '动态提示词',
+  'music-prompt': '音乐提示词',
+  music: '音乐',
 };
 
 export const DivergentAlternateBanner: React.FC<
@@ -45,7 +45,7 @@ export const DivergentAlternateBanner: React.FC<
   density = 'inline',
   className,
 }) => {
-  const ariaLabel = `Divergent alternate ${ARTIFACT_LABEL[artifact]} available for this ${entityType}`;
+  const ariaLabel = `此项目有可用的备用版本${ARTIFACT_LABEL[artifact]}`;
 
   if (density === 'corner-dot') {
     return (
@@ -53,7 +53,7 @@ export const DivergentAlternateBanner: React.FC<
         type="button"
         onClick={onCompare}
         aria-label={ariaLabel}
-        title="Alternate version available — click to compare"
+        title="有可用的备用版本，点击比较"
         data-slot="divergent-alternate-dot"
         data-variant-id={variantId}
         data-artifact={artifact}
@@ -83,25 +83,24 @@ export const DivergentAlternateBanner: React.FC<
       className={className}
     >
       <Info aria-hidden="true" />
-      <AlertTitle>Alternate version available</AlertTitle>
+      <AlertTitle>有可用的备用版本</AlertTitle>
       <AlertDescription>
-        An alternate {ARTIFACT_LABEL[artifact]} was generated with the inputs
-        you had at the time.
+        此备用版本{ARTIFACT_LABEL[artifact]}基于当时的输入生成。
       </AlertDescription>
       <div className="col-start-2 mt-2 flex flex-wrap items-center gap-2">
         {onCompare && (
           <Button type="button" size="sm" variant="outline" onClick={onCompare}>
-            Compare
+            比较
           </Button>
         )}
         {onPromote && (
           <Button type="button" size="sm" onClick={onPromote}>
-            Promote
+            采用
           </Button>
         )}
         {onDiscard && (
           <Button type="button" size="sm" variant="ghost" onClick={onDiscard}>
-            Discard
+            丢弃
           </Button>
         )}
       </div>

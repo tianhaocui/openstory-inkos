@@ -67,7 +67,7 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { useUploadTalentUserMedia } from '@/cast/ui/use-talent';
 import { PortraitAttestationFields } from '@/cast/ui/talent-library/portrait-attestation-fields';
-import { PORTRAIT_RIGHTS_V1 } from '@/platform/compliance/attestations';
+import { PORTRAIT_RIGHTS_V2 } from '@/platform/compliance/attestations';
 import {
   needsLikenessCheck,
   type PortraitAttestation,
@@ -144,9 +144,9 @@ import { toast } from 'sonner';
 const COUNTS = [1, 2, 4] as const;
 
 const MODE_LABELS: Record<StudioVideoMode, string> = {
-  text: 'Text to video',
-  reference: 'Reference to video',
-  frames: 'Image to video',
+  text: '文生视频',
+  reference: '参考图生视频',
+  frames: '图生视频',
 };
 
 type PickerTarget = 'reference' | 'start' | 'end';
@@ -503,13 +503,13 @@ export function StudioComposer({
   const referenceAttestations: PortraitAttestation[] = portraitUrls.map(
     (url) => ({
       url,
-      statementVersion: PORTRAIT_RIGHTS_V1.version,
+      statementVersion: PORTRAIT_RIGHTS_V2.version,
       authorizationBasis: authorizationBasis.trim(),
     })
   );
   const badgeFor = (url: string): string => {
     if (effectiveMode === 'frames') {
-      return url === startFrame?.url ? 'Start frame' : 'End frame';
+      return url === startFrame?.url ? '起始帧' : '结束帧';
     }
     const index = references.findIndex((r) => r.url === url);
     return index >= 0 ? `@Image${index + 1}` : url;
@@ -587,12 +587,14 @@ export function StudioComposer({
     const { kind } = reference;
     const index = counts[kind];
     if (index >= limits[kind]) {
-      toast.error(`Up to ${limits[kind]} reference ${kind}s`);
+      toast.error(
+        `最多可添加 ${limits[kind]} 个${kind === 'image' ? '参考图片' : kind === 'video' ? '参考视频' : '参考音频'}`
+      );
       return -1;
     }
     const used = counts.image + counts.video + counts.audio;
     if (combinedRefCap != null && used >= combinedRefCap) {
-      toast.error(`Up to ${combinedRefCap} reference files total`);
+      toast.error(`参考文件总数最多为 ${combinedRefCap} 个`);
       return -1;
     }
     setListFor[kind]((prev) => [...prev, reference]);
@@ -642,8 +644,8 @@ export function StudioComposer({
       if (taken[kind] >= room) {
         toast.error(
           target === 'reference'
-            ? `Up to ${limits[kind]} reference ${kind}s`
-            : 'One image per frame'
+            ? `最多可添加 ${limits[kind]} 个${kind === 'image' ? '参考图片' : kind === 'video' ? '参考视频' : '参考音频'}`
+            : '每个帧位只能添加一张图片'
         );
         continue;
       }
@@ -657,7 +659,7 @@ export function StudioComposer({
         placeReference({ url, label: file.name, kind }, target);
         void queryClient.invalidateQueries({ queryKey: studioUploadKeys.all });
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : 'Upload failed');
+        toast.error(error instanceof Error ? error.message : '上传失败');
       } finally {
         setUploading((n) => n - 1);
       }
@@ -849,19 +851,20 @@ export function StudioComposer({
     if (!imported) return;
     event.preventDefault();
     event.stopPropagation();
-    const label = (kind: string, i: number) => `Pasted ${kind} ${i + 1}`;
+    const label = (kind: string, i: number) =>
+      `已粘贴${kind === 'image' ? '图片' : kind === 'clip' ? '视频片段' : '音频'} ${i + 1}`;
     if (imported.startImageUrl) {
       setMode('frames');
       setStartFrame({
         url: imported.startImageUrl,
-        label: 'Pasted start frame',
+        label: '已粘贴起始帧',
         kind: 'image',
       });
       setEndFrame(
         imported.endImageUrl && endFrameCapable
           ? {
               url: imported.endImageUrl,
-              label: 'Pasted end frame',
+              label: '已粘贴结束帧',
               kind: 'image',
             }
           : null
@@ -900,9 +903,9 @@ export function StudioComposer({
     const dropped = requested - total;
     toast.success(
       total > 0
-        ? `Imported the prompt and ${total} reference${total === 1 ? '' : 's'}` +
-            (dropped > 0 ? ` (${dropped} over the model's limit dropped)` : '')
-        : 'Imported the prompt'
+        ? `已导入提示词和 ${total} 个参考素材` +
+            (dropped > 0 ? `（${dropped} 个超出模型限制，已忽略）` : '')
+        : '已导入提示词'
     );
   };
 
@@ -938,22 +941,22 @@ export function StudioComposer({
   const submitLabel =
     activity === 'video'
       ? count > 1
-        ? `Generate ${count} videos`
-        : 'Generate video'
+        ? `生成 ${count} 个视频`
+        : '生成视频'
       : count > 1
-        ? `Generate ${count} images`
-        : 'Generate image';
+        ? `生成 ${count} 张图片`
+        : '生成图片';
 
   const placeholder =
     effectiveMode === 'reference'
-      ? 'Describe the shot. Type @ to reference an attached image…'
+      ? '描述镜头。输入 @ 引用已附加的图片…'
       : effectiveMode === 'frames'
-        ? 'Describe how the start frame moves…'
+        ? '描述起始帧如何运动…'
         : activity === 'video'
-          ? 'A red fox turns toward camera in morning fog…'
+          ? '一只红狐在晨雾中转向镜头…'
           : imageRefLimit > 0
-            ? 'Describe the still. Type @ to reference an attached image…'
-            : 'A red fox in fog at dawn, cinematic lighting…';
+            ? '描述画面。输入 @ 引用已附加的图片…'
+            : '黎明薄雾中的红狐，电影感光影…';
 
   const aspect = ASPECT_RATIOS.find((r) => r.value === aspectRatio);
   const summary = [
@@ -962,7 +965,7 @@ export function StudioComposer({
       ? RESOLUTION_OPTIONS.find((r) => r.value === resolution)?.label
       : null,
     isVideo && durationCapable ? `${snappedDuration}s` : null,
-    isVideo && audioCapable ? (generateAudio ? 'Audio' : 'Silent') : null,
+    isVideo && audioCapable ? (generateAudio ? '音频' : '静音') : null,
     `×${count}`,
   ].filter(Boolean);
 
@@ -1007,9 +1010,7 @@ export function StudioComposer({
         {showTiles && (
           <div
             className="flex shrink-0 gap-2 overflow-x-auto md:max-w-[19rem] md:flex-wrap"
-            aria-label={
-              mode === 'frames' ? 'Start and end frames' : 'Reference images'
-            }
+            aria-label={mode === 'frames' ? '起始帧和结束帧' : '参考图片'}
           >
             {(isVideo ? mode === 'reference' : true) && (
               <>
@@ -1040,7 +1041,7 @@ export function StudioComposer({
                 ))}
                 {slots.image + slots.video + slots.audio > uploading && (
                   <AddTile
-                    label="Reference"
+                    label="参考素材"
                     onClick={() => setPicker('reference')}
                   />
                 )}
@@ -1053,14 +1054,11 @@ export function StudioComposer({
                     reference={startFrame}
                     badge="Start"
                     checking={checking.has(startFrame.url)}
-                    removeLabel="Remove start frame"
+                    removeLabel="移除起始帧"
                     onRemove={() => setStartFrame(null)}
                   />
                 ) : (
-                  <AddTile
-                    label="Start frame"
-                    onClick={() => setPicker('start')}
-                  />
+                  <AddTile label="起始帧" onClick={() => setPicker('start')} />
                 )}
                 {endFrameCapable &&
                   (endFrame ? (
@@ -1068,13 +1066,13 @@ export function StudioComposer({
                       reference={endFrame}
                       badge="End"
                       checking={checking.has(endFrame.url)}
-                      removeLabel="Remove end frame"
+                      removeLabel="移除结束帧"
                       onRemove={() => setEndFrame(null)}
                     />
                   ) : (
                     <AddTile
-                      label="End frame"
-                      hint="optional"
+                      label="结束帧"
+                      hint="可选"
                       onClick={() => setPicker('end')}
                     />
                   ))}
@@ -1091,7 +1089,7 @@ export function StudioComposer({
           onValueChange={setPrompt}
           ref={promptEditorRef}
           placeholder={placeholder}
-          aria-label="Prompt"
+          aria-label="提示词"
           data-testid="studio-prompt"
           className={cn(
             'min-h-24 flex-1 border-0 bg-transparent px-1 py-1 shadow-none focus-within:ring-0 dark:bg-transparent',
@@ -1137,7 +1135,7 @@ export function StudioComposer({
                         openAddCreditsDialog('studio-rights-check')
                       }
                     >
-                      Add credits
+                      充值积分
                     </Button>
                   ) : (
                     <Button
@@ -1147,7 +1145,7 @@ export function StudioComposer({
                       className="h-auto p-0 text-xs"
                       onClick={() => void c.query.refetch()}
                     >
-                      Retry
+                      重试
                     </Button>
                   )}
                 </p>
@@ -1163,7 +1161,7 @@ export function StudioComposer({
                 onAuthorizationBasisChange={setAuthorizationBasis}
               >
                 <p className="text-xs font-medium">
-                  Real person in {badges(portraitUrls)}
+                  {badges(portraitUrls)} 中包含真人
                 </p>
               </PortraitAttestationFields>
             )}
@@ -1175,7 +1173,7 @@ export function StudioComposer({
                   disabled={!rightsTicked || attest.isPending}
                   onClick={confirmRights}
                 >
-                  {attest.isPending ? 'Saving…' : 'Confirm rights'}
+                  {attest.isPending ? '保存中…' : '确认使用权'}
                 </Button>
               </div>
             )}
@@ -1196,7 +1194,7 @@ export function StudioComposer({
               }
             }}
           >
-            <SelectTrigger aria-label="Video mode" className="w-auto gap-1.5">
+            <SelectTrigger aria-label="视频模式" className="w-auto gap-1.5">
               <SelectValue>{MODE_LABELS[mode]}</SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -1211,7 +1209,7 @@ export function StudioComposer({
                     !studioSupportsMode(compatibleVideoModel, value) && (
                       <span className="text-muted-foreground">
                         {' '}
-                        · not on this model
+                        · 此模型不支持
                       </span>
                     )}
                 </SelectItem>
@@ -1225,7 +1223,7 @@ export function StudioComposer({
             <Button
               type="button"
               variant="outline"
-              aria-label="Generation settings"
+              aria-label="生成设置"
               className="gap-2"
             >
               {aspect && (
@@ -1249,7 +1247,7 @@ export function StudioComposer({
           >
             <div className="flex flex-col gap-4">
               <section className="flex flex-col gap-2">
-                <h3 className="text-sm font-medium">Model</h3>
+                <h3 className="text-sm font-medium">模型</h3>
                 {activity === 'image' ? (
                   <ImageModelSelector
                     selectedModel={imageModel}
@@ -1267,8 +1265,8 @@ export function StudioComposer({
                 )}
                 {isVideo && referenceLimit === 0 && (
                   <p className="text-xs text-muted-foreground">
-                    {IMAGE_TO_VIDEO_MODELS[compatibleVideoModel].name} takes
-                    frames, not reference images.
+                    {IMAGE_TO_VIDEO_MODELS[compatibleVideoModel].name}
+                    仅支持首尾帧，不支持参考图片。
                   </p>
                 )}
                 {isVideo &&
@@ -1279,14 +1277,13 @@ export function StudioComposer({
                   )}
                 {!isVideo && imageRefLimit === 0 && (
                   <p className="text-xs text-muted-foreground">
-                    This model has no edit endpoint, so it cannot take reference
-                    images.
+                    此模型不支持编辑，因此无法使用参考图片。
                   </p>
                 )}
               </section>
               <Separator />
               <section className="flex flex-col gap-2">
-                <h3 className="text-sm font-medium">Aspect ratio</h3>
+                <h3 className="text-sm font-medium">宽高比</h3>
                 <AspectRatioPills
                   value={aspectRatio}
                   onChange={setAspectRatio}
@@ -1294,7 +1291,7 @@ export function StudioComposer({
               </section>
               <Separator />
               <section className="flex flex-col gap-2">
-                <h3 className="text-sm font-medium">Resolution</h3>
+                <h3 className="text-sm font-medium">分辨率</h3>
                 <ResolutionPills
                   value={resolution}
                   onChange={setResolution}
@@ -1306,7 +1303,7 @@ export function StudioComposer({
                 <>
                   <Separator />
                   <section className="flex flex-col gap-2">
-                    <h3 className="text-sm font-medium">Duration</h3>
+                    <h3 className="text-sm font-medium">时长</h3>
                     <Select
                       value={String(snappedDuration)}
                       onValueChange={(value) => {
@@ -1316,7 +1313,7 @@ export function StudioComposer({
                       }}
                     >
                       <SelectTrigger
-                        aria-label="Clip duration"
+                        aria-label="片段时长"
                         className="w-28 font-mono text-xs"
                       >
                         <SelectValue />
@@ -1346,7 +1343,7 @@ export function StudioComposer({
                       htmlFor="studio-generate-audio"
                       className="text-sm font-medium"
                     >
-                      Native audio
+                      原生音频
                     </label>
                     <Switch
                       id="studio-generate-audio"
@@ -1358,7 +1355,7 @@ export function StudioComposer({
               )}
               <Separator />
               <section className="flex flex-col gap-2">
-                <h3 className="text-sm font-medium">Count</h3>
+                <h3 className="text-sm font-medium">数量</h3>
                 <ToggleGroup
                   type="single"
                   value={String(count)}
@@ -1368,7 +1365,7 @@ export function StudioComposer({
                   }}
                   variant="outline"
                   spacing={0}
-                  aria-label="How many to generate"
+                  aria-label="生成数量"
                 >
                   {COUNTS.map((value) => (
                     <ToggleGroupItem
@@ -1393,7 +1390,7 @@ export function StudioComposer({
           onClick={requestShuffle}
         >
           <Shuffle className="size-3.5" aria-hidden="true" />
-          Shuffle
+          随机
         </Button>
         {canDraft && (
           <Button
@@ -1405,7 +1402,7 @@ export function StudioComposer({
             disabled={draft.isPending}
           >
             <Sparkles className="size-3.5" aria-hidden="true" />
-            {draft.isPending ? 'Drafting…' : 'Draft prompt'}
+            {draft.isPending ? '起草中…' : '起草提示词'}
           </Button>
         )}
 
@@ -1419,11 +1416,11 @@ export function StudioComposer({
               onClick={clearAll}
             >
               <RotateCcw className="size-3.5" aria-hidden="true" />
-              Clear all
+              全部清除
             </Button>
           )}
           <ActionCost estimate={estimate} align="end" />
-          <VoiceInputButton label="prompt" {...promptVoice} />
+          <VoiceInputButton label="提示词" {...promptVoice} />
           <Button
             type="submit"
             size="icon-lg"
@@ -1438,8 +1435,12 @@ export function StudioComposer({
 
       {dragging && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-xl bg-background/80 text-sm font-medium">
-          Drop to add{' '}
-          {dropTarget() === 'reference' ? 'reference' : `${dropTarget()} frame`}
+          拖放以添加
+          {dropTarget() === 'reference'
+            ? '参考素材'
+            : dropTarget() === 'start'
+              ? '起始帧'
+              : '结束帧'}
         </div>
       )}
 
@@ -1450,10 +1451,10 @@ export function StudioComposer({
         }}
         title={
           picker === 'start'
-            ? 'Start frame'
+            ? '起始帧'
             : picker === 'end'
-              ? 'End frame'
-              : 'Add reference'
+              ? '结束帧'
+              : '添加参考素材'
         }
         library={library}
         attached={
@@ -1484,10 +1485,10 @@ export function StudioComposer({
       <AlertDialog open={emptyPrompt} onOpenChange={setEmptyPrompt}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>What should we make?</AlertDialogTitle>
+            <AlertDialogTitle>想创作什么？</AlertDialogTitle>
             <AlertDialogDescription>
-              The prompt is empty. Describe the {isVideo ? 'shot' : 'still'} you
-              want, or we'll write one for you to look over.
+              提示词为空。请描述你想要的{isVideo ? '镜头' : '画面'}
+              ，或让我们先生成一版供你确认。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -1500,7 +1501,7 @@ export function StudioComposer({
                 })
               }
             >
-              I'll write it
+              我自己写
             </AlertDialogCancel>
             <AlertDialogAction
               // Keep the dialog up while the draft streams — closing on click
@@ -1512,7 +1513,7 @@ export function StudioComposer({
               disabled={draft.isPending}
             >
               <Sparkles className="size-3.5" />
-              {draft.isPending ? 'Writing a prompt…' : 'Try something random'}
+              {draft.isPending ? '正在撰写提示词…' : '随机试试'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -1521,14 +1522,13 @@ export function StudioComposer({
       <AlertDialog open={replaceConfirm} onOpenChange={setReplaceConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Replace your prompt?</AlertDialogTitle>
+            <AlertDialogTitle>替换你的提示词？</AlertDialogTitle>
             <AlertDialogDescription>
-              Shuffle swaps in a sample prompt. What you've written here will be
-              replaced.
+              随机功能会换入示例提示词，你已输入的内容将被替换。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Keep my prompt</AlertDialogCancel>
+            <AlertDialogCancel>保留我的提示词</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 setReplaceConfirm(false);

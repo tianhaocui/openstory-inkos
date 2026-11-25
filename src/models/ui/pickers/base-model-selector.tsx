@@ -60,22 +60,22 @@ const STATUS_ICON: Record<
   set: {
     Icon: CircleCheck,
     className: 'text-emerald-500',
-    label: 'Currently set for this scene',
+    label: '已设为当前场景模型',
   },
   completed: {
     Icon: Check,
     className: 'text-muted-foreground',
-    label: 'Generated — select then click Set to use',
+    label: '已生成，选中后点击“设置”即可使用',
   },
   generating: {
     Icon: Loader2,
     className: 'text-muted-foreground animate-spin',
-    label: 'Generating…',
+    label: '正在生成…',
   },
   failed: {
     Icon: CircleAlert,
     className: 'text-destructive',
-    label: 'Generation failed',
+    label: '生成失败',
   },
 };
 
@@ -175,11 +175,11 @@ export const BaseModelSelector: React.FC<BaseModelSelectorProps> = ({
   // Display label for button
   const displayLabel = useMemo(() => {
     if (selectedIds.length === 0) {
-      return `Select ${label.toLowerCase()}`;
+      return `选择${label}`;
     }
 
     const firstModel = models.find((m) => m.id === selectedIds[0]);
-    const firstName = firstModel?.name ?? 'Unknown';
+    const firstName = firstModel?.name ?? '未知';
 
     if (selectedIds.length === 1) {
       return firstName;
@@ -188,12 +188,12 @@ export const BaseModelSelector: React.FC<BaseModelSelectorProps> = ({
     return `${firstName} +${selectedIds.length - 1}`;
   }, [selectedIds, models, label]);
 
-  // Format group label (capitalize, format nicely)
   const formatGroupLabel = (group: string) => {
-    return group
-      .split('-')
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+    const labels: Record<string, string> = {
+      fast: '快速',
+      quality: '高质量',
+    };
+    return labels[group] ?? group;
   };
 
   const showGroupHeaders =
@@ -226,7 +226,7 @@ export const BaseModelSelector: React.FC<BaseModelSelectorProps> = ({
                 htmlFor="multi-toggle"
                 className="text-[10px] text-muted-foreground"
               >
-                Multiple
+                多选
               </label>
               <Switch
                 id="multi-toggle"
@@ -279,7 +279,7 @@ export const BaseModelSelector: React.FC<BaseModelSelectorProps> = ({
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <span className="shrink-0 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
-                                Recommended
+                                推荐
                               </span>
                             </TooltipTrigger>
                             <TooltipContent>
@@ -290,7 +290,7 @@ export const BaseModelSelector: React.FC<BaseModelSelectorProps> = ({
                       )}
                       {model.badge === 'open-weight' && (
                         <span className="shrink-0 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-500">
-                          Open Weight
+                          开放权重
                         </span>
                       )}
                     </span>

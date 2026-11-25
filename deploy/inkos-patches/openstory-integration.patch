@@ -1,0 +1,1435 @@
+From dd4d0a77be16943656d44e696bbf3aa5b8706c08 Mon Sep 17 00:00:00 2001
+From: cuitianhao <hoopoo@163.com>
+Date: Mon, 21 Sep 2026 09:04:06 +0000
+Subject: [PATCH 1/2] Keep InkOS creation responsive behind the OpenStory proxy
+
+Studio now derives assets, APIs, and SSE URLs from the /inkos base path, exposes direct script/storyboard/interactive-film entry modes, and keeps long agent responses alive with JSON-safe heartbeat chunks so Cloudflare does not replace successful background work with a 524.\n\nConstraint: Cloudflare closes idle proxied responses before some agent runs finish, while Nginx already permits 300 seconds.\nRejected: Increase the Nginx timeout | it cannot override Cloudflare origin response limits.\nConfidence: high\nScope-risk: moderate\nDirective: Build Studio with INKOS_BASE_PATH=/inkos and keep the agent heartbeat interval below the proxy idle timeout.\nTested: Studio typecheck; 55 mode/UI tests; 5 message action tests; 16 API/SSE/heartbeat tests; client/server builds; public first-byte trace; real script and interactive-film generations.\nNot-tested: Full upstream core suite under Bun because its existing Zod/pi-agent test fixtures fail before these Studio changes.
+---
+ packages/studio/src/App.test.ts               | 15 ++++-
+ packages/studio/src/App.tsx                   | 25 ++++++++
+ .../studio/src/api/heartbeat-json.test.ts     | 34 +++++++++++
+ packages/studio/src/api/heartbeat-json.ts     | 57 +++++++++++++++++++
+ packages/studio/src/api/server.ts             | 13 +++++
+ .../components/chat/ToolExecutionSteps.tsx    |  2 +-
+ packages/studio/src/hooks/use-api.ts          |  2 +-
+ packages/studio/src/hooks/use-sse.ts          |  6 +-
+ packages/studio/src/pages/ChatPage.tsx        | 38 ++++++++++++-
+ .../store/chat/slices/message/action.test.ts  |  8 ++-
+ .../src/store/chat/slices/message/action.ts   |  6 +-
+ packages/studio/src/vite-env.d.ts             |  1 +
+ packages/studio/vite.config.ts                |  1 +
+ 13 files changed, 197 insertions(+), 11 deletions(-)
+ create mode 100644 packages/studio/src/api/heartbeat-json.test.ts
+ create mode 100644 packages/studio/src/api/heartbeat-json.ts
+ create mode 100644 packages/studio/src/vite-env.d.ts
+
+diff --git a/packages/studio/src/App.test.ts b/packages/studio/src/App.test.ts
+index 40a0730..21b800a 100644
+--- a/packages/studio/src/App.test.ts
++++ b/packages/studio/src/App.test.ts
+@@ -1,5 +1,18 @@
+ import { describe, expect, it } from "vitest";
+-import { deriveActiveBookId, deriveStartupGate, isBookCreateChatRoute } from "./App";
++import { deriveActiveBookId, deriveStartupGate, isBookCreateChatRoute, parseCreationMode } from "./App";
++
++describe("parseCreationMode", () => {
++  it("accepts direct screenplay workflow links", () => {
++    expect(parseCreationMode("?mode=script")).toBe("script");
++    expect(parseCreationMode("?mode=storyboard")).toBe("storyboard");
++    expect(parseCreationMode("?mode=interactive-film")).toBe("interactive-film");
++  });
++
++  it("ignores unknown or missing modes", () => {
++    expect(parseCreationMode("?mode=book")).toBeNull();
++    expect(parseCreationMode("")).toBeNull();
++  });
++});
+ 
+ describe("deriveActiveBookId", () => {
+   it("returns the current book across book-centered routes", () => {
+diff --git a/packages/studio/src/App.tsx b/packages/studio/src/App.tsx
+index 0d4ef49..5a29258 100644
+--- a/packages/studio/src/App.tsx
++++ b/packages/studio/src/App.tsx
+@@ -27,6 +27,8 @@ import { useI18n } from "./hooks/use-i18n";
+ import { postApi, putApi, useApi } from "./hooks/use-api";
+ import { Sun, Moon } from "lucide-react";
+ import { House } from "lucide-react";
++import { setProjectChatSessionId } from "./pages/chat-page-state";
++import { useChatStore } from "./store/chat";
+ 
+ export type { HashRoute as Route } from "./hooks/use-hash-route";
+ 
+@@ -47,6 +49,15 @@ export function deriveStartupGate(input: {
+   return input.projectError ? "error" : "loading";
+ }
+ 
++export type StudioCreationMode = "script" | "storyboard" | "interactive-film";
++
++export function parseCreationMode(search: string): StudioCreationMode | null {
++  const mode = new URLSearchParams(search).get("mode");
++  return mode === "script" || mode === "storyboard" || mode === "interactive-film"
++    ? mode
++    : null;
++}
++
+ export function App() {
+   const { route, setRoute } = useHashRoute();
+   const sse = useSSE();
+@@ -55,6 +66,7 @@ export function App() {
+   const { data: project, error: projectError, refetch: refetchProject } = useApi<{ language: string; languageExplicit: boolean }>("/project");
+   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
+   const [ready, setReady] = useState(false);
++  const createDraftSession = useChatStore((state) => state.createDraftSession);
+ 
+   const isDark = theme === "dark";
+ 
+@@ -71,6 +83,19 @@ export function App() {
+     }
+   }, [project]);
+ 
++  useEffect(() => {
++    if (!ready) return;
++    const creationMode = parseCreationMode(window.location.search);
++    if (!creationMode) return;
++
++    const sessionId = createDraftSession(null, creationMode);
++    setProjectChatSessionId(sessionId);
++    setRoute({ page: "chat" });
++
++    const cleanUrl = `${window.location.pathname}${window.location.hash || "#/chat"}`;
++    window.history.replaceState({}, "", cleanUrl);
++  }, [createDraftSession, ready, setRoute]);
++
+   useSessionEvents(sse, route, setRoute);
+ 
+   const nav = {
+diff --git a/packages/studio/src/api/heartbeat-json.test.ts b/packages/studio/src/api/heartbeat-json.test.ts
+new file mode 100644
+index 0000000..9952996
+--- /dev/null
++++ b/packages/studio/src/api/heartbeat-json.test.ts
+@@ -0,0 +1,34 @@
++import { afterEach, describe, expect, it, vi } from "vitest";
++import { heartbeatJsonResponse } from "./heartbeat-json";
++
++describe("heartbeatJsonResponse", () => {
++  afterEach(() => vi.useRealTimers());
++
++  it("sends a JSON-safe keepalive before the inner request completes", async () => {
++    vi.useFakeTimers();
++    let complete!: (response: Response) => void;
++    const inner = new Promise<Response>((resolve) => {
++      complete = resolve;
++    });
++    const response = heartbeatJsonResponse(() => inner);
++    const reader = response.body!.getReader();
++
++    const first = await reader.read();
++    expect(new TextDecoder().decode(first.value)).toBe(" \n");
++    expect(response.headers.get("x-accel-buffering")).toBe("no");
++
++    const heartbeat = reader.read();
++    await vi.advanceTimersByTimeAsync(15_000);
++    const second = await heartbeat;
++    expect(new TextDecoder().decode(second.value)).toBe(" \n");
++
++    complete(Response.json({ ok: true }));
++    let remainder = "";
++    for (;;) {
++      const chunk = await reader.read();
++      if (chunk.done) break;
++      remainder += new TextDecoder().decode(chunk.value);
++    }
++    expect(JSON.parse(remainder)).toEqual({ ok: true });
++  });
++});
+diff --git a/packages/studio/src/api/heartbeat-json.ts b/packages/studio/src/api/heartbeat-json.ts
+new file mode 100644
+index 0000000..2d00f83
+--- /dev/null
++++ b/packages/studio/src/api/heartbeat-json.ts
+@@ -0,0 +1,57 @@
++export interface HeartbeatJsonOptions {
++  readonly intervalMs?: number;
++}
++
++/**
++ * Sends JSON-safe whitespace immediately and periodically while a long request
++ * runs. The final body remains valid JSON because leading whitespace is legal.
++ */
++export function heartbeatJsonResponse(
++  run: () => Response | Promise<Response>,
++  options: HeartbeatJsonOptions = {},
++): Response {
++  const encoder = new TextEncoder();
++  const intervalMs = options.intervalMs ?? 15_000;
++  let closed = false;
++  let heartbeat: ReturnType<typeof setInterval> | undefined;
++
++  const stream = new ReadableStream<Uint8Array>({
++    start(controller) {
++      const enqueue = (value: string) => {
++        if (!closed) controller.enqueue(encoder.encode(value));
++      };
++      const finish = (value: string) => {
++        if (closed) return;
++        if (heartbeat) clearInterval(heartbeat);
++        enqueue(value);
++        closed = true;
++        controller.close();
++      };
++
++      enqueue(" \n");
++      heartbeat = setInterval(() => enqueue(" \n"), intervalMs);
++
++      void Promise.resolve(run()).then(async (response) => {
++        const responseBody = await response.text();
++        finish(
++          responseBody ||
++            JSON.stringify({ error: `Agent request failed with HTTP ${response.status}` }),
++        );
++      }).catch((error: unknown) => {
++        finish(JSON.stringify({ error: error instanceof Error ? error.message : String(error) }));
++      });
++    },
++    cancel() {
++      closed = true;
++      if (heartbeat) clearInterval(heartbeat);
++    },
++  });
++
++  return new Response(stream, {
++    headers: {
++      "content-type": "application/json; charset=UTF-8",
++      "cache-control": "no-cache, no-transform",
++      "x-accel-buffering": "no",
++    },
++  });
++}
+diff --git a/packages/studio/src/api/server.ts b/packages/studio/src/api/server.ts
+index 036317a..7e4dff9 100644
+--- a/packages/studio/src/api/server.ts
++++ b/packages/studio/src/api/server.ts
+@@ -86,6 +86,7 @@ import { dirname, isAbsolute, join, relative, resolve } from "node:path";
+ import { isSafeBookId } from "./safety.js";
+ import { ApiError } from "./errors.js";
+ import { buildStudioBookConfig } from "./book-create.js";
++import { heartbeatJsonResponse } from "./heartbeat-json.js";
+ 
+ // -- Pipeline stage definitions per agent type --
+ 
+@@ -3366,6 +3367,18 @@ export function createStudioServer(initialConfig: ProjectConfig, root: string) {
+     return c.json({ ok: true });
+   });
+ 
++  // Cloudflare closes an idle origin response before some long agent runs finish.
++  app.post("/api/v1/agent-stream", async (c) => {
++    const requestBody = await c.req.text();
++    return heartbeatJsonResponse(() =>
++      app.request("http://localhost/api/v1/agent", {
++        method: "POST",
++        headers: { "content-type": "application/json" },
++        body: requestBody,
++      }),
++    );
++  });
++
+   app.post("/api/v1/agent", async (c) => {
+     const {
+       instruction,
+diff --git a/packages/studio/src/components/chat/ToolExecutionSteps.tsx b/packages/studio/src/components/chat/ToolExecutionSteps.tsx
+index dd6d2db..4532cf4 100644
+--- a/packages/studio/src/components/chat/ToolExecutionSteps.tsx
++++ b/packages/studio/src/components/chat/ToolExecutionSteps.tsx
+@@ -234,7 +234,7 @@ function ScriptStoryboardResultPreview({ exec }: { exec: ToolExecution }) {
+     details.storyboardPath ? ["分镜", details.storyboardPath] as const : null,
+     details.imagePromptsPath ? ["图像提示词", details.imagePromptsPath] as const : null,
+     details.assetsManifestPath ? ["图片资产", details.assetsManifestPath] as const : null,
+-  ].filter((row): row is readonly [string, string] => Boolean(row));
++  ].filter((row) => row !== null);
+   if (rows.length === 0) return null;
+   return (
+     <div className="mx-3 mb-3 mt-1 rounded-xl border border-primary/20 bg-primary/5 px-3 py-2.5">
+diff --git a/packages/studio/src/hooks/use-api.ts b/packages/studio/src/hooks/use-api.ts
+index 1ef84d5..b58af80 100644
+--- a/packages/studio/src/hooks/use-api.ts
++++ b/packages/studio/src/hooks/use-api.ts
+@@ -1,7 +1,7 @@
+ import { useState, useEffect, useCallback } from "react";
+ import { localizeKnownRuntimeMessage } from "../lib/error-copy";
+ 
+-const BASE = "/api/v1";
++const BASE = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/v1`;
+ const API_INVALIDATE_EVENT = "inkos:api-invalidate";
+ 
+ interface ApiInvalidateDetail {
+diff --git a/packages/studio/src/hooks/use-sse.ts b/packages/studio/src/hooks/use-sse.ts
+index 47831fc..6506b8a 100644
+--- a/packages/studio/src/hooks/use-sse.ts
++++ b/packages/studio/src/hooks/use-sse.ts
+@@ -90,7 +90,11 @@ export function useSSE(url = "/api/v1/events") {
+   const seqRef = useRef(0);
+ 
+   useEffect(() => {
+-    const es = new EventSource(url);
++    const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
++    const eventUrl = url.startsWith('/') && !url.startsWith(`${basePath}/`)
++      ? `${basePath}${url}`
++      : url;
++    const es = new EventSource(eventUrl);
+     esRef.current = es;
+ 
+     es.onopen = () => setConnected(true);
+diff --git a/packages/studio/src/pages/ChatPage.tsx b/packages/studio/src/pages/ChatPage.tsx
+index f1bb7df..a006f88 100644
+--- a/packages/studio/src/pages/ChatPage.tsx
++++ b/packages/studio/src/pages/ChatPage.tsx
+@@ -577,11 +577,42 @@ export function ChatPage({ activeBookId, mode = activeBookId ? "book" : "book-cr
+         ? "说一个可玩的世界、角色处境或开场动作，我会启动互动世界；之后你可以自由行动或点建议动作。"
+         : "Describe a playable world, character situation, or opening action to start an interactive world.";
+     }
++    if (currentSessionKind === "script") {
++      return isZh
++        ? "描述原始创意、小说或大纲，并说明剧本类型、集数和时长。我会先整理规格，确认后生成可编辑的完整剧本。"
++        : "Describe the source idea, novel, or outline plus format, episode count, and duration. I will confirm the specification before creating the editable script.";
++    }
++    if (currentSessionKind === "storyboard") {
++      return isZh
++        ? "提供剧本或故事内容，并说明画幅、视觉风格和镜头粒度。我会先确认规格，再生成分镜表与图像提示词。"
++        : "Provide the script or story plus aspect ratio, visual style, and shot granularity. I will confirm the specification before creating the storyboard and image prompts.";
++    }
++    if (currentSessionKind === "interactive-film") {
++      return isZh
++        ? "描述互动故事、关键选择和目标受众。我会先确认规格，再生成剧情树、变量旗标、多结局剧本、分镜和图像提示词。"
++        : "Describe the interactive story, key choices, and target audience. I will confirm the specification before creating the story tree, flags, multi-ending script, storyboard, and image prompts.";
++    }
+     return isZh
+       ? "\u544A\u8BC9\u6211\u4F60\u60F3\u5199\u4EC0\u4E48\u2014\u2014\u9898\u6750\u3001\u4E16\u754C\u89C2\u3001\u4E3B\u89D2\u3001\u6838\u5FC3\u51B2\u7A81"
+       : "Tell me what you want to write \u2014 genre, world, protagonist, core conflict";
+   })();
+ 
++  const creationModeLabel = currentSessionKind === "script"
++    ? (isZh ? "剧本创作" : "Script Creation")
++    : currentSessionKind === "storyboard"
++      ? (isZh ? "分镜创作" : "Storyboard Creation")
++      : currentSessionKind === "interactive-film"
++        ? (isZh ? "互动影游" : "Interactive Film")
++        : null;
++
++  const composerPlaceholder = currentSessionKind === "script"
++    ? (isZh ? "描述你要创作或改编的剧本..." : "Describe the script to create or adapt...")
++    : currentSessionKind === "storyboard"
++      ? (isZh ? "粘贴剧本并描述分镜要求..." : "Paste the script and describe storyboard requirements...")
++      : currentSessionKind === "interactive-film"
++        ? (isZh ? "描述互动故事、选择和结局要求..." : "Describe the interactive story, choices, and endings...")
++        : (isZh ? "输入指令..." : "Enter command...");
++
+   return (
+     <div className="flex flex-col h-full flex-1 min-w-0 relative">
+       {/* Message scroll area */}
+@@ -629,6 +660,11 @@ export function ChatPage({ activeBookId, mode = activeBookId ? "book" : "book-cr
+             <div className="w-14 h-14 rounded-2xl border border-dashed border-border flex items-center justify-center mb-4 bg-secondary/30 opacity-40">
+               <BotMessageSquare size={24} className="text-muted-foreground" />
+             </div>
++            {creationModeLabel && (
++              <h2 className="mb-2 text-lg font-semibold text-foreground">
++                {creationModeLabel}
++              </h2>
++            )}
+             <p className="text-sm text-muted-foreground/70 max-w-md leading-7">
+               {emptyGuidance}
+             </p>
+@@ -718,7 +754,7 @@ export function ChatPage({ activeBookId, mode = activeBookId ? "book" : "book-cr
+                   value={input}
+                   onChange={(e) => setInput(e.target.value)}
+                   onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); onSend(input); } }}
+-                  placeholder={isZh ? "输入指令..." : "Enter command..."}
++                  placeholder={composerPlaceholder}
+                   disabled={loading || !activeSessionId}
+                   rows={1}
+                   className="flex-1 bg-transparent text-base leading-7 placeholder:text-muted-foreground/50 outline-none! border-none! ring-0! shadow-none focus:outline-none! focus:ring-0! focus:border-none! resize-none disabled:opacity-50 max-h-[200px] overflow-y-auto"
+diff --git a/packages/studio/src/store/chat/slices/message/action.test.ts b/packages/studio/src/store/chat/slices/message/action.test.ts
+index 2f42820..0da28d7 100644
+--- a/packages/studio/src/store/chat/slices/message/action.test.ts
++++ b/packages/studio/src/store/chat/slices/message/action.test.ts
+@@ -5,11 +5,12 @@ import { initialChatState } from "../../initialState";
+ import { createCreateSlice } from "../create/action";
+ import { createMessageSlice } from "./action";
+ 
+-const { fetchJson } = vi.hoisted(() => ({
++const { fetchJson, buildApiUrl } = vi.hoisted(() => ({
+   fetchJson: vi.fn(),
++  buildApiUrl: vi.fn((path: string) => `/api/v1${path}`),
+ }));
+ 
+-vi.mock("../../../../hooks/use-api", () => ({ fetchJson }));
++vi.mock("../../../../hooks/use-api", () => ({ fetchJson, buildApiUrl }));
+ 
+ class FakeEventSource {
+   readonly url: string;
+@@ -99,7 +100,7 @@ describe("chat message actions", () => {
+ 
+     await store.getState().sendMessage(sessionId, "审第 1 章");
+ 
+-    const agentCall = fetchJson.mock.calls.find(([path]) => path === "/agent");
++    const agentCall = fetchJson.mock.calls.find(([path]) => path === "/agent-stream");
+     expect(agentCall).toBeDefined();
+     const body = JSON.parse((agentCall?.[1] as { body: string }).body);
+     expect(body.activeBookId).toBe("harbor-book");
+@@ -120,6 +121,7 @@ describe("chat message actions", () => {
+ 
+     const sent = store.getState().sendMessage(sessionId, "创建一本债务悬疑长篇", { sessionKind: "book-create" });
+     await vi.waitFor(() => expect(fakeEventSources).toHaveLength(1));
++    expect(fakeEventSources[0]?.url).toBe("/api/v1/events");
+ 
+     fakeEventSources[0].emit("tool:start", {
+       sessionId,
+diff --git a/packages/studio/src/store/chat/slices/message/action.ts b/packages/studio/src/store/chat/slices/message/action.ts
+index 5654175..7c0a6ed 100644
+--- a/packages/studio/src/store/chat/slices/message/action.ts
++++ b/packages/studio/src/store/chat/slices/message/action.ts
+@@ -8,7 +8,7 @@ import type {
+   SessionResponse,
+   SessionSummary,
+ } from "../../types";
+-import { fetchJson } from "../../../../hooks/use-api";
++import { buildApiUrl, fetchJson } from "../../../../hooks/use-api";
+ import { attachSessionStreamListeners } from "./stream-events";
+ import {
+   bookKey,
+@@ -376,14 +376,14 @@ export const createMessageSlice: StateCreator<ChatStore, [], [], MessageActions>
+ 
+     get().addUserMessage(sessionId, trimmed);
+     session.stream?.close();
+-    const streamEs = new EventSource("/api/v1/events");
++    const streamEs = new EventSource(buildApiUrl("/events") ?? "/api/v1/events");
+     set((state) => ({
+       sessions: updateSession(state.sessions, sessionId, () => ({ stream: streamEs })),
+     }));
+     attachSessionStreamListeners({ sessionId, streamTs, streamEs, set, get });
+ 
+     try {
+-      const data = await fetchJson<AgentResponse>("/agent", {
++      const data = await fetchJson<AgentResponse>("/agent-stream", {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify({
+diff --git a/packages/studio/src/vite-env.d.ts b/packages/studio/src/vite-env.d.ts
+new file mode 100644
+index 0000000..11f02fe
+--- /dev/null
++++ b/packages/studio/src/vite-env.d.ts
+@@ -0,0 +1 @@
++/// <reference types="vite/client" />
+diff --git a/packages/studio/vite.config.ts b/packages/studio/vite.config.ts
+index 21d605e..8d62a40 100644
+--- a/packages/studio/vite.config.ts
++++ b/packages/studio/vite.config.ts
+@@ -5,6 +5,7 @@ import { resolve } from "node:path";
+ 
+ export default defineConfig({
+   plugins: [react(), tailwindcss()],
++  base: process.env.INKOS_BASE_PATH ?? '/',
+   resolve: {
+     alias: {
+       "@": resolve(__dirname, "src"),
+-- 
+2.43.0
+
+
+From c50e840fdb30861119253d34d37ccdd6a0af9e23 Mon Sep 17 00:00:00 2001
+From: cuitianhao <hoopoo@163.com>
+Date: Mon, 21 Sep 2026 11:44:38 +0000
+Subject: [PATCH 2/2] Keep OpenStory-bound writing private and synchronized
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+InkOS now selects an isolated project root from the OpenStory-authenticated team, validates signed project bindings before persisting them, and publishes completed screenplay artifacts through a durable HMAC-signed outbox. Studio launch state carries the binding into the persisted session, while generated scripts are normalized into stable chapter sources for OpenStory.\n\nConstraint: InkOS is hosted behind the existing /inkos Nginx path and shares the server with OpenStory.\nRejected: A shared filesystem project with login-only gating | authenticated teams could still read each other’s books, sessions, and artifacts.\nConfidence: high\nScope-risk: broad\nDirective: Keep port 4567 loopback-only, preserve Nginx identity-header overwrites, and build with INKOS_BASE_PATH=/inkos.\nTested: Studio typecheck; 59 focused tests; client/server builds; cookie-auth tenant isolation; cross-team binding rejection; real script generation and OpenStory sync/outbox retry.\nNot-tested: Full upstream core suite under Bun because existing Zod/pi-agent fixtures fail before these Studio changes.
+---
+ .gitignore                                    |   3 +
+ packages/studio/src/App.test.ts               |  14 +-
+ packages/studio/src/App.tsx                   |  28 +-
+ packages/studio/src/api/index.ts              |   5 +-
+ .../src/api/openstory-integration.test.ts     |  74 ++++
+ .../studio/src/api/openstory-integration.ts   | 375 ++++++++++++++++++
+ packages/studio/src/api/server.ts             | 139 ++++++-
+ packages/studio/src/hooks/use-api.ts          |  32 +-
+ packages/studio/src/pages/chat-page-state.ts  |  13 +
+ .../src/store/chat/slices/message/action.ts   |   8 +-
+ 10 files changed, 648 insertions(+), 43 deletions(-)
+ create mode 100644 packages/studio/src/api/openstory-integration.test.ts
+ create mode 100644 packages/studio/src/api/openstory-integration.ts
+
+diff --git a/.gitignore b/.gitignore
+index 6c12318..629d03a 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -18,6 +18,9 @@ novel-to-comic-research.docx
+ .pnpm-store/
+ tmp/
+ autoresearch/
++openstory.env
++openstory-project/
++openstory-tenants/
+ .playwright-cli/
+ .superpowers/
+ _*.md
+diff --git a/packages/studio/src/App.test.ts b/packages/studio/src/App.test.ts
+index 21b800a..f8f4d79 100644
+--- a/packages/studio/src/App.test.ts
++++ b/packages/studio/src/App.test.ts
+@@ -1,5 +1,5 @@
+ import { describe, expect, it } from "vitest";
+-import { deriveActiveBookId, deriveStartupGate, isBookCreateChatRoute, parseCreationMode } from "./App";
++import { deriveActiveBookId, deriveStartupGate, isBookCreateChatRoute, parseCreationMode, parseOpenStoryLaunch } from "./App";
+ 
+ describe("parseCreationMode", () => {
+   it("accepts direct screenplay workflow links", () => {
+@@ -14,6 +14,18 @@ describe("parseCreationMode", () => {
+   });
+ });
+ 
++describe("parseOpenStoryLaunch", () => {
++  it("requires both a supported mode and an opaque binding", () => {
++    expect(parseOpenStoryLaunch("?mode=script&binding=signed-token&title=Demo")).toEqual({
++      mode: "script",
++      binding: "signed-token",
++      title: "Demo",
++    });
++    expect(parseOpenStoryLaunch("?mode=script")).toBeNull();
++    expect(parseOpenStoryLaunch("?binding=signed-token")).toBeNull();
++  });
++});
++
+ describe("deriveActiveBookId", () => {
+   it("returns the current book across book-centered routes", () => {
+     expect(deriveActiveBookId({ page: "book", bookId: "alpha" })).toBe("alpha");
+diff --git a/packages/studio/src/App.tsx b/packages/studio/src/App.tsx
+index 5a29258..850df4d 100644
+--- a/packages/studio/src/App.tsx
++++ b/packages/studio/src/App.tsx
+@@ -27,7 +27,7 @@ import { useI18n } from "./hooks/use-i18n";
+ import { postApi, putApi, useApi } from "./hooks/use-api";
+ import { Sun, Moon } from "lucide-react";
+ import { House } from "lucide-react";
+-import { setProjectChatSessionId } from "./pages/chat-page-state";
++import { setOpenStorySessionBinding, setProjectChatSessionId } from "./pages/chat-page-state";
+ import { useChatStore } from "./store/chat";
+ 
+ export type { HashRoute as Route } from "./hooks/use-hash-route";
+@@ -58,6 +58,19 @@ export function parseCreationMode(search: string): StudioCreationMode | null {
+     : null;
+ }
+ 
++export function parseOpenStoryLaunch(search: string): {
++  readonly mode: StudioCreationMode;
++  readonly binding: string;
++  readonly title?: string;
++} | null {
++  const params = new URLSearchParams(search);
++  const mode = parseCreationMode(search);
++  const binding = params.get("binding")?.trim();
++  if (!mode || !binding) return null;
++  const title = params.get("title")?.trim();
++  return { mode, binding, ...(title ? { title } : {}) };
++}
++
+ export function App() {
+   const { route, setRoute } = useHashRoute();
+   const sse = useSSE();
+@@ -67,6 +80,7 @@ export function App() {
+   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
+   const [ready, setReady] = useState(false);
+   const createDraftSession = useChatStore((state) => state.createDraftSession);
++  const setInput = useChatStore((state) => state.setInput);
+ 
+   const isDark = theme === "dark";
+ 
+@@ -85,16 +99,24 @@ export function App() {
+ 
+   useEffect(() => {
+     if (!ready) return;
+-    const creationMode = parseCreationMode(window.location.search);
++    const launch = parseOpenStoryLaunch(window.location.search);
++    const creationMode = launch?.mode ?? parseCreationMode(window.location.search);
+     if (!creationMode) return;
+ 
+     const sessionId = createDraftSession(null, creationMode);
++    if (launch) {
++      setOpenStorySessionBinding(sessionId, launch.binding);
++      const title = launch.title ? `《${launch.title}》` : "当前 OpenStory 项目";
++      setInput(creationMode === "interactive-film"
++        ? `请将${title}创作成互动影游。请先和我确认关键选择、分支和结局要求。`
++        : `请为${title}创作或改编剧本。请先和我确认剧本类型、集数和时长。`);
++    }
+     setProjectChatSessionId(sessionId);
+     setRoute({ page: "chat" });
+ 
+     const cleanUrl = `${window.location.pathname}${window.location.hash || "#/chat"}`;
+     window.history.replaceState({}, "", cleanUrl);
+-  }, [createDraftSession, ready, setRoute]);
++  }, [createDraftSession, ready, setInput, setRoute]);
+ 
+   useSessionEvents(sse, route, setRoute);
+ 
+diff --git a/packages/studio/src/api/index.ts b/packages/studio/src/api/index.ts
+index c463b4e..7e662e7 100644
+--- a/packages/studio/src/api/index.ts
++++ b/packages/studio/src/api/index.ts
+@@ -24,7 +24,10 @@ if (!existsSync(join(distDir, "index.html"))) {
+   }
+ }
+ 
+-startStudioServer(root, port, { staticDir: distDir }).catch((e) => {
++startStudioServer(root, port, {
++  staticDir: distDir,
++  tenantsRoot: process.env.INKOS_TENANTS_ROOT,
++}).catch((e) => {
+   console.error("Failed to start studio:", e);
+   process.exit(1);
+ });
+diff --git a/packages/studio/src/api/openstory-integration.test.ts b/packages/studio/src/api/openstory-integration.test.ts
+new file mode 100644
+index 0000000..4646259
+--- /dev/null
++++ b/packages/studio/src/api/openstory-integration.test.ts
+@@ -0,0 +1,74 @@
++import { describe, expect, it } from "vitest";
++import { createHmac } from "node:crypto";
++import {
++  normalizeScriptChapters,
++  verifyOpenStoryBinding,
++} from "./openstory-integration";
++
++describe("normalizeScriptChapters", () => {
++  it("splits episodic scripts into stable OpenStory chapter sources", () => {
++    const chapters = normalizeScriptChapters(
++      "# Demo\n\n## 剧本正文\n\n### 第1集\nA\n\n### 第2集 尾声\nB\n",
++      "script",
++      "Demo",
++      "2026-09-21T00:00:00.000Z",
++    );
++    expect(chapters.map((chapter) => chapter.sourceKey)).toEqual([
++      "episode:1",
++      "episode:2",
++    ]);
++    expect(chapters[1]?.title).toBe("第2集 尾声");
++    expect(chapters[0]?.markdown).toContain("A");
++  });
++
++  it("keeps an interactive script together so branches are not silently linearized", () => {
++    const chapters = normalizeScriptChapters(
++      "# Branches\n\n### S1\nStart\n\n### E1\nEnding",
++      "interactive-film",
++      "Branches",
++    );
++    expect(chapters).toHaveLength(1);
++    expect(chapters[0]).toMatchObject({
++      sourceKey: "interactive:script",
++      title: "Branches",
++    });
++  });
++});
++
++describe("verifyOpenStoryBinding", () => {
++  it("accepts only bindings signed for the authenticated team", () => {
++    const secret = "s".repeat(64);
++    const payload = Buffer.from(
++      JSON.stringify({
++        version: 1,
++        projectId: "project-1",
++        teamId: "team-1",
++        mode: "script",
++        expiresAt: 2_000,
++      }),
++    ).toString("base64url");
++    const signature = createHmac("sha256", secret)
++      .update(`binding.${payload}`)
++      .digest("hex");
++    const binding = `${payload}.${signature}`;
++
++    expect(
++      verifyOpenStoryBinding(binding, "team-1", "script", secret, 1_000),
++    ).toBe(true);
++    expect(
++      verifyOpenStoryBinding(binding, "team-2", "script", secret, 1_000),
++    ).toBe(false);
++    expect(
++      verifyOpenStoryBinding(
++        binding,
++        "team-1",
++        "interactive-film",
++        secret,
++        1_000,
++      ),
++    ).toBe(false);
++    expect(
++      verifyOpenStoryBinding(binding, "team-1", "script", secret, 3_000),
++    ).toBe(false);
++  });
++});
+diff --git a/packages/studio/src/api/openstory-integration.ts b/packages/studio/src/api/openstory-integration.ts
+new file mode 100644
+index 0000000..eb87ad4
+--- /dev/null
++++ b/packages/studio/src/api/openstory-integration.ts
+@@ -0,0 +1,375 @@
++import {
++  chmod,
++  mkdir,
++  readFile,
++  readdir,
++  rename,
++  rm,
++  writeFile,
++} from "node:fs/promises";
++import {
++  createHash,
++  createHmac,
++  randomUUID,
++  timingSafeEqual,
++} from "node:crypto";
++import { join } from "node:path";
++import { safeChildPath } from "@actalk/inkos-core";
++
++type SessionBindings = Record<string, string>;
++
++export interface GeneratedToolExecution {
++  readonly tool: string;
++  readonly details?: unknown;
++}
++
++interface GeneratedArtifactDetails {
++  readonly kind: "script_created" | "interactive_film_created";
++  readonly projectId: string;
++  readonly scriptPath: string;
++}
++
++interface NormalizedChapter {
++  readonly sourceKey: string;
++  readonly title: string;
++  readonly markdown: string;
++  readonly contentHash: string;
++  readonly sourceUpdatedAt: string;
++}
++
++const BINDINGS_FILE = "openstory-bindings.json";
++const OUTBOX_DIR = "openstory-outbox";
++const bindingMutations = new Map<string, Promise<unknown>>();
++const outboxFlushes = new Map<string, Promise<number>>();
++
++async function serialized<T>(
++  locks: Map<string, Promise<unknown>>,
++  key: string,
++  operation: () => Promise<T>,
++): Promise<T> {
++  const previous = locks.get(key) ?? Promise.resolve();
++  const current = previous.catch(() => undefined).then(operation);
++  locks.set(key, current);
++  try {
++    return await current;
++  } finally {
++    if (locks.get(key) === current) locks.delete(key);
++  }
++}
++
++function inkosMetaPath(root: string, file: string): string {
++  return join(root, ".inkos", file);
++}
++
++async function readBindings(root: string): Promise<SessionBindings> {
++  try {
++    return JSON.parse(
++      await readFile(inkosMetaPath(root, BINDINGS_FILE), "utf-8"),
++    ) as SessionBindings;
++  } catch {
++    return {};
++  }
++}
++
++async function writeBindings(
++  root: string,
++  bindings: SessionBindings,
++): Promise<void> {
++  const directory = join(root, ".inkos");
++  const target = join(directory, BINDINGS_FILE);
++  const temporary = `${target}.${randomUUID()}.tmp`;
++  await mkdir(directory, { recursive: true, mode: 0o700 });
++  await chmod(directory, 0o700);
++  await writeFile(temporary, JSON.stringify(bindings, null, 2), {
++    encoding: "utf-8",
++    mode: 0o600,
++  });
++  await rename(temporary, target);
++  await chmod(target, 0o600);
++}
++
++export async function bindOpenStorySession(
++  root: string,
++  sessionId: string,
++  binding: string,
++  expectedTeamId: string,
++  expectedMode: "script" | "interactive-film",
++  secret: string,
++): Promise<void> {
++  if (!verifyOpenStoryBinding(binding, expectedTeamId, expectedMode, secret)) {
++    throw new Error("Invalid OpenStory binding");
++  }
++  await serialized(bindingMutations, root, async () => {
++    const bindings = await readBindings(root);
++    bindings[sessionId] = binding;
++    await writeBindings(root, bindings);
++  });
++}
++
++export async function unbindOpenStorySession(
++  root: string,
++  sessionId: string,
++): Promise<void> {
++  await serialized(bindingMutations, root, async () => {
++    const bindings = await readBindings(root);
++    if (!(sessionId in bindings)) return;
++    delete bindings[sessionId];
++    await writeBindings(root, bindings);
++  });
++}
++
++export async function getOpenStorySessionBinding(
++  root: string,
++  sessionId: string,
++): Promise<string | null> {
++  const bindings = await readBindings(root);
++  return bindings[sessionId] ?? null;
++}
++
++function sha256(value: string): string {
++  return createHash("sha256").update(value).digest("hex");
++}
++
++export function verifyOpenStoryBinding(
++  binding: string,
++  expectedTeamId: string,
++  expectedMode: "script" | "interactive-film",
++  secret: string,
++  nowSeconds = Math.floor(Date.now() / 1000),
++): boolean {
++  if (!binding || binding.length > 2_000 || secret.length < 32) return false;
++  const [payload, providedHex, ...rest] = binding.split(".");
++  if (
++    !payload ||
++    !providedHex ||
++    rest.length > 0 ||
++    !/^[a-f0-9]{64}$/.test(providedHex)
++  ) {
++    return false;
++  }
++  const expected = createHmac("sha256", secret)
++    .update(`binding.${payload}`)
++    .digest();
++  const provided = Buffer.from(providedHex, "hex");
++  if (
++    provided.length !== expected.length ||
++    !timingSafeEqual(provided, expected)
++  ) {
++    return false;
++  }
++  try {
++    const value = JSON.parse(
++      Buffer.from(payload, "base64url").toString("utf-8"),
++    ) as Record<string, unknown>;
++    return (
++      value.version === 1 &&
++      value.teamId === expectedTeamId &&
++      value.mode === expectedMode &&
++      typeof value.projectId === "string" &&
++      typeof value.expiresAt === "number" &&
++      value.expiresAt >= nowSeconds
++    );
++  } catch {
++    return false;
++  }
++}
++
++function markdownTitle(markdown: string, fallback: string): string {
++  const match = markdown.match(/^#\s+(.+)$/m);
++  return match?.[1]?.trim() || fallback;
++}
++
++export function normalizeScriptChapters(
++  markdown: string,
++  artifactKind: "script" | "interactive-film",
++  fallbackTitle: string,
++  sourceUpdatedAt = new Date().toISOString(),
++): NormalizedChapter[] {
++  if (artifactKind === "interactive-film") {
++    return [
++      {
++        sourceKey: "interactive:script",
++        title: markdownTitle(markdown, `${fallbackTitle} - 互动剧本`),
++        markdown,
++        contentHash: sha256(markdown),
++        sourceUpdatedAt,
++      },
++    ];
++  }
++
++  const episodePattern = /^###\s+(第\s*\d+\s*集[^\n]*)$/gm;
++  const matches = [...markdown.matchAll(episodePattern)];
++  if (matches.length === 0) {
++    return [
++      {
++        sourceKey: "script:main",
++        title: markdownTitle(markdown, fallbackTitle),
++        markdown,
++        contentHash: sha256(markdown),
++        sourceUpdatedAt,
++      },
++    ];
++  }
++
++  return matches.map((match, index) => {
++    const start = match.index ?? 0;
++    const end = matches[index + 1]?.index ?? markdown.length;
++    const content = markdown.slice(start, end).trim();
++    const episodeNumber = match[1]?.match(/\d+/)?.[0] ?? String(index + 1);
++    return {
++      sourceKey: `episode:${episodeNumber}`,
++      title: match[1]?.trim() || `第${episodeNumber}集`,
++      markdown: content,
++      contentHash: sha256(content),
++      sourceUpdatedAt,
++    };
++  });
++}
++
++function generatedDetails(
++  exec: GeneratedToolExecution,
++): GeneratedArtifactDetails | null {
++  if (!exec.details || typeof exec.details !== "object") return null;
++  const details = exec.details as Record<string, unknown>;
++  if (
++    details.kind !== "script_created" &&
++    details.kind !== "interactive_film_created"
++  )
++    return null;
++  if (
++    typeof details.projectId !== "string" ||
++    typeof details.scriptPath !== "string"
++  )
++    return null;
++  return details as unknown as GeneratedArtifactDetails;
++}
++
++function signature(secret: string, timestamp: string, body: string): string {
++  return `v1=${createHmac("sha256", secret).update(`${timestamp}.${body}`).digest("hex")}`;
++}
++
++async function deliver(
++  endpoint: string,
++  secret: string,
++  body: string,
++): Promise<void> {
++  const timestamp = String(Math.floor(Date.now() / 1000));
++  const response = await fetch(endpoint, {
++    method: "POST",
++    headers: {
++      "content-type": "application/json",
++      "x-inkos-timestamp": timestamp,
++      "x-inkos-signature": signature(secret, timestamp, body),
++    },
++    body,
++    signal: AbortSignal.timeout(20_000),
++  });
++  if (!response.ok) {
++    throw new Error(`OpenStory sync failed with HTTP ${response.status}`);
++  }
++}
++
++async function enqueueAndDeliver(
++  root: string,
++  endpoint: string,
++  secret: string,
++  eventId: string,
++  body: string,
++): Promise<void> {
++  const directory = inkosMetaPath(root, OUTBOX_DIR);
++  const file = join(directory, `${eventId}.json`);
++  await mkdir(directory, { recursive: true, mode: 0o700 });
++  await chmod(directory, 0o700);
++  await writeFile(file, body, { encoding: "utf-8", mode: 0o600 });
++  await chmod(file, 0o600);
++  await deliver(endpoint, secret, body);
++  await rm(file, { force: true });
++}
++
++export async function syncGeneratedArtifactToOpenStory(input: {
++  root: string;
++  sessionId: string;
++  exec: GeneratedToolExecution;
++  endpoint?: string;
++  secret?: string;
++  generatedBy?: string;
++}): Promise<boolean> {
++  const details = generatedDetails(input.exec);
++  const binding = await getOpenStorySessionBinding(input.root, input.sessionId);
++  if (!details || !binding || !input.endpoint || !input.secret) return false;
++
++  const scriptPath = safeChildPath(input.root, details.scriptPath);
++  const markdown = await readFile(scriptPath, "utf-8");
++  const artifactKind =
++    details.kind === "script_created" ? "script" : "interactive-film";
++  const revision = Date.now();
++  const eventId = randomUUID();
++  const chapters = normalizeScriptChapters(
++    markdown,
++    artifactKind,
++    details.projectId,
++    new Date(revision).toISOString(),
++  );
++  const unsigned = {
++    schemaVersion: 1 as const,
++    eventId,
++    binding,
++    artifactKind,
++    revision,
++    generatedBy: input.generatedBy,
++    chapters,
++  };
++  const payloadHash = sha256(JSON.stringify(unsigned));
++  const body = JSON.stringify({ ...unsigned, payloadHash });
++  await enqueueAndDeliver(
++    input.root,
++    input.endpoint,
++    input.secret,
++    eventId,
++    body,
++  );
++  return true;
++}
++
++export async function flushOpenStoryOutbox(input: {
++  root: string;
++  endpoint?: string;
++  secret?: string;
++}): Promise<number> {
++  if (!input.endpoint || !input.secret) return 0;
++  const existing = outboxFlushes.get(input.root);
++  if (existing) return existing;
++  const current = (async () => {
++    const directory = inkosMetaPath(input.root, OUTBOX_DIR);
++    let files: string[];
++    try {
++      files = (await readdir(directory)).filter((file) =>
++        file.endsWith(".json"),
++      );
++    } catch {
++      return 0;
++    }
++
++    let delivered = 0;
++    for (const file of files) {
++      const path = join(directory, file);
++      try {
++        const body = await readFile(path, "utf-8");
++        await deliver(input.endpoint!, input.secret!, body);
++        await rm(path, { force: true });
++        delivered++;
++      } catch {
++        // Keep the outbox file for the next retry.
++      }
++    }
++    return delivered;
++  })();
++  outboxFlushes.set(input.root, current);
++  try {
++    return await current;
++  } finally {
++    if (outboxFlushes.get(input.root) === current) {
++      outboxFlushes.delete(input.root);
++    }
++  }
++}
+diff --git a/packages/studio/src/api/server.ts b/packages/studio/src/api/server.ts
+index 7e4dff9..e6f428e 100644
+--- a/packages/studio/src/api/server.ts
++++ b/packages/studio/src/api/server.ts
+@@ -81,12 +81,18 @@ import {
+   type RequestedIntent,
+   type SessionKind,
+ } from "@actalk/inkos-core";
+-import { access, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
++import { access, chmod, copyFile, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
+ import { dirname, isAbsolute, join, relative, resolve } from "node:path";
+ import { isSafeBookId } from "./safety.js";
+ import { ApiError } from "./errors.js";
+ import { buildStudioBookConfig } from "./book-create.js";
+ import { heartbeatJsonResponse } from "./heartbeat-json.js";
++import {
++  bindOpenStorySession,
++  flushOpenStoryOutbox,
++  syncGeneratedArtifactToOpenStory,
++  unbindOpenStorySession,
++} from "./openstory-integration.js";
+ 
+ // -- Pipeline stage definitions per agent type --
+ 
+@@ -788,6 +794,7 @@ async function executeConfirmedProductionAction(args: {
+   readonly requestedIntent: RequestedIntent;
+   readonly actionPayload?: ActionPayload;
+   readonly playMode?: PlayMode;
++  readonly broadcast: (event: string, data: unknown) => void;
+ }): Promise<CollectedToolExec> {
+   const id = `direct-${args.requestedIntent}-${Date.now().toString(36)}`;
+   const actionPayload = args.actionPayload;
+@@ -936,7 +943,7 @@ async function executeConfirmedProductionAction(args: {
+     startedAt: Date.now(),
+   };
+ 
+-  broadcast("tool:start", {
++  args.broadcast("tool:start", {
+     sessionId: args.streamSessionId,
+     id,
+     tool: tool.name,
+@@ -950,7 +957,7 @@ async function executeConfirmedProductionAction(args: {
+       params as never,
+       undefined,
+       (partialResult) => {
+-        broadcast("tool:update", {
++        args.broadcast("tool:update", {
+           sessionId: args.streamSessionId,
+           tool: tool.name,
+           partialResult,
+@@ -962,7 +969,7 @@ async function executeConfirmedProductionAction(args: {
+     exec.result = toolResultText(result);
+     exec.details = (result as { details?: unknown } | undefined)?.details;
+     exec.stages = exec.stages?.map(stage => ({ ...stage, status: "completed" as const }));
+-    broadcast("tool:end", {
++    args.broadcast("tool:end", {
+       sessionId: args.streamSessionId,
+       id,
+       tool: tool.name,
+@@ -977,7 +984,7 @@ async function executeConfirmedProductionAction(args: {
+     exec.status = "error";
+     exec.completedAt = Date.now();
+     exec.error = message;
+-    broadcast("tool:end", {
++    args.broadcast("tool:end", {
+       sessionId: args.streamSessionId,
+       id,
+       tool: tool.name,
+@@ -1000,11 +1007,6 @@ interface StudioBookListSummary {
+ // --- Event bus for SSE ---
+ 
+ type EventHandler = (event: string, data: unknown) => void;
+-const subscribers = new Set<EventHandler>();
+-const bookCreateStatus = new Map<string, { status: "creating" | "error"; error?: string }>();
+-
+-// 内存缓存：service -> 模型列表 + 更新时间戳；避免每次 sidebar 挂载时都打真实 LLM /models
+-const modelListCache = new Map<string, { models: Array<{ id: string; name: string }>; at: number }>();
+ 
+ interface ServiceConfigEntry {
+   service: string;
+@@ -1048,12 +1050,6 @@ interface ServiceProbeResult {
+   error?: string;
+ }
+ 
+-function broadcast(event: string, data: unknown): void {
+-  for (const handler of subscribers) {
+-    handler(event, data);
+-  }
+-}
+-
+ function deriveBookIdFromTitle(title: string): string {
+   return title
+     .trim()
+@@ -1802,6 +1798,12 @@ export function createStudioServer(initialConfig: ProjectConfig, root: string) {
+   const app = new Hono();
+   const state = new StateManager(root);
+   let cachedConfig = initialConfig;
++  const subscribers = new Set<EventHandler>();
++  const bookCreateStatus = new Map<string, { status: "creating" | "error"; error?: string }>();
++  const modelListCache = new Map<string, { models: Array<{ id: string; name: string }>; at: number }>();
++  const broadcast = (event: string, data: unknown): void => {
++    for (const handler of subscribers) handler(event, data);
++  };
+ 
+   app.use("/*", cors());
+ 
+@@ -3309,7 +3311,7 @@ export function createStudioServer(initialConfig: ProjectConfig, root: string) {
+   });
+ 
+   app.post("/api/v1/sessions", async (c) => {
+-    const body = await c.req.json<{ bookId?: string | null; sessionId?: string; sessionKind?: string; playMode?: string }>().catch(() => ({}));
++    const body: { bookId?: string | null; sessionId?: string; sessionKind?: string; playMode?: string; openStoryBinding?: string } = await c.req.json().catch(() => ({}));
+     const bookId = normalizeApiBookId((body as { bookId?: unknown }).bookId, "bookId");
+     const sessionKind = normalizeStudioSessionKind(
+       (body as { sessionKind?: unknown }).sessionKind,
+@@ -3326,6 +3328,23 @@ export function createStudioServer(initialConfig: ProjectConfig, root: string) {
+       sessionKind,
+       ...(playMode ? [{ playMode }] as const : []),
+     );
++    if (typeof body.openStoryBinding === "string" && body.openStoryBinding.trim()) {
++      const teamId = c.req.header("x-openstory-team-id")?.trim() ?? "";
++      const secret = process.env.INKOS_SYNC_SECRET ?? "";
++      try {
++        await bindOpenStorySession(
++          root,
++          session.sessionId,
++          body.openStoryBinding.trim(),
++          teamId,
++          sessionKind === "interactive-film" ? "interactive-film" : "script",
++          secret,
++        );
++      } catch {
++        await deleteBookSession(root, session.sessionId);
++        throw new ApiError(400, "INVALID_OPENSTORY_BINDING", "OpenStory project binding is invalid");
++      }
++    }
+     return c.json({ session });
+   });
+ 
+@@ -3363,7 +3382,9 @@ export function createStudioServer(initialConfig: ProjectConfig, root: string) {
+   });
+ 
+   app.delete("/api/v1/sessions/:sessionId", async (c) => {
+-    await deleteBookSession(root, c.req.param("sessionId"));
++    const sessionId = c.req.param("sessionId");
++    await deleteBookSession(root, sessionId);
++    await unbindOpenStorySession(root, sessionId);
+     return c.json({ ok: true });
+   });
+ 
+@@ -3652,6 +3673,7 @@ export function createStudioServer(initialConfig: ProjectConfig, root: string) {
+             instruction,
+             requestedIntent,
+             actionPayload,
++            broadcast,
+             ...(playMode ? { playMode } : {}),
+           });
+ 
+@@ -3689,6 +3711,16 @@ export function createStudioServer(initialConfig: ProjectConfig, root: string) {
+               reqModel ?? config.llm.model,
+             ),
+           ], instruction, manualToolAppendOptions(sessionKind, exec));
++          await syncGeneratedArtifactToOpenStory({
++            root,
++            sessionId: bookSession.sessionId,
++            exec,
++            endpoint: process.env.OPENSTORY_SYNC_URL,
++            secret: process.env.INKOS_SYNC_SECRET,
++            generatedBy: reqModel ?? config.llm.model,
++          }).catch((error: unknown) => {
++            console.error("[studio] OpenStory sync queued for retry", error);
++          });
+           await refreshBookSessionFromTranscript();
+           broadcast("agent:complete", { instruction, activeBookId: createdBookId ?? agentBookId, sessionId: bookSession.sessionId, sessionKind });
+           return c.json({
+@@ -5056,11 +5088,74 @@ export function createStudioServer(initialConfig: ProjectConfig, root: string) {
+ export async function startStudioServer(
+   root: string,
+   port = 4567,
+-  options?: { readonly staticDir?: string },
++  options?: { readonly staticDir?: string; readonly tenantsRoot?: string },
+ ): Promise<void> {
+-  const config = await loadProjectConfig(root, { consumer: "studio", requireApiKey: false });
++  const scheduleOutbox = (tenantRoot: string) => {
++    const flush = () => {
++      void flushOpenStoryOutbox({
++        root: tenantRoot,
++        endpoint: process.env.OPENSTORY_SYNC_URL,
++        secret: process.env.INKOS_SYNC_SECRET,
++      });
++    };
++    flush();
++    const timer = setInterval(flush, 60_000);
++    timer.unref();
++  };
++
++  let app: Hono;
++  if (options?.tenantsRoot) {
++    const tenants = new Map<string, Promise<ReturnType<typeof createStudioServer>>>();
++    const tenantApp = (teamId: string) => {
++      let pending = tenants.get(teamId);
++      if (pending) return pending;
++      pending = (async () => {
++        const tenantRoot = join(options.tenantsRoot!, teamId);
++        await mkdir(tenantRoot, { recursive: true, mode: 0o700 });
++        await chmod(tenantRoot, 0o700);
++        await mkdir(join(tenantRoot, ".inkos"), { recursive: true, mode: 0o700 });
++        await chmod(join(tenantRoot, ".inkos"), 0o700);
++        await mkdir(join(tenantRoot, "books"), { recursive: true });
++        await mkdir(join(tenantRoot, "radar"), { recursive: true });
++
++        for (const [source, target] of [
++          [join(root, "inkos.json"), join(tenantRoot, "inkos.json")],
++          [join(root, ".inkos", "secrets.json"), join(tenantRoot, ".inkos", "secrets.json")],
++        ] as const) {
++          try {
++            await access(target);
++          } catch {
++            await copyFile(source, target);
++          }
++          await chmod(target, 0o600);
++        }
+ 
+-  const app = createStudioServer(config, root);
++        const config = await loadProjectConfig(tenantRoot, { consumer: "studio", requireApiKey: false });
++        const studio = createStudioServer(config, tenantRoot);
++        scheduleOutbox(tenantRoot);
++        return studio;
++      })();
++      tenants.set(teamId, pending);
++      return pending;
++    };
++
++    app = new Hono();
++    app.all("/api/v1/*", async (c) => {
++      const teamId = c.req.header("x-openstory-team-id")?.trim() ?? "";
++      const role = c.req.header("x-openstory-team-role")?.trim() ?? "";
++      if (!/^[A-Za-z0-9_-]{1,200}$/.test(teamId)) {
++        return c.json({ error: { code: "UNAUTHORIZED", message: "OpenStory login required." } }, 401);
++      }
++      if (role === "viewer" && c.req.method !== "GET") {
++        return c.json({ error: { code: "FORBIDDEN", message: "This team role is read-only." } }, 403);
++      }
++      return (await tenantApp(teamId)).fetch(c.req.raw);
++    });
++  } else {
++    const config = await loadProjectConfig(root, { consumer: "studio", requireApiKey: false });
++    app = createStudioServer(config, root);
++    scheduleOutbox(root);
++  }
+ 
+   // Serve frontend static files — single process for API + frontend
+   if (options?.staticDir) {
+@@ -5102,5 +5197,5 @@ export async function startStudioServer(
+   }
+ 
+   console.log(`InkOS Studio running on http://localhost:${port}`);
+-  serve({ fetch: app.fetch, port });
++  serve({ fetch: app.fetch, port, hostname: "127.0.0.1" });
+ }
+diff --git a/packages/studio/src/hooks/use-api.ts b/packages/studio/src/hooks/use-api.ts
+index b58af80..44fbfa0 100644
+--- a/packages/studio/src/hooks/use-api.ts
++++ b/packages/studio/src/hooks/use-api.ts
+@@ -20,36 +20,38 @@ export function buildApiUrl(path: string): string | null {
+ export function deriveInvalidationPaths(path: string): ReadonlyArray<string> {
+   const normalized = buildApiUrl(path);
+   if (!normalized) return [];
++  const resource = normalized.slice(BASE.length) || "/";
++  const apiPath = (value: string) => `${BASE}${value}`;
+ 
+   if (
+-    normalized === "/api/v1/books/create" ||
+-    normalized === "/api/v1/fanfic/init" ||
+-    normalized === "/api/v1/spinoff/init" ||
+-    normalized === "/api/v1/imitation/init"
++    resource === "/books/create" ||
++    resource === "/fanfic/init" ||
++    resource === "/spinoff/init" ||
++    resource === "/imitation/init"
+   ) {
+-    return ["/api/v1/books"];
++    return [apiPath("/books")];
+   }
+ 
+-  if (normalized === "/api/v1/project") {
+-    return ["/api/v1/project"];
++  if (resource === "/project") {
++    return [apiPath("/project")];
+   }
+ 
+-  if (normalized.startsWith("/api/v1/project/")) {
+-    return ["/api/v1/project", normalized];
++  if (resource.startsWith("/project/")) {
++    return [apiPath("/project"), normalized];
+   }
+ 
+-  const bookAction = normalized.match(/^\/api\/v1\/books\/([^/]+)\/(write-next|draft)$/);
++  const bookAction = resource.match(/^\/books\/([^/]+)\/(write-next|draft)$/);
+   if (bookAction) {
+-    return ["/api/v1/books", `/api/v1/books/${bookAction[1]}`];
++    return [apiPath("/books"), apiPath(`/books/${bookAction[1]}`)];
+   }
+ 
+-  const chapterAction = normalized.match(/^\/api\/v1\/books\/([^/]+)\/chapters\/\d+\/(approve|reject)$/);
++  const chapterAction = resource.match(/^\/books\/([^/]+)\/chapters\/\d+\/(approve|reject)$/);
+   if (chapterAction) {
+-    return ["/api/v1/books", `/api/v1/books/${chapterAction[1]}`];
++    return [apiPath("/books"), apiPath(`/books/${chapterAction[1]}`)];
+   }
+ 
+-  if (/^\/api\/v1\/daemon\/(start|stop)$/.test(normalized)) {
+-    return ["/api/v1/daemon"];
++  if (/^\/daemon\/(start|stop)$/.test(resource)) {
++    return [apiPath("/daemon")];
+   }
+ 
+   return [];
+diff --git a/packages/studio/src/pages/chat-page-state.ts b/packages/studio/src/pages/chat-page-state.ts
+index d53cb5e..7a6ff6d 100644
+--- a/packages/studio/src/pages/chat-page-state.ts
++++ b/packages/studio/src/pages/chat-page-state.ts
+@@ -22,6 +22,7 @@ export interface ChatPageSessionSummary {
+ 
+ const BOOK_CREATE_SESSION_KEY = "inkos.book-create.session-id";
+ const PROJECT_CHAT_SESSION_KEY = "inkos.project-chat.session-id";
++const OPENSTORY_BINDING_PREFIX = "inkos.openstory-binding.";
+ 
+ export function getBookCreateSessionId(): string | null {
+   return globalThis.localStorage?.getItem(BOOK_CREATE_SESSION_KEY) ?? null;
+@@ -43,6 +44,18 @@ export function setProjectChatSessionId(sessionId: string): void {
+   globalThis.localStorage?.setItem(PROJECT_CHAT_SESSION_KEY, sessionId);
+ }
+ 
++export function getOpenStorySessionBinding(sessionId: string): string | null {
++  return globalThis.localStorage?.getItem(`${OPENSTORY_BINDING_PREFIX}${sessionId}`) ?? null;
++}
++
++export function setOpenStorySessionBinding(sessionId: string, binding: string): void {
++  globalThis.localStorage?.setItem(`${OPENSTORY_BINDING_PREFIX}${sessionId}`, binding);
++}
++
++export function clearOpenStorySessionBinding(sessionId: string): void {
++  globalThis.localStorage?.removeItem(`${OPENSTORY_BINDING_PREFIX}${sessionId}`);
++}
++
+ export function filterModelGroups(
+   groupedModels: ReadonlyArray<ChatPageModelGroup>,
+   search: string,
+diff --git a/packages/studio/src/store/chat/slices/message/action.ts b/packages/studio/src/store/chat/slices/message/action.ts
+index 7c0a6ed..dcb719e 100644
+--- a/packages/studio/src/store/chat/slices/message/action.ts
++++ b/packages/studio/src/store/chat/slices/message/action.ts
+@@ -10,6 +10,10 @@ import type {
+ } from "../../types";
+ import { buildApiUrl, fetchJson } from "../../../../hooks/use-api";
+ import { attachSessionStreamListeners } from "./stream-events";
++import {
++  clearOpenStorySessionBinding,
++  getOpenStorySessionBinding,
++} from "../../../../pages/chat-page-state";
+ import {
+   bookKey,
+   createSessionRuntime,
+@@ -339,11 +343,13 @@ export const createMessageSlice: StateCreator<ChatStore, [], [], MessageActions>
+     // 前端 store 里的 runtime 不用 remount，只需要把 isDraft 翻成 false。
+     if (session.isDraft) {
+       try {
++        const openStoryBinding = getOpenStorySessionBinding(sessionId);
+         await fetchJson<SessionResponse>("/sessions", {
+           method: "POST",
+           headers: { "Content-Type": "application/json" },
+-          body: JSON.stringify({ sessionId, bookId: session.bookId, sessionKind, playMode }),
++          body: JSON.stringify({ sessionId, bookId: session.bookId, sessionKind, playMode, openStoryBinding }),
+         });
++        clearOpenStorySessionBinding(sessionId);
+         // 落盘成功：把 isDraft 翻成 false，同时把 sessionId 追加进 sessionIdsByBook
+         // 让侧边栏现在才看到这条会话。
+         set((state) => ({
+-- 
+2.43.0
+

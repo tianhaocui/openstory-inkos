@@ -299,13 +299,13 @@ export function useGenerationStream(
         eventName === 'generation.image:progress' ||
         eventName === 'generation.video:progress';
       if (isMediaProgress && data.promptSoftened === true) {
-        toast.info('Prompt rewritten to pass a content checker', {
-          description: 'The original is kept in Versions.',
+        toast.info('提示词已改写以通过内容审核', {
+          description: '原始版本保留在“版本”中。',
         });
       }
       if (isMediaProgress && data.modelFallback === true) {
-        toast.info('Retrying on Grok Imagine after the content checker', {
-          description: 'The selected model is kept in Versions.',
+        toast.info('内容审核后正改用 Grok Imagine 重试', {
+          description: '所选模型保留在“版本”中。',
         });
       }
       // reservation:short is a top-up prompt, not a failure toast (#1328).

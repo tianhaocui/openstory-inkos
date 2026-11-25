@@ -170,7 +170,7 @@ export async function extractImagesFromSnapshot(
 }
 
 export function toastDragImportCorsError() {
-  toast.error("Couldn't import dragged image", {
+  toast.error('无法导入拖入的图片', {
     description:
       'The source blocked cross-site access (CORS). Save it locally and drag from Finder.',
   });

@@ -58,9 +58,9 @@ export function DeveloperApiKeySettings() {
             <KeyRound className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <CardTitle>API access</CardTitle>
+            <CardTitle>API 访问</CardTitle>
             <CardDescription>
-              Create keys to call the OpenStory API. Authenticate with{' '}
+              创建用于调用 OpenStory API 的密钥。使用以下请求头进行身份验证：{' '}
               <code className="rounded bg-muted px-1 py-0.5 text-xs">
                 Authorization: Bearer &lt;key&gt;
               </code>
@@ -97,7 +97,7 @@ function CreateKeyForm() {
       });
     },
     onError: (err) => {
-      toast.error(err instanceof Error ? err.message : 'Failed to create key');
+      toast.error(err instanceof Error ? err.message : '创建密钥失败');
     },
   });
 
@@ -107,7 +107,7 @@ function CreateKeyForm() {
       Object.fromEntries(new FormData(e.currentTarget))
     );
     if (!parsed.success) {
-      toast.error('Enter a name (1–32 characters).');
+      toast.error('请输入名称（1 至 32 个字符）。');
       return;
     }
     createMutation.mutate({ name: parsed.data.name });
@@ -119,13 +119,13 @@ function CreateKeyForm() {
       <form onSubmit={onSubmit} className="flex gap-2">
         <Input
           name="name"
-          placeholder="Key name (e.g. Production server)"
+          placeholder="密钥名称（例如：生产服务器）"
           maxLength={32}
           autoComplete="off"
           required
         />
         <Button type="submit" disabled={createMutation.isPending}>
-          {createMutation.isPending ? 'Creating…' : 'Create key'}
+          {createMutation.isPending ? '创建中…' : '创建密钥'}
         </Button>
       </form>
 
@@ -154,22 +154,22 @@ function NewKeyReveal({
   const copy = async () => {
     if (!(await copyTextToClipboard(apiKey))) {
       // The key is shown exactly once, so a silent failure would lose it.
-      toast.error('Could not copy the key', {
+      toast.error('无法复制密钥', {
         description:
-          'Your browser blocked clipboard access. Select the key above and copy it manually before dismissing this.',
+          '浏览器阻止了剪贴板访问。请在关闭此提示前选中上方密钥并手动复制。',
       });
       return;
     }
     setCopied(true);
-    toast.success('Copied to clipboard');
+    toast.success('已复制到剪贴板');
   };
 
   return (
     <Alert>
       <KeyRound className="h-4 w-4" />
-      <AlertTitle>Key “{name}” created</AlertTitle>
+      <AlertTitle>密钥“{name}”已创建</AlertTitle>
       <AlertDescription className="flex flex-col gap-3">
-        <span>Copy it now — for your security it won’t be shown again.</span>
+        <span>请立即复制。为保障安全，此密钥不会再次显示。</span>
         <div className="flex items-center gap-2">
           <code className="flex-1 overflow-x-auto rounded bg-muted px-2 py-1.5 font-mono text-xs">
             {apiKey}
@@ -179,7 +179,7 @@ function NewKeyReveal({
             variant="outline"
             size="icon"
             onClick={() => void copy()}
-            aria-label="Copy API key"
+            aria-label="复制 API 密钥"
           >
             {copied ? (
               <Check className="h-4 w-4" />
@@ -190,7 +190,7 @@ function NewKeyReveal({
         </div>
         <div className="flex justify-end">
           <Button type="button" variant="ghost" size="sm" onClick={onDismiss}>
-            Done
+            完成
           </Button>
         </div>
       </AlertDescription>
@@ -211,17 +211,17 @@ function KeyList() {
       void queryClient.invalidateQueries({
         queryKey: PUBLIC_API_KEYS_QUERY_KEY,
       });
-      toast.success('Key revoked');
+      toast.success('密钥已撤销');
     },
     onError: (err) => {
-      toast.error(err instanceof Error ? err.message : 'Failed to revoke key');
+      toast.error(err instanceof Error ? err.message : '撤销密钥失败');
     },
   });
 
   if (keys.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
-        No API keys yet. Create one above to start using the API.
+        暂无 API 密钥。请在上方创建一个密钥以开始使用 API。
       </p>
     );
   }
@@ -236,17 +236,15 @@ function KeyList() {
           <div className="flex items-center gap-3">
             <KeyRound className="h-4 w-4 text-muted-foreground" />
             <div>
-              <p className="text-sm font-medium">
-                {key.name ?? 'Untitled key'}
-              </p>
+              <p className="text-sm font-medium">{key.name ?? '未命名密钥'}</p>
               <p className="text-xs text-muted-foreground">
                 {key.start ? `${key.start}…` : 'osk_…'}
                 {key.expiresAt
-                  ? ` · expires ${new Date(key.expiresAt).toLocaleDateString()}`
-                  : ' · no expiry'}
+                  ? ` · 到期日期 ${new Date(key.expiresAt).toLocaleDateString()}`
+                  : ' · 永不过期'}
                 {key.lastRequest
-                  ? ` · last used ${new Date(key.lastRequest).toLocaleDateString()}`
-                  : ' · never used'}
+                  ? ` · 最近使用于 ${new Date(key.lastRequest).toLocaleDateString()}`
+                  : ' · 从未使用'}
               </p>
             </div>
           </div>
@@ -255,25 +253,25 @@ function KeyList() {
               <Button
                 variant="ghost"
                 size="icon"
-                aria-label={`Revoke ${key.name ?? 'key'}`}
+                aria-label={`撤销${key.name ?? '密钥'}`}
               >
                 <Trash2 className="h-4 w-4 text-destructive" />
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Revoke this API key?</AlertDialogTitle>
+                <AlertDialogTitle>撤销此 API 密钥？</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Any integration using “{key.name ?? 'this key'}” will stop
-                  working immediately. This cannot be undone.
+                  所有使用“{key.name ?? '此密钥'}
+                  ”的集成都将立即停止工作。此操作无法撤销。
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogCancel>取消</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => revokeMutation.mutate(key.id)}
                 >
-                  Revoke
+                  撤销
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

@@ -21,12 +21,12 @@ export const TalentLibraryFilters: React.FC<TalentLibraryFiltersProps> = ({
   }[] = [
     {
       value: 'all',
-      label: 'All Talent',
+      label: '全部演员',
       icon: <Users className="h-4 w-4" />,
     },
     {
       value: 'favorites',
-      label: 'Favorites',
+      label: '收藏',
       icon: <Star className="h-4 w-4" />,
     },
   ];

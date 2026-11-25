@@ -119,7 +119,7 @@ export const ElementThumbnail: React.FC<ElementThumbnailProps> = ({
       >
         <AudioLines className="size-8 text-muted-foreground/50" />
         <p className="text-xs text-muted-foreground">
-          {`Audio${length ? ` · ${length}` : ''}`}
+          {`音频${length ? ` · ${length}` : ''}`}
         </p>
         {playing !== undefined &&
           url && (
@@ -139,7 +139,7 @@ export const ElementThumbnail: React.FC<ElementThumbnailProps> = ({
         )}
       >
         <ImagePlus className="size-8 text-muted-foreground/30" />
-        <p className="text-xs text-muted-foreground">No reference yet</p>
+        <p className="text-xs text-muted-foreground">暂无参考素材</p>
       </div>
     );
   }

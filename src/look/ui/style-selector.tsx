@@ -308,7 +308,7 @@ export function StyleSelector({
             'grid-rows-[auto] [grid-auto-rows:0] gap-y-0 [clip-path:inset(0_-2px_-2px)] pb-0 mb-1 sm:pb-0 sm:mb-2'
         )}
         role="grid"
-        aria-label="Style selection"
+        aria-label="风格选择"
       >
         {loading ? (
           Array.from({ length: visibleCount }).map((_, i) => (
@@ -379,13 +379,13 @@ export function StyleSelector({
                 'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
                 'disabled:opacity-50 disabled:cursor-not-allowed'
               )}
-              aria-label={`View all ${styles.length} styles`}
+              aria-label={`查看全部 ${styles.length} 种风格`}
             >
               <MoreHorizontal className="h-5 w-5 text-muted-foreground" />
               <span className="text-xs text-muted-foreground font-medium text-center">
                 {hiddenCount > 0
-                  ? `+${hiddenCount} More`
-                  : `View All (${styles.length})`}
+                  ? `其他 ${hiddenCount} 种`
+                  : `查看全部 (${styles.length})`}
               </span>
             </button>
           </>

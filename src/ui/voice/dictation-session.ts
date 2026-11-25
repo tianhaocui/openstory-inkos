@@ -27,14 +27,14 @@ export class DictationError extends Error {
 }
 
 const DICTATION_ERROR_MESSAGES: Record<DictationErrorCode, string> = {
-  aborted: 'Dictation stopped.',
-  'audio-capture': 'No microphone was found.',
-  'language-not-supported': 'Dictation is not available in this language.',
-  network: 'Dictation needs a network connection.',
-  'not-allowed': 'Microphone access is blocked.',
-  'phrases-not-supported': 'Dictation is not available in this browser.',
-  'service-not-allowed': 'Microphone access is blocked.',
-  'start-failed': 'Dictation could not start. Try again.',
+  aborted: '听写已停止。',
+  'audio-capture': '未找到麦克风。',
+  'language-not-supported': '听写暂不支持此语言。',
+  network: '听写需要网络连接。',
+  'not-allowed': '麦克风访问已被阻止。',
+  'phrases-not-supported': '此浏览器不支持听写。',
+  'service-not-allowed': '麦克风访问已被阻止。',
+  'start-failed': '无法开始听写，请重试。',
 };
 
 type DictationSessionCallbacks = {

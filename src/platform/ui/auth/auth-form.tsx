@@ -1,6 +1,6 @@
 /**
  * Login Form Component
- * Email entry with Google OAuth option - navigates to /verify for OTP
+ * Email/password and email OTP authentication with optional Google OAuth.
  */
 
 import { Alert, AlertDescription } from '@/ui/shadcn/alert';
@@ -45,6 +45,10 @@ export function AuthForm({
   const navigate = useNavigate();
   const posthog = usePostHog();
   const [email, setEmail] = useState(emailEntered || '');
+  const [name, setName] = useState('');
+  const [password, setPassword] = useState('');
+  const [authMode, setAuthMode] = useState<'password' | 'otp'>('password');
+  const [isSignUp, setIsSignUp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -103,7 +107,7 @@ export function AuthForm({
       });
 
       if (result.error) {
-        setError(result.error.message || 'Failed to send code');
+        setError('验证码发送失败，请稍后重试。');
         setIsLoading(false);
         return;
       }
@@ -135,7 +139,45 @@ export function AuthForm({
       });
     } catch (err) {
       logger.error('Send OTP error:', { err });
-      setError(err instanceof Error ? err.message : 'Failed to send code');
+      setError('验证码发送失败，请稍后重试。');
+      setIsLoading(false);
+    }
+  };
+
+  const handlePasswordAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      const callbackURL = sanitizeAuthRedirect(redirectTo);
+      const result = isSignUp
+        ? await authClient.signUp.email({
+            name: name.trim() || email.split('@')[0] || 'OpenStory 用户',
+            email,
+            password,
+            callbackURL,
+          })
+        : await authClient.signIn.email({
+            email,
+            password,
+            callbackURL,
+          });
+
+      if (result.error) {
+        setError(
+          isSignUp
+            ? '注册失败，请检查信息后重试。'
+            : '登录失败，请检查邮箱和密码。'
+        );
+        return;
+      }
+
+      await finishSignInRedirect(navigate, redirectTo);
+    } catch (err) {
+      logger.error('Password authentication error:', { err });
+      setError('认证服务暂时不可用，请稍后重试。');
+    } finally {
       setIsLoading(false);
     }
   };
@@ -155,9 +197,7 @@ export function AuthForm({
       });
     } catch (err) {
       logger.error('Google sign-in error:', { err });
-      setError(
-        err instanceof Error ? err.message : 'Failed to sign in with Google'
-      );
+      setError('无法使用 Google 登录，请稍后重试。');
       setIsLoading(false);
     }
   };
@@ -165,14 +205,62 @@ export function AuthForm({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Welcome</CardTitle>
-        <CardDescription>Sign in or create an account</CardDescription>
+        <CardTitle>欢迎</CardTitle>
+        <CardDescription>登录或创建账号</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {error && (
           <Alert variant="destructive">
             <AlertDescription>{error}</AlertDescription>
           </Alert>
+        )}
+
+        <div className="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1">
+          <Button
+            type="button"
+            size="sm"
+            variant={authMode === 'password' ? 'default' : 'ghost'}
+            aria-pressed={authMode === 'password'}
+            onClick={() => {
+              setAuthMode('password');
+              setError(null);
+            }}
+            disabled={isLoading}
+          >
+            密码登录
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant={authMode === 'otp' ? 'default' : 'ghost'}
+            aria-pressed={authMode === 'otp'}
+            onClick={() => {
+              setAuthMode('otp');
+              setError(null);
+            }}
+            disabled={isLoading}
+          >
+            邮箱验证码
+          </Button>
+        </div>
+
+        {authMode === 'password' && (
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">
+              {isSignUp ? '创建一个新账号' : '使用账号密码登录'}
+            </span>
+            <button
+              type="button"
+              className="text-primary underline underline-offset-4"
+              onClick={() => {
+                setIsSignUp((current) => !current);
+                setError(null);
+              }}
+              disabled={isLoading}
+            >
+              {isSignUp ? '已有账号？登录' : '注册账号'}
+            </button>
+          </div>
         )}
 
         {/* Google OAuth — only where the server has the secrets configured */}
@@ -188,7 +276,7 @@ export function AuthForm({
               <svg
                 className="mr-2 h-4 w-4"
                 viewBox="0 0 24 24"
-                aria-label="Google logo"
+                aria-label="Google 标志"
               >
                 <title>Google</title>
                 <path
@@ -208,7 +296,7 @@ export function AuthForm({
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              Continue with Google
+              使用 Google 继续
             </Button>
 
             <div className="relative">
@@ -217,25 +305,45 @@ export function AuthForm({
               </div>
               <div className="relative flex justify-center text-xs uppercase">
                 <span className="bg-background px-2 text-muted-foreground">
-                  Or
+                  或
                 </span>
               </div>
             </div>
           </>
         )}
 
-        {/* Email Form */}
+        {/* Email/password or OTP form */}
         <form
-          className="group/email-form"
-          onSubmit={(e) => void handleSendOtp(e)}
+          className="space-y-4"
+          onSubmit={(e) =>
+            void (authMode === 'password'
+              ? handlePasswordAuth(e)
+              : handleSendOtp(e))
+          }
         >
+          {authMode === 'password' && isSignUp && (
+            <div className="space-y-2">
+              <Label htmlFor="name">名称</Label>
+              <Input
+                id="name"
+                name="name"
+                type="text"
+                autoComplete="name"
+                placeholder="你的名称"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                disabled={isLoading}
+                required
+              />
+            </div>
+          )}
           <div className="mb-4 space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">邮箱</Label>
             <Input
               id="email"
               name="email"
               type="email"
-              autoComplete="email webauthn"
+              autoComplete="email"
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -244,53 +352,83 @@ export function AuthForm({
             />
           </div>
 
-          {/* Hidden until an email is entered. CSS-driven (rather than React
-              state) so it works pre-hydration and isn't lost to the
-              controlled-input hydration race. */}
+          {authMode === 'password' && (
+            <div className="space-y-2">
+              <Label htmlFor="password">密码</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete={isSignUp ? 'new-password' : 'current-password'}
+                placeholder="至少 8 位"
+                minLength={8}
+                maxLength={128}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={isLoading}
+                required
+              />
+            </div>
+          )}
+
           <Button
             type="submit"
-            className="hidden w-full group-has-[input:not(:placeholder-shown)]/email-form:inline-flex"
-            disabled={isLoading}
+            className="w-full"
+            disabled={
+              isLoading ||
+              !email.trim() ||
+              (authMode === 'password' && password.length < 8)
+            }
           >
-            {isLoading ? 'Sending…' : 'Continue with email'}
+            {isLoading
+              ? '处理中…'
+              : authMode === 'password'
+                ? isSignUp
+                  ? '注册并登录'
+                  : '登录'
+                : '发送验证码'}
           </Button>
         </form>
 
-        {devFixedOtpActive ? (
+        {authMode === 'otp' && devFixedOtpActive ? (
           <p className="text-center text-xs text-muted-foreground">
-            Dev mode: no email OTP necessary — submitting an email signs you
-            straight in. Set <code>EMAIL_FROM</code> in <code>.env.local</code>{' '}
-            to use the real email flow.
+            开发模式：无需邮箱验证码——提交邮箱即可直接登录。 在{' '}
+            <code>.env.local</code> 中设置 <code>EMAIL_FROM</code>{' '}
+            以使用真实的邮箱流程。
+          </p>
+        ) : authMode === 'otp' ? (
+          <p className="text-center text-xs text-muted-foreground">
+            无需密码——我们会向你发送验证码。
           </p>
         ) : (
           <p className="text-center text-xs text-muted-foreground">
-            No password needed — we'll send you a code.
+            密码至少 8 位；也可以切换为邮箱验证码登录。
           </p>
         )}
 
         <p className="text-center text-xs text-muted-foreground">
-          By signing in, you agree to our{' '}
+          登录即表示你同意我们的{' '}
           <Link
             to="/terms"
             className="underline underline-offset-4 hover:text-foreground"
           >
-            Terms of&nbsp;Service
+            服务条款
           </Link>{' '}
-          and{' '}
+          和{' '}
           <Link
             to="/privacy"
             className="underline underline-offset-4 hover:text-foreground"
           >
-            Privacy&nbsp;Policy
+            隐私政策
           </Link>
-          . Report generated content at{' '}
+          。举报生成内容请访问{' '}
           <Link
             to="/report"
             className="underline underline-offset-4 hover:text-foreground"
           >
             /report
           </Link>
-          .
+          。
         </p>
       </CardContent>
     </Card>

@@ -100,18 +100,18 @@ const SampleClip: FC<{
           loop
           playsInline
           controls
-          aria-label={`${styleName} ${label ?? 'sample'} video`}
+          aria-label={`${styleName} ${label ?? '示例'}视频`}
         />
         {onTry ? (
           <Button
             size="sm"
             variant="secondary"
             onClick={onTry}
-            aria-label={`Try the ${styleName} style`}
+            aria-label={`试用 ${styleName} 风格`}
             className="absolute right-2 top-2 gap-1.5 opacity-90 backdrop-blur-sm transition-opacity hover:opacity-100"
           >
             <Wand2 className="size-3.5" />
-            Try
+            试用
           </Button>
         ) : (
           <Button
@@ -124,10 +124,10 @@ const SampleClip: FC<{
               to="/"
               search={{ style: slug }}
               hash="compose"
-              aria-label={`Try the ${styleName} style`}
+              aria-label={`试用 ${styleName} 风格`}
             >
               <Wand2 className="size-3.5" />
-              Try
+              试用
             </Link>
           </Button>
         )}
@@ -242,11 +242,11 @@ const StyleDetailContent: FC<{
   const tags = style.tags ?? [];
 
   const configRows: Array<{ label: string; value: string }> = [
-    { label: 'Mood', value: display.mood ?? '' },
-    { label: 'Art style', value: display.artStyle ?? '' },
-    { label: 'Lighting', value: display.lighting ?? '' },
-    { label: 'Camera', value: display.camera ?? '' },
-    { label: 'Color grading', value: display.colorGrading ?? '' },
+    { label: '氛围', value: display.mood ?? '' },
+    { label: '艺术风格', value: display.artStyle ?? '' },
+    { label: '灯光', value: display.lighting ?? '' },
+    { label: '摄影机', value: display.camera ?? '' },
+    { label: '调色', value: display.colorGrading ?? '' },
   ].filter((row) => row.value.trim());
 
   return (
@@ -278,7 +278,7 @@ const StyleDetailContent: FC<{
               poster={poster}
               styleName={style.name}
               slug={slug}
-              label={bespokeSrc ? 'Sample' : undefined}
+              label={bespokeSrc ? '示例' : undefined}
               autoPlay
               onTry={onTryStyle}
             />
@@ -294,7 +294,7 @@ const StyleDetailContent: FC<{
               poster={bespokePoster}
               styleName={style.name}
               slug={slug}
-              label="Showcase"
+              label="展示"
               onTry={onTryStyle}
             />
           )}
@@ -305,7 +305,7 @@ const StyleDetailContent: FC<{
                 <PreviewStill
                   key={src}
                   src={src}
-                  alt={`${style.name} preview ${i + 1}`}
+                  alt={`${style.name} 预览 ${i + 1}`}
                 />
               ))}
             </div>
@@ -317,7 +317,7 @@ const StyleDetailContent: FC<{
           {palette.length > 0 && (
             <div className="flex flex-col gap-1.5">
               <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Palette
+                调色板
               </span>
               <div className="flex flex-wrap gap-1.5">
                 {palette.map((color) => (
@@ -343,7 +343,7 @@ const StyleDetailContent: FC<{
               <Separator />
               <div className="flex flex-col gap-1.5">
                 <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Reference films
+                  参考影片
                 </span>
                 <div className="flex flex-wrap gap-1.5">
                   {display.references.map((film) => (
@@ -359,7 +359,7 @@ const StyleDetailContent: FC<{
           {tags.length > 0 && (
             <div className="flex flex-col gap-1.5">
               <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Tags
+                标签
               </span>
               <div className="flex flex-wrap gap-1.5">
                 {tags.map((tag) => (
@@ -386,9 +386,9 @@ const StyleDetailContent: FC<{
             type="button"
             onClick={onUseStyle}
             aria-keyshortcuts="Enter"
-            aria-label={`Use the ${style.name} style`}
+            aria-label={`使用 ${style.name} 风格`}
           >
-            Use this style
+            使用此风格
             <Kbd className="bg-primary-foreground/20 text-primary-foreground">
               ⏎
             </Kbd>
@@ -400,9 +400,9 @@ const StyleDetailContent: FC<{
               search={{ style: styleSlug(style.name), prefill: 'style' }}
               hash="compose"
               aria-keyshortcuts="Enter"
-              aria-label={`Use the ${style.name} style`}
+              aria-label={`使用 ${style.name} 风格`}
             >
-              Use this style
+              使用此风格
               <Kbd className="bg-primary-foreground/20 text-primary-foreground">
                 ⏎
               </Kbd>

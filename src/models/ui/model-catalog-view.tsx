@@ -22,10 +22,10 @@ import type { ChangeEvent, FC, FormEvent } from 'react';
 import { Suspense, useEffect, useRef, useState } from 'react';
 
 const ACTIVITY_FILTERS = [
-  { value: 'all', label: 'All' },
-  { value: 'image', label: 'Image' },
-  { value: 'video', label: 'Video' },
-  { value: 'audio', label: 'Audio' },
+  { value: 'all', label: '全部' },
+  { value: 'image', label: '图像' },
+  { value: 'video', label: '视频' },
+  { value: 'audio', label: '音频' },
 ] as const;
 
 const SEARCH_DEBOUNCE_MS = 300;
@@ -110,9 +110,9 @@ const ModelResults: FC<{
           <EmptyMedia variant="icon">
             <Boxes />
           </EmptyMedia>
-          <EmptyTitle>No models found</EmptyTitle>
+          <EmptyTitle>未找到模型</EmptyTitle>
           <EmptyDescription>
-            Try a different search or activity filter.
+            请尝试其他搜索关键词或类型筛选条件。
           </EmptyDescription>
         </EmptyHeader>
       </Empty>
@@ -139,7 +139,7 @@ const ModelResults: FC<{
           <div ref={sentinelRef} aria-hidden="true" />
           {isFetchNextPageError && (
             <p role="alert" className="text-sm text-destructive">
-              Couldn't load more models.
+              无法加载更多模型。
             </p>
           )}
           <Button
@@ -148,10 +148,10 @@ const ModelResults: FC<{
             disabled={isFetchingNextPage}
           >
             {isFetchingNextPage
-              ? 'Loading…'
+              ? '正在加载…'
               : isFetchNextPageError
-                ? 'Try again'
-                : 'Load more'}
+                ? '重试'
+                : '加载更多'}
           </Button>
         </>
       )}
@@ -214,16 +214,16 @@ export const ModelCatalogView: FC<ModelCatalogViewProps> = ({
             </InputGroupAddon>
             <InputGroupInput
               type="search"
-              placeholder="Search models"
+              placeholder="搜索模型"
               value={search}
               onChange={handleSearchInput}
-              aria-label="Search models"
+              aria-label="搜索模型"
             />
             {search && (
               <InputGroupAddon align="inline-end">
                 <Button variant="ghost" size="icon" onClick={handleClear}>
                   <X />
-                  <span className="sr-only">Clear search</span>
+                  <span className="sr-only">清除搜索</span>
                 </Button>
               </InputGroupAddon>
             )}

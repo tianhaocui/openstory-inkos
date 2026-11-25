@@ -17,7 +17,7 @@ const searchParamsSchema = z.object({
 export const Route = createFileRoute('/_app/locations/')({
   validateSearch: searchParamsSchema,
   component: LocationsPage,
-  staticData: { breadcrumb: 'Locations' },
+  staticData: { breadcrumb: '场景' },
 });
 
 function LocationsPage() {
@@ -46,10 +46,10 @@ function LocationsPage() {
 
   return (
     <div className="h-full overflow-auto">
-      <PageIntro title="Location Library" actions={addAction}>
+      <PageIntro title="场景库" actions={addAction}>
         {isAuthenticated
-          ? 'Browse and manage location references across all your sequences. Upload custom references to maintain visual consistency.'
-          : 'Browse system locations. Sign in to add your own references and keep settings consistent across sequences.'}
+          ? '浏览和管理所有序列中的场景参考。上传自定义参考图片以保持视觉一致性。'
+          : '浏览系统场景。登录后可添加自己的参考图片，保持序列间的一致性。'}
       </PageIntro>
       <PageContainer padding="none" className="pb-8">
         {isAuthenticated && <LocationLibraryFilters currentSearch={search} />}
@@ -58,12 +58,12 @@ function LocationsPage() {
           <EmptyState
             icon={<MapPin className="h-12 w-12" />}
             title={
-              isAuthenticated ? 'No locations yet' : 'No system locations yet'
+              isAuthenticated ? '暂无场景' : '暂无系统场景'
             }
             description={
               isAuthenticated
-                ? 'Add locations to your library to maintain visual consistency across your sequences.'
-                : 'Check back soon, or sign in to build your own location library.'
+                ? '添加场景到你的库中，以保持序列间的视觉一致性。'
+                : '敬请期待，或登录创建你自己的场景库。'
             }
             action={addAction}
           />

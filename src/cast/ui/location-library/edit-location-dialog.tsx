@@ -69,11 +69,11 @@ export const EditLocationDialog: React.FC<EditLocationDialogProps> = ({
         undiscardVariant.mutate(
           { variantId: variant.id },
           {
-            onSuccess: () => toast.success('Alternate restored'),
+            onSuccess: () => toast.success('备选版本已恢复'),
             onError: (error) => {
-              toast.error('Failed to restore alternate', {
+              toast.error('恢复备选版本失败', {
                 description:
-                  error instanceof Error ? error.message : 'Unknown error',
+                  error instanceof Error ? error.message : '未知错误',
               });
             },
           }
@@ -83,14 +83,13 @@ export const EditLocationDialog: React.FC<EditLocationDialogProps> = ({
         {
           onSuccess: () => {
             setCompareVariant(null);
-            toast('Alternate discarded', {
-              action: { label: 'Undo', onClick: restore },
+            toast('备选版本已丢弃', {
+              action: { label: '撤销', onClick: restore },
             });
           },
           onError: (error) => {
-            toast.error('Failed to discard alternate', {
-              description:
-                error instanceof Error ? error.message : 'Unknown error',
+            toast.error('丢弃备选版本失败', {
+              description: error instanceof Error ? error.message : '未知错误',
             });
           },
         }
@@ -106,12 +105,11 @@ export const EditLocationDialog: React.FC<EditLocationDialogProps> = ({
         {
           onSuccess: () => {
             setCompareVariant(null);
-            toast.success('Alternate promoted');
+            toast.success('备选版本已提升为当前版本');
           },
           onError: (error) => {
-            toast.error('Failed to promote alternate', {
-              description:
-                error instanceof Error ? error.message : 'Unknown error',
+            toast.error('提升备选版本失败', {
+              description: error instanceof Error ? error.message : '未知错误',
             });
           },
         }
@@ -155,8 +153,8 @@ export const EditLocationDialog: React.FC<EditLocationDialogProps> = ({
           className="flex flex-col gap-4"
         >
           <DialogHeader>
-            <DialogTitle>Edit Location</DialogTitle>
-            <DialogDescription>Update the location details.</DialogDescription>
+            <DialogTitle>编辑场景</DialogTitle>
+            <DialogDescription>更新场景详细信息。</DialogDescription>
           </DialogHeader>
 
           {focusVariant && (
@@ -171,7 +169,7 @@ export const EditLocationDialog: React.FC<EditLocationDialogProps> = ({
 
           <div className="grid gap-4">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">名称</Label>
               <Input
                 id="name"
                 name="name"
@@ -182,12 +180,12 @@ export const EditLocationDialog: React.FC<EditLocationDialogProps> = ({
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">描述</Label>
               <Textarea
                 id="description"
                 name="description"
                 defaultValue={location.description ?? ''}
-                placeholder="Describe the location's visual details…"
+                placeholder="描述场景的视觉细节…"
                 rows={3}
               />
             </div>
@@ -195,10 +193,10 @@ export const EditLocationDialog: React.FC<EditLocationDialogProps> = ({
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">取消</Button>
             </DialogClose>
             <Button type="submit" disabled={isPending}>
-              {isPending ? 'Saving…' : 'Save Changes'}
+              {isPending ? '正在保存…' : '保存更改'}
             </Button>
           </DialogFooter>
         </form>

@@ -92,9 +92,7 @@ const CastCard: React.FC<CastCardProps> = ({
             >
               {character.name}
             </h3>
-            {character.voiceOnly && (
-              <Badge variant="secondary">Voice only</Badge>
-            )}
+            {character.voiceOnly && <Badge variant="secondary">仅声音</Badge>}
             {(character.age || character.gender) && (
               <p className="mt-1 truncate text-xs text-white/70">
                 {[character.age, character.gender].filter(Boolean).join(' · ')}
@@ -123,7 +121,7 @@ const CastCard: React.FC<CastCardProps> = ({
         variant="ghost"
         size="icon"
         className="absolute right-1 top-1 z-10 h-7 w-7 bg-black/50 text-white hover:bg-black/70 hover:text-white"
-        aria-label={`Remove ${character.name} from sequence`}
+        aria-label={`从序列中移除 ${character.name}`}
         onClick={() => onDelete(character)}
       >
         <Trash2 className="h-3.5 w-3.5" />
@@ -162,16 +160,16 @@ export const SceneCastTab: React.FC<SceneCastTabProps> = ({
       {
         onSuccess: () => {
           setPendingDelete(null);
-          toast(`Removed ${character.name}`, {
+          toast(`已移除 ${character.name}`, {
             duration: 60_000,
             action: {
-              label: 'Undo',
+              label: '撤销',
               onClick: () =>
                 void restoreSequenceCharacter(queryClient, {
                   sequenceId,
                   characterId: character.id,
                 }).catch((error: Error) =>
-                  toast.error('Failed to restore character', {
+                  toast.error('恢复演员失败', {
                     description: errorMessage(error),
                   })
                 ),
@@ -179,7 +177,7 @@ export const SceneCastTab: React.FC<SceneCastTabProps> = ({
           });
         },
         onError: (error) =>
-          toast.error('Failed to remove character', {
+          toast.error('移除演员失败', {
             description: errorMessage(error),
           }),
       }
@@ -217,9 +215,7 @@ export const SceneCastTab: React.FC<SceneCastTabProps> = ({
           <Film className="h-8 w-8 text-muted-foreground/50" />
         </div>
         <p className="text-sm text-muted-foreground">
-          {canAdd
-            ? 'No cast yet'
-            : 'No cast in this selection — clear the selection to add one'}
+          {canAdd ? '暂无演员' : '当前选择中没有演员，清除选择后可添加'}
         </p>
         {canAdd && <AddCharacterDialog sequenceId={sequenceId} />}
       </div>
@@ -230,12 +226,9 @@ export const SceneCastTab: React.FC<SceneCastTabProps> = ({
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
-          <span>{canAdd ? 'All Cast' : 'Cast'}</span>
+          <span>{canAdd ? '全部演员' : '演员'}</span>
           <span className="text-muted-foreground/50">·</span>
-          <span>
-            {scopedCast.length}{' '}
-            {scopedCast.length === 1 ? 'character' : 'characters'}
-          </span>
+          <span>{scopedCast.length} 位演员</span>
         </div>
         {canAdd && <AddCharacterDialog sequenceId={sequenceId} />}
       </div>
@@ -260,15 +253,14 @@ export const SceneCastTab: React.FC<SceneCastTabProps> = ({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Remove {pendingDelete?.name} from this sequence?
+              从当前序列中移除 {pendingDelete?.name}？
             </AlertDialogTitle>
             <AlertDialogDescription>
-              The character is hidden from the cast and prompt context. You can
-              undo from the toast right after removing.
+              该演员将从演员列表和提示词上下文中隐藏。移除后可立即在通知中撤销。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>取消</AlertDialogCancel>
             <AlertDialogAction
               disabled={softDelete.isPending}
               // Radix's Action closes the dialog on click; hold it open so the
@@ -279,7 +271,7 @@ export const SceneCastTab: React.FC<SceneCastTabProps> = ({
                 if (pendingDelete) handleConfirmDelete(pendingDelete);
               }}
             >
-              {softDelete.isPending ? 'Removing…' : 'Remove'}
+              {softDelete.isPending ? '移除中…' : '移除'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

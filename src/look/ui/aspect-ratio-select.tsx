@@ -33,7 +33,7 @@ export const AspectRatioSelect = ({
   value,
   onChange,
   disabled = false,
-  placeholder = 'Aspect ratio',
+  placeholder = '宽高比',
   size = 'default',
   variant = 'horizontal',
   className,
@@ -49,7 +49,7 @@ export const AspectRatioSelect = ({
             size={size}
             disabled={disabled}
             className={cn('flex-col h-auto gap-2', className)}
-            aria-label="Select aspect ratio"
+            aria-label="选择宽高比"
           >
             {selectedRatio ? (
               <>
@@ -98,7 +98,7 @@ export const AspectRatioSelect = ({
           size={size}
           disabled={disabled}
           className={className}
-          aria-label="Select aspect ratio"
+          aria-label="选择宽高比"
         >
           {selectedRatio ? (
             <>

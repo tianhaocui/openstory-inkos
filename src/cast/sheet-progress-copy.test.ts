@@ -9,14 +9,14 @@ import {
 
 describe('sheetProgressCopy', () => {
   it('says creating portrait when the sheet was uploaded', () => {
-    expect(sheetProgressCopy('portrait')).toBe('Creating portrait…');
+    expect(sheetProgressCopy('portrait')).toBe('正在创建肖像…');
     expect(sheetProgressCopy('portrait', 'long')).toBe(
-      'Creating portrait from the uploaded sheet…'
+      '正在根据上传的设定图创建肖像…'
     );
   });
 
   it('says generating sheet when a 4-panel is being made', () => {
-    expect(sheetProgressCopy('sheet')).toBe('Generating sheet…');
+    expect(sheetProgressCopy('sheet')).toBe('正在生成设定图…');
   });
 });
 

@@ -52,7 +52,6 @@ import {
   DEFAULT_GENERATION_STOP_AT,
   flagsFromStopAt,
   includesStage,
-  runScopeLabel,
   type GenerationStage,
 } from '@/sequences/pipeline';
 import { useComposedScript } from '@/shots/ui/use-scenes';
@@ -195,7 +194,7 @@ function useSequenceDraft() {
 /** Empty-composer copy (#1255): visible until the user types or shuffles.
  *  Keep this to ~1–2 lines so it fits the phone editor floor. */
 const COMPOSER_SCRIPT_PLACEHOLDER =
-  'Paste a screenplay, or a one-liner we can expand - not a prompt.';
+  '粘贴一个剧本，或者一句话让我们为你展开——不是提示词。';
 
 function DurationFitHint({
   videoModel,
@@ -855,7 +854,7 @@ export const ScriptView: FC<{
       ? recommendations
       : undefined;
   const isRecommended = !!activeRecommendations && !isRecommending;
-  const recommendButtonLabel = isRecommended ? 'Recommended' : 'Recommend';
+  const recommendButtonLabel = isRecommended ? '已推荐' : '推荐';
   // The shortlist ran but turned up nothing usable (or errored). Distinguish
   // this from "never asked" so we can tell the user instead of silently
   // reverting to the trigger button (which invites a re-click + re-charge).
@@ -1127,7 +1126,7 @@ export const ScriptView: FC<{
       });
     } catch (error) {
       if (!abortController.signal.aborted) {
-        setEnhance('error', errorMessage(error, 'Failed to enhance script'));
+        setEnhance('error', errorMessage(error, '增强剧本失败'));
         setScript(previousScriptRef.current);
       }
     } finally {
@@ -1271,7 +1270,14 @@ export const ScriptView: FC<{
     generateStartFrames,
     generateVoices,
   });
-  const generateScopeLabel = runScopeLabel(stopAt);
+  const generateScopeLabel: Record<GenerationStage, string>[GenerationStage] = {
+    script: '分析剧本',
+    references: '生成参考素材',
+    images: '生成图片',
+    dialogue: '生成对白',
+    motion: '生成动态视频',
+    music: '生成动态视频与音乐',
+  }[stopAt];
 
   // Nothing written yet: Enhance writes the script instead of expanding one
   // (#1393), so it stays live at any length and says which job it is doing.
@@ -1279,7 +1285,7 @@ export const ScriptView: FC<{
   // "Surprise me" over by the styles, which swaps in a canned sample rather
   // than writing anything (#1481).
   const enhanceInvents = scriptValue.trim().length === 0;
-  const enhanceLabel = enhanceInvents ? 'Invent script' : 'Enhance Script';
+  const enhanceLabel = enhanceInvents ? '创作剧本' : '增强剧本';
   // Match script (the default) passes no style to the enhancer, so the draft
   // really is any genre at all.
   const inventStyleName = styles.find((s) => s.id === styleId)?.name;
@@ -1295,7 +1301,7 @@ export const ScriptView: FC<{
           onClick={handleUndoEnhance}
         >
           <Undo2 className="size-3.5" />
-          Undo
+          撤销
         </Button>
       )}
       {isEnhancing ? (
@@ -1310,7 +1316,7 @@ export const ScriptView: FC<{
             <Loader2 className="absolute inset-0 size-5 animate-spin" />
             <Square className="absolute inset-[5px] size-[10px] fill-current" />
           </span>
-          Stop
+          停止
         </Button>
       ) : (
         <Popover open={enhancePopoverOpen} onOpenChange={setEnhancePopoverOpen}>
@@ -1328,7 +1334,7 @@ export const ScriptView: FC<{
           </PopoverTrigger>
           <PopoverContent align="end" side="top" className="w-auto">
             <div className="flex flex-col gap-3">
-              <p className="text-sm font-medium">Target video duration</p>
+              <p className="text-sm font-medium">目标视频时长</p>
               <ToggleGroup
                 type="single"
                 value={String(targetDuration)}
@@ -1348,8 +1354,8 @@ export const ScriptView: FC<{
               {enhanceInvents ? (
                 <p className="max-w-xs text-xs text-muted-foreground">
                   {inventStyleName
-                    ? `An original ${inventStyleName} script, yours to edit.`
-                    : 'An original script, any genre, yours to edit.'}
+                    ? `为你创作一份原创的${inventStyleName}剧本，可自由编辑。`
+                    : '为你创作一份任意类型的原创剧本，可自由编辑。'}
                 </p>
               ) : (
                 <DurationFitHint
@@ -1372,7 +1378,7 @@ export const ScriptView: FC<{
                 }}
               >
                 <Sparkles className="size-3.5" />
-                {enhanceInvents ? 'Draft it' : 'Enhance'}
+                {enhanceInvents ? '起草' : '增强'}
               </Button>
             </div>
           </PopoverContent>
@@ -1396,11 +1402,9 @@ export const ScriptView: FC<{
       {isDraggingFiles && (
         <div className="pointer-events-none absolute inset-2 z-50 flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-primary/60 bg-background/80 backdrop-blur-sm">
           <ImagePlus className="size-10 text-primary" />
-          <p className="text-base font-medium">
-            Drop images to add as elements
-          </p>
+          <p className="text-base font-medium">拖放图片以添加为元素</p>
           <p className="text-xs text-muted-foreground">
-            They'll be referenced by UPPERCASE tokens in your script
+            它们将在剧本中以大写标记引用
           </p>
         </div>
       )}
@@ -1447,7 +1451,7 @@ export const ScriptView: FC<{
                 className="md:hidden gap-1.5 shrink-0"
               >
                 <Library className="size-3.5" />
-                References
+                参考素材
                 {referenceCount > 0 && (
                   <span className="ml-1 rounded-full bg-primary/10 px-1.5 text-xs">
                     {referenceCount}
@@ -1457,10 +1461,9 @@ export const ScriptView: FC<{
             </SheetTrigger>
             <SheetContent side="bottom" className="px-4 pb-6">
               <SheetHeader className="px-0">
-                <SheetTitle>Talent, locations & elements</SheetTitle>
+                <SheetTitle>演员、场景与元素</SheetTitle>
                 <SheetDescription>
-                  Pre-cast talent, pin locations, or add reference images.
-                  Anything you skip is extracted from the script.
+                  可预先选择演员、指定场景或添加参考图片；跳过的内容将从剧本中自动提取。
                 </SheetDescription>
               </SheetHeader>
               <div className="flex flex-col items-start gap-3">
@@ -1489,8 +1492,7 @@ export const ScriptView: FC<{
               this row off so the placeholder is the instruction (#1255). */}
           {!isEditing && sampleStyleId ? (
             <p className="hidden shrink-0 text-xs text-muted-foreground md:block short-h:hidden">
-              Sample script — make it yours, or hit Generate to see it come to
-              life.
+              示例剧本：可先按需修改，或直接点击“生成”查看效果。
             </p>
           ) : null}
           {/* Grows with content above the editor floor until the card hits
@@ -1551,7 +1553,7 @@ export const ScriptView: FC<{
                 onClick={requestShuffle}
               >
                 <Shuffle className="size-3.5" />
-                Surprise me
+                随机风格
               </Button>
             )}
             {/* CSS-only placement so SSR and hydration match — no useIsMobile
@@ -1559,7 +1561,7 @@ export const ScriptView: FC<{
             <div className="ml-auto flex items-center gap-1">
               {enhanceControls}
               <VoiceInputButton
-                label="script"
+                label="剧本"
                 variant="outline"
                 size="icon-sm"
                 disabled={loading || isEnhancing || isDerivedScript}
@@ -1584,8 +1586,8 @@ export const ScriptView: FC<{
           {(recommendEmpty || recommendFailed) && (
             <p className="text-xs text-muted-foreground">
               {recommendFailed
-                ? "Couldn't suggest styles — try again or pick one below."
-                : 'No standout matches — try again or pick a style below.'}
+                ? '无法推荐风格——请重试或从下方选择。'
+                : '没有突出的匹配——请重试或从下方选择一个风格。'}
             </p>
           )}
         </div>
@@ -1601,7 +1603,7 @@ export const ScriptView: FC<{
                   <span className="text-muted-foreground">+</span>
                   <Kbd>⏎</Kbd>
                 </KbdGroup>
-                <span className="ml-1">to generate</span>
+                <span className="ml-1">生成</span>
               </span>
             </div>
 
@@ -1615,7 +1617,7 @@ export const ScriptView: FC<{
                     variant="secondary"
                     onClick={handleCancel}
                   >
-                    Cancel
+                    取消
                   </Button>
                 )}
                 <Button
@@ -1630,12 +1632,12 @@ export const ScriptView: FC<{
                       <GenerateSequenceIcon className="size-4" />
                     )}
                     {isSubmitting
-                      ? 'Generating…'
+                      ? '生成中…'
                       : isElementBusy
-                        ? 'Analyzing elements…'
+                        ? '分析元素中…'
                         : isEditing
-                          ? 'Generate Copy'
-                          : 'Generate'}
+                          ? '生成副本'
+                          : '生成'}
                   </span>
                   {/* Shine effect */}
                   <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
@@ -1665,11 +1667,11 @@ export const ScriptView: FC<{
               <span className="hidden text-xs text-muted-foreground sm:block sm:text-right">
                 {isEditing
                   ? analysisModels.length === 1
-                    ? '1 copy will be created'
-                    : `${analysisModels.length} copies will be created`
+                    ? '将创建 1 个副本'
+                    : `将创建 ${analysisModels.length} 个副本`
                   : analysisModels.length === 1
-                    ? '1 sequence will be created'
-                    : `${analysisModels.length} sequences will be created`}
+                    ? '将创建 1 个序列'
+                    : `将创建 ${analysisModels.length} 个序列`}
               </span>
             </div>
           </div>
@@ -1681,23 +1683,20 @@ export const ScriptView: FC<{
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              Generate a copy of this sequence?
-            </AlertDialogTitle>
+            <AlertDialogTitle>生成此序列的副本？</AlertDialogTitle>
             <AlertDialogDescription>
-              A copy will be created from this script. Your original sequence
-              won't change.
+              将从此剧本创建一个副本。你的原始序列不会改变。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>取消</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 setEnhance('showRegenerateConfirm', false);
                 requestGenerate();
               }}
             >
-              Generate Copy
+              生成副本
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -1717,18 +1716,14 @@ export const ScriptView: FC<{
           }}
         >
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              Your script is just a starting point
-            </AlertDialogTitle>
+            <AlertDialogTitle>你的剧本只是一个起点</AlertDialogTitle>
             <AlertDialogDescription>
-              Short scripts produce simpler sequences. Enhance your script to
-              create a detailed screenplay with visual descriptions, camera
-              directions, and scene breakdowns — tailored to your selected
-              style.
+              简短的剧本只能生成简单的序列。增强你的剧本可以创建包含视觉描述、
+              镜头指导和场景分解的详细剧本——根据你选择的风格量身定制。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex flex-col gap-2 py-2">
-            <p className="text-sm font-medium">Target video duration</p>
+            <p className="text-sm font-medium">目标视频时长</p>
             <ToggleGroup
               type="single"
               value={String(targetDuration)}
@@ -1751,7 +1746,7 @@ export const ScriptView: FC<{
             />
           </div>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>取消</AlertDialogCancel>
             <div className="flex-1" />
             <AlertDialogAction
               className={buttonVariants({ variant: 'secondary' })}
@@ -1760,7 +1755,7 @@ export const ScriptView: FC<{
                 requestGenerate();
               }}
             >
-              Generate As-Is
+              直接生成
             </AlertDialogAction>
             <AlertDialogAction
               onClick={() => {
@@ -1769,7 +1764,7 @@ export const ScriptView: FC<{
               }}
             >
               <Sparkles className="size-3.5" />
-              Enhance Script
+              增强剧本
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -1782,15 +1777,11 @@ export const ScriptView: FC<{
         generateVoices={generateVoices}
         remember={savedSettings.rememberStopAt}
         confirmLabel={
-          stopAlertMode === 'edit'
-            ? 'Save'
-            : isEditing
-              ? 'Generate Copy'
-              : 'Generate'
+          stopAlertMode === 'edit' ? '保存' : isEditing ? '生成副本' : '生成'
         }
         description={
           isEditing
-            ? "A copy will be created from this script. Your original sequence won't change."
+            ? '将从此剧本创建一个副本。你的原始序列不会改变。'
             : undefined
         }
         estimateBase={draftEstimateBase}
@@ -1820,15 +1811,15 @@ export const ScriptView: FC<{
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Replace your script?</AlertDialogTitle>
+            <AlertDialogTitle>替换你的剧本？</AlertDialogTitle>
             <AlertDialogDescription>
               {sampleReplaceConfirm?.kind === 'try'
-                ? "This swaps in the style's sample script. What you've written here will be replaced."
-                : "Surprise me swaps in a sample script for a random style. What you've written here will be replaced."}
+                ? '这将替换为该风格的示例剧本。你已编写的内容将被替换。'
+                : '"随机风格"将替换为一个随机风格的示例剧本。你已编写的内容将被替换。'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Keep my script</AlertDialogCancel>
+            <AlertDialogCancel>保留我的剧本</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 const pending = sampleReplaceConfirm;
@@ -1842,7 +1833,7 @@ export const ScriptView: FC<{
               ) : (
                 <Shuffle className="size-3.5" />
               )}
-              <span>Replace</span>
+              <span>替换</span>
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

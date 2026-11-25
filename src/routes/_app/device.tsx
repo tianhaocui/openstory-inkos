@@ -37,7 +37,7 @@ export const Route = createFileRoute('/_app/device')({
     await requireSessionOrRedirect(queryClient, location.href);
   },
   component: DevicePage,
-  staticData: { breadcrumb: 'Device login' },
+  staticData: { breadcrumb: '设备登录' },
 });
 
 function DevicePage() {
@@ -55,10 +55,9 @@ function DevicePage() {
     <div className="mx-auto w-full max-w-md p-6">
       <Card>
         <CardHeader>
-          <CardTitle>Device login</CardTitle>
+          <CardTitle>设备登录</CardTitle>
           <CardDescription>
-            Enter the code shown by your agent or CLI to give it access to the
-            OpenStory API.
+            输入代理或 CLI 显示的代码，授权其访问 OpenStory API。
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
@@ -74,7 +73,7 @@ function DevicePage() {
               required
             />
             <Button type="submit" variant="outline">
-              Check
+              检查
             </Button>
           </form>
           {user_code && (
@@ -102,8 +101,8 @@ function GrantDecision({ userCode }: { userCode: string }) {
       if (error) {
         toast.error(
           error === 'access_denied'
-            ? 'This code was requested under a different account. Sign in as that account to approve it.'
-            : 'This code is no longer valid. Ask your agent for a new one.'
+            ? '此代码由其他账户发起。请登录对应账户后再批准。'
+            : '此代码已失效。请让代理重新生成代码。'
         );
         void queryClient.invalidateQueries({
           queryKey: ['deviceGrant', userCode],
@@ -113,47 +112,43 @@ function GrantDecision({ userCode }: { userCode: string }) {
       setDecided(approve ? 'approved' : 'denied');
     },
     onError: (err) =>
-      toast.error(err instanceof Error ? err.message : 'Something went wrong'),
+      toast.error(err instanceof Error ? err.message : '出现错误，请重试'),
   });
 
   if (decided === 'approved') {
     return (
       <output className="block">
-        Approved. Return to your agent — it now has a key named “Agent login”,
-        which you can revoke any time under Settings → Developer.
+        已批准。请返回代理，它现在拥有一个名为“Agent
+        login”的密钥。你可以随时在“设置 → 开发者”中撤销此密钥。
       </output>
     );
   }
   if (decided === 'denied') {
-    return (
-      <output className="block">
-        Denied. The agent will not receive a key.
-      </output>
-    );
+    return <output className="block">已拒绝。代理不会获得密钥。</output>;
   }
   if (data.status === 'approved' || data.status === 'denied') {
     return (
       <output className="block">
-        Code <code className="font-mono">{userCode}</code> has already been{' '}
-        {data.status}.
+        代码 <code className="font-mono">{userCode}</code> 已经
+        {data.status === 'approved' ? '批准' : '拒绝'}。
       </output>
     );
   }
   if (data.status === 'invalid') {
     return (
       <p role="alert">
-        Code <code className="font-mono">{userCode}</code> isn’t valid or has
-        expired. Check it and try again, or ask your agent for a new one.
+        代码 <code className="font-mono">{userCode}</code>{' '}
+        无效或已过期。请检查后重试，或让代理重新生成代码。
       </p>
     );
   }
   return (
     <div className="flex flex-col gap-3">
       <p>
-        Give the device showing{' '}
-        <code className="font-mono font-semibold">{userCode}</code> an API key
-        for team <strong>{data.teamName}</strong>? Only approve codes you
-        requested yourself.
+        是否向显示代码{' '}
+        <code className="font-mono font-semibold">{userCode}</code>{' '}
+        的设备授予团队 <strong>{data.teamName}</strong> 的 API
+        密钥？请仅批准由你本人发起的代码。
       </p>
       <div className="flex justify-end gap-2">
         <Button
@@ -161,10 +156,10 @@ function GrantDecision({ userCode }: { userCode: string }) {
           disabled={decide.isPending}
           onClick={() => decide.mutate(false)}
         >
-          Deny
+          拒绝
         </Button>
         <Button disabled={decide.isPending} onClick={() => decide.mutate(true)}>
-          {decide.isPending ? 'Working…' : 'Approve'}
+          {decide.isPending ? '处理中…' : '批准'}
         </Button>
       </div>
     </div>

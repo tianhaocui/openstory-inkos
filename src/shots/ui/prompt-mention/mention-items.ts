@@ -197,11 +197,11 @@ export function mentionInsertAttrs(item: {
 }
 
 export const SECTION_LABELS: Record<MentionSection, string> = {
-  references: 'Attached',
-  elements: 'Elements',
-  cast: 'Cast',
-  locations: 'Locations',
-  images: 'Images',
+  references: '已附加',
+  elements: '元素',
+  cast: '演员',
+  locations: '场景',
+  images: '图片',
 };
 
 export const SECTION_ORDER: MentionSection[] = [

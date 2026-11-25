@@ -37,9 +37,9 @@ type DivergenceCompareDialogProps = {
 };
 
 const ARTIFACT_LABEL: Record<VariantType, string> = {
-  image: 'image',
-  video: 'video',
-  audio: 'audio',
+  image: '图片',
+  video: '视频',
+  audio: '音频',
 };
 
 function liveAssetForVariant(
@@ -66,7 +66,7 @@ const AssetPreview: React.FC<{
   if (!url) {
     return (
       <div className="flex aspect-video items-center justify-center rounded-md border border-dashed border-muted-foreground/40 text-xs text-muted-foreground">
-        No asset
+        暂无素材
       </div>
     );
   }
@@ -137,37 +137,35 @@ export const DivergenceCompareDialog: React.FC<
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Compare alternate {label}</DialogTitle>
+          <DialogTitle>比较备用版本{label}</DialogTitle>
           <DialogDescription>
-            An alternate {label} was generated from the inputs you had at the
-            time. Compare it against the live version, then promote or discard.
+            此备用版本{label}
+            基于当时的输入生成。请与当前版本比较后选择采用或丢弃。
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-2">
-            <span className="text-sm font-medium">Live (current inputs)</span>
+            <span className="text-sm font-medium">当前版本（当前输入）</span>
             <AssetPreview
               url={live.url}
               kind={live.kind}
-              alt={`Live ${label}`}
+              alt={`当前${label}`}
             />
           </div>
           <div className="flex flex-col gap-2">
-            <span className="text-sm font-medium">
-              Alternate (older inputs)
-            </span>
+            <span className="text-sm font-medium">备用版本（旧输入）</span>
             <AssetPreview
               url={variant.url}
               kind={live.kind}
-              alt={`Alternate ${label}`}
+              alt={`备用版本${label}`}
             />
           </div>
         </div>
 
         {upstreamChanges && upstreamChanges.length > 0 && (
           <div className="flex flex-col gap-2 rounded-md border bg-muted/30 p-3">
-            <span className="text-sm font-medium">What changed</span>
+            <span className="text-sm font-medium">变更内容</span>
             <ul className="flex flex-col gap-1 text-sm text-muted-foreground">
               {upstreamChanges.map((change) => (
                 <li key={change}>• {change}</li>
@@ -192,13 +190,11 @@ export const DivergenceCompareDialog: React.FC<
             role="alert"
             aria-live="polite"
           >
-            Promote replaces the current {label}
+            采用后将替换当前{label}
             <span>
-              {variant.variantType === 'image'
-                ? ' and clears the live video.'
-                : '.'}
+              {variant.variantType === 'image' ? '，并清除当前视频。' : '。'}
             </span>{' '}
-            Click Promote again to confirm.
+            请再次点击“采用”以确认。
           </div>
         )}
 
@@ -210,7 +206,7 @@ export const DivergenceCompareDialog: React.FC<
             disabled={busy}
           >
             {isDiscarding && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            <span>Discard</span>
+            <span>丢弃</span>
           </Button>
           <Button
             type="button"
@@ -218,7 +214,7 @@ export const DivergenceCompareDialog: React.FC<
             onClick={() => onOpenChange(false)}
             disabled={busy}
           >
-            Cancel
+            取消
           </Button>
           <Button
             type="button"
@@ -227,7 +223,7 @@ export const DivergenceCompareDialog: React.FC<
             variant={confirmingPromote ? 'destructive' : 'default'}
           >
             {isPromoting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {confirmingPromote ? 'Confirm Promote' : 'Promote'}
+            {confirmingPromote ? '确认采用' : '采用'}
           </Button>
         </DialogFooter>
       </DialogContent>

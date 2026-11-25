@@ -35,27 +35,24 @@ export const LocationRecastConfirmDialog: React.FC<
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Update {locationName} reference?</AlertDialogTitle>
+          <AlertDialogTitle>更新 {locationName} 的参考素材？</AlertDialogTitle>
           <AlertDialogDescription>
-            This will regenerate the reference image for "{locationName}" using
-            "{libraryLocationName}" as the visual reference.
+            将以“{libraryLocationName}”为视觉参考，重新生成“{locationName}
+            ”的参考图片。
             {affectedShotCount > 0 && (
               <>
                 {' '}
-                <strong>
-                  {affectedShotCount}{' '}
-                  {affectedShotCount === 1 ? 'shot' : 'shots'}
-                </strong>{' '}
-                at this location will be regenerated with the new look.
+                <strong>{affectedShotCount} 个镜头</strong>{' '}
+                使用此场景，将按新的外观重新生成。
               </>
             )}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isLoading}>取消</AlertDialogCancel>
           <AlertDialogAction onClick={onConfirm} disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            <span>{isLoading ? 'Updating…' : 'Update Reference'}</span>
+            <span>{isLoading ? '正在更新…' : '更新参考素材'}</span>
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

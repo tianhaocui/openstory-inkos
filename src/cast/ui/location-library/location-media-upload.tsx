@@ -74,7 +74,7 @@ export const LocationMediaUpload: React.FC<LocationMediaUploadProps> = ({
       // prompt instead of a raw upload error.
       if (!requireAuth()) {
         for (const file of newFiles) {
-          onError(file, new Error('Sign in to upload'));
+          onError(file, new Error('登录后才能上传'));
         }
         return;
       }
@@ -97,7 +97,7 @@ export const LocationMediaUpload: React.FC<LocationMediaUploadProps> = ({
           } catch (error) {
             onError(
               file,
-              error instanceof Error ? error : new Error('Upload failed')
+              error instanceof Error ? error : new Error('上传失败')
             );
           }
         });
@@ -125,14 +125,14 @@ export const LocationMediaUpload: React.FC<LocationMediaUploadProps> = ({
     >
       <FileUploadDropzone className="min-h-[120px] focus:border-ring/50 focus:bg-accent/30">
         <Upload className="h-8 w-8 text-muted-foreground/50" />
-        <p className="text-sm font-medium">Drag & drop or paste</p>
+        <p className="text-sm font-medium">拖放或粘贴</p>
         <FileUploadTrigger asChild>
           <Button type="button" variant="outline" size="sm">
-            Browse files
+            浏览文件
           </Button>
         </FileUploadTrigger>
         <p className="text-xs text-muted-foreground">
-          {maxFiles > 1 ? `Images (max ${maxFiles})` : 'Images'}
+          {maxFiles > 1 ? `图片（最多 ${maxFiles} 张）` : '图片'}
         </p>
       </FileUploadDropzone>
 

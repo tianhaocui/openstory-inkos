@@ -76,7 +76,7 @@ export const MusicModelSelector: React.FC<MusicModelSelectorProps> = ({
 
   return (
     <BaseModelSelector
-      label="Music Model"
+      label="音乐模型"
       models={models}
       groupOrder={SELECTOR_GROUP_ORDER}
       selectedIds={[selectedModel]}
@@ -106,7 +106,7 @@ export const MusicModelMultiSelector: React.FC<
 
   return (
     <BaseModelSelector
-      label="Music Models"
+      label="音乐模型"
       models={models}
       groupOrder={SELECTOR_GROUP_ORDER}
       selectedIds={selectedModels}

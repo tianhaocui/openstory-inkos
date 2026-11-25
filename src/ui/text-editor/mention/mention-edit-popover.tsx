@@ -118,7 +118,7 @@ export const MentionEditPopover: React.FC<{
           variant="ghost"
           size="icon"
           className="ml-auto"
-          aria-label="Remove mention"
+          aria-label="移除提及"
           onClick={onRemove}
         >
           <Trash2 aria-hidden="true" />
@@ -136,11 +136,11 @@ export const MentionEditPopover: React.FC<{
           <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            aria-label="Rename target"
+            aria-label="重命名目标"
             className="h-8"
           />
           <Button type="submit" size="sm" disabled={!renameDirty}>
-            Rename
+            重命名
           </Button>
         </form>
       )}
@@ -150,8 +150,8 @@ export const MentionEditPopover: React.FC<{
         data-mention-filter=""
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Point at…"
-        aria-label="Replace mention target"
+        placeholder="指向…"
+        aria-label="替换提及目标"
         className="h-8"
         onKeyDown={(e) => {
           if (e.key === 'Escape') {

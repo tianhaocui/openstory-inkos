@@ -95,12 +95,12 @@ export const SequenceImageModelSelector = ({
 
   const firstModel = models[0];
   const activeLabel =
-    models.length === 1 && firstModel ? imageModelName(firstModel) : 'Mixed';
+    models.length === 1 && firstModel ? imageModelName(firstModel) : '混合';
 
   const dropdown = (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button type="button" aria-label="Select image model">
+        <button type="button" aria-label="选择图像模型">
           <Badge variant="secondary" className="text-xs cursor-pointer gap-1">
             {activeLabel}
             <ChevronDown className="size-3" />
@@ -113,9 +113,9 @@ export const SequenceImageModelSelector = ({
         className="w-[min(280px,calc(100vw-2rem))]"
       >
         <DropdownMenuLabel className="text-xs">
-          Image model
+          图像模型
           <span className="block font-normal text-muted-foreground">
-            Set applies a model to every scene.
+            “设置”会将模型应用到所有场景。
           </span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

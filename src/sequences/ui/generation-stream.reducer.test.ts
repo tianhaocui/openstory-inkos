@@ -163,7 +163,7 @@ describe('generationStreamReducer — shot retry tracking (#882)', () => {
 describe('generationStreamReducer — stop-at banner (#1408)', () => {
   it('does not grow a Script-only banner when Casting is announced', () => {
     const scriptOnly = createInitialState({ stopAt: 'script' });
-    expect(scriptOnly.phases.map((p) => p.shortName)).toEqual(['Casting']);
+    expect(scriptOnly.phases.map((p) => p.shortName)).toEqual(['选角']);
 
     // Casting rides on the Script phase number — it recaptions, never sprouts.
     const next = apply(scriptOnly, {
@@ -174,15 +174,15 @@ describe('generationStreamReducer — stop-at banner (#1408)', () => {
       },
     });
 
-    expect(next.phases.map((p) => p.shortName)).toEqual(['Casting']);
+    expect(next.phases.map((p) => p.shortName)).toEqual(['选角']);
     expect(next.phases[0]?.phaseName).toBe('Casting characters & locations…');
   });
 
   it('grows a banner sized for an early stop when a Continue runs past it', () => {
     const references = createInitialState({ stopAt: 'references' });
     expect(references.phases.map((p) => p.shortName)).toEqual([
-      'Casting',
-      'References',
+      '选角',
+      '参考素材',
     ]);
 
     const next = apply(references, {
@@ -191,9 +191,9 @@ describe('generationStreamReducer — stop-at banner (#1408)', () => {
     });
 
     expect(next.phases.map((p) => p.shortName)).toEqual([
-      'Casting',
-      'References',
-      'Motion & Music',
+      '选角',
+      '参考素材',
+      '动态视频',
     ]);
     expect(next.phases.map((p) => p.status)).toEqual([
       'completed',
@@ -214,9 +214,9 @@ describe('progress phases in reference-only', () => {
     // a step the user watches while it does nothing; the workflow emits no
     // images event at all, so the chip would sit pending until motion swept it.
     expect(shortNames({ stopAt: 'music', referenceOnly: true })).toEqual([
-      'Casting',
-      'References',
-      'Motion & Music',
+      '选角',
+      '参考素材',
+      '动态视频与音乐',
     ]);
 
     expect(
@@ -228,17 +228,17 @@ describe('progress phases in reference-only', () => {
 
   it('leaves the image-rendering modes alone', () => {
     expect(shortNames({ stopAt: 'music' })).toEqual([
-      'Casting',
-      'References',
-      'Images',
-      'Motion & Music',
+      '选角',
+      '参考素材',
+      '图片',
+      '动态视频与音乐',
     ]);
     expect(shortNames({ stopAt: 'music', generateVoices: true })).toEqual([
-      'Casting',
-      'References',
-      'Images',
-      'Dialogue',
-      'Motion & Music',
+      '选角',
+      '参考素材',
+      '图片',
+      '对白',
+      '动态视频与音乐',
     ]);
   });
 
@@ -290,7 +290,7 @@ describe('continue after a finished run', () => {
       payload: { sequenceId: 'seq' },
     });
     expect(done.isComplete).toBe(true);
-    expect(done.phases.map((p) => p.shortName)).toEqual(['Casting']);
+    expect(done.phases.map((p) => p.shortName)).toEqual(['选角']);
 
     const next = apply(done, {
       type: 'RESET',
@@ -301,10 +301,10 @@ describe('continue after a finished run', () => {
     expect(next.currentPhase).toBe(0);
     expect(next.phases.every((p) => p.status === 'pending')).toBe(true);
     expect(next.phases.map((p) => p.shortName)).toEqual([
-      'Casting',
-      'References',
-      'Images',
-      'Motion & Music',
+      '选角',
+      '参考素材',
+      '图片',
+      '动态视频与音乐',
     ]);
   });
 });

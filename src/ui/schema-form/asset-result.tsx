@@ -24,7 +24,7 @@ const OutputMedia: FC<{ output: GeneratedAssetOutput; index: number }> = ({
     return (
       <AppImage
         src={output.url}
-        alt={`Generated image ${index + 1}`}
+        alt={`生成的图片 ${index + 1}`}
         width={768}
         height={768}
         className="max-h-[60vh] w-auto max-w-full rounded-lg border bg-muted object-contain"
@@ -58,7 +58,7 @@ const OutputMedia: FC<{ output: GeneratedAssetOutput; index: number }> = ({
       className="flex w-fit items-center gap-2 text-sm underline underline-offset-4 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <FileIcon aria-hidden="true" className="size-4" />
-      Download output {index + 1} ({output.contentType})
+      下载输出 {index + 1}（{output.contentType}）
     </a>
   );
 };
@@ -72,9 +72,9 @@ export const AssetResult: FC<{ asset: GeneratedAsset }> = ({ asset }) => {
     return (
       <Alert variant="destructive">
         <AlertCircle aria-hidden="true" />
-        <AlertTitle>Generation failed</AlertTitle>
+        <AlertTitle>生成失败</AlertTitle>
         <AlertDescription>
-          {asset.error ?? 'The model run failed without an error message.'}
+          {asset.error ?? '模型运行失败，未返回错误信息。'}
         </AlertDescription>
       </Alert>
     );
@@ -85,7 +85,7 @@ export const AssetResult: FC<{ asset: GeneratedAsset }> = ({ asset }) => {
       <div className="flex flex-col gap-2">
         <Skeleton className="aspect-video w-full max-w-md rounded-lg" />
         <p aria-live="polite" className="text-sm text-muted-foreground">
-          {asset.status === 'queued' ? 'Queued…' : 'Generating…'}
+          {asset.status === 'queued' ? '排队中…' : '生成中…'}
         </p>
       </div>
     );
@@ -95,7 +95,7 @@ export const AssetResult: FC<{ asset: GeneratedAsset }> = ({ asset }) => {
   if (outputs.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
-        The run completed but produced no output files.
+        任务已完成，但没有生成输出文件。
       </p>
     );
   }

@@ -665,7 +665,7 @@ export const ScenesView: React.FC<ScenesViewProps> = ({
           },
           {
             onError: (error) => {
-              toast.error('Failed to restore alternate', {
+              toast.error('恢复备用版本失败', {
                 description: errorMessage(error),
               });
             },
@@ -679,12 +679,12 @@ export const ScenesView: React.FC<ScenesViewProps> = ({
             // Only close the dialog after the mutation succeeds — on failure
             // the user keeps the dialog open and can retry from there.
             setCompareVariant(null);
-            toast('Alternate discarded', {
-              action: { label: 'Undo', onClick: restore },
+            toast('已丢弃备用版本', {
+              action: { label: '撤销', onClick: restore },
             });
           },
           onError: (error) => {
-            toast.error('Failed to discard alternate', {
+            toast.error('丢弃备用版本失败', {
               description: errorMessage(error),
             });
           },
@@ -701,7 +701,7 @@ export const ScenesView: React.FC<ScenesViewProps> = ({
     if (!compareVariant || !shots) return;
     const stillExists = shots.some((f) => f.id === compareVariant.shotId);
     if (!stillExists) {
-      toast.info('Scene was removed.');
+      toast.info('场景已移除。');
       setCompareVariant(null);
     }
   }, [compareVariant, shots]);
@@ -713,10 +713,10 @@ export const ScenesView: React.FC<ScenesViewProps> = ({
         {
           onSuccess: () => {
             setCompareVariant(null);
-            toast.success('Alternate promoted');
+            toast.success('已采用备用版本');
           },
           onError: (error) => {
-            toast.error('Failed to promote alternate', {
+            toast.error('采用备用版本失败', {
               description: errorMessage(error),
             });
           },
@@ -1078,7 +1078,7 @@ export const ScenesView: React.FC<ScenesViewProps> = ({
         ) {
           return {
             ...none,
-            playerBadgeMessage: 'Pick it in History to use this model',
+            playerBadgeMessage: '在历史记录中选择以使用此模型',
           };
         }
         if (
@@ -1087,7 +1087,7 @@ export const ScenesView: React.FC<ScenesViewProps> = ({
         ) {
           return {
             ...none,
-            playerBadgeMessage: 'Click Generate Image to create',
+            playerBadgeMessage: '点击“生成图片”进行创建',
           };
         }
         return none;
@@ -1105,7 +1105,7 @@ export const ScenesView: React.FC<ScenesViewProps> = ({
         ) {
           return {
             ...none,
-            playerBadgeMessage: 'Pick it in History to use this model',
+            playerBadgeMessage: '在历史记录中选择以使用此模型',
           };
         }
         if (
@@ -1114,7 +1114,7 @@ export const ScenesView: React.FC<ScenesViewProps> = ({
         ) {
           return {
             ...none,
-            playerBadgeMessage: 'Click Generate Motion to create',
+            playerBadgeMessage: '点击“生成动态视频”进行创建',
           };
         }
         return none;
@@ -1215,8 +1215,8 @@ export const ScenesView: React.FC<ScenesViewProps> = ({
       const result = await smartRetryFn({ data: { sequenceId } });
       toast.success(
         result.retryType === 'full'
-          ? 'Continuing generation'
-          : `Retrying: ${result.retriedItems.join(', ')}`
+          ? '正在继续生成'
+          : `正在重试：${result.retriedItems.join('、')}`
       );
       void queryClient.invalidateQueries({
         queryKey: ['sequence', sequenceId],
@@ -1229,7 +1229,7 @@ export const ScenesView: React.FC<ScenesViewProps> = ({
           queryKey: BILLING_BALANCE_KEY,
         });
       } else {
-        toast.error('Failed to retry', {
+        toast.error('重试失败', {
           description: errorMessage(error),
         });
       }
@@ -1643,10 +1643,10 @@ export const ScenesView: React.FC<ScenesViewProps> = ({
                     !regeneratingImages.has(curSelectedShotId)
                       ? scopeStaleness?.[curSelectedShotId]?.thumbnail ===
                         'stale'
-                        ? 'Out of date'
+                        ? '已过期'
                         : scopeStaleness?.[curSelectedShotId]?.thumbnail ===
                             'updating'
-                          ? 'Updating…'
+                          ? '正在更新…'
                           : null
                       : null
                   }

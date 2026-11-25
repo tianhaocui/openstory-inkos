@@ -4,6 +4,7 @@ import { AppImage } from '@/ui/shadcn/app-image';
 import { ChevronDown } from 'lucide-react';
 import { useState, type FC } from 'react';
 import { getStyleGradient } from './style-gradient';
+import { styleCategoryLabel } from './style-assets';
 import { getConfigColorPalette } from '@/look/style-config';
 
 type StyleSelectorButtonProps = {
@@ -95,12 +96,12 @@ export const StyleSelectorButton: FC<StyleSelectorButtonProps> = ({
                 <span
                   className={`text-muted-foreground ${labelSizeClasses[size]}`}
                 >
-                  {selectedStyle.category}
+                  {styleCategoryLabel(selectedStyle.category)}
                 </span>
               )}
             </>
           ) : (
-            <span>Select Style</span>
+            <span>选择风格</span>
           )}
         </div>
 

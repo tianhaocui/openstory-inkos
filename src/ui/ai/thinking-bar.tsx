@@ -56,7 +56,7 @@ export const ThinkingBar: FC<{
           className="size-3.5 shrink-0 animate-pulse motion-reduce:animate-none"
           aria-hidden
         />
-        <span>Thinking…</span>
+        <span>思考中…</span>
       </div>
     );
   }
@@ -82,7 +82,7 @@ export const ThinkingBar: FC<{
         {/* The status line is the live region, not the transcript below: a
             token-by-token stream through aria-live would flood a screen reader
             with scratch work. */}
-        <span aria-live="polite">Thinking…</span>
+        <span aria-live="polite">思考中…</span>
         <ChevronRight
           className={cn(
             'size-3.5 shrink-0 transition-transform motion-reduce:transition-none',

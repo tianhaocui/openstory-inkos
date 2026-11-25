@@ -15,6 +15,6 @@ export const RenderWaitCopy: React.FC<RenderWaitCopyProps> = ({
 }) => (
   <span>
     Rendering, about {etaMinutes} min.
-    {willEmail && <> We&rsquo;ll email you when it&rsquo;s ready.</>}
+    {willEmail && <> 完成后我们会通过电子邮件通知你。</>}
   </span>
 );

@@ -149,7 +149,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 function RootLayout() {
   const { queryClient } = Route.useRouteContext();
   return (
-    <html lang="en" className="dark">
+    <html lang="zh-CN" className="dark">
       <head>
         <HeadContent />
       </head>
@@ -164,16 +164,14 @@ function RootLayout() {
   );
 }
 
-function ErrorBoundary({ error, reset }: ErrorComponentProps) {
+function ErrorBoundary({ reset }: ErrorComponentProps) {
   const router = useRouter();
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-4">
-      <h1 className="text-4xl font-bold">Something went wrong</h1>
+      <h1 className="text-4xl font-bold">出现了一些问题</h1>
       <p className="text-muted-foreground max-w-md text-center">
-        {error instanceof Error
-          ? error.message
-          : 'An unexpected error occurred'}
+        暂时无法加载此页面，请稍后重试。
       </p>
       <div className="flex gap-2">
         <Button
@@ -183,10 +181,10 @@ function ErrorBoundary({ error, reset }: ErrorComponentProps) {
             void router.invalidate();
           }}
         >
-          Try again
+          重试
         </Button>
         <Button asChild>
-          <Link to="/">Go home</Link>
+          <Link to="/">返回首页</Link>
         </Button>
       </div>
     </div>

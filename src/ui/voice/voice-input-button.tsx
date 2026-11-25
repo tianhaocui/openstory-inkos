@@ -39,10 +39,10 @@ type VoiceInputButtonProps = {
 };
 
 function reportDictationError(error: DictationError) {
-  toast.error('Dictation stopped', {
+  toast.error('听写已停止', {
     description:
       error.code === 'not-allowed' || error.code === 'service-not-allowed'
-        ? 'Allow microphone access for this site in your browser settings, then try again.'
+        ? '请在浏览器设置中允许此网站使用麦克风，然后重试。'
         : error.message,
   });
 }
@@ -70,7 +70,7 @@ export const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
   onTranscript,
   onStart,
   onEnd,
-  label = 'text',
+  label = '文本',
   variant = 'ghost',
   size = 'icon-sm',
   disabled = false,
@@ -99,7 +99,7 @@ export const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
   // it becomes live; only a browser that cannot dictate hides it.
   if (hydrated && !isSupported) return null;
 
-  const actionLabel = listening ? 'Stop dictating' : `Dictate ${label}`;
+  const actionLabel = listening ? '停止听写' : `听写${label}`;
 
   return (
     <div
@@ -142,8 +142,8 @@ export const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
       {/* One text fiber whose value changes — never mounted/unmounted (#1283). */}
       <span className="sr-only" aria-live="polite">
         {listening
-          ? 'Listening. Your words appear as you speak. Click again to stop.'
-          : 'Dictation ready.'}
+          ? '正在听写。您说出的内容会实时显示，再次点击即可停止。'
+          : '听写已就绪。'}
       </span>
     </div>
   );

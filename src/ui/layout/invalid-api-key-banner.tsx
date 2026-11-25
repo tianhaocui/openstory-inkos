@@ -12,14 +12,13 @@ export const InvalidApiKeyBanner: React.FC = () => {
       <AlertTriangle className="h-4 w-4" />
       <AlertDescription className="flex items-center justify-between gap-4">
         <span>
-          Your OpenRouter API key is invalid. Generations are falling back to
-          the platform key until you fix it.
+          你的 OpenRouter API 密钥无效。修复前，生成任务将暂时使用平台密钥。
         </span>
         <Link
           to="/settings/api-keys"
           className="shrink-0 font-medium underline"
         >
-          Fix in settings →
+          前往设置修复 →
         </Link>
       </AlertDescription>
     </Alert>

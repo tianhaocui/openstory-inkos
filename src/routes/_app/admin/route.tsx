@@ -13,9 +13,9 @@ export const Route = createFileRoute('/_app/admin')({
     }
   },
   component: AdminLayout,
-  staticData: { breadcrumb: { label: 'Admin', to: '/admin/usage' } },
+  staticData: { breadcrumb: { label: '管理后台', to: '/admin/usage' } },
   errorComponent: (props) => (
-    <RouteErrorFallback {...props} heading="Admin error" />
+    <RouteErrorFallback {...props} heading="管理后台出错" />
   ),
 });
 

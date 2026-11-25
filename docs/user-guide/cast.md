@@ -1,77 +1,77 @@
 ---
-title: Cast & Characters
-description: Manage characters extracted from your script and maintain visual consistency
+title: 演员与角色
+description: 管理从剧本中提取的角色并保持视觉一致性
 section: User Guide
 order: 3
 ---
 
-The **Cast** tab shows all characters identified during script analysis. OpenStory automatically extracts character details from your screenplay and generates visual reference sheets for each one.
+**演员**标签页会显示剧本分析期间识别出的所有角色。OpenStory 会自动从剧本中提取角色详情，并为每个角色生成视觉参考图。
 
-## Character Grid
+## 角色网格
 
-Characters appear as a grid of cards, each showing:
+角色以卡片网格呈现，每张卡片包含：
 
-- **Character sheet image** — A generated reference image showing the character
-- **Name** — The character's name as identified in the script
-- **Role information** — Basic details extracted from the script
+- **角色设定图** — 展示角色的生成参考图
+- **姓名** — 从剧本中识别出的角色姓名
+- **角色信息** — 从剧本中提取的基本详情
 
-Click any character card to view their full detail page.
+点击任意角色卡片可查看其完整详情页。
 
-## Character Detail Page
+## 角色详情页
 
-The detail page provides comprehensive information about a character:
+详情页提供角色的完整信息：
 
-### Character Sheet Image
+### 角色设定图
 
-A 16:9 reference image generated from the script's character description. This image is used as a visual anchor for consistency across all scenes featuring this character.
+这是根据剧本中的角色描述生成的 16:9 参考图。该图像会作为视觉基准，使这个角色在所有出场场景中保持一致。
 
-During regeneration, a loading spinner replaces the image with "Regenerating character sheet..." text.
+重新生成期间，图像会替换为加载指示器和“正在重新生成角色设定图...”文字。
 
-### Character Properties
+### 角色属性
 
-All properties are automatically extracted from your script:
+所有属性都会从剧本中自动提取：
 
-| Property                    | Description                                                                                      |
-| --------------------------- | ------------------------------------------------------------------------------------------------ |
-| **Name**                    | Character's name                                                                                 |
-| **Age**                     | Approximate age                                                                                  |
-| **Gender**                  | Character's gender                                                                               |
-| **Ethnicity**               | Ethnic background                                                                                |
-| **Physical Description**    | Detailed physical appearance                                                                     |
-| **Standard Clothing**       | Default wardrobe                                                                                 |
-| **Distinguishing Features** | Unique visual identifiers                                                                        |
-| **First Appears**           | Scene number and line where the character first appears, with the quoted text                    |
-| **Consistency Tag**         | Internal tag used to maintain visual consistency across scenes (shown as a monospace code badge) |
+| 属性           | 说明                                                     |
+| -------------- | -------------------------------------------------------- |
+| **姓名**       | 角色姓名                                                 |
+| **年龄**       | 大致年龄                                                 |
+| **性别**       | 角色性别                                                 |
+| **族裔**       | 族裔背景                                                 |
+| **外貌描述**   | 详细的外貌特征                                           |
+| **常规服装**   | 默认着装                                                 |
+| **显著特征**   | 独特的视觉识别特征                                       |
+| **首次出现**   | 角色首次出现的场景编号和台词行，并附引用原文             |
+| **一致性标签** | 用于维持跨场景视觉一致性的内部标签（显示为等宽代码徽标） |
 
-### Casting Status
+### 选角状态
 
-Each character shows one of two states:
+每个角色会显示以下两种状态之一：
 
-- **Auto-generated from script** — The character's appearance was generated purely from script descriptions
-- **Cast as [Talent Name]** — The character has been recast using a talent from your library
+- **根据剧本自动生成** — 角色外观完全根据剧本描述生成
+- **由[演员姓名]饰演** — 已使用演员库中的演员重新选角
 
-## Recasting a Character
+## 为角色重新选角
 
-You can replace a character's auto-generated appearance with a talent from your library:
+你可以使用演员库中的演员替换角色自动生成的外观：
 
-1. Click **Recast** on the character detail page
-2. A **Talent Picker** dialog opens showing all talent in your library
-3. Select a talent
-4. A **confirmation dialog** appears showing:
-   - The character name and talent name
-   - How many frames will be affected
-5. Confirm to recast
+1. 在角色详情页点击**重新选角**
+2. 随后打开**演员选择器**对话框，其中显示演员库中的所有演员
+3. 选择一名演员
+4. 随后出现**确认对话框**，其中显示：
+   - 角色姓名和演员姓名
+   - 将受影响的帧数
+5. 确认重新选角
 
-Recasting regenerates the character's reference sheet using the talent's reference images and updates all frames where the character appears.
+重新选角会使用该演员的参考图重新生成角色设定图，并更新角色出现的所有画面帧。
 
-## Adding to Talent Library
+## 添加到演员库
 
-If a character doesn't have an associated talent yet, you can click **Add to Library** to save them to your team's Talent Library for reuse in future sequences.
+如果角色尚未关联演员，可以点击**添加到库**，将其保存到团队的演员库，以便在未来的序列中复用。
 
-## Real-Time Updates
+## 实时更新
 
-Character sheet regeneration happens asynchronously. The UI subscribes to real-time events (`generation.character-sheet:progress`) and automatically updates when:
+角色设定图会异步重新生成。界面订阅实时事件（`generation.character-sheet:progress`），并在以下情况自动更新：
 
-- Generation starts (shows loading state)
-- Generation completes (refreshes the character data)
-- Generation fails (restores previous state)
+- 开始生成（显示加载状态）
+- 生成完成（刷新角色数据）
+- 生成失败（恢复之前的状态）

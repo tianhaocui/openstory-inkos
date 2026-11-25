@@ -38,7 +38,7 @@ export const Route = createFileRoute('/_app/locations/$locationId')({
     breadcrumb: (match) => {
       const { locationId } = routeParams<{ locationId: string }>(match);
       return [
-        { label: 'Locations', to: '/locations' },
+        { label: '场景', to: '/locations' },
         { label: <LibraryLocationCrumbLabel id={locationId} /> },
       ];
     },
@@ -66,7 +66,7 @@ function LocationDetailPage() {
 
   const handleDelete = async () => {
     if (!location) return;
-    if (!confirm(`Delete "${location.name}"? This cannot be undone.`)) return;
+    if (!confirm(`删除“${location.name}”？此操作无法撤销。`)) return;
 
     await deleteLocation.mutateAsync(location.id);
     void navigate({ to: '/locations' });
@@ -86,7 +86,7 @@ function LocationDetailPage() {
   };
 
   const handleDeleteSheet = async (sheetId: string) => {
-    if (!confirm('Delete this reference image?')) return;
+    if (!confirm('删除这张参考图片？')) return;
     await deleteSheet.mutateAsync({ sheetId, locationId });
   };
 
@@ -124,10 +124,10 @@ function LocationDetailPage() {
         <PageContainer>
           <Card className="p-8 text-center">
             <p className="text-destructive mb-4">
-              {error?.message || 'Location not found'}
+              {error?.message || '未找到场景'}
             </p>
             <Button variant="outline" asChild>
-              <Link to="/locations">Back to Locations</Link>
+              <Link to="/locations">返回场景库</Link>
             </Button>
           </Card>
         </PageContainer>
@@ -142,7 +142,7 @@ function LocationDetailPage() {
         <Button variant="ghost" size="sm" className="mb-4 -ml-2" asChild>
           <Link to="/locations">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Locations
+            返回场景库
           </Link>
         </Button>
 
@@ -153,11 +153,7 @@ function LocationDetailPage() {
                 <EditLocationDialog
                   location={location}
                   trigger={
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      aria-label="Edit location"
-                    >
+                    <Button variant="outline" size="icon" aria-label="编辑场景">
                       <Pencil className="h-4 w-4" />
                     </Button>
                   }
@@ -184,7 +180,7 @@ function LocationDetailPage() {
         <section className="mb-8">
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <MapPin className="h-5 w-5" />
-            Location Sheet
+            场景设定图
           </h2>
 
           {(() => {
@@ -196,7 +192,7 @@ function LocationDetailPage() {
               <Card className="overflow-hidden relative">
                 <img
                   src={sheetImageUrl}
-                  alt={`${location.name} location sheet`}
+                  alt={`${location.name} 场景设定图`}
                   className="w-full h-auto"
                 />
                 {isGeneratingSheet && (
@@ -204,7 +200,7 @@ function LocationDetailPage() {
                     <div className="flex flex-col items-center gap-2">
                       <Loader2 className="h-8 w-8 animate-spin text-primary" />
                       <span className="text-sm font-medium">
-                        Generating location sheet…
+                        正在生成场景设定图…
                       </span>
                     </div>
                   </div>
@@ -215,8 +211,8 @@ function LocationDetailPage() {
                 <MapPin className="h-12 w-12 mx-auto mb-4 text-muted-foreground/30" />
                 <p className="text-muted-foreground">
                   {isGeneratingSheet
-                    ? 'Generating location sheet…'
-                    : 'Upload reference images to generate a location sheet.'}
+                    ? '正在生成场景设定图…'
+                    : '上传参考图片以生成场景设定图。'}
                 </p>
                 {isGeneratingSheet && (
                   <Loader2 className="h-6 w-6 animate-spin text-primary mx-auto mt-3" />
@@ -232,7 +228,7 @@ function LocationDetailPage() {
         {/* Reference Images Section */}
         <section className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Reference Images</h2>
+            <h2 className="text-lg font-semibold">参考图片</h2>
             {isAuthenticated && !isAddingImages && (
               <Button
                 variant="outline"
@@ -240,7 +236,7 @@ function LocationDetailPage() {
                 onClick={() => setIsAddingImages(true)}
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Add Images
+                添加图片
               </Button>
             )}
           </div>
@@ -262,7 +258,7 @@ function LocationDetailPage() {
                     onClick={handleCancelAdd}
                     disabled={addSheets.isPending}
                   >
-                    Cancel
+                    取消
                   </Button>
                   <Button
                     size="sm"
@@ -273,7 +269,7 @@ function LocationDetailPage() {
                       addSheets.isPending
                     }
                   >
-                    {addSheets.isPending ? 'Adding…' : 'Add Images'}
+                    {addSheets.isPending ? '正在添加…' : '添加图片'}
                   </Button>
                 </div>
               </div>
@@ -308,21 +304,19 @@ function LocationDetailPage() {
                 ))}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">
-              No reference images uploaded yet.
-            </p>
+            <p className="text-sm text-muted-foreground">暂未上传参考图片。</p>
           )}
         </section>
 
         {/* Location Details */}
         <section>
-          <h2 className="text-lg font-semibold mb-4">Details</h2>
+          <h2 className="text-lg font-semibold mb-4">详细信息</h2>
 
           <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {location.sequenceTitle && location.sequenceTitle !== 'Library' && (
               <div className="space-y-1">
                 <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Source
+                  来源
                 </dt>
                 <dd className="text-sm">{location.sequenceTitle}</dd>
               </div>
@@ -330,13 +324,13 @@ function LocationDetailPage() {
 
             <div className="space-y-1">
               <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Created
+                创建时间
               </dt>
               <dd className="text-sm">
                 {/* eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- runtime guard */}
                 {location.createdAt
                   ? new Date(location.createdAt).toLocaleDateString()
-                  : 'Unknown'}
+                  : '未知'}
               </dd>
             </div>
           </dl>

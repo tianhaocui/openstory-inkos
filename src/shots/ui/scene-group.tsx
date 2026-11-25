@@ -153,8 +153,8 @@ const SegmentBracket: React.FC<SegmentBracketProps> = ({
       data-below-min={leftover ? 'true' : undefined}
       aria-label={
         planned
-          ? `Will generate with ${label}, ${shotCount} shots`
-          : `${label}${shotCount > 1 ? `, ${shotCount} shots` : ''}`
+          ? `将使用 ${label} 生成 ${shotCount} 个镜头`
+          : `${label}${shotCount > 1 ? `，${shotCount} 个镜头` : ''}`
       }
       className={cn(
         'flex flex-col gap-2 rounded-md border p-2',
@@ -199,7 +199,7 @@ const SegmentBracket: React.FC<SegmentBracketProps> = ({
             {label}
           </span>
         )}
-        {shotCount > 1 && <span className="shrink-0">{shotCount} shots</span>}
+        {shotCount > 1 && <span className="shrink-0">{shotCount} 个镜头</span>}
         {!planned && stale && (
           <Badge
             variant="outline"
@@ -287,7 +287,7 @@ const SceneGroupComponent: React.FC<SceneGroupProps> = ({
         { sceneId: scene.id, shotIds: next },
         {
           onError: (error) =>
-            toast.error('Failed to reorder shots', {
+            toast.error('镜头排序失败', {
               description: errorMessage(error),
             }),
         }
@@ -326,7 +326,7 @@ const SceneGroupComponent: React.FC<SceneGroupProps> = ({
       { sceneId: scene.id, title: next },
       {
         onError: (error) =>
-          toast.error('Failed to rename scene', {
+          toast.error('场景重命名失败', {
             description: errorMessage(error),
           }),
       }
@@ -342,7 +342,7 @@ const SceneGroupComponent: React.FC<SceneGroupProps> = ({
       {
         onSuccess: (shot) => onSelectShot(shot.id),
         onError: (error) =>
-          toast.error('Failed to add shot', {
+          toast.error('添加镜头失败', {
             description: errorMessage(error),
           }),
       }
@@ -361,16 +361,16 @@ const SceneGroupComponent: React.FC<SceneGroupProps> = ({
           ) {
             onClearSelection();
           }
-          toast(`Removed ${sceneLabel}`, {
+          toast(`已移除${sceneLabel}`, {
             duration: 60_000,
             action: {
-              label: 'Undo',
+              label: '撤销',
               onClick: () =>
                 void restoreScene(queryClient, {
                   sequenceId,
                   sceneId: scene.id,
                 }).catch((error: Error) =>
-                  toast.error('Failed to restore scene', {
+                  toast.error('恢复场景失败', {
                     description: errorMessage(error),
                   })
                 ),
@@ -378,7 +378,7 @@ const SceneGroupComponent: React.FC<SceneGroupProps> = ({
           });
         },
         onError: (error) =>
-          toast.error('Failed to remove scene', {
+          toast.error('移除场景失败', {
             description: errorMessage(error),
           }),
       }
@@ -392,16 +392,16 @@ const SceneGroupComponent: React.FC<SceneGroupProps> = ({
         onSuccess: () => {
           setPendingShotDelete(null);
           if (selectedShotId === shot.id) onClearSelection();
-          toast(`Removed shot from ${sceneLabel}`, {
+          toast(`已从${sceneLabel}移除镜头`, {
             duration: 60_000,
             action: {
-              label: 'Undo',
+              label: '撤销',
               onClick: () =>
                 void restoreShot(queryClient, {
                   sequenceId,
                   shotId: shot.id,
                 }).catch((error: Error) =>
-                  toast.error('Failed to restore shot', {
+                  toast.error('恢复镜头失败', {
                     description: errorMessage(error),
                   })
                 ),
@@ -409,7 +409,7 @@ const SceneGroupComponent: React.FC<SceneGroupProps> = ({
           });
         },
         onError: (error) =>
-          toast.error('Failed to remove shot', {
+          toast.error('移除镜头失败', {
             description: errorMessage(error),
           }),
       }
@@ -432,7 +432,7 @@ const SceneGroupComponent: React.FC<SceneGroupProps> = ({
           type="button"
           className="mt-0.5 shrink-0 text-muted-foreground"
           onClick={() => setExpanded((v) => !v)}
-          aria-label={expanded ? 'Collapse scene' : 'Expand scene'}
+          aria-label={expanded ? '收起场景' : '展开场景'}
         >
           {expanded ? (
             <ChevronDown className="h-4 w-4" />
@@ -456,7 +456,7 @@ const SceneGroupComponent: React.FC<SceneGroupProps> = ({
               }
             }}
             maxLength={2000}
-            aria-label="Scene title"
+            aria-label="场景标题"
             className="h-7 flex-1 text-sm"
           />
         ) : (
@@ -470,8 +470,8 @@ const SceneGroupComponent: React.FC<SceneGroupProps> = ({
               <span className="truncate text-sm font-medium">{sceneLabel}</span>
               <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
                 {shots.length === 0 && isAnalyzing
-                  ? 'listing shots…'
-                  : `${shots.length} ${shots.length === 1 ? 'shot' : 'shots'} · ${formatSeconds(sceneSeconds)}`}
+                  ? '正在列出镜头…'
+                  : `${shots.length} 个镜头 · ${formatSeconds(sceneSeconds)}`}
               </span>
             </div>
           </button>
@@ -483,7 +483,7 @@ const SceneGroupComponent: React.FC<SceneGroupProps> = ({
               variant="ghost"
               size="icon"
               className="h-6 w-6 shrink-0 opacity-0 transition-opacity focus-visible:opacity-100 group-focus-within/scene-header:opacity-100 group-hover/scene-header:opacity-100 data-[state=open]:opacity-100"
-              aria-label={`Scene actions for ${sceneLabel}`}
+              aria-label={`${sceneLabel}的场景操作`}
             >
               <MoreVertical className="h-4 w-4" />
             </Button>
@@ -493,14 +493,14 @@ const SceneGroupComponent: React.FC<SceneGroupProps> = ({
               onClick={() => setTitleDraft(plainSceneTitle(scene.title))}
             >
               <Pencil className="h-4 w-4" />
-              Rename scene
+              重命名场景
             </DropdownMenuItem>
             <DropdownMenuItem
               disabled={createShot.isPending}
               onClick={handleAddShot}
             >
               <Plus className="h-4 w-4" />
-              {createShot.isPending ? 'Adding shot…' : 'Add shot'}
+              {createShot.isPending ? '正在添加镜头…' : '添加镜头'}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
@@ -508,14 +508,14 @@ const SceneGroupComponent: React.FC<SceneGroupProps> = ({
               onClick={() => onMoveScene(scene.id, 'up')}
             >
               <ArrowUp className="h-4 w-4" />
-              Move up
+              上移
             </DropdownMenuItem>
             <DropdownMenuItem
               disabled={isLast}
               onClick={() => onMoveScene(scene.id, 'down')}
             >
               <ArrowDown className="h-4 w-4" />
-              Move down
+              下移
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
@@ -523,7 +523,7 @@ const SceneGroupComponent: React.FC<SceneGroupProps> = ({
               onClick={() => setConfirmSceneDelete(true)}
             >
               <Trash2 className="h-4 w-4" />
-              Remove scene
+              移除场景
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -634,16 +634,14 @@ const SceneGroupComponent: React.FC<SceneGroupProps> = ({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove {sceneLabel}?</AlertDialogTitle>
+            <AlertDialogTitle>移除{sceneLabel}？</AlertDialogTitle>
             <AlertDialogDescription>
-              The scene and its {shots.length}{' '}
-              {shots.length === 1 ? 'shot' : 'shots'} are hidden from the
-              sequence, playback and export. You can undo from the toast right
-              after removing.
+              此场景及其 {shots.length}
+              个镜头将从序列、播放和导出中隐藏。移除后可立即在通知中撤销。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>取消</AlertDialogCancel>
             <AlertDialogAction
               disabled={softDeleteScene.isPending}
               // Radix's Action closes the dialog on click; hold it open so the
@@ -654,7 +652,7 @@ const SceneGroupComponent: React.FC<SceneGroupProps> = ({
                 handleDeleteScene();
               }}
             >
-              {softDeleteScene.isPending ? 'Removing…' : 'Remove'}
+              {softDeleteScene.isPending ? '移除中…' : '移除'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -668,17 +666,13 @@ const SceneGroupComponent: React.FC<SceneGroupProps> = ({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              Remove this shot from {sceneLabel}?
-            </AlertDialogTitle>
+            <AlertDialogTitle>从{sceneLabel}移除此镜头？</AlertDialogTitle>
             <AlertDialogDescription>
-              The shot and its prompts, stills and video are hidden from the
-              sequence, playback and export. You can undo from the toast right
-              after removing.
+              此镜头及其提示词、图片和视频将从序列、播放和导出中隐藏。移除后可立即在通知中撤销。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>取消</AlertDialogCancel>
             <AlertDialogAction
               disabled={softDeleteShot.isPending}
               // See the scene twin: hold the dialog open across the mutation.
@@ -689,7 +683,7 @@ const SceneGroupComponent: React.FC<SceneGroupProps> = ({
                 }
               }}
             >
-              {softDeleteShot.isPending ? 'Removing…' : 'Remove'}
+              {softDeleteShot.isPending ? '移除中…' : '移除'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

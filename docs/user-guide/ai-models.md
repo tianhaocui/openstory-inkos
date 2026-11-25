@@ -1,96 +1,96 @@
 ---
-title: AI Models
-description: Complete reference of all AI models available in OpenStory
+title: AI 模型
+description: OpenStory 所有可用 AI 模型的完整参考
 section: User Guide
 order: 12
 ---
 
-OpenStory integrates with a wide range of AI models across four categories: script analysis, image generation, motion/video generation, and music/audio generation. All media models are accessed via [Fal.ai](https://fal.ai), while script analysis uses [OpenRouter](https://openrouter.ai).
+OpenStory 集成了多种 AI 模型，分为四类：剧本分析、图像生成、动态/视频生成以及音乐/音频生成。所有媒体模型均通过 [Fal.ai](https://fal.ai) 访问，剧本分析则使用 [OpenRouter](https://openrouter.ai)。
 
-## Script Analysis Models
+## 剧本分析模型
 
-These LLM models analyze your script, extract scenes, characters, and locations, and generate prompts. You can select multiple models to generate parallel sequences for comparison. Next to **Generate**, **Turbo** is the default (Luna, Nano Banana 2 Lite, MiniMax H3 Max, ElevenLabs). **Quality** selects the quality-ranked defaults. Both modes show the full catalog, grouped Fast / Quality.
+这些 LLM 模型会分析剧本、提取场景、角色和地点，并生成提示词。你可以选择多个模型并行生成序列以便比较。**生成**按钮旁默认选择 **Turbo**（Luna、Nano Banana 2 Lite、MiniMax H3 Max、ElevenLabs）。**Quality** 会选择按质量排名的默认模型。两种模式都会显示按 Fast / Quality 分组的完整目录。
 
-| Model              | Vendor    | Context Window | License                   |
-| ------------------ | --------- | -------------- | ------------------------- |
-| **GPT-5.6 Luna**   | OpenAI    | 1M tokens      | Proprietary (default)     |
-| Claude Fable 5     | Anthropic | 1M tokens      | Proprietary               |
-| Claude Opus 5      | Anthropic | 1M tokens      | Proprietary (scene-split) |
-| Claude Opus 5 Fast | Anthropic | 1M tokens      | Proprietary               |
-| Gemini 3.7 Flash   | Google    | 1M tokens      | Proprietary               |
-| Gemini 3.1 Pro     | Google    | 1M tokens      | Proprietary               |
-| GPT-5.6 Sol        | OpenAI    | 1M tokens      | Proprietary               |
-| GLM-5.3 Flash      | Z.ai      | 1M tokens      | Open Weight (MIT)         |
-| GPT-5.6 Terra      | OpenAI    | 1M tokens      | Proprietary               |
-| DeepSeek V4 Pro    | DeepSeek  | 1M tokens      | Open Weight (MIT)         |
-| Claude Sonnet 5    | Anthropic | 1M tokens      | Proprietary               |
-| Grok 4.6           | SpaceXAI  | 500K tokens    | Proprietary               |
-| Mistral Small 4    | Mistral   | 262K tokens    | Open Weight (Apache 2.0)  |
-| Seed 2.0 Mini      | ByteDance | 262K tokens    | Proprietary               |
+| 模型               | 提供商    | 上下文窗口 | 许可证                 |
+| ------------------ | --------- | ---------- | ---------------------- |
+| **GPT-5.6 Luna**   | OpenAI    | 1M 词元    | 专有（默认）           |
+| Claude Fable 5     | Anthropic | 1M 词元    | 专有                   |
+| Claude Opus 5      | Anthropic | 1M 词元    | 专有（场景拆分）       |
+| Claude Opus 5 Fast | Anthropic | 1M 词元    | 专有                   |
+| Gemini 3.7 Flash   | Google    | 1M 词元    | 专有                   |
+| Gemini 3.1 Pro     | Google    | 1M 词元    | 专有                   |
+| GPT-5.6 Sol        | OpenAI    | 1M 词元    | 专有                   |
+| GLM-5.3 Flash      | Z.ai      | 1M 词元    | 开放权重（MIT）        |
+| GPT-5.6 Terra      | OpenAI    | 1M 词元    | 专有                   |
+| DeepSeek V4 Pro    | DeepSeek  | 1M 词元    | 开放权重（MIT）        |
+| Claude Sonnet 5    | Anthropic | 1M 词元    | 专有                   |
+| Grok 4.6           | SpaceXAI  | 500K 词元  | 专有                   |
+| Mistral Small 4    | Mistral   | 262K 词元  | 开放权重（Apache 2.0） |
+| Seed 2.0 Mini      | ByteDance | 262K 词元  | 专有                   |
 
-## Image Generation Models
+## 图像生成模型
 
-These models create the visual images for each scene. You can select multiple models to generate variant images for comparison.
+这些模型为每个场景创建视觉图像。你可以选择多个模型生成变体图像以便比较。
 
-| Model                      | Vendor            | License                  | Notes                                                     |
-| -------------------------- | ----------------- | ------------------------ | --------------------------------------------------------- |
-| **Nano Banana 2 Lite**     | Google            | Proprietary              | Turbo default — fastest Google tier, references, fixed 1K |
-| GPT Image 2                | OpenAI            | Proprietary              | Quality default — text rendering, UI fidelity, up to 4K   |
-| Nano Banana 2              | Google            | Proprietary              | Fast generation and editing                               |
-| Nano Banana Pro            | Google            | Proprietary              | Enhanced realism and typography                           |
-| Grok Imagine Image 2.0     | SpaceXAI          | Proprietary              | Newest Imagine image model, 1K/2K, edit up to 3 refs      |
-| Grok Imagine Image Quality | SpaceXAI          | Proprietary              | Quality Mode — higher fidelity, stronger text             |
-| FLUX.2 Max                 | Black Forest Labs | Proprietary              | Exceptional realism                                       |
-| Phota                      | Phota             | Proprietary              | Character consistency via profiles                        |
-| Hunyuan Image v3           | Tencent           | Open Weight              | Strong composition                                        |
-| FLUX.2 Dev                 | Black Forest Labs | Open Weight              | 32B open weights with native editing                      |
-| Qwen Image 2 Pro           | Alibaba           | Open Weight (Apache 2.0) | Native 2K, text rendering                                 |
-| HiDream I1                 | HiDream           | Open Weight (MIT)        | 17B parameters                                            |
-| Seedream 5.0 Pro           | ByteDance         | Proprietary              | Flagship generation and editing                           |
-| FLUX.2 Flash               | Black Forest Labs | Open Weight              | Cheapest distilled FLUX.2 — sub-second, edit up to 4 refs |
-| FLUX.2 Turbo               | Black Forest Labs | Open Weight              | Distilled FLUX.2 — ~2s, edit up to 4 refs                 |
+| 模型                       | 提供商            | 许可证                 | 备注                                                  |
+| -------------------------- | ----------------- | ---------------------- | ----------------------------------------------------- |
+| **Nano Banana 2 Lite**     | Google            | 专有                   | Turbo 默认——Google 最快档，支持参考，固定 1K          |
+| GPT Image 2                | OpenAI            | 专有                   | Quality 默认——文字渲染、UI 保真度，最高 4K            |
+| Nano Banana 2              | Google            | 专有                   | 快速生成和编辑                                        |
+| Nano Banana Pro            | Google            | 专有                   | 增强的真实感和排版能力                                |
+| Grok Imagine Image 2.0     | SpaceXAI          | 专有                   | 最新 Imagine 图像模型，支持 1K/2K，最多编辑 3 个参考  |
+| Grok Imagine Image Quality | SpaceXAI          | 专有                   | Quality 模式——更高保真度和更强文字能力                |
+| FLUX.2 Max                 | Black Forest Labs | 专有                   | 出色的真实感                                          |
+| Phota                      | Phota             | 专有                   | 通过角色档案保持角色一致性                            |
+| Hunyuan Image v3           | Tencent           | 开放权重               | 构图能力强                                            |
+| FLUX.2 Dev                 | Black Forest Labs | 开放权重               | 32B 开放权重，支持原生编辑                            |
+| Qwen Image 2 Pro           | Alibaba           | 开放权重（Apache 2.0） | 原生 2K，支持文字渲染                                 |
+| HiDream I1                 | HiDream           | 开放权重（MIT）        | 17B 参数                                              |
+| Seedream 5.0 Pro           | ByteDance         | 专有                   | 旗舰级生成和编辑                                      |
+| FLUX.2 Flash               | Black Forest Labs | 开放权重               | 成本最低的 FLUX.2 蒸馏模型——亚秒级，最多编辑 4 个参考 |
+| FLUX.2 Turbo               | Black Forest Labs | 开放权重               | FLUX.2 蒸馏模型——约 2 秒，最多编辑 4 个参考           |
 
-### Edit Endpoints
+### 编辑端点
 
-Most image models support **reference image editing** via dedicated edit endpoints. This allows the AI to use character and location reference images when generating scenes, improving visual consistency.
+大多数图像模型都通过专用编辑端点支持**参考图编辑**。借助此功能，AI 在生成场景时可以使用角色和地点参考图，从而改善视觉一致性。
 
-## Motion/Video Models
+## 动态/视频模型
 
-These models animate still images into video clips.
+这些模型可以将静态图制作成视频片段。
 
-| Model                  | Vendor    | Est. Time | License     | Notes                                      |
-| ---------------------- | --------- | --------- | ----------- | ------------------------------------------ |
-| **MiniMax H3 Max**     | MiniMax   | ~10s      | Proprietary | Turbo default; native audio                |
-| **Seedance 2.0**       | ByteDance | ~3.5 min  | Proprietary | Quality default; native audio              |
-| Seedance 2.0 Mini      | ByteDance | ~2 min    | Proprietary | Half the 2.0 rate, 720p; BytePlus via only |
-| Grok Imagine Video 1.5 | SpaceXAI  | ~30s      | Proprietary | Highest quality ranking                    |
-| Kling 3.0 Omni         | Kling     | ~5 min    | Proprietary |                                            |
+| 模型                   | 提供商    | 预计时间    | 许可证 | 备注                                     |
+| ---------------------- | --------- | ----------- | ------ | ---------------------------------------- |
+| **MiniMax H3 Max**     | MiniMax   | 约 10 秒    | 专有   | Turbo 默认；原生音频                     |
+| **Seedance 2.0**       | ByteDance | 约 3.5 分钟 | 专有   | Quality 默认；原生音频                   |
+| Seedance 2.0 Mini      | ByteDance | 约 2 分钟   | 专有   | 价格为 2.0 的一半，720p；仅通过 BytePlus |
+| Grok Imagine Video 1.5 | SpaceXAI  | 约 30 秒    | 专有   | 质量排名最高                             |
+| Kling 3.0 Omni         | Kling     | 约 5 分钟   | 专有   |                                          |
 
-### Aspect Ratio Compatibility
+### 宽高比兼容性
 
-Not all motion models support all aspect ratios. OpenStory automatically filters to show only compatible models and will switch to a compatible default if your current model doesn't support the selected ratio.
+并非所有动态模型都支持全部宽高比。OpenStory 会自动筛选并只显示兼容模型；如果当前模型不支持所选比例，则会切换到兼容的默认模型。
 
-### Audio Support
+### 音频支持
 
-Some motion models can generate audio alongside video. OpenStory checks each model's capabilities to determine audio support.
+部分动态模型可以同时生成视频和音频。OpenStory 会检查各模型的功能以确定是否支持音频。
 
-## Music & Audio Models
+## 音乐与音频模型
 
-| Model                | Vendor     | Max Duration  | Type  | License               |
-| -------------------- | ---------- | ------------- | ----- | --------------------- |
-| **ElevenLabs Music** | ElevenLabs | 600s (10 min) | Music | Proprietary (default) |
-| ACE-Step 1.5         | ACE Studio | 600s (10 min) | Music | Open Weight           |
-| ACE-Step             | ACE Studio | 240s (4 min)  | Music | Open Weight           |
+| 模型                 | 提供商     | 最长时长        | 类型 | 许可证       |
+| -------------------- | ---------- | --------------- | ---- | ------------ |
+| **ElevenLabs Music** | ElevenLabs | 600s（10 分钟） | 音乐 | 专有（默认） |
+| ACE-Step 1.5         | ACE Studio | 600s（10 分钟） | 音乐 | 开放权重     |
+| ACE-Step             | ACE Studio | 240s（4 分钟）  | 音乐 | 开放权重     |
 
-### Music vs. Sound Effects
+### 音乐与音效
 
-Music models generate background music tracks from text prompts and optional tags.
+音乐模型根据文本提示词和可选标签生成背景音乐轨道。
 
-### Capabilities
+### 功能
 
-| Feature        | ElevenLabs Music | ACE-Step 1.5 | ACE-Step    |
-| -------------- | ---------------- | ------------ | ----------- |
-| Prompt-based   | Yes              | Yes          | Yes         |
-| Lyrics support | No               | Yes          | Yes         |
-| Instrumental   | Yes              | Yes          | Yes         |
-| Long-form      | Yes (10 min)     | Yes (10 min) | Yes (4 min) |
+| 功能       | ElevenLabs Music | ACE-Step 1.5  | ACE-Step     |
+| ---------- | ---------------- | ------------- | ------------ |
+| 基于提示词 | 是               | 是            | 是           |
+| 支持歌词   | 否               | 是            | 是           |
+| 纯音乐     | 是               | 是            | 是           |
+| 长音频     | 是（10 分钟）    | 是（10 分钟） | 是（4 分钟） |

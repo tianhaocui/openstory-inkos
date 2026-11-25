@@ -32,7 +32,7 @@ function isNotFoundError(error: unknown): boolean {
 export const RouteErrorFallback: React.FC<RouteErrorFallbackProps> = ({
   error,
   reset,
-  heading = 'Something went wrong',
+  heading = '出错了',
 }) => {
   const router = useRouter();
   const is404 = isNotFoundError(error);
@@ -52,7 +52,7 @@ export const RouteErrorFallback: React.FC<RouteErrorFallbackProps> = ({
           <p>
             {error instanceof Error
               ? error.message
-              : 'An unexpected error occurred'}
+              : '发生了意外错误'}
           </p>
           <Button
             variant="outline"
@@ -63,7 +63,7 @@ export const RouteErrorFallback: React.FC<RouteErrorFallbackProps> = ({
               void router.invalidate();
             }}
           >
-            Try again
+            重试
           </Button>
         </AlertDescription>
       </Alert>

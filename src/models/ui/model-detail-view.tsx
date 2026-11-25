@@ -162,8 +162,8 @@ const ModelDetailContent: FC<{
     return (
       <EmptyState
         icon={<SearchX className="h-12 w-12" />}
-        title="No schema available"
-        description={`We couldn't find a parameter schema for “${endpointId}”. It may be new, renamed, or not runnable directly.`}
+        title="暂无可用参数架构"
+        description={`未找到“${endpointId}”的参数架构。它可能是新模型、已重命名，或无法直接运行。`}
       />
     );
   }
@@ -230,7 +230,7 @@ const ModelRunPanel: FC<{ detail: ModelDetail }> = ({ detail }) => {
   const generalError =
     fieldErrors?.[''] ??
     (runMutation.error && !isInsufficientCreditsError(runMutation.error)
-      ? runMutation.error.message
+      ? '模型运行失败，请重试。'
       : undefined);
 
   const handleSubmit = () => {
@@ -263,17 +263,15 @@ const ModelRunPanel: FC<{ detail: ModelDetail }> = ({ detail }) => {
             rel="noopener noreferrer"
             className="flex items-center gap-1 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            View on fal.ai
+            在 fal.ai 上查看
             <ExternalLink aria-hidden="true" className="size-3.5" />
           </a>
         </div>
       </header>
 
       <div className="grid gap-10 lg:grid-cols-2">
-        <section aria-label="Parameters" className="flex flex-col gap-4">
-          <h2 className="text-sm font-medium text-muted-foreground">
-            Parameters
-          </h2>
+        <section aria-label="参数" className="flex flex-col gap-4">
+          <h2 className="text-sm font-medium text-muted-foreground">参数</h2>
           <SchemaForm
             schema={inputSchema}
             value={values}
@@ -293,18 +291,17 @@ const ModelRunPanel: FC<{ detail: ModelDetail }> = ({ detail }) => {
               className="w-fit"
             >
               <Sparkles aria-hidden="true" />
-              {runMutation.isPending ? 'Starting…' : 'Run'}
+              {runMutation.isPending ? '正在启动…' : '运行'}
             </Button>
           </SchemaForm>
         </section>
 
-        <section aria-label="Result" className="flex flex-col gap-4">
-          <h2 className="text-sm font-medium text-muted-foreground">Result</h2>
+        <section aria-label="结果" className="flex flex-col gap-4">
+          <h2 className="text-sm font-medium text-muted-foreground">结果</h2>
           {activeAssetError ? (
             <div className="flex aspect-video w-full items-center justify-center rounded-lg border border-dashed">
               <p role="alert" className="text-sm text-destructive">
-                Couldn't load the run status — check Recent runs below, or run
-                again.
+                无法加载运行状态。请查看下方的“最近运行”，或重新运行。
               </p>
             </div>
           ) : activeAsset ? (
@@ -312,7 +309,7 @@ const ModelRunPanel: FC<{ detail: ModelDetail }> = ({ detail }) => {
           ) : (
             <div className="flex aspect-video w-full items-center justify-center rounded-lg border border-dashed">
               <p className="text-sm text-muted-foreground">
-                Run the model to see the result here.
+                运行模型后，结果将显示在这里。
               </p>
             </div>
           )}
@@ -320,9 +317,9 @@ const ModelRunPanel: FC<{ detail: ModelDetail }> = ({ detail }) => {
       </div>
 
       {isAuthenticated && (
-        <section aria-label="Recent runs" className="flex flex-col gap-4">
+        <section aria-label="最近运行" className="flex flex-col gap-4">
           <h2 className="text-sm font-medium text-muted-foreground">
-            Recent runs
+            最近运行
           </h2>
           <Suspense
             fallback={
@@ -382,6 +379,8 @@ const VariantSwitcher: FC<{ model: ModelDetail['model'] }> = ({ model }) => {
     ]);
   }
   const showVersionLabels = versionGroups.size > 1;
+  const versionLabel = (version: string) =>
+    version === 'other' ? '其他' : version;
 
   return (
     <Select
@@ -395,7 +394,7 @@ const VariantSwitcher: FC<{ model: ModelDetail['model'] }> = ({ model }) => {
         });
       }}
     >
-      <SelectTrigger size="sm" aria-label="Switch variant" className="w-fit">
+      <SelectTrigger size="sm" aria-label="切换变体" className="w-fit">
         <SelectValue>
           <code className="font-mono text-xs">{model.endpointId}</code>
         </SelectValue>
@@ -403,7 +402,9 @@ const VariantSwitcher: FC<{ model: ModelDetail['model'] }> = ({ model }) => {
       <SelectContent>
         {[...versionGroups.entries()].map(([version, group]) => (
           <SelectGroup key={version}>
-            {showVersionLabels && <SelectLabel>{version}</SelectLabel>}
+            {showVersionLabels && (
+              <SelectLabel>{versionLabel(version)}</SelectLabel>
+            )}
             {group.map((variant) => (
               <SelectItem key={variant.endpointId} value={variant.endpointId}>
                 <span className="flex min-w-0 flex-col items-start">
@@ -436,7 +437,7 @@ const RunThumbnail: FC<{ asset: GeneratedAsset }> = ({ asset }) => {
   if (asset.status !== 'completed') {
     return (
       <span className="text-xs text-muted-foreground" aria-hidden="true">
-        {asset.status === 'queued' ? 'Queued…' : 'Running…'}
+        {asset.status === 'queued' ? '已排队…' : '正在运行…'}
       </span>
     );
   }
@@ -493,9 +494,7 @@ const RecentRuns: FC<{
 
   if (data.assets.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground">
-        No runs of this model yet.
-      </p>
+      <p className="text-sm text-muted-foreground">此模型暂无运行记录。</p>
     );
   }
 
@@ -505,7 +504,7 @@ const RecentRuns: FC<{
         <button
           key={asset.id}
           type="button"
-          aria-label={`View run from ${asset.createdAt.toLocaleString()}`}
+          aria-label={`查看 ${asset.createdAt.toLocaleString('zh-CN')} 的运行记录`}
           aria-pressed={asset.id === activeAssetId}
           onClick={() => onSelect(asset.id)}
           className={`flex aspect-square items-center justify-center overflow-hidden rounded-lg border bg-muted transition-colors hover:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${

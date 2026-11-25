@@ -45,7 +45,7 @@ export const Route = createFileRoute('/_app/talent/$id')({
     breadcrumb: (match) => {
       const { id } = routeParams<{ id: string }>(match);
       return [
-        { label: 'Talent', to: '/talent' },
+        { label: '演员', to: '/talent' },
         { label: <TalentCrumbLabel id={id} /> },
       ];
     },
@@ -93,7 +93,7 @@ function TalentDetailPage() {
       {
         onError: (error) => {
           stopGenerating(
-            error instanceof Error ? error.message : 'Sheet generation failed'
+            error instanceof Error ? error.message : '设定图生成失败'
           );
         },
       }
@@ -102,7 +102,7 @@ function TalentDetailPage() {
 
   const handleDelete = () => {
     if (!talent) return;
-    if (!confirm(`Delete "${talent.name}"? This cannot be undone.`)) return;
+    if (!confirm(`删除“${talent.name}”？此操作无法撤销。`)) return;
 
     deleteTalent.mutate(talent.id, {
       onSuccess: () => void navigate({ to: '/talent' }),
@@ -136,10 +136,10 @@ function TalentDetailPage() {
         <PageContainer>
           <Card className="p-8 text-center">
             <p className="text-destructive mb-4">
-              {error?.message || 'Talent not found'}
+              {error?.message || '未找到演员'}
             </p>
             <Button variant="outline" asChild>
-              <Link to="/talent">Back to Talent</Link>
+              <Link to="/talent">返回演员库</Link>
             </Button>
           </Card>
         </PageContainer>
@@ -154,7 +154,7 @@ function TalentDetailPage() {
         <Button variant="ghost" size="sm" className="mb-4 -ml-2" asChild>
           <Link to="/talent">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Talent
+            返回演员库
           </Link>
         </Button>
 
@@ -165,11 +165,7 @@ function TalentDetailPage() {
                 <EditTalentDialog
                   talent={talent}
                   trigger={
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      aria-label="Edit talent"
-                    >
+                    <Button variant="outline" size="icon" aria-label="编辑演员">
                       <Pencil className="h-4 w-4" />
                     </Button>
                   }
@@ -205,7 +201,7 @@ function TalentDetailPage() {
           <div className="flex items-center gap-3">
             {talent.isHuman ? (
               <span className="px-2 py-1 bg-muted rounded text-xs font-medium">
-                Human
+                真人
               </span>
             ) : (
               <span className="px-2 py-1 bg-muted rounded text-xs font-medium flex items-center gap-1">
@@ -223,7 +219,7 @@ function TalentDetailPage() {
         {talent.media.length > 0 && (
           <section>
             <h2 className="text-lg font-semibold mb-4">
-              Reference Media ({talent.media.length})
+              参考素材 ({talent.media.length})
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {talent.media.map((media) => (
@@ -232,7 +228,7 @@ function TalentDetailPage() {
                     {media.type === 'image' && (
                       <img
                         src={media.url}
-                        alt="Reference"
+                        alt="参考素材"
                         className="w-full h-full object-cover"
                       />
                     )}
@@ -254,7 +250,7 @@ function TalentDetailPage() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold flex items-center gap-2">
               <ImageIcon className="h-5 w-5" />
-              Talent Sheets ({talent.sheets.length})
+              演员设定图 ({talent.sheets.length})
             </h2>
             {canManageTalent && (
               <Button
@@ -266,7 +262,7 @@ function TalentDetailPage() {
                 <Sparkles className="h-4 w-4 mr-2" />
                 {isGeneratingSheet
                   ? sheetProgressCopy(generatingPhase)
-                  : 'Generate Sheet'}
+                  : '生成设定图'}
               </Button>
             )}
           </div>
@@ -288,8 +284,7 @@ function TalentDetailPage() {
             <Card className="p-8 text-center">
               <User className="h-12 w-12 mx-auto mb-4 text-muted-foreground/30" />
               <p className="text-muted-foreground mb-3">
-                No talent sheets yet. Drop a character sheet or generate one
-                from the name and description.
+                暂无演员设定图。拖入角色设定图，或根据名称和描述生成。
               </p>
             </Card>
           ) : (
@@ -336,7 +331,7 @@ function TalentDetailPage() {
                       {sheet.source === 'manual_upload' && (
                         <span className="flex items-center gap-1">
                           <Upload className="h-3 w-3" />
-                          Upload
+                          上传
                         </span>
                       )}
                     </div>
@@ -344,7 +339,7 @@ function TalentDetailPage() {
                     {/* Default badge */}
                     {sheet.isDefault && (
                       <div className="absolute top-2 right-2 px-2 py-1 bg-primary text-primary-foreground rounded text-xs font-medium">
-                        Default
+                        默认
                       </div>
                     )}
                   </div>
@@ -367,7 +362,7 @@ function TalentDetailPage() {
                           }
                           disabled={setDefaultSheet.isPending}
                         >
-                          Set as Default
+                          设为默认
                         </Button>
                       )}
                   </div>
@@ -379,11 +374,9 @@ function TalentDetailPage() {
 
         {canManageTalent ? (
           <section className="mb-8 flex flex-col gap-3">
-            <h2 className="text-lg font-semibold">Drop a sheet or photos</h2>
+            <h2 className="text-lg font-semibold">拖入设定图或照片</h2>
             <p className="text-sm text-muted-foreground">
-              Drop a character sheet to use it as-is, or drop photos to generate
-              a sheet. A photo of a real person asks for your rights sign-off
-              first.
+              拖入角色设定图可直接使用，也可拖入照片生成设定图。使用真人照片前需先确认你拥有相应权利。
             </p>
             <TalentMediaUpload
               files={dropFiles}

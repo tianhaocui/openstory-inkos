@@ -115,21 +115,19 @@ export async function exportSequenceOnServer(opts: {
   });
   const postBody: unknown = await post.json().catch(() => null);
   if (!post.ok && post.status !== 202) {
-    throw new Error(
-      apiErrorMessage(postBody, 'Server export failed', post.status)
-    );
+    throw new Error(apiErrorMessage(postBody, '服务器导出失败', post.status));
   }
   const created = readCreatedExport(postBody);
-  if (!created) throw new Error('Server export returned no export');
+  if (!created) throw new Error('服务器未返回导出结果');
   const postedUrl = readyUrl(created);
   if (postedUrl) return { url: postedUrl };
   if (created.status === 'failed') {
-    throw new Error(created.error ?? 'Server export failed');
+    throw new Error(created.error ?? '服务器导出失败');
   }
 
   while (!opts.signal.aborted) {
     if (now() - started > MAX_WAIT_MS) {
-      throw new Error('Server export timed out');
+      throw new Error('服务器导出超时');
     }
     const get = await fetchFn(`${base}?wait=${POLL_WAIT}`, {
       credentials: 'same-origin',
@@ -138,14 +136,14 @@ export async function exportSequenceOnServer(opts: {
     const getBody: unknown = await get.json().catch(() => null);
     if (!get.ok) {
       throw new Error(
-        apiErrorMessage(getBody, 'Server export poll failed', get.status)
+        apiErrorMessage(getBody, '服务器导出状态查询失败', get.status)
       );
     }
     const current = findExport(getBody, created.id);
     const currentUrl = current ? readyUrl(current) : null;
     if (currentUrl) return { url: currentUrl };
     if (current?.status === 'failed') {
-      throw new Error(current.error ?? 'Server export failed');
+      throw new Error(current.error ?? '服务器导出失败');
     }
     await sleepFn(POLL_GAP_MS, opts.signal);
   }

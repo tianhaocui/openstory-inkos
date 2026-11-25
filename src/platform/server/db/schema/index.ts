@@ -113,6 +113,28 @@ import {
 // BytePlus ACR asset pool ledger (#1361 — platform-global slot/lease table)
 import { bytePlusAssetLeases, bytePlusAssets } from './byteplus-assets';
 
+// InkOS Story Memory Tables (facts, chapters, hooks for AI story generation)
+import {
+  storyProjects,
+  storyFacts,
+  storyChapterSummaries,
+  storyHooks,
+  storyChapters,
+  storyCharacters,
+  storySyncReceipts,
+} from './inkos';
+
+// Filmmaking Pipeline Tables (segments, shots, assets, keyframes, video clips)
+import {
+  storySegments,
+  storyShots,
+  storyAssets,
+  storyAssetViews,
+  storyKeyframes,
+  storyVideoClips,
+  storyFilmSettings,
+} from './filmmaking';
+
 // Better Auth tables
 export {
   account,
@@ -420,6 +442,28 @@ export {
   uploadAttestations,
 };
 
+// InkOS Story Memory Tables
+export {
+  storyProjects,
+  storyFacts,
+  storyChapterSummaries,
+  storyHooks,
+  storyChapters,
+  storyCharacters,
+  storySyncReceipts,
+};
+
+// Filmmaking Pipeline Tables
+export {
+  storySegments,
+  storyShots,
+  storyAssets,
+  storyAssetViews,
+  storyKeyframes,
+  storyVideoClips,
+  storyFilmSettings,
+};
+
 /**
  * Complete schema object for Drizzle client initialization (tables only).
  * Relations are defined separately in ./relations.ts using defineRelations().
@@ -529,4 +573,22 @@ export const schema = {
   // BytePlus ACR asset pool (#1361)
   bytePlusAssets,
   bytePlusAssetLeases,
+
+  // InkOS Story Memory Tables
+  storyProjects,
+  storyFacts,
+  storyChapterSummaries,
+  storyHooks,
+  storyChapters,
+  storyCharacters,
+  storySyncReceipts,
+
+  // Filmmaking Pipeline Tables
+  storySegments,
+  storyShots,
+  storyAssets,
+  storyAssetViews,
+  storyKeyframes,
+  storyVideoClips,
+  storyFilmSettings,
 };

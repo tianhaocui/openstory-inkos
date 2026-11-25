@@ -38,7 +38,7 @@ export const AspectRatioPills: FC<AspectRatioPillsProps> = ({
           key={ratio.value}
           value={ratio.value}
           className="flex h-9 min-w-0 flex-1 shrink items-center justify-center gap-2 px-2 sm:px-3"
-          aria-label={`${ratio.label} aspect ratio`}
+          aria-label={`${ratio.label} 宽高比`}
         >
           <AspectRatioIcon
             width={ratio.width}

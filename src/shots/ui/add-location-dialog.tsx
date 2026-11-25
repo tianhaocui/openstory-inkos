@@ -47,7 +47,7 @@ export const AddLocationDialog: React.FC<{ sequenceId: string }> = ({
       Object.fromEntries(new FormData(event.currentTarget))
     );
     if (!result.success) {
-      toast.error('Check the location fields', {
+      toast.error('请检查场景字段', {
         description: result.error.issues[0]?.message,
       });
       return;
@@ -60,7 +60,7 @@ export const AddLocationDialog: React.FC<{ sequenceId: string }> = ({
           toast.success(`Added ${location.name}`);
         },
         onError: (error) =>
-          toast.error('Failed to add location', {
+          toast.error('添加场景失败', {
             description: errorMessage(error),
           }),
       }
@@ -72,47 +72,44 @@ export const AddLocationDialog: React.FC<{ sequenceId: string }> = ({
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           <Plus className="mr-2 h-4 w-4" />
-          Add Location
+          添加场景
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add location</DialogTitle>
+          <DialogTitle>添加场景</DialogTitle>
           <DialogDescription>
-            Fill in the full bible and generate a reference image from the
-            location's detail page.
+            填写完整场景设定，并可在场景详情页生成参考图。
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <Label htmlFor="new-location-name">Name</Label>
+            <Label htmlFor="new-location-name">名称</Label>
             <Input id="new-location-name" name="name" required />
           </div>
           <div className="flex flex-col gap-1">
-            <Label htmlFor="new-location-type">Type</Label>
+            <Label htmlFor="new-location-type">类型</Label>
             <Select
               name="type"
               defaultValue="interior"
               items={{
-                interior: 'Interior',
-                exterior: 'Exterior',
-                both: 'Interior/Exterior',
+                interior: '内景',
+                exterior: '外景',
+                both: '内外景',
               }}
             >
               <SelectTrigger id="new-location-type">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="interior">Interior</SelectItem>
-                <SelectItem value="exterior">Exterior</SelectItem>
-                <SelectItem value="both">Interior/Exterior</SelectItem>
+                <SelectItem value="interior">内景</SelectItem>
+                <SelectItem value="exterior">外景</SelectItem>
+                <SelectItem value="both">内外景</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="flex flex-col gap-1">
-            <Label htmlFor="new-location-description">
-              Description (optional)
-            </Label>
+            <Label htmlFor="new-location-description">描述（可选）</Label>
             <Textarea
               id="new-location-description"
               name="description"
@@ -124,7 +121,7 @@ export const AddLocationDialog: React.FC<{ sequenceId: string }> = ({
               {createLocation.isPending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              {createLocation.isPending ? 'Adding…' : 'Add Location'}
+              {createLocation.isPending ? '添加中…' : '添加场景'}
             </Button>
           </div>
         </form>

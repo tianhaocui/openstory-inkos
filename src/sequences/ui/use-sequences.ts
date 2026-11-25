@@ -249,7 +249,7 @@ export function useCreateSequence() {
 
       return {
         data: sequences,
-        message: 'Sequence created successfully',
+        message: '序列创建成功',
       };
     },
     onSuccess: () => {
@@ -266,7 +266,7 @@ export function useCreateSequence() {
     // credits is the global mutation handler's job (low-balance toast).
     onError: (error) => {
       if (isInsufficientCreditsError(error)) return;
-      toast.error(error.message || 'Generation failed to start.');
+      toast.error(error.message || '启动生成失败。');
     },
   });
 }
@@ -373,7 +373,7 @@ export function useSetSequenceVideoModel(sequenceId: string) {
       if (ctx?.previous) {
         queryClient.setQueryData(sequenceKeys.detail(sequenceId), ctx.previous);
       }
-      toast.error('Could not save the video model.');
+      toast.error('无法保存视频模型。');
       posthog.captureException(error, { sequence_id: sequenceId });
     },
     onSuccess: (updated) => {
@@ -420,7 +420,7 @@ export function useSetSequenceMusic(sequenceId: string) {
       if (ctx?.previous) {
         queryClient.setQueryData(sequenceKeys.detail(sequenceId), ctx.previous);
       }
-      toast.error('Could not save the music setting.');
+      toast.error('无法保存音乐设置。');
       posthog.captureException(error, { sequence_id: sequenceId });
     },
     onSuccess: (updated) => {

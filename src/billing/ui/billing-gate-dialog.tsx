@@ -141,14 +141,12 @@ export const BillingGateDialog: React.FC<BillingGateDialogProps> = ({
       >
         <DialogHeader>
           <DialogTitle>
-            {context === 'onboarding'
-              ? 'Get started with OpenStory'
-              : 'Set up billing to continue'}
+            {context === 'onboarding' ? '开始使用 OpenStory' : '设置计费以继续'}
           </DialogTitle>
           <DialogDescription>
             {context === 'onboarding'
-              ? 'Add credits or connect your own API key to start creating.'
-              : 'This action uses AI credits. Add credits or connect your own key.'}
+              ? '充值点数或连接您自己的 API 密钥，即可开始创作。'
+              : '此操作需要消耗 AI 点数。请充值点数或连接您自己的密钥。'}
           </DialogDescription>
         </DialogHeader>
 
@@ -158,8 +156,8 @@ export const BillingGateDialog: React.FC<BillingGateDialogProps> = ({
               {/* Opens the add-credits modal on top of the gate (#1099) */}
               <OptionCard
                 icon={<CreditCard className="size-4" />}
-                title="Add credits"
-                description="Pay as you go. Auto-reload keeps you generating."
+                title="充值点数"
+                description="按需付费。自动充值让创作不中断。"
                 variant="primary"
                 onClick={() => openAddCreditsDialog('billing_gate')}
               />
@@ -170,8 +168,8 @@ export const BillingGateDialog: React.FC<BillingGateDialogProps> = ({
             <OptionCard
               to="/settings/api-keys"
               icon={<Key className="size-4" />}
-              title="Use your own key"
-              description="Connect fal.ai — images, video, audio, and script analysis."
+              title="使用您自己的密钥"
+              description="连接 fal.ai，用于图像、视频、音频和剧本分析。"
               variant="primary"
               onClick={handleNav}
             />
@@ -187,7 +185,7 @@ export const BillingGateDialog: React.FC<BillingGateDialogProps> = ({
               className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/70 transition-colors hover:text-muted-foreground"
             >
               <Gift className="size-3.5" />
-              Redeem a gift code
+              兑换礼品码
             </Link>
             <Link
               to="/settings/api-keys"
@@ -195,7 +193,7 @@ export const BillingGateDialog: React.FC<BillingGateDialogProps> = ({
               className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/70 transition-colors hover:text-muted-foreground"
             >
               <Key className="size-3.5" />
-              Use your own key
+              使用您自己的密钥
             </Link>
           </div>
           <Button
@@ -204,7 +202,7 @@ export const BillingGateDialog: React.FC<BillingGateDialogProps> = ({
             className="text-muted-foreground/70 hover:text-muted-foreground"
             onClick={() => onOpenChange(false)}
           >
-            {hasFalKey ? 'Continue' : 'Set up later'}
+            {hasFalKey ? '继续' : '稍后设置'}
           </Button>
         </div>
       </DialogContent>

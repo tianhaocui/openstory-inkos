@@ -19,11 +19,10 @@ export const AutoTopUpFailedBanner: React.FC = () => {
       <AlertTriangle className="h-4 w-4" />
       <AlertDescription className="flex items-center justify-between gap-4">
         <span>
-          Auto-reload is paused — your card was declined. Generation stops when
-          your balance runs out.
+          自动充值已暂停，因为银行卡付款被拒绝。余额用尽后将无法继续生成内容。
         </span>
         <Link to="/credits" className="shrink-0 font-medium underline">
-          Update card →
+          更新银行卡 →
         </Link>
       </AlertDescription>
     </Alert>

@@ -91,7 +91,7 @@ export const GenerationStopAlert: FC<GenerationStopAlertProps> = ({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent className="data-[size=default]:max-w-lg data-[size=default]:sm:max-w-lg">
         <AlertDialogHeader>
-          <AlertDialogTitle>Generate the whole sequence?</AlertDialogTitle>
+          <AlertDialogTitle>生成完整序列？</AlertDialogTitle>
           {description && (
             <AlertDialogDescription>{description}</AlertDialogDescription>
           )}
@@ -118,9 +118,9 @@ export const GenerationStopAlert: FC<GenerationStopAlertProps> = ({
               checked={draftRemember}
               onCheckedChange={(checked) => setDraftRemember(checked === true)}
             />
-            Don't ask again
+            不再询问
           </label>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>取消</AlertDialogCancel>
           {/* Cost sits under the CTA, as under every other generate button. */}
           <div className="flex flex-col gap-1">
             <AlertDialogAction

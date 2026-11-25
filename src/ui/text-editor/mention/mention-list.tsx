@@ -83,13 +83,13 @@ export const MentionList = forwardRef<MentionListRef, MentionListProps>(
       return (
         <div
           role="listbox"
-          aria-label="Mention suggestions"
+          aria-label="提及建议"
           className={cn(
             'w-72 rounded-md border bg-popover p-2 text-sm text-muted-foreground shadow-md',
             className
           )}
         >
-          No matches
+          没有匹配项
         </div>
       );
     }
@@ -98,7 +98,7 @@ export const MentionList = forwardRef<MentionListRef, MentionListProps>(
     return (
       <div
         role="listbox"
-        aria-label="Mention suggestions"
+        aria-label="提及建议"
         className={cn(
           'flex max-h-72 w-80 flex-col overflow-y-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md',
           className

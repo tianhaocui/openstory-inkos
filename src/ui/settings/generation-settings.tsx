@@ -108,9 +108,7 @@ export const GenerationSettings: FC<GenerationSettingsProps> = ({
         <div className="flex min-w-0 flex-col gap-4">
           {/* Aspect Ratio Section */}
           <section className="flex flex-col gap-2">
-            <h3 className="text-sm font-medium text-foreground">
-              Aspect Ratio
-            </h3>
+            <h3 className="text-sm font-medium text-foreground">宽高比</h3>
             <AspectRatioPills
               value={aspectRatio}
               onChange={onAspectRatioChange}
@@ -121,9 +119,7 @@ export const GenerationSettings: FC<GenerationSettingsProps> = ({
 
           {/* Analysis Model Section */}
           <section className="flex flex-col gap-2">
-            <h3 className="text-sm font-medium text-foreground">
-              Analysis Model
-            </h3>
+            <h3 className="text-sm font-medium text-foreground">分析模型</h3>
             <ModelSelector
               selectedModels={analysisModels}
               onModelsChange={onAnalysisModelsChange}
@@ -137,7 +133,7 @@ export const GenerationSettings: FC<GenerationSettingsProps> = ({
           {/* Image Model Section */}
           <section className="flex flex-col gap-2">
             <h3 className="text-sm font-medium text-foreground">
-              {singleSelectImage ? 'Image Model' : 'Image Models'}
+              {singleSelectImage ? '图像模型' : '图像模型'}
             </h3>
             {singleSelectImage ? (
               <ImageModelSelector
@@ -159,7 +155,7 @@ export const GenerationSettings: FC<GenerationSettingsProps> = ({
           {/* Motion Model Section */}
           <section className="flex flex-col gap-2">
             <h3 className="text-sm font-medium text-foreground">
-              {singleSelectMotion ? 'Motion Model' : 'Motion Models'}
+              {singleSelectMotion ? '动态模型' : '动态模型'}
             </h3>
             {singleSelectMotion ? (
               <MotionModelSelector
@@ -182,7 +178,7 @@ export const GenerationSettings: FC<GenerationSettingsProps> = ({
                 referenceOnly={!generateStartFrames}
               />
             )}
-            <h3 className="text-sm font-medium text-foreground">Resolution</h3>
+            <h3 className="text-sm font-medium text-foreground">分辨率</h3>
             <ResolutionPills
               value={resolution}
               onChange={onResolutionChange}
@@ -199,7 +195,7 @@ export const GenerationSettings: FC<GenerationSettingsProps> = ({
               {/* Music Model Section */}
               <section className="flex flex-col gap-2">
                 <h3 className="text-sm font-medium text-foreground">
-                  {singleSelectMusic ? 'Music Model' : 'Music Models'}
+                  {singleSelectMusic ? '音乐模型' : '音乐模型'}
                 </h3>
                 {singleSelectMusic ? (
                   <MusicModelSelector

@@ -37,7 +37,7 @@ export function PasskeySettings({ isSetupFlow }: PasskeySettingsProps) {
     queryFn: async () => {
       const result = await authClient.passkey.listUserPasskeys();
       if (result.error) {
-        throw new Error(result.error.message || 'Failed to load passkeys');
+        throw new Error(result.error.message || '加载通行密钥失败');
       }
       return result.data;
     },
@@ -53,7 +53,7 @@ export function PasskeySettings({ isSetupFlow }: PasskeySettingsProps) {
             'message' in result.error &&
             typeof result.error.message === 'string'
             ? result.error.message
-            : 'Failed to add passkey'
+            : '添加通行密钥失败'
         );
       }
       return result;
@@ -63,7 +63,7 @@ export function PasskeySettings({ isSetupFlow }: PasskeySettingsProps) {
       setError(null);
     },
     onError: (err) => {
-      setError(err instanceof Error ? err.message : 'Failed to add passkey');
+      setError(err instanceof Error ? err.message : '添加通行密钥失败');
     },
   });
 
@@ -71,7 +71,7 @@ export function PasskeySettings({ isSetupFlow }: PasskeySettingsProps) {
     mutationFn: async (id: string) => {
       const result = await authClient.passkey.deletePasskey({ id });
       if (result.error) {
-        throw new Error(result.error.message || 'Failed to delete passkey');
+        throw new Error(result.error.message || '删除通行密钥失败');
       }
       return result;
     },
@@ -80,7 +80,7 @@ export function PasskeySettings({ isSetupFlow }: PasskeySettingsProps) {
       setError(null);
     },
     onError: (err) => {
-      setError(err instanceof Error ? err.message : 'Failed to delete passkey');
+      setError(err instanceof Error ? err.message : '删除通行密钥失败');
     },
   });
 
@@ -102,13 +102,11 @@ export function PasskeySettings({ isSetupFlow }: PasskeySettingsProps) {
               <Fingerprint className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <CardTitle>
-                {isSetupFlow ? 'Set up a passkey' : 'Passkeys'}
-              </CardTitle>
+              <CardTitle>{isSetupFlow ? '设置通行密钥' : '通行密钥'}</CardTitle>
               <CardDescription>
                 {isSetupFlow
-                  ? 'Sign in instantly with Face ID, Touch ID, or your device PIN'
-                  : 'Manage your passkeys for passwordless sign-in'}
+                  ? '使用 Face ID、Touch ID 或设备 PIN 即刻登录'
+                  : '管理用于免密码登录的通行密钥'}
               </CardDescription>
             </div>
           </div>
@@ -121,7 +119,7 @@ export function PasskeySettings({ isSetupFlow }: PasskeySettingsProps) {
                 {error ||
                   (fetchError instanceof Error
                     ? fetchError.message
-                    : 'Failed to load passkeys')}
+                    : '加载通行密钥失败')}
               </AlertDescription>
             </Alert>
           )}
@@ -141,9 +139,12 @@ export function PasskeySettings({ isSetupFlow }: PasskeySettingsProps) {
                   <div className="flex items-center gap-3">
                     <Fingerprint className="h-5 w-5 text-muted-foreground" />
                     <div>
-                      <p className="font-medium">{passkey.name || 'Passkey'}</p>
+                      <p className="font-medium">
+                        {passkey.name || '通行密钥'}
+                      </p>
                       <p className="text-sm text-muted-foreground">
-                        Added {new Date(passkey.createdAt).toLocaleDateString()}
+                        添加于{' '}
+                        {new Date(passkey.createdAt).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
@@ -152,7 +153,7 @@ export function PasskeySettings({ isSetupFlow }: PasskeySettingsProps) {
                     size="icon"
                     onClick={() => deletePasskeyMutation.mutate(passkey.id)}
                     disabled={deletePasskeyMutation.isPending}
-                    aria-label="Delete passkey"
+                    aria-label="删除通行密钥"
                   >
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
@@ -161,7 +162,7 @@ export function PasskeySettings({ isSetupFlow }: PasskeySettingsProps) {
             </div>
           ) : (
             <p className="text-center text-muted-foreground py-4">
-              No passkeys registered yet
+              尚未注册通行密钥
             </p>
           )}
 
@@ -171,17 +172,17 @@ export function PasskeySettings({ isSetupFlow }: PasskeySettingsProps) {
             className="w-full"
           >
             <Plus className="mr-2 h-4 w-4" />
-            {addPasskeyMutation.isPending ? 'Adding…' : 'Add passkey'}
+            {addPasskeyMutation.isPending ? '添加中…' : '添加通行密钥'}
           </Button>
 
           {isSetupFlow && (
             <div className="flex gap-2 pt-2">
               <Button variant="outline" className="flex-1" onClick={handleSkip}>
-                Skip for now
+                暂时跳过
               </Button>
               {passkeys && passkeys.length > 0 && (
                 <Button className="flex-1" onClick={handleContinue}>
-                  Continue
+                  继续
                 </Button>
               )}
             </div>

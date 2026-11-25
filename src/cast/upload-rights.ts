@@ -7,7 +7,10 @@
  * checked once per team no matter where it is used next.
  */
 
-import { PORTRAIT_RIGHTS_V1 } from '@/platform/compliance/attestations';
+import {
+  PORTRAIT_RIGHTS_V1,
+  PORTRAIT_RIGHTS_V2,
+} from '@/platform/compliance/attestations';
 import { getPublicAssetsDomain } from '@/platform/public-assets';
 import { mediaUrlSchema } from '@/platform/schemas/media-url.schemas';
 import { z } from 'zod';
@@ -31,7 +34,10 @@ export type UploadRef = z.infer<typeof uploadRefSchema>;
 /** The portrait sign-off for one upload. The only statement a user signs. */
 export const portraitAttestationSchema = z.object({
   url: mediaUrlSchema,
-  statementVersion: z.literal(PORTRAIT_RIGHTS_V1.version),
+  statementVersion: z.union([
+    z.literal(PORTRAIT_RIGHTS_V1.version),
+    z.literal(PORTRAIT_RIGHTS_V2.version),
+  ]),
   authorizationBasis: z.string().trim().min(1).max(500),
 });
 export type PortraitAttestation = z.infer<typeof portraitAttestationSchema>;

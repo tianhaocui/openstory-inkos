@@ -79,7 +79,7 @@ export function ActionCost({
           'min-h-4 tabular-nums text-muted-foreground',
           className
         )}
-        aria-label="Estimated cost shown after sign in"
+        aria-label="登录后显示预估费用"
       >
         {prefix}
         <span>~$x.xx</span>
@@ -108,8 +108,8 @@ export function ActionCost({
 
   const amount = microsToDisplayUsd(estimate);
   const label = exceedsBalance
-    ? `Estimated cost about ${amount}, more than your credit balance`
-    : `Estimated cost about ${amount}`;
+    ? `预估费用约为 ${amount}，超出您的点数余额`
+    : `预估费用约为 ${amount}`;
 
   return (
     <span
@@ -129,7 +129,7 @@ export function ActionCost({
       ) : null}
       <span>
         ~{amount}
-        {exceedsBalance && <span> · over balance</span>}
+        {exceedsBalance && <span> · 超出余额</span>}
       </span>
     </span>
   );

@@ -167,7 +167,7 @@ export class ConcatenatedVideoSource {
     // oxlint-disable-next-line typescript/no-unnecessary-condition -- flips during the await
     if (failure !== null || this.disposed) {
       for (const o of opened) o.input.dispose();
-      throw failure ?? new Error('ConcatenatedVideoSource disposed');
+      throw failure ?? new Error('拼接视频源已释放');
     }
     const inputs = opened.map((o) => o.input);
     const videoTracks = opened.map((o) => o.videoTrack);

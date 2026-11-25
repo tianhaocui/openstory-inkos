@@ -88,21 +88,20 @@ type Source =
   | 'audio';
 
 const SOURCES: { key: Source; label: string; icon: typeof Sparkles }[] = [
-  { key: 'generations', label: 'Generations', icon: Sparkles },
-  { key: 'uploads', label: 'Uploads', icon: FolderUp },
-  { key: 'sequences', label: 'Sequences', icon: Clapperboard },
-  { key: 'cast', label: 'Talent', icon: Users },
-  { key: 'locations', label: 'Locations', icon: MapPin },
-  { key: 'audio', label: 'Audio', icon: AudioLines },
+  { key: 'generations', label: '生成记录', icon: Sparkles },
+  { key: 'uploads', label: '上传内容', icon: FolderUp },
+  { key: 'sequences', label: '序列', icon: Clapperboard },
+  { key: 'cast', label: '演员', icon: Users },
+  { key: 'locations', label: '场景', icon: MapPin },
+  { key: 'audio', label: '音频', icon: AudioLines },
 ];
 
 const EMPTY: Record<Exclude<Source, 'audio'>, string> = {
-  generations:
-    'No generations yet — make an image or clip and it shows up here.',
-  uploads: 'Nothing uploaded yet — anything you upload or paste lands here.',
-  sequences: 'No sequences yet.',
-  cast: 'No talent with a headshot yet.',
-  locations: 'No locations with a reference image yet.',
+  generations: '暂无生成内容。生成图片或片段后会显示在这里。',
+  uploads: '暂无上传内容。上传或粘贴的内容会显示在这里。',
+  sequences: '暂无序列。',
+  cast: '暂无带头像的演员。',
+  locations: '暂无带参考图的场景。',
 };
 
 function shotReferences(sequence: SequenceWithShots): StudioReference[] {
@@ -329,11 +328,11 @@ function SequenceDetail({
       <div className="flex items-center gap-2">
         <Button type="button" variant="ghost" size="sm" onClick={onBack}>
           <ArrowLeft aria-hidden="true" />
-          Sequences
+          序列
         </Button>
         <span className="truncate text-sm font-medium">{sequence.title}</span>
       </div>
-      <Section title="Shots" items={shots} {...grid} />
+      <Section title="镜头" items={shots} {...grid} />
       {loading ? (
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
           {Array.from({ length: 5 }, (_, i) => (
@@ -342,16 +341,16 @@ function SequenceDetail({
         </div>
       ) : (
         <>
-          <Section title="Elements" items={elementRefs} {...grid} />
-          <Section title="Cast" items={castRefs} {...grid} />
-          <Section title="Locations" items={locationRefs} {...grid} />
+          <Section title="元素" items={elementRefs} {...grid} />
+          <Section title="演员" items={castRefs} {...grid} />
+          <Section title="场景" items={locationRefs} {...grid} />
           {shots.length +
             elementRefs.length +
             castRefs.length +
             locationRefs.length ===
             0 && (
             <p className="text-sm text-muted-foreground">
-              Nothing generated in this sequence yet.
+              此序列中尚无生成内容。
             </p>
           )}
         </>
@@ -440,8 +439,8 @@ export function StudioReferencePicker({
             <DialogTitle>{title}</DialogTitle>
             <DialogDescription>
               {multiple
-                ? `Up to ${slots.image} stills${slots.video > 0 ? `, ${slots.video} clips` : ''}${slots.audio > 0 ? `, ${slots.audio} audio` : ''}. Upload or paste.`
-                : 'Pick one, upload, or paste.'}
+                ? `最多可选 ${slots.image} 张图片${slots.video > 0 ? `、${slots.video} 个视频片段` : ''}${slots.audio > 0 ? `、${slots.audio} 段音频` : ''}。可上传或粘贴。`
+                : '请选择一项，也可上传或粘贴。'}
             </DialogDescription>
           </div>
           <input
@@ -466,13 +465,13 @@ export function StudioReferencePicker({
             onClick={() => fileInput.current?.click()}
           >
             <Upload aria-hidden="true" />
-            {source === 'audio' ? 'Upload audio' : 'Upload'}
+            {source === 'audio' ? '上传音频' : '上传'}
           </Button>
         </DialogHeader>
 
         <div className="flex min-h-0 flex-1">
           <nav
-            aria-label="Reference source"
+            aria-label="参考素材来源"
             className="flex w-40 shrink-0 flex-col gap-1 border-r p-2"
           >
             {sources.map(({ key, label, icon: Icon }) => (
@@ -503,10 +502,9 @@ export function StudioReferencePicker({
             {source === 'audio' ? (
               <div className="flex flex-col items-start gap-3 p-4">
                 <p className="text-sm text-muted-foreground">
-                  MP3 or WAV, up to {slots.audio} more. Seedance: 15 seconds
-                  combined. Each clip becomes{' '}
-                  <span className="font-mono">@Audio1</span>,{' '}
-                  <span className="font-mono">@Audio2</span>… in the prompt.
+                  支持 MP3 或 WAV，还可添加 {slots.audio} 段；Seedance 合计最长
+                  15 秒。每段音频会以 <span className="font-mono">@Audio1</span>
+                  , <span className="font-mono">@Audio2</span>… 写入提示词。
                 </p>
                 <Button
                   type="button"
@@ -514,7 +512,7 @@ export function StudioReferencePicker({
                   onClick={() => fileInput.current?.click()}
                 >
                   <Upload aria-hidden="true" />
-                  Upload audio
+                  上传音频
                 </Button>
               </div>
             ) : source === 'sequences' ? (
@@ -559,7 +557,7 @@ export function StudioReferencePicker({
                           {sequence.title}
                         </span>
                         <span className="px-1 pb-0.5 font-mono text-[10px] text-muted-foreground">
-                          {sequence.shotCount} shots
+                          {sequence.shotCount} 个镜头
                         </span>
                       </button>
                     </li>
@@ -579,7 +577,7 @@ export function StudioReferencePicker({
         {multiple && (
           <DialogFooter className="mx-0 mb-0 border-t px-4 py-3">
             <Button type="button" variant="ghost" onClick={close}>
-              Cancel
+              取消
             </Button>
             <Button
               type="button"
@@ -589,7 +587,7 @@ export function StudioReferencePicker({
                 close();
               }}
             >
-              {pending.length > 0 ? `Add ${pending.length}` : 'Add'}
+              {pending.length > 0 ? `添加 ${pending.length} 项` : '添加'}
             </Button>
           </DialogFooter>
         )}

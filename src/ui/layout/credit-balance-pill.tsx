@@ -87,12 +87,12 @@ export const CreditBalancePill: React.FC = () => {
         <SidebarMenuItem>
           <SidebarMenuButton
             asChild
-            tooltip={`Welcome credits · ${WELCOME_AMOUNT} to claim`}
+            tooltip={`欢迎积分 · ${WELCOME_AMOUNT} 可领取`}
             className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-400"
           >
             <Link
               to="/login"
-              aria-label={`Welcome credits ${WELCOME_AMOUNT}. Sign in to claim.`}
+              aria-label={`欢迎积分 ${WELCOME_AMOUNT}。登录领取。`}
             >
               <Wallet />
               <span className="tabular-nums" aria-live="polite">
@@ -111,9 +111,9 @@ export const CreditBalancePill: React.FC = () => {
       <SidebarMenu>
         <SidebarMenuItem>
           <SidebarMenuButton
-            tooltip={`Claim ${WELCOME_AMOUNT} welcome credits`}
+            tooltip={`领取 ${WELCOME_AMOUNT} 欢迎积分`}
             onClick={() => reopenWelcomeCredits()}
-            aria-label={`Credit balance ${amount}. Claim ${WELCOME_AMOUNT} welcome credits.`}
+            aria-label={`积分余额 ${amount}。领取 ${WELCOME_AMOUNT} 欢迎积分。`}
             className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-400"
           >
             <Wallet />
@@ -137,7 +137,7 @@ export const CreditBalancePill: React.FC = () => {
 
   const amount = `$${balance?.toFixed(2) ?? '0.00'}`;
   const tooltip =
-    reserved > 0 ? `Credits · ${amount} available` : `Credits · ${amount}`;
+    reserved > 0 ? `积分 · ${amount} 可用` : `积分 · ${amount}`;
 
   return (
     <SidebarMenu>
@@ -146,7 +146,7 @@ export const CreditBalancePill: React.FC = () => {
         <SidebarMenuButton
           tooltip={tooltip}
           onClick={() => openAddCreditsDialog('sidebar_pill')}
-          aria-label={`Credit balance ${amount}. Add credits.`}
+          aria-label={`积分余额 ${amount}。添加积分。`}
           className={cn(
             'animate-[balance-flash-in_300ms_ease-out_both]',
             toneClass

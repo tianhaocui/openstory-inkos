@@ -18,8 +18,8 @@ import type {
 import { ChevronDown, Download, FileDown, Link, Loader2 } from 'lucide-react';
 
 export function formatExportProgress(progress: ExportProgress | null): string {
-  if (!progress) return 'Creating MP4…';
-  return 'Rendering on server…';
+  if (!progress) return '正在创建 MP4…';
+  return '正在服务器上渲染…';
 }
 
 export const SequenceExportActions: React.FC<{
@@ -31,8 +31,8 @@ export const SequenceExportActions: React.FC<{
   const label = running
     ? formatExportProgress(sequenceExport.progress)
     : pending
-      ? `${sequenceExport.clipsReady} of ${sequenceExport.clipsTotal} clips ready`
-      : 'Export';
+      ? `${sequenceExport.clipsReady}/${sequenceExport.clipsTotal} 个片段已就绪`
+      : '导出';
 
   return (
     <div className="hidden md:block">
@@ -51,7 +51,7 @@ export const SequenceExportActions: React.FC<{
             ) : (
               <FileDown className="mr-1.5 h-3.5 w-3.5" />
             )}
-            <span>{running ? 'Creating…' : 'Export'}</span>
+            <span>{running ? '创建中…' : '导出'}</span>
             <ChevronDown className="size-3" />
           </Button>
         </DropdownMenuTrigger>
@@ -61,14 +61,14 @@ export const SequenceExportActions: React.FC<{
             onClick={sequenceExport.download}
           >
             <Download />
-            Download MP4
+            下载 MP4
           </DropdownMenuItem>
           <DropdownMenuItem
             disabled={pending || running}
             onClick={sequenceExport.copyLink}
           >
             <Link />
-            Copy link
+            复制链接
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

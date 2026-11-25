@@ -24,7 +24,7 @@ export const StyleLibraryCard: FC<StyleLibraryCardProps> = ({
     <button
       type="button"
       onClick={handleSelect}
-      aria-label={`${style.name} style details`}
+      aria-label={`${style.name} 风格详情`}
       data-testid={`style-library-card-${style.id}`}
       className="group block w-full overflow-hidden rounded-xl border bg-card text-left shadow-sm transition-all hover:scale-[1.02] hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
     >

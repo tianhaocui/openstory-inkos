@@ -206,12 +206,12 @@ export const ScenePlayer: React.FC<ScenePlayerProps> = ({
       const absoluteUrl = new URL(currentShot.image.url, window.location.origin)
         .href;
       if (!(await copyTextToClipboard(absoluteUrl))) {
-        toast.error('Failed to copy URL');
+        toast.error('复制 URL 失败');
         return;
       }
-      toast.success('Start frame URL copied');
+      toast.success('起始帧 URL 已复制');
     } catch {
-      toast.error('Failed to copy URL');
+      toast.error('复制 URL 失败');
     }
   }, [
     currentShot?.image?.url,
@@ -231,12 +231,12 @@ export const ScenePlayer: React.FC<ScenePlayerProps> = ({
       const absoluteUrl = new URL(currentShot.video.url, window.location.origin)
         .href;
       if (!(await copyTextToClipboard(absoluteUrl))) {
-        toast.error('Failed to copy URL');
+        toast.error('复制 URL 失败');
         return;
       }
-      toast.success('Segment URL copied');
+      toast.success('片段 URL 已复制');
     } catch {
-      toast.error('Failed to copy URL');
+      toast.error('复制 URL 失败');
     }
   }, [
     currentShot?.video?.url,
@@ -310,7 +310,7 @@ export const ScenePlayer: React.FC<ScenePlayerProps> = ({
                   className="absolute inset-0 h-full w-full object-cover"
                 />
                 <span className="absolute top-2 right-2 z-10 rounded bg-background/80 px-2 py-1 text-xs font-medium text-muted-foreground backdrop-blur-sm">
-                  Preview
+                  预览
                 </span>
                 <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/80 to-transparent p-4">
                   <p className="text-center text-sm font-medium text-white">
@@ -354,7 +354,7 @@ export const ScenePlayer: React.FC<ScenePlayerProps> = ({
               className="h-full w-full object-cover"
             />
             <span className="absolute top-2 right-2 z-10 rounded bg-background/80 px-2 py-1 text-xs font-medium text-muted-foreground backdrop-blur-sm">
-              Preview
+              预览
             </span>
           </div>
         </div>
@@ -373,8 +373,8 @@ export const ScenePlayer: React.FC<ScenePlayerProps> = ({
     return (
       <EmptyState
         icon={<VideoIcon />}
-        title={'No selected shot'}
-        description={'Please select a shot to play.'}
+        title={'未选择镜头'}
+        description={'请选择要播放的镜头。'}
       />
     );
   }
@@ -390,7 +390,7 @@ export const ScenePlayer: React.FC<ScenePlayerProps> = ({
       : undefined;
   const title =
     plainSceneTitle(currentScene?.title) ||
-    (sceneNumber ? `Scene ${sceneNumber}` : undefined);
+    (sceneNumber ? `场景 ${sceneNumber}` : undefined);
 
   // The image-focused tabs (the still image + the shot-variant grid) keep
   // showing the image; every other tab (script, motion, cast, location,
@@ -461,7 +461,7 @@ export const ScenePlayer: React.FC<ScenePlayerProps> = ({
             >
               <AppImage
                 src={displayImage}
-                alt={title || 'Scene thumbnail'}
+                alt={title || '场景缩略图'}
                 className="w-full h-full object-cover"
                 width={imageDimensions.width}
                 height={imageDimensions.height}
@@ -477,7 +477,7 @@ export const ScenePlayer: React.FC<ScenePlayerProps> = ({
                   variant="ghost"
                   size="icon"
                   className="absolute top-2 right-2 z-20 h-11 w-11 bg-black/50 text-white hover:bg-black/70 md:h-8 md:w-8"
-                  aria-label="Share image"
+                  aria-label="分享图片"
                 >
                   <Share2 className="h-5 w-5 md:h-4 md:w-4" />
                 </Button>
@@ -485,7 +485,7 @@ export const ScenePlayer: React.FC<ScenePlayerProps> = ({
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => void handleCopyImageUrl()}>
                   <Link className="h-4 w-4" />
-                  Copy start frame URL
+                  复制起始帧 URL
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -513,7 +513,7 @@ export const ScenePlayer: React.FC<ScenePlayerProps> = ({
                   variant="ghost"
                   size="icon"
                   className="absolute top-2 right-2 z-20 h-11 w-11 bg-black/50 text-white hover:bg-black/70 md:h-8 md:w-8"
-                  aria-label="Share"
+                  aria-label="分享"
                 >
                   <Share2 className="h-5 w-5 md:h-4 md:w-4" />
                 </Button>
@@ -522,19 +522,19 @@ export const ScenePlayer: React.FC<ScenePlayerProps> = ({
                 {currentShot.image?.url && (
                   <DropdownMenuItem onClick={() => void handleCopyImageUrl()}>
                     <Link className="h-4 w-4" />
-                    Copy start frame URL
+                    复制起始帧 URL
                   </DropdownMenuItem>
                 )}
                 {currentShot.video?.url && (
                   <DropdownMenuItem onClick={() => void handleCopyVideoUrl()}>
                     <VideoIcon className="h-4 w-4" />
-                    Copy segment URL
+                    复制片段 URL
                   </DropdownMenuItem>
                 )}
                 {hasCompletedVideo && downloadData?.downloadUrl && (
                   <DropdownMenuItem onClick={handleDownloadVideo}>
                     <Download className="h-4 w-4" />
-                    Download segment video
+                    下载片段视频
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
@@ -551,7 +551,7 @@ export const ScenePlayer: React.FC<ScenePlayerProps> = ({
               target="_blank"
               rel="noopener noreferrer"
               className="absolute inset-0 z-[5] cursor-pointer"
-              aria-label="Open image in new tab"
+              aria-label="在新标签页打开图片"
             />
           )}
           <VideoPlayer
@@ -606,7 +606,7 @@ export const ScenePlayer: React.FC<ScenePlayerProps> = ({
           )}
           {isPreviewImage && !isVariantPreview && (
             <span className="absolute top-2 right-2 z-10 rounded bg-background/80 px-2 py-1 text-xs font-medium text-muted-foreground backdrop-blur-sm">
-              Storyboard
+              故事板
             </span>
           )}
           {frameOverlay}
@@ -623,7 +623,7 @@ export const ScenePlayer: React.FC<ScenePlayerProps> = ({
         )}
         aria-hidden={!isPreviewImage}
       >
-        Fast preview — may not match the final image.
+        快速预览与最终图像可能存在差异。
       </p>
       {/* Preload next video in background if it's completed */}
       {nextShot?.video?.url && nextShot.videoStatus === 'completed' && (

@@ -3,6 +3,7 @@ import { sha256Hex } from './hash';
 import {
   attestationMatchesShippedText,
   PORTRAIT_RIGHTS_V1,
+  PORTRAIT_RIGHTS_V2,
   ASSET_RIGHTS_V1,
   LIKENESS_CLEARED_V1,
   LIKENESS_DETECTED_V1,
@@ -12,6 +13,7 @@ import {
 describe('attestations', () => {
   it('demands an authorization basis for the portrait statement only', () => {
     expect(PORTRAIT_RIGHTS_V1.requiresBasis).toBe(true);
+    expect(PORTRAIT_RIGHTS_V2.requiresBasis).toBe(true);
     expect(LIKENESS_CLEARED_V1.requiresBasis).toBe(false);
     expect(LIKENESS_DETECTED_V1.requiresBasis).toBe(false);
   });
@@ -19,6 +21,7 @@ describe('attestations', () => {
   it('verifies every statement version the ledger can hold', async () => {
     for (const statement of [
       PORTRAIT_RIGHTS_V1,
+      PORTRAIT_RIGHTS_V2,
       ASSET_RIGHTS_V1,
       LIKENESS_CLEARED_V1,
       LIKENESS_DETECTED_V1,
@@ -71,5 +74,6 @@ describe('attestations', () => {
     expect(PORTRAIT_RIGHTS_V1.text).toContain(
       'specifically permits AI generation'
     );
+    expect(PORTRAIT_RIGHTS_V2.text).toContain('明确允许 AI 生成');
   });
 });

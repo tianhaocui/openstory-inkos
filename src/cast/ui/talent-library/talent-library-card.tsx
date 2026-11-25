@@ -23,7 +23,7 @@ type TalentLibraryCardProps = {
 export const TalentLibraryCard: React.FC<TalentLibraryCardProps> = ({
   talent,
   isGenerating = false,
-  generatingLabel = 'Generating sheet…',
+  generatingLabel = '正在生成设定图…',
   divergentVariantId,
 }) => {
   const toggleFavorite = useToggleTalentFavorite();
@@ -78,11 +78,11 @@ export const TalentLibraryCard: React.FC<TalentLibraryCardProps> = ({
           {/* Badge */}
           {talent.isPublic ? (
             <div className="absolute top-2 left-2 px-2 py-1 bg-background/80 backdrop-blur-sm rounded text-xs font-medium text-muted-foreground">
-              System
+              系统
             </div>
           ) : talent.isHuman ? (
             <div className="absolute top-2 left-2 px-2 py-1 bg-background/80 backdrop-blur-sm rounded text-xs font-medium">
-              Human
+              真人
             </div>
           ) : (
             <div className="absolute top-2 left-2 px-2 py-1 bg-background/80 backdrop-blur-sm rounded text-xs font-medium flex items-center gap-1">

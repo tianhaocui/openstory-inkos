@@ -34,7 +34,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
-const title = `Report content — ${SITE_CONFIG.name}`;
+const title = `举报内容 — ${SITE_CONFIG.name}`;
 
 export const Route = createFileRoute('/_app/report')({
   component: ReportPage,
@@ -45,7 +45,7 @@ export const Route = createFileRoute('/_app/report')({
       { property: 'og:url', content: `${SITE_CONFIG.url}/report` },
     ],
   }),
-  staticData: { breadcrumb: { label: 'Report content', to: '/report' } },
+  staticData: { breadcrumb: { label: '举报内容', to: '/report' } },
 });
 
 /**
@@ -54,21 +54,21 @@ export const Route = createFileRoute('/_app/report')({
  * and mislabelled reports slow triage more than a missing label would.
  */
 const REASON_LABELS: Record<(typeof CONTENT_REPORT_REASONS)[number], string> = {
-  csam: 'Child sexual abuse material',
-  portrait_rights: 'Uses my likeness without permission',
-  deepfake_impersonation: 'Impersonates a real person',
-  copyright: 'Infringes my copyright or trademark',
-  sexual_content: 'Non-consensual or explicit sexual content',
-  violence_or_harm: 'Violent, harmful, or dangerous content',
-  hate_or_harassment: 'Hate speech or harassment',
-  illegal_or_regulated: 'Illegal or regulated content',
-  misleading_content: 'Misleading or deceptive content',
-  other: 'Something else',
+  csam: '儿童性虐待材料',
+  portrait_rights: '未经许可使用我的肖像',
+  deepfake_impersonation: '冒充真实人物',
+  copyright: '侵犯我的著作权或商标权',
+  sexual_content: '未经同意或露骨的色情内容',
+  violence_or_harm: '暴力、有害或危险内容',
+  hate_or_harassment: '仇恨言论或骚扰',
+  illegal_or_regulated: '非法或受管制内容',
+  misleading_content: '误导或欺骗性内容',
+  other: '其他问题',
 };
 
 const formSchema = z.object({
   reason: z.enum(CONTENT_REPORT_REASONS),
-  targetId: z.string().trim().min(1, 'Tell us what to look at'),
+  targetId: z.string().trim().min(1, '请告诉我们需要查看什么'),
   details: z.string().trim().max(5000).optional(),
   reporterEmail: z
     .union([z.string().trim().email(), z.literal('')])
@@ -99,15 +99,15 @@ function ReportPage() {
       }),
     onSuccess: (result) => {
       setReference(result.reference);
-      toast.success('Report received', {
-        description: `Reference ${result.reference}`,
+      toast.success('举报已收到', {
+        description: `参考编号 ${result.reference}`,
       });
     },
     onError: (error) => {
       toast.error(
         error instanceof Error
           ? error.message
-          : 'Could not submit the report. Please email us instead.'
+          : '无法提交举报，请改为发送邮件联系我们。'
       );
     },
   });
@@ -136,31 +136,26 @@ function ReportPage() {
     return (
       <main className="mx-auto flex max-w-2xl flex-col gap-6 px-6 py-10">
         <h1 className="font-heading text-3xl font-bold tracking-tight">
-          Report received
+          举报已收到
         </h1>
         <Card>
           <CardHeader>
-            <CardTitle>Reference {reference}</CardTitle>
-            <CardDescription>
-              Keep this reference if you need to follow up.
-            </CardDescription>
+            <CardTitle>参考编号 {reference}</CardTitle>
+            <CardDescription>如需跟进，请保留此参考编号。</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4 leading-relaxed">
             <p>
-              We review reports of child sexual abuse material and
-              non-consensual likeness immediately, and all other reports in the
-              order received. Content found to breach our terms is removed and
-              the account responsible is restricted.
+              我们会立即审查儿童性虐待材料和未经同意使用肖像的举报，其他举报则按收到顺序处理。经查违反我们条款的内容将被移除，相关账户也会受到限制。
             </p>
             <p className="text-sm text-muted-foreground">
-              If your report is urgent and you have not heard from us, email{' '}
+              如果情况紧急且您尚未收到回复，请发送邮件至{' '}
               <a
                 className="underline"
                 href={`mailto:${SITE_CONFIG.contactEmail}`}
               >
                 {SITE_CONFIG.contactEmail}
               </a>{' '}
-              quoting this reference.
+              ，并注明此参考编号。
             </p>
           </CardContent>
         </Card>
@@ -172,22 +167,21 @@ function ReportPage() {
     <main className="mx-auto flex max-w-2xl flex-col gap-6 px-6 py-10">
       <div className="flex flex-col gap-2">
         <h1 className="font-heading text-3xl font-bold tracking-tight">
-          Report content
+          举报内容
         </h1>
         <p className="leading-relaxed text-muted-foreground">
-          Use this form to report content generated on {SITE_CONFIG.name} that
-          uses someone’s likeness without permission, infringes your rights, or
-          breaks our{' '}
+          使用此表单举报在 {SITE_CONFIG.name}
+          上生成的内容，包括未经许可使用他人肖像、侵犯您的权利，或违反我们的{' '}
           <a className="underline" href="/terms">
-            terms
+            条款
           </a>
-          . You do not need an account.
+          。无需账户即可举报。
         </p>
       </div>
 
       <form onSubmit={onSubmit} className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
-          <Label htmlFor="reason">What is the problem?</Label>
+          <Label htmlFor="reason">存在什么问题？</Label>
           <Select
             value={reason}
             items={CONTENT_REPORT_REASONS.map((value) => ({
@@ -205,7 +199,7 @@ function ReportPage() {
             }}
           >
             <SelectTrigger id="reason">
-              <SelectValue placeholder="Choose a reason…" />
+              <SelectValue placeholder="选择原因…" />
             </SelectTrigger>
             <SelectContent>
               {CONTENT_REPORT_REASONS.map((value) => (
@@ -216,23 +210,22 @@ function ReportPage() {
             </SelectContent>
           </Select>
           {errors.reason ? (
-            <p className="text-sm text-destructive">Choose a reason</p>
+            <p className="text-sm text-destructive">请选择原因</p>
           ) : null}
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="targetId">Link or reference</Label>
+          <Label htmlFor="targetId">链接或参考编号</Label>
           <Input
             id="targetId"
             name="targetId"
-            placeholder="https://… or OS-01J…"
+            placeholder="https://… 或 OS-01J…"
             autoComplete="off"
             required
           />
           <p className="text-sm text-muted-foreground">
-            Paste the video or image URL, or the <code>OS-…</code> reference if
-            we gave you one. This is how we trace the content back to the
-            account that generated it.
+            粘贴视频或图像 URL；如果我们提供过 <code>OS-…</code>
+            参考编号，也可在此输入。我们将据此追溯到生成该内容的账户。
           </p>
           {errors.targetId ? (
             <p className="text-sm text-destructive">{errors.targetId}</p>
@@ -240,17 +233,17 @@ function ReportPage() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="details">Details</Label>
+          <Label htmlFor="details">详细信息</Label>
           <Textarea
             id="details"
             name="details"
             rows={5}
-            placeholder="Tell us what is wrong, and if this is about your likeness or your work, how we can tell it is yours."
+            placeholder="请说明存在什么问题。如果涉及您的肖像或作品，请告诉我们如何确认其属于您。"
           />
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="reporterEmail">Your email (optional)</Label>
+          <Label htmlFor="reporterEmail">您的邮箱（可选）</Label>
           <Input
             id="reporterEmail"
             name="reporterEmail"
@@ -260,22 +253,19 @@ function ReportPage() {
             placeholder="you@example.com"
           />
           <p className="text-sm text-muted-foreground">
-            Only used to follow up on this report. Leave blank to report
-            anonymously.
+            仅用于跟进此举报。留空即可匿名举报。
           </p>
           {errors.reporterEmail ? (
-            <p className="text-sm text-destructive">
-              Enter a valid email, or leave it blank
-            </p>
+            <p className="text-sm text-destructive">请输入有效邮箱，或留空</p>
           ) : null}
         </div>
 
         <div className="flex items-center gap-3">
           <Button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending ? 'Submitting…' : 'Submit report'}
+            {mutation.isPending ? '提交中…' : '提交举报'}
           </Button>
           <p aria-live="polite" className="text-sm text-muted-foreground">
-            {mutation.isPending && <span>Sending your report…</span>}
+            {mutation.isPending && <span>正在发送您的举报…</span>}
           </p>
         </div>
       </form>

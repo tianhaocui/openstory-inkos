@@ -29,27 +29,27 @@ export const ModelCoverageMarker = ({
         return {
           Icon: CircleCheck,
           className: 'text-emerald-500',
-          label: 'Live primary across the sequence',
+          label: '已设为整个序列的主模型',
         };
       case 'generating':
         return {
           Icon: Loader2,
           className: 'text-muted-foreground animate-spin',
-          label: 'Generating…',
+          label: '正在生成…',
         };
       case 'failed':
         return {
           Icon: CircleAlert,
           className: 'text-destructive',
-          label: 'Generation failed',
+          label: '生成失败',
         };
       default:
         return {
           Icon: Check,
           className: 'text-muted-foreground',
           label: partial
-            ? `Generated for ${completed} of ${total} scenes — select, then Set to use`
-            : 'Generated for every scene — select, then Set to use',
+            ? `已为 ${total} 个场景中的 ${completed} 个生成，选中后设置即可使用`
+            : '已为所有场景生成，选中后设置即可使用',
         };
     }
   })();

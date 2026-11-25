@@ -39,7 +39,7 @@ export const AddCharacterDialog: React.FC<{ sequenceId: string }> = ({
       Object.fromEntries(new FormData(event.currentTarget))
     );
     if (!result.success) {
-      toast.error('Check the character fields', {
+      toast.error('请检查演员字段', {
         description: result.error.issues[0]?.message,
       });
       return;
@@ -49,10 +49,10 @@ export const AddCharacterDialog: React.FC<{ sequenceId: string }> = ({
       {
         onSuccess: (character) => {
           setOpen(false);
-          toast.success(`Added ${character.name}`);
+          toast.success(`已添加 ${character.name}`);
         },
         onError: (error) =>
-          toast.error('Failed to add character', {
+          toast.error('添加演员失败', {
             description: errorMessage(error),
           }),
       }
@@ -64,26 +64,23 @@ export const AddCharacterDialog: React.FC<{ sequenceId: string }> = ({
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           <Plus className="mr-2 h-4 w-4" />
-          Add Character
+          添加演员
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add character</DialogTitle>
+          <DialogTitle>添加演员</DialogTitle>
           <DialogDescription>
-            Fill in the full bible and generate a sheet from the character's
-            detail page.
+            填写完整角色设定，并可在角色详情页生成设定图。
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <Label htmlFor="new-character-name">Name</Label>
+            <Label htmlFor="new-character-name">名称</Label>
             <Input id="new-character-name" name="name" required />
           </div>
           <div className="flex flex-col gap-1">
-            <Label htmlFor="new-character-description">
-              Physical description (optional)
-            </Label>
+            <Label htmlFor="new-character-description">外貌描述（可选）</Label>
             <Textarea
               id="new-character-description"
               name="physicalDescription"
@@ -95,7 +92,7 @@ export const AddCharacterDialog: React.FC<{ sequenceId: string }> = ({
               {createCharacter.isPending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              {createCharacter.isPending ? 'Adding…' : 'Add Character'}
+              {createCharacter.isPending ? '添加中…' : '添加演员'}
             </Button>
           </div>
         </form>

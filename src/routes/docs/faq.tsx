@@ -1,9 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { FAQ_ITEMS, SITE_CONFIG } from '@/ui/marketing/constants';
 
-const title = 'Frequently Asked Questions';
+const title = '常见问题';
 const description =
-  'Common questions about OpenStory: what it is, pricing, AI model support, API keys, open source licensing, and getting started.';
+  '关于 OpenStory 的常见问题：产品介绍、定价、AI 模型支持、API 密钥、开源许可与入门指南。';
 
 // The FAQ lived on the old marketing homepage; `/` is now the product composer
 // in the app shell, so this docs page is the crawlable home for the answers
@@ -12,7 +12,7 @@ const description =
 export const Route = createFileRoute('/docs/faq')({
   head: () => ({
     meta: [
-      { title: `${title} - OpenStory Docs` },
+      { title: `${title} - OpenStory 文档` },
       { name: 'description', content: description },
     ],
     scripts: [
@@ -59,7 +59,7 @@ function FaqArticle() {
   return (
     <article>
       <header className="mb-8">
-        <p className="text-sm font-medium text-muted-foreground">Support</p>
+        <p className="text-sm font-medium text-muted-foreground">支持</p>
         <h1 className="mt-1 text-3xl font-bold tracking-tight">{title}</h1>
         <p className="mt-2 text-lg text-muted-foreground">{description}</p>
       </header>

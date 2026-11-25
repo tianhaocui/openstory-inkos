@@ -98,12 +98,12 @@ export const SequenceVideoModelSelector = ({
 
   const firstModel = models[0];
   const activeLabel =
-    models.length === 1 && firstModel ? videoModelName(firstModel) : 'Mixed';
+    models.length === 1 && firstModel ? videoModelName(firstModel) : '混合';
 
   const dropdown = (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button type="button" aria-label="Select video model">
+        <button type="button" aria-label="选择视频模型">
           <Badge variant="secondary" className="text-xs cursor-pointer gap-1">
             {activeLabel}
             <ChevronDown className="size-3" />
@@ -116,9 +116,9 @@ export const SequenceVideoModelSelector = ({
         className="w-[min(280px,calc(100vw-2rem))]"
       >
         <DropdownMenuLabel className="text-xs">
-          Video model
+          视频模型
           <span className="block font-normal text-muted-foreground">
-            Set applies a model to every scene.
+            “设置”会将模型应用到所有场景。
           </span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

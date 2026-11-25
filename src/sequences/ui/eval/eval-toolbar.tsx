@@ -58,10 +58,10 @@ type EvalToolbarProps = {
 };
 
 const SORT_FIELDS: { value: SortCriteria['field']; label: string }[] = [
-  { value: 'createdAt', label: 'Date' },
-  { value: 'title', label: 'Title' },
-  { value: 'analysisModel', label: 'Analysis Model' },
-  { value: 'imageModel', label: 'Image Model' },
+  { value: 'createdAt', label: '日期' },
+  { value: 'title', label: '标题' },
+  { value: 'analysisModel', label: '分析模型' },
+  { value: 'imageModel', label: '图片模型' },
 ];
 
 const countActiveFilters = (filters: FilterState): number => {
@@ -80,10 +80,10 @@ const VIEW_MODE_ITEMS: {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
 }[] = [
-  { value: 'script', label: 'Script', icon: FileTextIcon },
-  { value: 'prompts', label: 'Prompts', icon: TextIcon },
-  { value: 'images', label: 'Images', icon: ImageIcon },
-  { value: 'motion', label: 'Motion', icon: Clapperboard },
+  { value: 'script', label: '剧本', icon: FileTextIcon },
+  { value: 'prompts', label: '提示词', icon: TextIcon },
+  { value: 'images', label: '图片', icon: ImageIcon },
+  { value: 'motion', label: '动态视频', icon: Clapperboard },
 ];
 
 type ViewModeToggleProps = {
@@ -318,7 +318,7 @@ export const EvalToolbar: React.FC<EvalToolbarProps> = ({
 
   // Build options for select components
   const analysisModelOptions = [
-    { value: 'all', label: 'All Analysis Models' },
+    { value: 'all', label: '全部分析模型' },
     ...SCRIPT_ANALYSIS_MODELS.filter((model) => !('hidden' in model)).map(
       (model) => ({
         value: model.id,
@@ -328,7 +328,7 @@ export const EvalToolbar: React.FC<EvalToolbarProps> = ({
   ];
 
   const imageModelOptions = [
-    { value: 'all', label: 'All Image Models' },
+    { value: 'all', label: '全部图片模型' },
     ...Object.values(IMAGE_MODELS)
       .filter((m) => !('hidden' in m))
       .map((model) => ({
@@ -338,7 +338,7 @@ export const EvalToolbar: React.FC<EvalToolbarProps> = ({
   ];
 
   const aspectRatioOptions = [
-    { value: 'all', label: 'All Aspect Ratios' },
+    { value: 'all', label: '全部宽高比' },
     ...ASPECT_RATIOS.map((r) => ({ value: r.value, label: r.label })),
   ];
 
@@ -350,9 +350,7 @@ export const EvalToolbar: React.FC<EvalToolbarProps> = ({
       <div className="flex flex-col gap-2 pb-3 border-b border-border sm:hidden">
         <div className="flex items-center gap-2">
           <Input
-            placeholder={
-              supportMode ? 'Search title, name, email…' : 'Search by title…'
-            }
+            placeholder={supportMode ? '搜索标题、姓名或邮箱…' : '按标题搜索…'}
             value={searchDraft}
             onChange={handleSearchChange}
             className="h-11 flex-1 min-w-0"
@@ -366,7 +364,7 @@ export const EvalToolbar: React.FC<EvalToolbarProps> = ({
                 aria-label={
                   activeFilterCount > 0
                     ? `Filters and sort, ${activeFilterCount} active`
-                    : 'Filters and sort'
+                    : '筛选和排序'
                 }
               >
                 <SlidersHorizontal className="h-4 w-4" />
@@ -400,7 +398,7 @@ export const EvalToolbar: React.FC<EvalToolbarProps> = ({
                       }}
                     >
                       <SelectTrigger
-                        aria-label="Sort by"
+                        aria-label="排序方式"
                         className="h-11 flex-1"
                       >
                         <SelectValue />
@@ -420,8 +418,8 @@ export const EvalToolbar: React.FC<EvalToolbarProps> = ({
                       onClick={() => toggleSortDirection(0)}
                       aria-label={
                         primarySort.direction === 'asc'
-                          ? 'Sort ascending'
-                          : 'Sort descending'
+                          ? '升序排列'
+                          : '降序排列'
                       }
                     >
                       {primarySort.direction === 'asc' ? (
@@ -436,41 +434,41 @@ export const EvalToolbar: React.FC<EvalToolbarProps> = ({
 
               <FilterSelect
                 id="mobile-analysis-model"
-                label="Analysis Model"
+                label="分析模型"
                 value={filters.analysisModel || 'all'}
                 onValueChange={handleAnalysisModelChange}
                 options={analysisModelOptions}
-                placeholder="Analysis Model"
+                placeholder="分析模型"
                 triggerClassName="h-11"
               />
 
               <FilterSelect
                 id="mobile-image-model"
-                label="Image Model"
+                label="图片模型"
                 value={filters.imageModel || 'all'}
                 onValueChange={handleImageModelChange}
                 options={imageModelOptions}
-                placeholder="Image Model"
+                placeholder="图片模型"
                 triggerClassName="h-11"
               />
 
               <FilterSelect
                 id="mobile-aspect-ratio"
-                label="Aspect Ratio"
+                label="宽高比"
                 value={filters.aspectRatio || 'all'}
                 onValueChange={handleAspectRatioChange}
                 options={aspectRatioOptions}
-                placeholder="Aspect Ratio"
+                placeholder="宽高比"
                 triggerClassName="h-11"
               />
 
               <FilterSelect
                 id="mobile-style"
-                label="Style"
+                label="风格"
                 value={filters.styleId || 'all'}
                 onValueChange={handleStyleChange}
                 options={styleOptions}
-                placeholder="Style"
+                placeholder="风格"
                 triggerClassName="h-11"
               />
 
@@ -540,9 +538,7 @@ export const EvalToolbar: React.FC<EvalToolbarProps> = ({
         <div className="flex flex-wrap items-center gap-2">
           <Input
             placeholder={
-              supportMode
-                ? 'Search by title, name, or email…'
-                : 'Search by title…'
+              supportMode ? '按标题、姓名或邮箱搜索…' : '按标题搜索…'
             }
             value={searchDraft}
             onChange={handleSearchChange}
@@ -552,28 +548,28 @@ export const EvalToolbar: React.FC<EvalToolbarProps> = ({
             value={filters.analysisModel || 'all'}
             onValueChange={handleAnalysisModelChange}
             options={analysisModelOptions}
-            placeholder="Analysis Model"
+            placeholder="分析模型"
             triggerClassName="w-44"
           />
           <FilterSelect
             value={filters.imageModel || 'all'}
             onValueChange={handleImageModelChange}
             options={imageModelOptions}
-            placeholder="Image Model"
+            placeholder="图片模型"
             triggerClassName="w-44"
           />
           <FilterSelect
             value={filters.aspectRatio || 'all'}
             onValueChange={handleAspectRatioChange}
             options={aspectRatioOptions}
-            placeholder="Aspect Ratio"
+            placeholder="宽高比"
             triggerClassName="w-36"
           />
           <FilterSelect
             value={filters.styleId || 'all'}
             onValueChange={handleStyleChange}
             options={styleOptions}
-            placeholder="Style"
+            placeholder="风格"
             triggerClassName="w-44"
           />
           {hasActiveFilters && (

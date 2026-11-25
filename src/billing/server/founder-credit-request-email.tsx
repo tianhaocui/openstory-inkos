@@ -31,35 +31,34 @@ const FounderCreditRequestEmail: React.FC<FounderCreditRequestEmailProps> = ({
   balanceDisplay,
   message,
 }) => (
-  <EmailLayout appName={appName} preview={`${userEmail} is asking for credits`}>
+  <EmailLayout appName={appName} preview={`${userEmail} 正在申请点数`}>
     <Section>
       <Heading as="h2" style={headingStyle}>
-        Credit request
+        点数申请
       </Heading>
       <Text style={paragraphStyle}>
-        A user asked the founder for credits on the billing gate. Reply to them
-        directly, or send a gift code.
+        一名用户在计费拦截页面向创始人申请点数。请直接回复该用户，或发送礼品码。
       </Text>
 
       <Section style={mutedBoxStyle}>
         <Text style={detailRowStyle}>
-          <strong>Name:</strong> {userName || '—'}
+          <strong>姓名：</strong> {userName || '—'}
         </Text>
         <Text style={detailRowStyle}>
-          <strong>Email:</strong> {userEmail}
+          <strong>邮箱：</strong> {userEmail}
         </Text>
         <Text style={detailRowStyle}>
-          <strong>Team:</strong> {teamId}
+          <strong>团队：</strong> {teamId}
         </Text>
         <Text style={detailRowStyle}>
-          <strong>Balance:</strong> {balanceDisplay}
+          <strong>余额：</strong> {balanceDisplay}
         </Text>
       </Section>
 
       {message ? (
         <Section style={mutedBoxStyle}>
           <Text style={detailRowStyle}>
-            <strong>Message:</strong>
+            <strong>留言：</strong>
           </Text>
           <Text style={paragraphStyle}>{message}</Text>
         </Section>
@@ -82,7 +81,7 @@ export async function sendFounderCreditRequestEmail(params: {
 }): Promise<{ success: boolean; error?: string }> {
   return sendEmail({
     to: params.to,
-    subject: `Credit request from ${params.userEmail}`,
+    subject: `来自 ${params.userEmail} 的点数申请`,
     body: (
       <FounderCreditRequestEmail
         appName={getAppName()}

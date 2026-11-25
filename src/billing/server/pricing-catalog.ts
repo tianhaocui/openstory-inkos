@@ -82,21 +82,21 @@ export type PricingCatalog = {
 function falUnitLabel(unit: string): string {
   const u = unit.trim().toLowerCase();
   const known: Record<string, string> = {
-    images: 'image',
-    seconds: 'second',
-    minutes: 'minute',
-    megapixels: 'megapixel',
-    'processed megapixels': 'megapixel',
-    'compute seconds': 'compute second',
-    videos: 'video',
-    '1000 tokens': '1K tokens',
-    units: 'generation',
+    images: '张图像',
+    seconds: '秒',
+    minutes: '分钟',
+    megapixels: '百万像素',
+    'processed megapixels': '百万像素',
+    'compute seconds': '计算秒',
+    videos: '个视频',
+    '1000 tokens': '千 token',
+    units: '次生成',
   };
-  return known[u] ?? (u || 'generation');
+  return known[u] ?? (u || '次生成');
 }
 
 function formatUsd(amount: number): string {
-  if (amount === 0) return 'Free';
+  if (amount === 0) return '免费';
   if (amount >= 0.01) return `$${amount.toFixed(2)}`;
   if (amount >= 0.0001) return `$${amount.toFixed(4)}`;
   return `$${amount.toFixed(6)}`;
@@ -116,7 +116,7 @@ function formatFalPrice(
 ): { price: string; detail?: string } {
   const pricing = falPricing[endpointId];
   if (!pricing) {
-    return { price: 'See fal.ai', detail: 'Live rate unavailable — open docs' };
+    return { price: '查看 fal.ai', detail: '实时费率不可用，请打开文档' };
   }
 
   const unitUsd = microsToUsd(pricing.unitPrice);
@@ -132,14 +132,14 @@ function formatFalPrice(
   const typical = unitsPerCall != null ? unitUsd * unitsPerCall : null;
   if (typical != null && Math.abs(typical - unitUsd) > unitUsd * 0.05) {
     return {
-      price: `~${formatUsd(typical)} / generation`,
-      detail: 'Indicative typical cost — billed from platform units',
+      price: `约 ${formatUsd(typical)} / 次生成`,
+      detail: '典型参考费用，按平台单位计费',
     };
   }
 
   return {
-    price: `from ${formatUsd(unitUsd)} / ${unitLabel}`,
-    detail: 'Indicative unit rate — resolution, duration, and extras vary',
+    price: `${formatUsd(unitUsd)} / ${unitLabel}起`,
+    detail: '参考单位费率，分辨率、时长和附加功能会影响价格',
   };
 }
 
@@ -155,8 +155,8 @@ function formatLlmPrice(
 ): { price: string; detail?: string } {
   if (!pricing) {
     return {
-      price: `See ${via}`,
-      detail: 'Billed at platform token rates',
+      price: `查看 ${via}`,
+      detail: '按平台 token 费率计费',
     };
   }
 
@@ -164,11 +164,11 @@ function formatLlmPrice(
   const output = formatUsd(pricing.completionPerMillionTokens);
   const detail =
     pricing.webSearchPerQuery != null
-      ? `Web search: ${formatUsd(pricing.webSearchPerQuery)} / query · see ${via} for full tariff`
-      : `Token rates — see ${via} for full tariff`;
+      ? `网页搜索：${formatUsd(pricing.webSearchPerQuery)} / 次查询 · 完整费率请查看 ${via}`
+      : `Token 费率，完整费率请查看 ${via}`;
 
   return {
-    price: `${input} / M in · ${output} / M out`,
+    price: `输入 ${input} / 百万 token · 输出 ${output} / 百万 token`,
     detail,
   };
 }
@@ -189,8 +189,8 @@ function nativeImageRoute(
     return {
       via: 'xAI',
       docsUrl: XAI_DOCS_URL,
-      price: perUnit(grokImageCost(1, grok), 'image'),
-      detail: 'Flat rate per image',
+      price: perUnit(grokImageCost(1, grok), '张图像'),
+      detail: '每张图像固定费率',
     };
   }
   const gemini = vias.google ? nativeGeminiImageModel(key) : undefined;
@@ -198,8 +198,8 @@ function nativeImageRoute(
     return {
       via: 'Google',
       docsUrl: GOOGLE_DOCS_URL,
-      price: `from ${perUnit(geminiImageCost(1, gemini, '1K'), 'image')}`,
-      detail: 'Advertised 1K rate — 2K and 4K tiers cost more',
+      price: `${perUnit(geminiImageCost(1, gemini, '1K'), '张图像')}起`,
+      detail: '标示的是 1K 费率，2K 和 4K 档位费用更高',
     };
   }
   return undefined;
@@ -214,16 +214,16 @@ function nativeVideoRoute(
     return {
       via: 'xAI',
       docsUrl: XAI_DOCS_URL,
-      price: `from ${perUnit(grokVideoDurationCost(1), 'second')}`,
-      detail: 'Indicative unit rate — xAI reports the exact charge per clip',
+      price: `${perUnit(grokVideoDurationCost(1), '秒')}起`,
+      detail: '参考单位费率，xAI 会报告每个片段的确切费用',
     };
   }
   if (vias.google && isNativeGeminiVideoModel(key)) {
     return {
       via: 'Google',
       docsUrl: GOOGLE_DOCS_URL,
-      price: `~${perUnit(geminiVideoDurationCost(1), 'second')}`,
-      detail: 'Billed as video-output tokens at 720p',
+      price: `约 ${perUnit(geminiVideoDurationCost(1), '秒')}`,
+      detail: '按 720p 视频输出 token 计费',
     };
   }
   return undefined;
@@ -312,12 +312,12 @@ export function buildPricingCatalog(opts: {
     };
   });
 
-  const dateFmt = { month: 'short', day: 'numeric', year: 'numeric' } as const;
+  const dateFmt = { year: 'numeric', month: 'short', day: 'numeric' } as const;
   const falDate = opts.falUpdatedAt
-    ? opts.falUpdatedAt.toLocaleDateString('en-US', dateFmt)
-    : 'pending refresh';
+    ? opts.falUpdatedAt.toLocaleDateString('zh-CN', dateFmt)
+    : '等待刷新';
   const orDate = new Date(OPENROUTER_PRICING_LAST_UPDATED).toLocaleDateString(
-    'en-US',
+    'zh-CN',
     dateFmt
   );
 
@@ -326,33 +326,32 @@ export function buildPricingCatalog(opts: {
     sections: [
       {
         id: 'image',
-        title: 'Image generation',
+        title: '图像生成',
         description:
-          'Shots, character sheets, location sheets, and style previews. Indicative rates — open each model’s Via link for resolution tiers and extras.',
+          '用于镜头、角色设定图、场景设定图和风格预览。费率仅供参考；请打开各模型的“渠道”链接，查看分辨率档位和附加功能。',
         rows: imageRows,
       },
       {
         id: 'video',
-        title: 'Video / motion',
+        title: '视频 / 动态画面',
         description:
-          'Image-to-video per shot. Duration, resolution, and reference media often change the bill — use the Via link for the full tariff.',
+          '逐镜头将图像转为视频。时长、分辨率和参考媒体通常会影响费用；请通过“渠道”链接查看完整费率。',
         rows: videoRows,
       },
       {
         id: 'audio',
-        title: 'Music & audio',
-        description:
-          'Background music and soundtracks. Billed per minute or second via fal.ai.',
+        title: '音乐与音频',
+        description: '用于背景音乐和配乐。通过 fal.ai 按分钟或秒计费。',
         rows: audioRows,
       },
       {
         id: 'llm',
-        title: 'Script analysis',
+        title: '剧本分析',
         description:
-          'Script enhancement, scene splitting, character extraction, and motion prompts. Token rates via the listed platform.',
+          '用于剧本增强、场景拆分、角色提取和动态画面提示词。按所列平台的 token 费率计费。',
         rows: llmRows,
       },
     ],
-    lastUpdated: `Media (fal.ai): ${falDate} · Script analysis (OpenRouter): ${orDate}`,
+    lastUpdated: `媒体（fal.ai）：${falDate} · 剧本分析（OpenRouter）：${orDate}`,
   };
 }

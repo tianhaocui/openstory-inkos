@@ -91,9 +91,9 @@ export const TalentPickerDialog: React.FC<TalentPickerDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Select Talent</DialogTitle>
+          <DialogTitle>选择演员</DialogTitle>
           <DialogDescription>
-            Choose talent from your library to assign to this role.
+            从演员库中选择要分配给此角色的演员。
           </DialogDescription>
         </DialogHeader>
 
@@ -102,7 +102,7 @@ export const TalentPickerDialog: React.FC<TalentPickerDialogProps> = ({
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             type="text"
-            placeholder="Search talent…"
+            placeholder="搜索演员…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9"
@@ -124,9 +124,7 @@ export const TalentPickerDialog: React.FC<TalentPickerDialogProps> = ({
             <div className="flex h-full flex-col items-center justify-center py-12 text-center">
               <User className="h-12 w-12 text-muted-foreground/30" />
               <p className="mt-4 text-sm text-muted-foreground">
-                {searchQuery
-                  ? 'No talent matching your search'
-                  : 'No talent in library'}
+                {searchQuery ? '没有匹配搜索条件的演员' : '演员库中暂无演员'}
               </p>
             </div>
           ) : (

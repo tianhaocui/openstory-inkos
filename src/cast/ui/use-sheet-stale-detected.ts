@@ -10,9 +10,7 @@ const logger = getLogger(['openstory', 'realtime', 'use-sheet-stale-detected']);
 const TOAST_DEBOUNCE_MS = 5_000;
 
 export function formatSheetStaleToastMessage(count: number): string {
-  return count === 1
-    ? 'An alternate version is available.'
-    : `${count} alternate versions are available.`;
+  return count === 1 ? '有一个备选版本可用。' : `有 ${count} 个备选版本可用。`;
 }
 
 type SheetStaleDetectedOptions = {
@@ -125,9 +123,7 @@ export function useSheetStaleDetected({
       });
       if (errorToastShownForRef.current !== channelId) {
         errorToastShownForRef.current = channelId;
-        toast.warning(
-          'Live updates disconnected — refresh to see latest alternates.'
-        );
+        toast.warning('实时更新已断开，请刷新以查看最新备选版本。');
       }
     } else if (status === 'connected' && errorToastShownForRef.current) {
       errorToastShownForRef.current = null;

@@ -66,15 +66,15 @@ const AddElementButton: React.FC<{
       const usable = files.filter((f) => elementKindFromFile(f) !== null);
       if (usable.length === 0) {
         if (files.length > 0) {
-          toast.error("That file can't be a reference", {
-            description: 'Drop an image, an MP3/WAV, or an MP4/MOV.',
+          toast.error('该文件不能用作参考素材', {
+            description: '请拖放图片、MP3/WAV 或 MP4/MOV 文件。',
           });
         }
         return;
       }
       const accepted = usable.slice(0, Math.max(0, remaining));
       if (accepted.length === 0) {
-        toast.error(`You can add up to ${MAX_SEQUENCE_ELEMENTS} elements`);
+        toast.error(`最多可添加 ${MAX_SEQUENCE_ELEMENTS} 个元素`);
         return;
       }
       for (const file of accepted) {
@@ -82,9 +82,8 @@ const AddElementButton: React.FC<{
           { file, sequenceId },
           {
             onError: (err) => {
-              toast.error(`Couldn't upload ${file.name}`, {
-                description:
-                  err instanceof Error ? err.message : 'Upload failed',
+              toast.error(`无法上传 ${file.name}`, {
+                description: err instanceof Error ? err.message : '上传失败',
               });
             },
           }
@@ -119,22 +118,22 @@ const AddElementButton: React.FC<{
           variant="outline"
           size="sm"
           disabled={upload.isPending}
-          aria-label="Add element"
+          aria-label="添加元素"
         >
           {upload.isPending ? (
             <Loader2 className="size-3.5 animate-spin" />
           ) : (
             <ImagePlus className="size-3.5" />
           )}
-          {upload.isPending ? 'Uploading…' : 'Add'}
+          {upload.isPending ? '上传中…' : '添加'}
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-[min(360px,calc(100vw-2rem))]">
         <div className="flex flex-col gap-2">
-          <p className="text-sm font-medium">Upload a reference</p>
+          <p className="text-sm font-medium">上传参考素材</p>
           <p className="text-xs text-muted-foreground">
-            Images, MP3/WAV or MP4/MOV — a logo, a product shot, a dialogue
-            line, a music bed, a move to copy. Type @ to insert one.
+            支持图片、MP3/WAV 或
+            MP4/MOV，例如标志、产品图、对白、配乐或动作参考。输入 @ 可插入素材。
           </p>
           <div
             // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- dropzone cannot be a <button> because it contains a nested <Button>
@@ -197,7 +196,7 @@ const AddElementButton: React.FC<{
             )}
           >
             <Upload className="size-6 text-muted-foreground/50" />
-            <span className="text-sm font-medium">Drag & drop or paste</span>
+            <span className="text-sm font-medium">拖放或粘贴</span>
             <Button
               type="button"
               variant="outline"
@@ -207,7 +206,7 @@ const AddElementButton: React.FC<{
                 inputRef.current?.click();
               }}
             >
-              Browse
+              浏览
             </Button>
           </div>
         </div>
@@ -275,9 +274,7 @@ export const SceneElementsTab: React.FC<SceneElementsTabProps> = ({
             <ImagePlus className="h-8 w-8 text-muted-foreground/50" />
           </div>
           <p className="text-sm text-muted-foreground">
-            {shotIds === null
-              ? 'No elements yet'
-              : 'No elements in this selection'}
+            {shotIds === null ? '暂无元素' : '当前选择中没有元素'}
           </p>
         </div>
       </div>
@@ -288,12 +285,9 @@ export const SceneElementsTab: React.FC<SceneElementsTabProps> = ({
     <div className="space-y-4">
       {header}
       <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
-        <span>{shotIds === null ? 'All Elements' : 'Elements'}</span>
+        <span>{shotIds === null ? '全部元素' : '元素'}</span>
         <span className="text-muted-foreground/50">·</span>
-        <span>
-          {sceneElements.length}{' '}
-          {sceneElements.length === 1 ? 'reference' : 'references'}
-        </span>
+        <span>{sceneElements.length} 个参考素材</span>
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">

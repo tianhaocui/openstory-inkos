@@ -38,14 +38,14 @@ export function StyleCategorySelect({
   size = 'sm',
   onRecommend,
   recommendDisabled = false,
-  recommendLabel = 'Recommend',
+  recommendLabel = '智能推荐',
   isRecommending = false,
 }: StyleCategorySelectProps) {
   const families = composerStyleCategoryOptions(styles);
   const isAll = value === ALL_COMPOSER_STYLE_CATEGORIES;
   const selected = families.find((option) => option.value === value);
   const label = isAll
-    ? 'All styles'
+    ? '全部风格'
     : (selected?.label ?? styleCategoryLabel(value));
 
   return (
@@ -56,7 +56,7 @@ export function StyleCategorySelect({
           variant="outline"
           size={size}
           disabled={disabled}
-          aria-label={`Style category: ${label}`}
+          aria-label={`风格分类：${label}`}
           className="gap-1.5 whitespace-nowrap"
         >
           <span>{label}</span>
@@ -95,7 +95,7 @@ export function StyleCategorySelect({
             value={ALL_COMPOSER_STYLE_CATEGORIES}
             className="whitespace-nowrap"
           >
-            All styles
+            全部风格
           </DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>
       </DropdownMenuContent>

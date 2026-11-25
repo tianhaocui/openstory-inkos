@@ -134,20 +134,18 @@ export function AutoTopUpDialog({ open, onOpenChange }: AutoTopUpDialogProps) {
           amount_usd: amountUsd,
         });
       }
-      toast.success(enabled ? 'Auto-reload enabled' : 'Auto-reload disabled');
+      toast.success(enabled ? '已启用自动充值' : '已停用自动充值');
       onOpenChange(false);
     },
     onError: (err) => {
-      setError(
-        err instanceof Error ? err.message : 'Failed to update auto-reload'
-      );
+      setError(err instanceof Error ? err.message : '更新自动充值设置失败');
     },
   });
 
   const handleSave = () => {
     if (!isValid) {
       setError(
-        `Enter an amount between $${MIN_TOPUP_AMOUNT_USD} and $${MAX_TOPUP_AMOUNT_USD.toLocaleString()}, greater than the balance that triggers it`
+        `请输入 $${MIN_TOPUP_AMOUNT_USD} 至 $${MAX_TOPUP_AMOUNT_USD.toLocaleString()} 之间，且高于触发余额的金额`
       );
       return;
     }
@@ -159,15 +157,15 @@ export function AutoTopUpDialog({ open, onOpenChange }: AutoTopUpDialogProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Auto-reload credits</DialogTitle>
+          <DialogTitle>自动充值点数</DialogTitle>
           <DialogDescription className="sr-only">
-            Automatically add credits when your balance runs low.
+            余额不足时自动充值点数。
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between gap-4">
-            <Label htmlFor="auto-topup-enabled">Use auto-reload</Label>
+            <Label htmlFor="auto-topup-enabled">启用自动充值</Label>
             <Switch
               id="auto-topup-enabled"
               checked={enabled}
@@ -178,14 +176,14 @@ export function AutoTopUpDialog({ open, onOpenChange }: AutoTopUpDialogProps) {
             />
           </div>
           <p className="text-sm text-muted-foreground">
-            Automatically add credits when your balance runs low.
+            余额不足时自动充值点数。
           </p>
         </div>
 
         <div className="flex flex-col gap-3">
           <AmountField
             id="auto-topup-threshold"
-            label="When my balance reaches:"
+            label="余额降至："
             value={threshold}
             disabled={!enabled}
             onChange={(value) => {
@@ -195,7 +193,7 @@ export function AutoTopUpDialog({ open, onOpenChange }: AutoTopUpDialogProps) {
           />
           <AmountField
             id="auto-topup-amount"
-            label="Add to my balance:"
+            label="充值金额："
             value={amount}
             disabled={!enabled}
             onChange={(value) => {
@@ -208,7 +206,7 @@ export function AutoTopUpDialog({ open, onOpenChange }: AutoTopUpDialogProps) {
         <div className="flex flex-col gap-2">
           <Separator />
           <div className="flex items-center justify-between gap-4 text-sm tabular-nums">
-            <span className="text-muted-foreground">Amount charged:</span>
+            <span className="text-muted-foreground">扣款金额：</span>
             <span>
               {chargeBreakdown
                 ? `$${chargeBreakdown.totalUsd.toFixed(2)}`
@@ -217,8 +215,8 @@ export function AutoTopUpDialog({ open, onOpenChange }: AutoTopUpDialogProps) {
           </div>
           {chargeBreakdown && (
             <p className="text-xs text-muted-foreground">
-              Includes the {formatPlatformFeePercent()} platform fee. Charged
-              each time your balance falls to ${thresholdUsd.toFixed(2)}.
+              包含 {formatPlatformFeePercent()} 的平台费。每当余额降至 $
+              {thresholdUsd.toFixed(2)} 时收取。
             </p>
           )}
           <Separator />
@@ -236,13 +234,13 @@ export function AutoTopUpDialog({ open, onOpenChange }: AutoTopUpDialogProps) {
             onClick={() => onOpenChange(false)}
             disabled={mutation.isPending}
           >
-            Cancel
+            取消
           </Button>
           <Button
             onClick={handleSave}
             disabled={mutation.isPending || !isValid}
           >
-            {mutation.isPending ? 'Saving…' : 'Save'}
+            {mutation.isPending ? '保存中…' : '保存'}
           </Button>
         </DialogFooter>
       </DialogContent>

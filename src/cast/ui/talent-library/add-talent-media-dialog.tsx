@@ -43,14 +43,13 @@ export const AddTalentMediaDialog: React.FC<AddTalentMediaDialogProps> = ({
       onOpenChange={(isOpen) => (isOpen ? setOpen(true) : handleClose())}
     >
       <DialogTrigger asChild>
-        {trigger ?? <Button variant="outline">Add Media</Button>}
+        {trigger ?? <Button variant="outline">添加素材</Button>}
       </DialogTrigger>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Add Reference Media</DialogTitle>
+          <DialogTitle>添加参考素材</DialogTitle>
           <DialogDescription>
-            Drop a character sheet or reference photos. A photo of a real person
-            asks for your rights sign-off before it is saved.
+            拖入角色设定图或参考照片。保存真人照片前需先确认你拥有相应权利。
           </DialogDescription>
         </DialogHeader>
 
@@ -63,10 +62,10 @@ export const AddTalentMediaDialog: React.FC<AddTalentMediaDialogProps> = ({
 
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline">取消</Button>
           </DialogClose>
           <Button onClick={handleClose} disabled={isUploading}>
-            {isUploading ? 'Uploading…' : 'Done'}
+            {isUploading ? '正在上传…' : '完成'}
           </Button>
         </DialogFooter>
       </DialogContent>

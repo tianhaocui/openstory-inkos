@@ -47,10 +47,10 @@ function isDialogTab(value: string): value is DialogTab {
 }
 
 const DIALOG_TABS = [
-  { value: 'script', label: 'Script' },
-  { value: 'prompts', label: 'Prompts' },
-  { value: 'images', label: 'Image' },
-  { value: 'motion', label: 'Motion' },
+  { value: 'script', label: '剧本' },
+  { value: 'prompts', label: '提示词' },
+  { value: 'images', label: '图片' },
+  { value: 'motion', label: '动态视频' },
 ] as const;
 
 type EvalCellDialogProps = {
@@ -307,8 +307,8 @@ export const EvalCellDialog: React.FC<EvalCellDialogProps> = ({
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                       <span className="text-sm font-medium text-foreground bg-background/85 backdrop-blur-sm px-3 py-1.5 rounded-md border">
                         {shot.videoStatus === 'generating'
-                          ? 'Generating video…'
-                          : 'No video yet'}
+                          ? '正在生成视频…'
+                          : '暂无视频'}
                       </span>
                     </div>
                   </div>

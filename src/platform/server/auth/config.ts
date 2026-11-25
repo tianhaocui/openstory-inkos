@@ -1,6 +1,6 @@
 /**
  * BetterAuth configuration for OpenStory
- * Anonymous users + email OTP, passkeys, and Google social login (no passwords)
+ * Anonymous users + email/password, email OTP, passkeys, and Google social login
  */
 
 import { generateId } from '@/platform/id';
@@ -171,6 +171,15 @@ export function createAuth(db: ReturnType<typeof getDb> = getDb()) {
     session: {
       expiresIn: 60 * 60 * 24 * 90, // 90 days
       updateAge: 60 * 60 * 24, // Update session daily
+    },
+
+    // Email/password authentication. OTP remains available as a passwordless
+    // alternative, while new accounts can now register and return with a
+    // normal password.
+    emailAndPassword: {
+      enabled: true,
+      minPasswordLength: 8,
+      maxPasswordLength: 128,
     },
 
     // Account linking configuration

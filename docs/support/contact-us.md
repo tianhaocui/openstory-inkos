@@ -1,37 +1,37 @@
 ---
-title: Contact Us
-description: Get in touch with the OpenStory team
+title: 联系我们
+description: 联系 OpenStory 团队
 section: Support
 order: 1
 ---
 
-We're here to help. If you have questions, feedback, or need assistance with your account, get in touch with us directly.
+我们随时为你提供帮助。如果你有任何问题、反馈，或需要账户方面的协助，请直接联系我们。
 
-## Email Support
+## 邮件支持
 
-For general questions, account issues, or anything else, email us at:
+如有一般咨询、账户问题或其他事项，请发送邮件至：
 
 [support@openstory.so](mailto:support@openstory.so)
 
-We aim to respond within one business day.
+我们会尽力在一个工作日内回复。
 
-## What to Include
+## 邮件中应包含的信息
 
-To help us resolve your question quickly, please include:
+为了帮助我们尽快解决你的问题，请提供：
 
-- A clear description of what you're trying to do
-- Any error messages you've seen (screenshots are great)
-- The URL of the page where the issue happened
-- Your account email, if different from the address you're writing from
+- 清楚描述你正在尝试执行的操作
+- 你看到的任何错误消息（最好附上截图）
+- 出现问题的页面 URL
+- 你的账户邮箱（如果与发件邮箱不同）
 
-## Report generated content
+## 举报生成内容
 
-If something generated on OpenStory uses a likeness without permission, impersonates someone, or otherwise violates the law or our Terms — including child sexual abuse material — use the public report form. No account is required:
+如果 OpenStory 上生成的内容未经许可使用他人肖像、冒充他人，或以其他方式违反法律或我们的条款——包括儿童性虐待材料——请使用公开举报表单。无需账户即可提交：
 
 [openstory.so/report](/report)
 
-That form is the takedown channel. Do not file those reports as GitHub issues.
+该表单是内容下架的专用渠道。请勿将此类举报提交为 GitHub Issue。
 
-## Found a Bug?
+## 发现了 Bug？
 
-If you've spotted a bug or unexpected behavior, please [file an issue](/docs/support/file-an-issue) on GitHub so we can track and fix it.
+如果你发现 Bug 或异常行为，请在 GitHub 上[提交 Issue](/docs/support/file-an-issue)，以便我们跟踪并修复。

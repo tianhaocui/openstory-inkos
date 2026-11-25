@@ -40,8 +40,8 @@ export function AutoStyleTile({
           ? 'border-primary shadow-md scale-105'
           : 'border-transparent hover:border-primary/50'
       )}
-      aria-label="Match script: derive a style from the script"
-      title="Derive a style from the script. It stays with this sequence until you add it to your library."
+      aria-label="匹配剧本：根据剧本生成风格"
+      title="根据剧本生成风格。在添加到风格库之前，它仅属于当前序列。"
     >
       <img
         src="/match-script.jpg"
@@ -59,7 +59,7 @@ export function AutoStyleTile({
       </span>
       <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/80 via-black/60 to-transparent p-2">
         <p className="line-clamp-2 whitespace-normal text-center text-xs font-medium text-white">
-          Match script
+          匹配剧本
         </p>
       </div>
       {selected && (

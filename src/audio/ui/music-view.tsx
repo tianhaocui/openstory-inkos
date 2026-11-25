@@ -224,10 +224,10 @@ export const MusicView: React.FC<MusicViewProps> = ({
       variant="outline"
       size="sm"
       onClick={() => setHistoryOpen(true)}
-      aria-label="Show music prompt history"
+      aria-label="显示音乐提示词历史"
     >
       <History className="mr-2 h-4 w-4" />
-      History
+      历史记录
     </Button>
   );
 
@@ -280,9 +280,9 @@ export const MusicView: React.FC<MusicViewProps> = ({
     <LoadingButton
       onClick={() => onSetModel(selectedModel)}
       isLoading={isSettingModel}
-      loadingText="Setting…"
+      loadingText="正在设置…"
     >
-      Set Music
+      设为当前音乐
     </LoadingButton>
   ) : (
     <div className="flex flex-col gap-1">
@@ -291,9 +291,9 @@ export const MusicView: React.FC<MusicViewProps> = ({
         onClick={handleGenerate}
         disabled={!editPrompt}
         isLoading={isGeneratingMusic}
-        loadingText={selectedIsSet ? 'Regenerating…' : 'Generating…'}
+        loadingText={selectedIsSet ? '正在重新生成…' : '正在生成…'}
       >
-        {selectedIsSet ? 'Regenerate Music' : 'Generate Music'}
+        {selectedIsSet ? '重新生成音乐' : '生成音乐'}
       </LoadingButton>
       <ActionCost estimate={musicCostEstimate} />
     </div>
@@ -316,7 +316,7 @@ export const MusicView: React.FC<MusicViewProps> = ({
           <track kind="captions" />
         </audio>
 
-        <FormField label="Model" muted>
+        <FormField label="模型" muted>
           <MusicModelSelector
             selectedModel={selectedModel}
             onModelChange={onModelChange}
@@ -329,21 +329,20 @@ export const MusicView: React.FC<MusicViewProps> = ({
             button below stays the explicit re-render path. */}
         {onSaveMusicPrompt ? (
           <FormField
-            label="Prompt"
+            label="提示词"
             htmlFor="music-prompt-completed"
-            action={<VoiceInputButton label="music prompt" {...promptVoice} />}
+            action={<VoiceInputButton label="音乐提示词" {...promptVoice} />}
           >
             <Textarea
               id="music-prompt-completed"
               value={editPrompt}
               onChange={(e) => setEditPrompt(e.target.value)}
               rows={4}
-              placeholder="Descriptive music prompt…"
+              placeholder="请描述想要的音乐…"
             />
             {promptEditedSinceTrack && !promptDirty && (
               <p className="text-xs text-muted-foreground">
-                Edited since this track was generated — Regenerate Music to hear
-                the new prompt.
+                此音轨生成后提示词已修改。重新生成音乐后即可听到新版本。
               </p>
             )}
             {promptDirty && (
@@ -355,7 +354,7 @@ export const MusicView: React.FC<MusicViewProps> = ({
                   onClick={() => setEditPrompt(musicPrompt ?? '')}
                   disabled={isSavingMusicPrompt}
                 >
-                  Cancel
+                  取消
                 </Button>
                 <Button
                   type="button"
@@ -365,18 +364,15 @@ export const MusicView: React.FC<MusicViewProps> = ({
                     isSavingMusicPrompt || editPrompt.trim().length === 0
                   }
                 >
-                  {isSavingMusicPrompt ? 'Saving…' : 'Save'}
+                  {isSavingMusicPrompt ? '正在保存…' : '保存'}
                 </Button>
               </div>
             )}
           </FormField>
         ) : (
-          <ReadOnlyField
-            label="Prompt"
-            value={musicPrompt ?? 'Missing prompt'}
-          />
+          <ReadOnlyField label="提示词" value={musicPrompt ?? '缺少提示词'} />
         )}
-        <ReadOnlyField label="Tags" value={musicTags ?? 'Missing tags'} />
+        <ReadOnlyField label="标签" value={musicTags ?? '缺少标签'} />
 
         {onIncludeMusicChange && (
           <label
@@ -390,7 +386,7 @@ export const MusicView: React.FC<MusicViewProps> = ({
                 onIncludeMusicChange(checked === true)
               }
             />
-            <span>Include music in playback &amp; export</span>
+            <span>在播放和导出时包含音乐</span>
           </label>
         )}
 
@@ -409,7 +405,7 @@ export const MusicView: React.FC<MusicViewProps> = ({
         icon={
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         }
-        message="Generating music…"
+        message="正在生成音乐…"
       />
     );
   }
@@ -420,14 +416,14 @@ export const MusicView: React.FC<MusicViewProps> = ({
         icon={<AlertCircle className="h-8 w-8 text-destructive" />}
         contentWidth="sm"
       >
-        <p className="text-destructive text-center">Music generation failed</p>
+        <p className="text-destructive text-center">音乐生成失败</p>
         {musicError && (
           <p className="text-sm text-muted-foreground text-center">
             {musicError}
           </p>
         )}
 
-        <FormField label="Model" muted>
+        <FormField label="模型" muted>
           <MusicModelSelector
             selectedModel={selectedModel}
             onModelChange={onModelChange}
@@ -445,15 +441,15 @@ export const MusicView: React.FC<MusicViewProps> = ({
   return (
     <StatusPanel
       icon={<Music className="h-8 w-8 text-muted-foreground" />}
-      message={promptPending ? 'Preparing music…' : 'Music prompt ready'}
+      message={promptPending ? '正在准备音乐…' : '音乐提示词已就绪'}
     >
       {stalenessBanner}
       <FormField
-        label="Prompt"
+        label="提示词"
         htmlFor="music-prompt"
         action={
           <VoiceInputButton
-            label="music prompt"
+            label="音乐提示词"
             disabled={promptPending}
             {...promptVoice}
           />
@@ -466,22 +462,20 @@ export const MusicView: React.FC<MusicViewProps> = ({
           rows={4}
           disabled={promptPending}
           placeholder={
-            promptPending
-              ? 'Generating music prompt…'
-              : 'Descriptive music prompt…'
+            promptPending ? '正在生成音乐提示词…' : '请描述想要的音乐…'
           }
         />
       </FormField>
 
-      <FormField label="Tags" muted>
+      <FormField label="标签" muted>
         {musicTags ? (
           <p className="text-sm text-muted-foreground">{musicTags}</p>
         ) : (
-          <p className="text-sm text-muted-foreground/60">Generating…</p>
+          <p className="text-sm text-muted-foreground/60">正在生成…</p>
         )}
       </FormField>
 
-      <FormField label="Model">
+      <FormField label="模型">
         <MusicModelSelector
           selectedModel={selectedModel}
           onModelChange={onModelChange}
@@ -489,7 +483,7 @@ export const MusicView: React.FC<MusicViewProps> = ({
         />
       </FormField>
 
-      <FormField label="Duration (seconds)" htmlFor="music-duration">
+      <FormField label="时长（秒）" htmlFor="music-duration">
         <Input
           id="music-duration"
           type="number"
@@ -501,8 +495,8 @@ export const MusicView: React.FC<MusicViewProps> = ({
         {durationExceedsMax && (
           <p className="flex items-center gap-1.5 text-xs text-warning">
             <AlertTriangle className="h-3.5 w-3.5" />
-            Video is {Math.round(effectiveDuration)}s but {selectedModel} max is{' '}
-            {durationLimits.max}s — music will be clamped.
+            视频时长为 {Math.round(effectiveDuration)} 秒，但 {selectedModel}{' '}
+            最长支持 {durationLimits.max} 秒，音乐时长将被截断。
           </p>
         )}
       </FormField>

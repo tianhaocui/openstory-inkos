@@ -46,7 +46,7 @@ type Candidate = {
   group: SelectorGroup;
 };
 
-const scenes = (n: number) => `${n} scene${n === 1 ? '' : 's'}`;
+const scenes = (n: number) => `${n} 个场景`;
 
 /**
  * "Add a model" section for the header model dropdowns (#547). Lists models of
@@ -116,7 +116,7 @@ export const AddModelMenuSection = ({
         .map((key) => ({
           key,
           name: IMAGE_MODELS[key].name,
-          scope: count ? scenes(count) : 'all scenes',
+          scope: count ? scenes(count) : '所有场景',
           group: selectorGroup(key, TURBO_IMAGE_MODELS),
         }));
     }
@@ -171,7 +171,7 @@ export const AddModelMenuSection = ({
           name: IMAGE_TO_VIDEO_MODELS[key].name,
           // Matches the image branch: before any still is rendered the scope is
           // every scene, not the literal zero that have one today.
-          scope: count ? scenes(count) : 'all scenes',
+          scope: count ? scenes(count) : '所有场景',
           group: selectorGroup(key, TURBO_VIDEO_MODELS),
         }));
     }
@@ -195,7 +195,7 @@ export const AddModelMenuSection = ({
       .map((key) => ({
         key,
         name: AUDIO_MODELS[key].name,
-        scope: '1 track',
+        scope: '1 条音轨',
         group: selectorGroup(key, TURBO_AUDIO_MODELS),
       }));
   }, [
@@ -217,14 +217,14 @@ export const AddModelMenuSection = ({
     variantType === 'audio' && !(sequence?.musicPrompt && sequence.musicTags);
 
   const handleAdd = ({ key, name, scope }: Candidate) => {
-    toast(`Add ${name}?`, {
+    toast(`添加 ${name}？`, {
       description: audioBlocked
-        ? 'Generate music once before adding another audio model.'
-        : `Generates ${scope} using the existing prompts.`,
+        ? '请先生成一次音乐，再添加其他音频模型。'
+        : `使用现有提示词为${scope}生成内容。`,
       action: audioBlocked
         ? undefined
         : {
-            label: 'Add',
+            label: '添加',
             onClick: () => {
               addModel.mutate(
                 { sequenceId, variantType, model: key },
@@ -232,10 +232,10 @@ export const AddModelMenuSection = ({
                   onSuccess: (r) =>
                     toast.success(
                       r.failed > 0
-                        ? `Generating ${name} (${r.count}) — ${r.failed} failed to start`
-                        : `Generating ${name} (${r.count})…`
+                        ? `正在使用 ${name} 生成 (${r.count})，${r.failed} 项启动失败`
+                        : `正在使用 ${name} 生成 (${r.count})…`
                     ),
-                  onError: (e) => toast.error(e.message),
+                  onError: () => toast.error('添加模型失败，请重试。'),
                 }
               );
             },
@@ -247,7 +247,7 @@ export const AddModelMenuSection = ({
     <>
       <DropdownMenuSeparator />
       <DropdownMenuLabel className="text-[10px] text-muted-foreground uppercase tracking-wider font-normal">
-        Add a model
+        添加模型
       </DropdownMenuLabel>
       {SELECTOR_GROUP_ORDER.map((group, groupIndex) => {
         const groupCandidates = candidates.filter((c) => c.group === group);
@@ -256,7 +256,7 @@ export const AddModelMenuSection = ({
           <div key={group}>
             {groupIndex > 0 && <DropdownMenuSeparator />}
             <DropdownMenuLabel className="text-[10px] text-muted-foreground uppercase tracking-wider font-normal">
-              {group === 'fast' ? 'Fast' : 'Quality'}
+              {group === 'fast' ? '快速' : '高质量'}
             </DropdownMenuLabel>
             {groupCandidates.map((c) => (
               <DropdownMenuItem

@@ -101,7 +101,7 @@ export function VariantSelector({
         ref={gridRef}
         className="grid grid-cols-3 gap-2 px-8"
         role="grid"
-        aria-label="Variant selection"
+        aria-label="变体选择"
       >
         {Array.from({ length: count }).map((_, index) => {
           return (
@@ -154,10 +154,9 @@ export function VariantSelector({
       >
         <DialogContent showCloseButton={false} className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Select this variant?</DialogTitle>
+            <DialogTitle>选择此变体？</DialogTitle>
             <DialogDescription>
-              This will replace the current start frame image. The video will
-              need to be regenerated.
+              这将替换当前起始帧图片，视频需要重新生成。
             </DialogDescription>
           </DialogHeader>
 
@@ -178,11 +177,11 @@ export function VariantSelector({
           <DialogFooter className="mt-2">
             <DialogClose asChild>
               <Button type="button" variant="outline">
-                Cancel
+                取消
               </Button>
             </DialogClose>
             <Button ref={confirmButtonRef} onClick={handleConfirm}>
-              Confirm
+              确认
             </Button>
           </DialogFooter>
         </DialogContent>

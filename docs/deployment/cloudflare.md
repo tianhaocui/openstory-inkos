@@ -1,65 +1,54 @@
 ---
-title: Deploy to Cloudflare
-description: Deploy OpenStory to Cloudflare Workers with D1 and R2
+title: 部署到 Cloudflare
+description: 使用 D1 和 R2 将 OpenStory 部署到 Cloudflare Workers
 section: Developer Guide
 order: 10
 ---
 
-OpenStory deploys to Cloudflare Workers, using D1 (SQLite) for the database and R2 for media storage.
+OpenStory 部署在 Cloudflare Workers 上，使用 D1（SQLite）作为数据库，并使用 R2 存储媒体文件。
 
-## One-Click Deploy
+## 一键部署
 
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/openstory-so/openstory)
 
-The deploy button clones the repo into your GitHub/GitLab account, provisions the resources declared in `wrangler.jsonc`, prompts for the secrets listed in `.dev.vars.example`, and sets up CI for your copy.
+部署按钮会将仓库克隆到你的 GitHub/GitLab 账户，预配 `wrangler.jsonc` 中声明的资源，提示输入 `.dev.vars.example` 中列出的密钥，并为你的副本配置 CI。
 
-The created repo is an independent clone, not a fork — there's no upstream link for GitHub's "Sync fork" button. To pull future OpenStory updates into a button-deployed copy, add the upstream remote manually (`git remote add upstream https://github.com/openstory-so/openstory && git pull upstream main`). If you'd rather start from a real fork, fork on GitHub first, then connect the fork to [Workers Builds](https://developers.cloudflare.com/workers/ci-cd/builds/) in the Cloudflare dashboard (or deploy from a local clone with `bun setup --prod`).
+创建的仓库是独立克隆，而不是 fork，因此不存在可供 GitHub“同步 fork”按钮使用的上游链接。若要将 OpenStory 的后续更新拉取到通过按钮部署的副本中，请手动添加上游远程仓库（`git remote add upstream https://github.com/openstory-so/openstory && git pull upstream main`）。如果希望从真正的 fork 开始，请先在 GitHub 上 fork，然后在 Cloudflare 控制面板中将该 fork 连接到 [Workers Builds](https://developers.cloudflare.com/workers/ci-cd/builds/)（也可以在本地克隆中运行 `bun setup --prod` 进行部署）。
 
-AI keys (`FAL_KEY`, `OPENROUTER_KEY`) are deliberately not part of the deploy prompts — every field in that dialog is mandatory, and a placeholder value would be worse than none. Add them after deploy, either per team in the app (Settings → API Keys) or server-wide with `wrangler secret put`.
+AI 密钥（`FAL_KEY`、`OPENROUTER_KEY`）刻意不包含在部署提示中，因为该对话框中的每个字段都是必填项，而填入占位值比不填写更糟。请在部署后添加：可以在应用中按团队配置（设置 → API 密钥），也可以使用 `wrangler secret put` 在服务器范围内配置。
 
-## Guided Setup
+## 引导式设置
 
-From your own clone, `bun setup --prod` walks through everything interactively: production env vars (`.env.production`), R2 domains + CORS, optional services, pushing secrets to Cloudflare and GitHub, and the first deploy. `bun setup --deploy` re-runs just the secrets-push + deploy phase, and `bun setup --pr-preview` pushes preview secrets to the GitHub `staging` environment used by PR preview deploys.
+在你自己的克隆中，`bun setup --prod` 会以交互方式引导完成所有配置：生产环境变量（`.env.production`）、R2 域名 + CORS、可选服务、将密钥推送到 Cloudflare 和 GitHub，以及首次部署。`bun setup --deploy` 只会重新执行推送密钥 + 部署阶段；`bun setup --pr-preview` 会将预览密钥推送到 PR 预览部署所使用的 GitHub `staging` 环境。
 
-## Prerequisites
+## 前置条件
 
-- A [Cloudflare](https://cloudflare.com) account
-- [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/) (installed as a dev dependency — use `bunx wrangler`)
-- `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` available in your environment
+- 一个 [Cloudflare](https://cloudflare.com) 账户
+- [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/)（已作为开发依赖安装，请使用 `bunx wrangler`）
+- 环境中已配置 `CLOUDFLARE_ACCOUNT_ID` 和 `CLOUDFLARE_API_TOKEN`
 
 ## wrangler.jsonc
 
-Bindings live in [`wrangler.jsonc`](https://github.com/openstory-so/openstory/blob/main/wrangler.jsonc) at the repo root:
+绑定配置位于仓库根目录的 [`wrangler.jsonc`](https://github.com/openstory-so/openstory/blob/main/wrangler.jsonc)：
 
-- `DB` — D1 database (`openstory-prd`)
-- `R2_PUBLIC_ASSETS_BUCKET` — public assets (served via custom domain)
-- `R2_STORAGE_BUCKET` — private storage for generated media
+- `DB` — D1 数据库（`openstory-prd`）
+- `R2_PUBLIC_ASSETS_BUCKET` — 公共资源（通过自定义域名提供服务）
+- `R2_STORAGE_BUCKET` — 用于生成媒体的私有存储
 
-The Worker entry point is `src/server.ts` with `nodejs_compat` enabled.
+Worker 入口点为 `src/server.ts`，并已启用 `nodejs_compat`。
 
-## Build & Deploy
+## 构建与部署
 
-Upstream production (`openstory-so/openstory` → the `openstory` worker) deploys
-through [Workers Builds](https://developers.cloudflare.com/workers/ci-cd/builds/)
-— the same mechanism Deploy-to-Cloudflare button clones use, so upstream
-dogfoods the exact pipeline users get. Workers Builds is wrangler-authenticated,
-so the prod path needs no Cloudflare secrets in GitHub. The dashboard
-configuration (the only deploy state not versioned in the repo):
+上游生产环境（`openstory-so/openstory` → `openstory` worker）通过 [Workers Builds](https://developers.cloudflare.com/workers/ci-cd/builds/) 部署。这与“部署到 Cloudflare”按钮克隆所使用的机制相同，因此上游实际使用的正是用户获得的部署管道。Workers Builds 通过 wrangler 进行身份验证，所以生产部署路径无需在 GitHub 中配置 Cloudflare 密钥。控制面板配置如下（这是唯一未在仓库中进行版本控制的部署状态）：
 
-- **Repository / branch**: `openstory-so/openstory`, `main`
-- **Build command**: `bun run build`
-- **Build env vars**: `CLOUDFLARE_ENV=production` (bakes the
-  `[env.production]` block into `dist/server/wrangler.json`),
+- **仓库 / 分支**：`openstory-so/openstory`、`main`
+- **构建命令**：`bun run build`
+- **构建环境变量**：`CLOUDFLARE_ENV=production`（将 `[env.production]` 块写入 `dist/server/wrangler.json`）、
   `VITE_R2_PUBLIC_ASSETS_DOMAIN`, `VITE_PUBLIC_POSTHOG_PROJECT_TOKEN`,
   `VITE_PUBLIC_POSTHOG_HOST`
-- **Deploy command**: `bun run deploy:production` — flatten migrations →
-  `wrangler d1 migrations apply DB --env=production --remote` →
-  `wrangler deploy`. The plain `wrangler deploy` picks up the flattened
-  `dist/server/wrangler.json` via `.wrangler/deploy/config.json`; the
-  `--env` flag matters only for the migrate step, which reads the source
-  `wrangler.jsonc`.
+- **部署命令**：`bun run deploy:production` — 扁平化迁移 → `wrangler d1 migrations apply DB --env=production --remote` → `wrangler deploy`。普通的 `wrangler deploy` 会通过 `.wrangler/deploy/config.json` 读取扁平化后的 `dist/server/wrangler.json`；`--env` 标志只影响读取源 `wrangler.jsonc` 的迁移步骤。
 
-For a manual deploy from a local checkout:
+若要从本地检出手动部署：
 
 ```bash
 # Generate Worker types from wrangler.jsonc
@@ -69,16 +58,11 @@ bun cf:typegen
 bun cf:deploy:prd
 ```
 
-## Database Migrations
+## 数据库迁移
 
-Remote databases are migrated with `wrangler d1 migrations apply` (tracked in
-wrangler's `d1_migrations` table). drizzle-kit only **generates** migrations
-(`bun db:generate`); it never touches a remote database.
+远程数据库使用 `wrangler d1 migrations apply` 进行迁移（记录在 wrangler 的 `d1_migrations` 表中）。drizzle-kit 只负责**生成**迁移（`bun db:generate`），绝不会接触远程数据库。
 
-Because drizzle-kit emits nested `<timestamp>_<name>/migration.sql` files that
-wrangler can't read, `scripts/flatten-migrations.ts` renders them to flat
-`drizzle/migrations-wrangler/*.sql` (gitignored) first. The relevant scripts
-run it automatically:
+由于 drizzle-kit 会生成 wrangler 无法读取的嵌套 `<timestamp>_<name>/migration.sql` 文件，`scripts/flatten-migrations.ts` 会先将它们转换为扁平的 `drizzle/migrations-wrangler/*.sql`（已被 gitignore 忽略）。相关脚本会自动执行这一步：
 
 ```bash
 bun run deploy             # flatten → wrangler d1 migrations apply DB --remote → wrangler deploy
@@ -88,52 +72,33 @@ bun run deploy:production  # same, but --env=production on the migrate step
 bun db:migrate:prd         # flatten → wrangler d1 migrations apply DB --env=production --remote
 ```
 
-- **Button deploys**: the `deploy` package script is picked up as the deploy
-  command and re-runs on every push, so new migrations apply idempotently. It
-  references the binding name `DB` (not the database name) so it works
-  whatever the user named their database.
-- **Upstream production (Workers Builds)**: `deploy:production` is the
-  configured deploy command — identical to `deploy` except the migrate step
-  targets the `[env.production]` D1.
-- **PR previews**: CI applies migrations with `wrangler d1 migrations apply DB
---remote` after patching the PR's database id into the config.
-- **Local dev / e2e**: unchanged — drizzle-orm's migrator applies the nested
-  files directly against the Miniflare binding (`bun db:migrate:local`).
+- **按钮部署**：`deploy` package 脚本会被选作部署命令，并在每次推送时重新运行，因此新迁移会以幂等方式应用。脚本引用绑定名称 `DB`（而非数据库名称），所以无论用户如何命名数据库都能正常工作。
+- **上游生产环境（Workers Builds）**：配置的部署命令是 `deploy:production`，它与 `deploy` 完全相同，唯一区别是迁移步骤以 `[env.production]` D1 为目标。
+- **PR 预览**：CI 将 PR 的数据库 ID 写入配置后，使用 `wrangler d1 migrations apply DB --remote` 应用迁移。
+- **本地开发 / e2e**：保持不变，drizzle-orm 的迁移器会直接针对 Miniflare 绑定应用嵌套文件（`bun db:migrate:local`）。
 
-Migrations must stay backwards-compatible for the moment between migrate and
-deploy, and the D1 table-rebuild CASCADE trap (see CLAUDE.md) applies to every
-remote apply path.
+在迁移与部署之间的短暂时间内，迁移必须保持向后兼容；D1 重建表时的 CASCADE 陷阱（参阅 CLAUDE.md）适用于所有远程应用路径。
 
-## Seeding
+## 填充种子数据
 
-There are no CI seed steps: the worker self-seeds system templates on first
-request (`src/server.ts` → `src/platform/server/db/seed-system-templates.ts`). A hash of
-the template definitions is stored in `app_metadata`; when it matches, the
-check is a single SELECT per isolate, and when it doesn't (fresh database, or
-a deploy that changed templates) the idempotent sync runs once. `bun
-db:seed:local` / `bun scripts/seed.ts --test` reuse the same module for local
-setup.
+CI 中没有种子数据步骤：worker 会在首次请求时自行填充系统模板（`src/server.ts` → `src/platform/server/db/seed-system-templates.ts`）。模板定义的哈希存储在 `app_metadata` 中；哈希匹配时，每个 isolate 只需执行一次 SELECT 检查；哈希不匹配时（全新数据库，或部署更改了模板），会运行一次幂等同步。`bun db:seed:local` / `bun scripts/seed.ts --test` 在本地设置中复用同一模块。
 
-## Secrets
+## 密钥
 
-Secrets are pushed to the Worker via `wrangler secret bulk`. The full list is defined in [`.github/workflows/deploy-cloudflare.yml`](https://github.com/openstory-so/openstory/blob/main/.github/workflows/deploy-cloudflare.yml). Core secrets include:
+密钥通过 `wrangler secret bulk` 推送到 Worker。完整列表定义在 [`.github/workflows/deploy-cloudflare.yml`](https://github.com/openstory-so/openstory/blob/main/.github/workflows/deploy-cloudflare.yml) 中。核心密钥包括：
 
-| Variable                                    | Description                                                                           |
+| 变量                                        | 说明                                                                                  |
 | ------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `BETTER_AUTH_SECRET`                        | Better Auth signing secret                                                            |
-| `VITE_APP_URL`                              | Public URL of the deployment                                                          |
-| `FAL_KEY`                                   | fal.ai API key for image/video generation                                             |
-| `OPENROUTER_KEY`                            | OpenRouter API key for LLM script analysis                                            |
-| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth credentials                                                              |
-| `EMAIL_FROM`                                | Sender address for transactional email (domain onboarded in Cloudflare Email Service) |
+| `BETTER_AUTH_SECRET`                        | Better Auth 签名密钥                                                                  |
+| `VITE_APP_URL`                              | 部署的公共 URL                                                                        |
+| `FAL_KEY`                                   | 用于图像/视频生成的 fal.ai API 密钥                                                   |
+| `OPENROUTER_KEY`                            | 用于 LLM 脚本分析的 OpenRouter API 密钥                                               |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth 凭据                                                                     |
+| `EMAIL_FROM`                                | 事务邮件的发件人地址（域名已接入 Cloudflare Email Service）                           |
 
-## Prod database cutover (velro-prd → openstory-prd)
+## 生产数据库切换（velro-prd → openstory-prd）
 
-One-time runbook for #897: the production D1 predates the project rename (the
-account still calls it `velro-prd`) and its migration history lives in
-drizzle's `__drizzle_migrations` table, which wrangler doesn't read. D1 has no
-rename, so the move is a recreate — which also gives the new database a fully
-native `d1_migrations` history with no baselining:
+#897 的一次性操作手册：生产 D1 创建于项目更名前（账户中仍将其称为 `velro-prd`），其迁移历史保存在 drizzle 的 `__drizzle_migrations` 表中，而 wrangler 不会读取该表。D1 不支持重命名，因此迁移需要重建数据库；这样也能让新数据库获得完全原生的 `d1_migrations` 历史，无需设置基线：
 
 ```bash
 # 1. Snapshot (also the import source). Quiet window: writes after this are lost.
@@ -173,26 +138,20 @@ bunx wrangler d1 execute openstory-prd --remote --file=data-ordered.sql
 bunx wrangler d1 delete velro-prd
 ```
 
-**Merge order matters:** run this runbook (through step 4) before merging the
-PR that contains the id flip. Merging first isn't destructive — wrangler sees
-an empty `d1_migrations` on the old DB, migration #1's `CREATE TABLE` fails
-against the existing tables, the file rolls back, and CI fails loudly with
-the previous deploy still serving — but it blocks deploys until the cutover
-is done.
+**合并顺序很重要：**请先执行本操作手册至第 4 步，再合并包含 ID 切换的 PR。先合并不会造成破坏：wrangler 会在旧数据库中看到空的 `d1_migrations`，迁移 #1 的 `CREATE TABLE` 会因表已存在而失败，文件随之回滚，CI 会明确报错，同时此前的部署仍继续提供服务；但在切换完成前，后续部署都会被阻塞。
 
-Existing PR-preview databases also only have drizzle tracking — close and
-reopen the PR to get a fresh, wrangler-tracked preview database.
+现有 PR 预览数据库同样只有 drizzle 跟踪记录。请关闭并重新打开 PR，以获得一个由 wrangler 跟踪的全新预览数据库。
 
 ## CI/CD
 
-Production pushes to `main` deploy via Workers Builds (see [Build & Deploy](#build--deploy) above). [`deploy-cloudflare.yml`](https://github.com/openstory-so/openstory/blob/main/.github/workflows/deploy-cloudflare.yml) handles the PR previews, which stay on GitHub Actions because Workers Builds branch previews share production bindings — no per-PR D1 provisioning, no workflow-name namespacing, no teardown on close:
+推送到 `main` 的生产版本通过 Workers Builds 部署（参阅上文[构建与部署](#构建与部署)）。[`deploy-cloudflare.yml`](https://github.com/openstory-so/openstory/blob/main/.github/workflows/deploy-cloudflare.yml) 负责 PR 预览；预览继续使用 GitHub Actions，因为 Workers Builds 的分支预览会共享生产绑定，无法为每个 PR 单独预配 D1、无法对工作流名称进行命名空间隔离，也无法在关闭时拆除资源：
 
-- **PR previews**: each PR gets its own Worker (`pr-<number>`) and D1 database (`openstory-pr-<number>`), with secrets pushed and the preview URL posted as a PR comment. Previews also get namespaced workflows (`*-pr-<number>`) and a video-export container application (`pr-<number>-videoexportcontainer`).
-- **Cleanup**: closing a PR deletes the Worker, namespaced workflows, container application, and D1 database. Container apps are account-level and outlive the worker — skipping them blocks reopened-PR redeploys and accrues provisioned instances (see #1052).
+- **PR 预览**：每个 PR 都会获得独立的 Worker（`pr-<number>`）和 D1 数据库（`openstory-pr-<number>`），同时推送密钥，并将预览 URL 作为 PR 评论发布。预览环境还会获得带命名空间的工作流（`*-pr-<number>`）和视频导出容器应用（`pr-<number>-videoexportcontainer`）。
+- **清理**：关闭 PR 时会删除 Worker、带命名空间的工作流、容器应用和 D1 数据库。容器应用属于账户级资源，生命周期长于 worker；若跳过删除，会阻止重新打开的 PR 再次部署，并持续累积已预配实例（参阅 #1052）。
 
-## Platform Detection
+## 平台检测
 
-OpenStory automatically detects the deployment platform:
+OpenStory 会自动检测部署平台：
 
 ```typescript
 import { getDeploymentPlatform } from '@/shared/utils/environment';

@@ -464,7 +464,7 @@ function FileUpload(props: FileUploadProps) {
               store.dispatch({
                 type: 'SET_ERROR',
                 file,
-                error: error.message ?? 'Upload failed',
+                error: error.message ?? '上传失败',
               });
             },
           });
@@ -475,7 +475,7 @@ function FileUpload(props: FileUploadProps) {
         }
       } catch (error) {
         const errorMessage =
-          error instanceof Error ? error.message : 'Upload failed';
+          error instanceof Error ? error.message : '上传失败';
         for (const file of files) {
           store.dispatch({
             type: 'SET_ERROR',
@@ -551,7 +551,7 @@ function FileUpload(props: FileUploadProps) {
                   fileType.startsWith(type.replace('/*', '/')))
             )
           ) {
-            rejectionMessage = 'File type not accepted';
+            rejectionMessage = '不支持此文件类型';
             propsRef.current.onFileReject?.(file, rejectionMessage);
             rejected = true;
             invalid = true;
@@ -559,7 +559,7 @@ function FileUpload(props: FileUploadProps) {
         }
 
         if (maxSize && file.size > maxSize) {
-          rejectionMessage = 'File too large';
+          rejectionMessage = '文件过大';
           propsRef.current.onFileReject?.(file, rejectionMessage);
           rejected = true;
           invalid = true;
@@ -668,7 +668,7 @@ function FileUpload(props: FileUploadProps) {
             onChange={onInputChange}
           />
           <div id={labelId} className="sr-only">
-            {label ?? 'File upload'}
+            {label ?? '文件上传'}
           </div>
         </RootPrimitive>
       </FileUploadContext.Provider>
@@ -1020,12 +1020,12 @@ function FileUploadItem(props: FileUploadItemProps) {
   if (!fileState) return null;
 
   const statusText = fileState.error
-    ? `Error: ${fileState.error}`
+    ? `错误：${fileState.error}`
     : fileState.status === 'uploading'
-      ? `Uploading: ${fileState.progress}% complete`
+      ? `正在上传：已完成 ${fileState.progress}%`
       : fileState.status === 'success'
-        ? 'Upload complete'
-        : 'Ready to upload';
+        ? '上传完成'
+        : '等待上传';
 
   const ItemPrimitive = asChild ? SlotPrimitive.Slot : 'div';
 

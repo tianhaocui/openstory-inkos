@@ -76,9 +76,9 @@ function formatEstimate(micros: Microdollars): string {
 function formatTargetLabel(seconds: number): string {
   if (seconds >= 60 && seconds % 60 === 0) {
     const minutes = seconds / 60;
-    return minutes === 1 ? '1m' : `${minutes}m`;
+    return minutes === 1 ? '1 分钟' : `${minutes} 分钟`;
   }
-  return `${seconds}s`;
+  return `${seconds} 秒`;
 }
 
 /**
@@ -135,7 +135,7 @@ export function buildFilmCostExamples(
   const videoName = IMAGE_TO_VIDEO_MODELS[TURBO_DEFAULT_VIDEO].name;
   const audioName = AUDIO_MODELS[TURBO_DEFAULT_AUDIO].name;
   const targetLabel = formatTargetLabel(TARGET_DURATION_S);
-  const subtitle = `${targetLabel} target · defaults`;
+  const subtitle = `${targetLabel}目标时长 · 默认设置`;
   const characterSheets = estimateCharacterSheetCount(TYPICAL_SCENE_COUNT);
   const locationSheets = estimateLocationSheetCount(TYPICAL_SCENE_COUNT);
 
@@ -151,37 +151,37 @@ export function buildFilmCostExamples(
     examples: [
       {
         id: 'images-only',
-        title: 'Stills',
+        title: '静态画面',
         subtitle,
         cost: formatEstimate(imagesOnly),
         costMicros: imagesOnly,
         breakdown: [
           // LLM line is a fixed pre-flight stand-in, not live OpenRouter cost.
-          `Script analysis (est.)`,
-          `${characterSheets} character + ${locationSheets} location sheets`,
-          `${TYPICAL_SCENE_COUNT} stills (${imageName})`,
+          `剧本分析（预估）`,
+          `${characterSheets} 张角色设定图 + ${locationSheets} 张场景设定图`,
+          `${TYPICAL_SCENE_COUNT} 张静态画面（${imageName}）`,
         ],
       },
       {
         id: 'with-motion',
-        title: 'Stills + motion',
+        title: '静态画面 + 动态画面',
         subtitle,
         cost: formatEstimate(withMotion),
         costMicros: withMotion,
         breakdown: [
-          `Everything in Stills`,
-          `${TYPICAL_SCENE_COUNT} × ${TYPICAL_SHOT_DURATION_S}s ${videoName} (with refs)`,
+          `包含“静态画面”中的所有内容`,
+          `${TYPICAL_SCENE_COUNT} × ${TYPICAL_SHOT_DURATION_S} 秒 ${videoName}（含参考图）`,
         ],
       },
       {
         id: 'with-motion-music',
-        title: 'Stills + motion + music',
+        title: '静态画面 + 动态画面 + 音乐',
         subtitle,
         cost: formatEstimate(withMotionAndMusic),
         costMicros: withMotionAndMusic,
         breakdown: [
-          `Everything in Stills + motion`,
-          `One ${targetLabel} track (${audioName})`,
+          `包含“静态画面 + 动态画面”中的所有内容`,
+          `一首 ${targetLabel}音轨（${audioName}）`,
         ],
       },
     ],

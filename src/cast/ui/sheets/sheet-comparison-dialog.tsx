@@ -45,10 +45,10 @@ type SheetComparisonDialogProps = {
 };
 
 const ENTITY_LABEL: Record<SheetEntityType, string> = {
-  character: 'character sheet',
-  location: 'location reference',
-  'library-location': 'location reference',
-  talent: 'talent sheet',
+  character: '角色设定图',
+  location: '场景参考素材',
+  'library-location': '场景参考素材',
+  talent: '演员设定图',
 };
 
 const ASPECT_CLASS: Record<SheetAspectRatio, string> = {
@@ -82,7 +82,7 @@ const SheetPreview: React.FC<{
           aspectClass
         )}
       >
-        No asset
+        暂无素材
       </div>
     );
   }
@@ -144,29 +144,27 @@ export const SheetComparisonDialog: React.FC<SheetComparisonDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Compare alternate {label}</DialogTitle>
+          <DialogTitle>比较备选{label}</DialogTitle>
           <DialogDescription>
-            An alternate {label} was generated from the inputs you had at the
-            time. Compare it against the live version, then promote or discard.
+            此备选{label}
+            基于当时的输入生成。请与当前版本比较，然后选择提升或丢弃。
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-2">
-            <span className="text-sm font-medium">Live (current inputs)</span>
+            <span className="text-sm font-medium">当前版本（当前输入）</span>
             <SheetPreview
               url={livePrimaryUrl}
-              alt={`Live ${label}`}
+              alt={`当前${label}`}
               aspectClass={aspectClass}
             />
           </div>
           <div className="flex flex-col gap-2">
-            <span className="text-sm font-medium">
-              Alternate (older inputs)
-            </span>
+            <span className="text-sm font-medium">备选版本（旧输入）</span>
             <SheetPreview
               url={variantUrl}
-              alt={`Alternate ${label}`}
+              alt={`备选${label}`}
               aspectClass={aspectClass}
             />
           </div>
@@ -174,7 +172,7 @@ export const SheetComparisonDialog: React.FC<SheetComparisonDialogProps> = ({
 
         {upstreamChanges && upstreamChanges.length > 0 && (
           <div className="flex flex-col gap-2 rounded-md border bg-muted/30 p-3">
-            <span className="text-sm font-medium">What changed</span>
+            <span className="text-sm font-medium">更改内容</span>
             <ul className="flex flex-col gap-1 text-sm text-muted-foreground">
               {upstreamChanges.map((change) => (
                 <li key={change}>• {change}</li>
@@ -189,8 +187,7 @@ export const SheetComparisonDialog: React.FC<SheetComparisonDialogProps> = ({
             role="alert"
             aria-live="polite"
           >
-            Promote replaces the current {label}. Click Promote again to
-            confirm.
+            提升操作将替换当前{label}。请再次点击“提升”以确认。
           </div>
         )}
 
@@ -202,7 +199,7 @@ export const SheetComparisonDialog: React.FC<SheetComparisonDialogProps> = ({
             disabled={busy}
           >
             {isDiscarding && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            <span>Discard</span>
+            <span>丢弃</span>
           </Button>
           <Button
             type="button"
@@ -210,7 +207,7 @@ export const SheetComparisonDialog: React.FC<SheetComparisonDialogProps> = ({
             onClick={() => onOpenChange(false)}
             disabled={busy}
           >
-            Cancel
+            取消
           </Button>
           <Button
             type="button"
@@ -219,7 +216,7 @@ export const SheetComparisonDialog: React.FC<SheetComparisonDialogProps> = ({
             variant={confirmingPromote ? 'destructive' : 'default'}
           >
             {isPromoting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {confirmingPromote ? 'Confirm Promote' : 'Promote'}
+            {confirmingPromote ? '确认提升' : '提升'}
           </Button>
         </DialogFooter>
       </DialogContent>

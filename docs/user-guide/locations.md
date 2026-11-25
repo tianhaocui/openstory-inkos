@@ -1,65 +1,65 @@
 ---
-title: Locations
-description: Manage locations extracted from your script and maintain visual consistency
+title: 地点
+description: 管理从剧本中提取的地点并保持视觉一致性
 section: User Guide
 order: 4
 ---
 
-The **Locations** tab shows all settings and environments identified during script analysis. OpenStory extracts location details from your screenplay and generates reference images for visual consistency.
+**地点**标签页会显示剧本分析期间识别出的所有场所和环境。OpenStory 会从剧本中提取地点详情，并生成参考图以保持视觉一致性。
 
-## Location Grid
+## 地点网格
 
-Locations appear as a grid of cards, each showing:
+地点以卡片网格呈现，每张卡片包含：
 
-- **Reference image** — A generated reference image of the location
-- **Name** — The location's name as described in the script
+- **参考图** — 生成的地点参考图
+- **名称** — 剧本中描述的地点名称
 
-Click any card to view the full location detail page.
+点击任意卡片可查看完整的地点详情页。
 
-## Location Detail Page
+## 地点详情页
 
-The detail page provides comprehensive information about a location:
+详情页提供地点的完整信息：
 
-### Reference Image
+### 参考图
 
-A 16:9 reference image generated from the script's location description. This image anchors the visual style for all scenes set in this location.
+这是根据剧本中的地点描述生成的 16:9 参考图。该图像为发生在此地点的所有场景确立视觉风格基准。
 
-### Location Properties
+### 地点属性
 
-All properties are automatically extracted from your script:
+所有属性都会从剧本中自动提取：
 
-| Property                | Description                                                                     |
-| ----------------------- | ------------------------------------------------------------------------------- |
-| **Name**                | Location name                                                                   |
-| **Type**                | Interior, Exterior, or Interior/Exterior                                        |
-| **Time of Day**         | Default lighting context                                                        |
-| **Description**         | Detailed setting description                                                    |
-| **Architectural Style** | Building and structural aesthetic                                               |
-| **Key Features**        | Notable visual elements                                                         |
-| **Color Palette**       | Dominant colors for the setting                                                 |
-| **Lighting Setup**      | Default lighting configuration                                                  |
-| **Ambiance**            | Overall mood and atmosphere                                                     |
-| **First Appears**       | Scene number and line where the location first appears, with quoted text        |
-| **Consistency Tag**     | Internal tag for maintaining visual consistency (shown as monospace code badge) |
+| 属性           | 说明                                               |
+| -------------- | -------------------------------------------------- |
+| **名称**       | 地点名称                                           |
+| **类型**       | 室内、室外或室内/室外                              |
+| **时段**       | 默认光照环境                                       |
+| **描述**       | 详细的环境描述                                     |
+| **建筑风格**   | 建筑与结构美学                                     |
+| **关键特征**   | 显著的视觉元素                                     |
+| **色板**       | 环境的主色调                                       |
+| **灯光设置**   | 默认灯光配置                                       |
+| **氛围**       | 整体情绪与氛围                                     |
+| **首次出现**   | 地点首次出现的场景编号和台词行，并附引用原文       |
+| **一致性标签** | 用于维持视觉一致性的内部标签（显示为等宽代码徽标） |
 
-### Frame Count
+### 帧数
 
-The detail page shows how many frames use this location (e.g., "Used in 5 frames").
+详情页会显示使用该地点的帧数（例如“用于 5 帧”）。
 
-## Updating Location References
+## 更新地点参考
 
-You can replace a location's auto-generated reference with one from your Location Library:
+你可以使用地点库中的参考替换地点自动生成的参考：
 
-1. Click **Update Reference** on the location detail page
-2. A **Location Picker** dialog opens showing library locations
-3. Select a library location
-4. A **confirmation dialog** shows:
-   - The location name and library location name
-   - How many frames will be affected
-5. Confirm to update
+1. 在地点详情页点击**更新参考**
+2. 随后打开**地点选择器**对话框，其中显示库中的地点
+3. 选择一个库中地点
+4. 随后显示**确认对话框**，其中包含：
+   - 地点名称和库中地点名称
+   - 将受影响的帧数
+5. 确认更新
 
-This regenerates the location's reference image and updates all frames set in this location.
+此操作会重新生成地点参考图，并更新以该地点为环境的所有画面帧。
 
-## Real-Time Updates
+## 实时更新
 
-Location reference regeneration uses the same real-time event system as characters. The UI subscribes to `generation.location-sheet:progress` events and updates automatically.
+重新生成地点参考时使用与角色相同的实时事件系统。界面订阅 `generation.location-sheet:progress` 事件并自动更新。

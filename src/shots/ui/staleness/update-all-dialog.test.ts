@@ -18,7 +18,7 @@ describe('describeCauses', () => {
   it('dedupes causes across shots', () => {
     expect(
       describeCauses([shot(['Script', 'Character "Woman"']), shot(['Script'])])
-    ).toBe('Changed: Script, Character "Woman"');
+    ).toBe('已更改：Script、Character "Woman"');
   });
   it('null when nothing could be named', () => {
     expect(describeCauses([shot([])])).toBeNull();
@@ -32,14 +32,14 @@ describe('shotsLabel', () => {
     ['c', 4],
   ]);
   it('lists shot numbers', () => {
-    expect(shotsLabel(['c', 'a', 'b'], numbers, false)).toBe('shots 2, 3 & 4');
-    expect(shotsLabel(['a'], numbers, false)).toBe('shot 2');
+    expect(shotsLabel(['c', 'a', 'b'], numbers, false)).toBe('镜头 2、3、4');
+    expect(shotsLabel(['a'], numbers, false)).toBe('镜头 2');
   });
   it('shot scope reads "this shot"', () => {
-    expect(shotsLabel(['a'], numbers, true)).toBe('this shot');
+    expect(shotsLabel(['a'], numbers, true)).toBe('此镜头');
   });
   it('falls back to a count without numbering', () => {
-    expect(shotsLabel(['x', 'y'], undefined, false)).toBe('2 shots');
+    expect(shotsLabel(['x', 'y'], undefined, false)).toBe('2 个镜头');
   });
 });
 
@@ -55,14 +55,14 @@ describe('levelsFromStaleShots', () => {
         },
       ])
     ).toEqual([
-      { depth: 'prompts', label: 'Prompts' },
-      { depth: 'images', label: 'Images' },
+      { depth: 'prompts', label: '提示词' },
+      { depth: 'images', label: '图片' },
     ]);
   });
 
   it('shows images only when the still is stale and prompts are fresh', () => {
     expect(levelsFromStaleShots([shot(['Character "Woman"'])])).toEqual([
-      { depth: 'images', label: 'Images' },
+      { depth: 'images', label: '图片' },
     ]);
   });
 
@@ -76,7 +76,7 @@ describe('levelsFromStaleShots', () => {
           causes: ['Script'],
         },
       ])
-    ).toEqual([{ depth: 'prompts', label: 'Prompts' }]);
+    ).toEqual([{ depth: 'prompts', label: '提示词' }]);
   });
 });
 
@@ -98,10 +98,10 @@ describe('previewLevels', () => {
     expect(previewLevels(preview, numbers, false)).toEqual([
       {
         depth: 'prompts',
-        label: 'Image prompts for shots 2 & 3 · Motion prompts for shot 3',
+        label: '镜头 2、3的图片提示词 · 镜头 3的动态提示词',
       },
-      { depth: 'images', label: 'Images for shots 2 & 3' },
-      { depth: 'music', label: 'Music prompt' },
+      { depth: 'images', label: '镜头 2、3的图片' },
+      { depth: 'music', label: '音乐提示词' },
     ]);
   });
 });

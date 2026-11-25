@@ -164,7 +164,7 @@ export function useDeleteStudioAsset() {
     mutationFn: (id: string) => deleteStudioAssetFn({ data: { id } }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: studioAssetKeys.all });
-      toast.success('Deleted');
+      toast.success('已删除');
     },
     onError: (error) => {
       toast.error(error.message);

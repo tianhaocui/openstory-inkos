@@ -122,10 +122,10 @@ export const StyleLibraryView: FC<StyleLibraryViewProps> = ({
             <Search />
           </InputGroupAddon>
           <InputGroupInput
-            placeholder="Search styles"
+            placeholder="搜索风格"
             value={searchQuery}
             onChange={handleSearchChange}
-            aria-label="Search styles"
+            aria-label="搜索风格"
           />
           {searchQuery && (
             <InputGroupAddon align="inline-end">
@@ -135,7 +135,7 @@ export const StyleLibraryView: FC<StyleLibraryViewProps> = ({
                 onClick={() => setSearchQuery('')}
               >
                 <X />
-                <span className="sr-only">Clear search</span>
+                <span className="sr-only">清除搜索</span>
               </Button>
             </InputGroupAddon>
           )}
@@ -167,11 +167,9 @@ export const StyleLibraryView: FC<StyleLibraryViewProps> = ({
             <EmptyMedia variant="icon">
               <GalleryIcon size="lg" />
             </EmptyMedia>
-            <EmptyTitle>No styles found</EmptyTitle>
+            <EmptyTitle>未找到风格</EmptyTitle>
             <EmptyDescription>
-              {searchQuery
-                ? 'Try adjusting your search.'
-                : 'There are no styles available yet.'}
+              {searchQuery ? '请尝试调整搜索条件。' : '暂无可用风格。'}
             </EmptyDescription>
           </EmptyHeader>
         </Empty>

@@ -13,15 +13,24 @@ export const ACTIVITY_ICONS = {
 } as const;
 
 export const ACTIVITY_LABELS = {
-  image: 'Image',
-  video: 'Video',
-  audio: 'Audio',
+  image: '图像',
+  video: '视频',
+  audio: '音频',
 } as const;
 
 /** "text-to-image" → "Text to image" for the category badge. */
 export function categoryLabel(category: string): string {
-  const words = category.replaceAll('-', ' ');
-  return words.charAt(0).toUpperCase() + words.slice(1);
+  const labels: Record<string, string> = {
+    'text-to-image': '文本生图像',
+    'image-to-image': '图像生图像',
+    'text-to-video': '文本生视频',
+    'image-to-video': '图像生视频',
+    'text-to-audio': '文本生音频',
+    music: '音乐',
+    speech: '语音',
+  };
+  if (labels[category]) return labels[category];
+  return '其他';
 }
 
 /**
@@ -38,7 +47,7 @@ export const ModelCard: FC<{ model: CatalogModel }> = ({ model }) => {
       to="/models/$"
       params={{ _splat: model.endpointId }}
       search={{ activity: model.activity }}
-      aria-label={`${model.displayName} model details`}
+      aria-label={`${model.displayName} 模型详情`}
       className="group flex flex-col overflow-hidden rounded-xl border bg-card shadow-sm transition-all hover:scale-[1.02] hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
     >
       <div

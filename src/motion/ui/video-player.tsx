@@ -157,14 +157,12 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
           getAspectRatioClassName(aspectRatio)
         )}
       >
-        <PlayerPlaceholder posterSrc={posterSrc} alt="Scene thumbnail" />
+        <PlayerPlaceholder posterSrc={posterSrc} alt="场景缩略图" />
       </div>
     );
   }
 
-  const placeholder = (
-    <PlayerPlaceholder posterSrc={null} alt="Video thumbnail" />
-  );
+  const placeholder = <PlayerPlaceholder posterSrc={null} alt="视频缩略图" />;
 
   return (
     <div

@@ -28,26 +28,26 @@ export const Route = createFileRoute('/_app/credits')({
   beforeLoad: async ({ context: { queryClient }, location }) => {
     await requireSessionOrRedirect(queryClient, location.href);
   },
-  staticData: { breadcrumb: 'Credits' },
+  staticData: { breadcrumb: '点数' },
   errorComponent: (props) => (
-    <RouteErrorFallback {...props} heading="Credits error" />
+    <RouteErrorFallback {...props} heading="点数页面出错" />
   ),
 });
 
 const tabs = [
   {
     value: 'balance' as const,
-    label: 'Balance',
+    label: '余额',
     icon: <Wallet className="h-4 w-4" />,
   },
   {
     value: 'transactions' as const,
-    label: 'Transactions',
+    label: '交易记录',
     icon: <Receipt className="h-4 w-4" />,
   },
   {
     value: 'gift-codes' as const,
-    label: 'Gift Codes',
+    label: '礼品码',
     icon: <Gift className="h-4 w-4" />,
   },
 ];

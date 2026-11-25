@@ -41,7 +41,7 @@ describe('OptimisedPromptPanel', () => {
         idPrefix="motion-request"
       />
     );
-    expect(html).toContain('Optimised prompt');
+    expect(html).toContain('优化后的提示词');
     expect(html).toContain('aria-expanded="false"');
     expect(html).not.toContain('GPT Image');
   });
@@ -49,7 +49,7 @@ describe('OptimisedPromptPanel', () => {
   it('SSRs a collapsed header for the selected model only', () => {
     const html = renderPanel(selected);
 
-    expect(html).toContain('Optimised prompt');
+    expect(html).toContain('优化后的提示词');
     expect(html).toContain('GPT Image 2');
     expect(html).toContain('36');
     expect(html).toContain('32000');
@@ -110,8 +110,8 @@ describe('OptimisedPromptPanel', () => {
       },
       { defaultOpen: true }
     );
-    expect(html).toContain('Copy @Image1 image');
-    expect(html).toContain('Copy @Image2 image');
+    expect(html).toContain('复制 @Image1 图片');
+    expect(html).toContain('复制 @Image2 图片');
     expect(html).toContain('https://cdn.example/still.png');
     expect(html).toContain('https://cdn.example/cast.png');
   });
@@ -129,10 +129,10 @@ describe('OptimisedPromptPanel', () => {
     );
     expect(html.match(/<ul/g)).toHaveLength(1);
     expect(html).toContain('flex-wrap');
-    expect(html).toContain('Copy @Image1 image');
-    expect(html).toContain('Play @Video1');
-    expect(html).toContain('Play @Audio1');
-    expect(html).not.toContain('Copy @Video1');
-    expect(html).not.toContain('Copy @Audio1');
+    expect(html).toContain('复制 @Image1 图片');
+    expect(html).toContain('播放 @Video1');
+    expect(html).toContain('播放 @Audio1');
+    expect(html).not.toContain('复制 @Video1');
+    expect(html).not.toContain('复制 @Audio1');
   });
 });

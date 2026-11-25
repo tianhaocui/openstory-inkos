@@ -67,8 +67,8 @@ describe('unusableReferenceLines', () => {
     const [line] = unusableReferenceLines('kling_v3_pro', [
       el('SMOKE_INK', 'video', 10),
     ]);
-    expect(line).toContain("can't use SMOKE_INK");
-    expect(line).toContain('takes no reference clips');
+    expect(line).toContain('无法使用 SMOKE_INK');
+    expect(line).toContain('不支持参考视频片段');
     expect(line).toContain('Seedance 2.5');
   });
 
@@ -77,8 +77,8 @@ describe('unusableReferenceLines', () => {
     const [line] = unusableReferenceLines('minimax_h3_max', [
       el('SMOKE_INK', 'video', 15.0465),
     ]);
-    expect(line).toContain('15.05s, over its 15s limit');
-    expect(line).toContain('Trim it, or use Seedance 2.5');
+    expect(line).toContain('15.05 秒，超过 15 秒上限');
+    expect(line).toContain('请截短，或使用 Seedance 2.5');
   });
 
   it('never refuses a still, or a clip of unknown length', () => {
@@ -103,7 +103,7 @@ describe('unusableReferenceLines', () => {
         imageUrl: '/r2/elements/t/s/el.m4a',
       },
     ]);
-    expect(line).toContain("can't use MATEO_SHOT_1 — it is M4A");
+    expect(line).toContain('无法使用 MATEO_SHOT_1：文件格式为 M4A');
     expect(line).toContain('MP3 or WAV');
     expect(
       unusableReferenceLines('seedance_v2_5', [
@@ -126,7 +126,7 @@ describe('unusableReferenceLines', () => {
   it('refuses at submit with the same words', () => {
     expect(() =>
       assertReferencesUsable('kling_v3_pro', [el('VOICE', 'audio', 3)], true)
-    ).toThrow("can't use VOICE — it takes no reference audio");
+    ).toThrow('无法使用 VOICE：它不支持参考音频');
     expect(() =>
       assertReferencesUsable('seedance_v2_5', [el('VOICE', 'audio', 3)], true)
     ).not.toThrow();
@@ -137,7 +137,7 @@ describe('unusableReferenceLines', () => {
     const [line] = unusableReferenceLines('minimax_h3_max', [
       el('BLINK', 'video', 1.9),
     ]);
-    expect(line).toContain('1.9s, under its 2s minimum');
+    expect(line).toContain('1.9 秒，低于 2 秒下限');
     expect(line).toContain('Seedance 2.5');
     expect(
       unusableReferenceLines('seedance_v2_5', [el('BLINK', 'video', 1.9)])
@@ -162,8 +162,8 @@ describe('unusableShotReferenceLines — a voice line with nothing to ride on', 
 
   it('refuses a voice line with no start frame and no sheet or clip', () => {
     const [line] = unusableShotReferenceLines('seedance_v2_5', [voice], false);
-    expect(line).toContain("can't send NARRATOR on its own");
-    expect(line).toContain('or use a start frame');
+    expect(line).toContain('无法单独发送 NARRATOR');
+    expect(line).toContain('或使用起始帧');
   });
 
   it('lets it ride with a start frame, a sheet or a clip', () => {
@@ -188,10 +188,8 @@ describe('unusableShotReferenceLines — a voice line with nothing to ride on', 
       [voice, { token: 'LONG', kind: 'video', durationSeconds: 40 }],
       false
     );
-    expect(lines.some((line) => line.includes('over its 15s limit'))).toBe(
-      true
-    );
-    expect(lines.some((line) => line.includes('on its own'))).toBe(true);
+    expect(lines.some((line) => line.includes('超过 15 秒上限'))).toBe(true);
+    expect(lines.some((line) => line.includes('无法单独发送'))).toBe(true);
   });
 });
 
@@ -261,7 +259,7 @@ describe('missingVoiceLines', () => {
 
   it('flags a deleted element token on an audio-capable model', () => {
     expect(missingVoiceLines('seedance_v2_5', { lines: [gone] }, [])).toEqual([
-      "GONE_VOICE, the voice on SARAH's line, was deleted — pick another voice.",
+      'GONE_VOICE 是 SARAH 台词使用的声音，但已被删除。请选择其他声音。',
     ]);
   });
 
@@ -308,9 +306,9 @@ describe('combined reference length (#1651)', () => {
       true
     );
     expect(rest).toEqual([]);
-    expect(line).toContain('DIALOGUE and SIREN');
-    expect(line).toContain('20s of audio files');
-    expect(line).toContain('15s combined limit');
+    expect(line).toContain('DIALOGUE和SIREN');
+    expect(line).toContain('音频文件总时长为 20 秒');
+    expect(line).toContain('超过 15 秒合计上限');
   });
 
   it('allows two audio files whose sum is inside the combined budget', () => {
@@ -335,8 +333,8 @@ describe('combined reference length (#1651)', () => {
       [still, clip('DOLLY', 9), clip('CRANE', 9)],
       true
     );
-    expect(line).toContain('18s of clips');
-    expect(line).toContain('15s combined limit');
+    expect(line).toContain('视频片段总时长为 18 秒');
+    expect(line).toContain('超过 15 秒合计上限');
   });
 
   it('never double-reports a file already refused on its own length', () => {
@@ -348,7 +346,7 @@ describe('combined reference length (#1651)', () => {
       true
     );
     expect(lines).toHaveLength(1);
-    expect(lines[0]).toContain('over its 15s limit');
+    expect(lines[0]).toContain('超过 15 秒上限');
   });
 
   it('says nothing about a lone file — that is the per-file question', () => {
@@ -391,6 +389,6 @@ describe('combined reference length (#1651)', () => {
         ],
         true
       )
-    ).toThrow(/16\.2s, over its 15s limit/);
+    ).toThrow(/16\.2 秒，超过 15 秒上限/);
   });
 });

@@ -116,7 +116,7 @@ export function useTalentSheetRealtime(talentId?: string) {
     if (!isGenerating) return;
     const timeoutId = window.setTimeout(() => {
       setIsGenerating(false);
-      setError('Sheet generation took too long. Try Generate Sheet again.');
+      setError('设定图生成耗时过长。请重新点击“生成设定图”。');
     }, SHEET_PROGRESS_STALE_MS);
     return () => window.clearTimeout(timeoutId);
   }, [isGenerating, phase]);
@@ -179,7 +179,7 @@ export function useTalentSheetRealtime(talentId?: string) {
 
         case 'failed':
           setIsGenerating(false);
-          setError(sheetData.error ?? 'Sheet generation failed');
+          setError(sheetData.error ?? '设定图生成失败');
           break;
       }
     },

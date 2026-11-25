@@ -10,7 +10,15 @@ import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/_auth')({
   errorComponent: (props) => (
-    <RouteErrorFallback {...props} heading="Authentication error" />
+    <RouteErrorFallback
+      {...props}
+      error={
+        new Error('暂时无法加载登录服务，请稍后重试。', {
+          cause: props.error,
+        })
+      }
+      heading="登录服务出现错误"
+    />
   ),
   beforeLoad: async ({ context: { queryClient } }) => {
     const session = await queryClient.ensureQueryData(sessionQueryOptions);

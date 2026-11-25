@@ -146,9 +146,7 @@ export function AddCreditsDialog() {
     onSuccess: (_data, input) => {
       invalidateBilling();
       triggerBalanceFlash();
-      toast.success(
-        `Added $${input.amountUsd.toFixed(2)} to your credit balance`
-      );
+      toast.success(`已向您的点数余额充值 $${input.amountUsd.toFixed(2)}`);
       onOpenChange(false);
       // This dialog often opens on top of the gate; with credits now bought,
       // leaving the gate up (it blocks Escape and outside-click) would strand
@@ -156,7 +154,7 @@ export function AddCreditsDialog() {
       closeBillingGate();
     },
     onError: (err) => {
-      setError(err instanceof Error ? err.message : 'Payment failed');
+      setError(err instanceof Error ? err.message : '付款失败');
       // A new key on retry: the failed attempt's key is spent, and Stripe
       // replays the original outcome for a reused one.
       setRequestId(ulid());
@@ -175,7 +173,7 @@ export function AddCreditsDialog() {
       window.location.href = data.url;
     },
     onError: (err) => {
-      setError(err instanceof Error ? err.message : 'Checkout failed');
+      setError(err instanceof Error ? err.message : '结账失败');
     },
   });
 
@@ -184,7 +182,7 @@ export function AddCreditsDialog() {
   const handleContinue = () => {
     if (!isValidAmount) {
       setError(
-        `Enter an amount between $${MIN_TOPUP_AMOUNT_USD} and $${MAX_TOPUP_AMOUNT_USD.toLocaleString()}`
+        `请输入 $${MIN_TOPUP_AMOUNT_USD} 至 $${MAX_TOPUP_AMOUNT_USD.toLocaleString()} 之间的金额`
       );
       return;
     }
@@ -217,14 +215,14 @@ export function AddCreditsDialog() {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md" showCloseButton={false}>
         <DialogHeader>
-          <DialogTitle>Add to credit balance</DialogTitle>
+          <DialogTitle>充值点数余额</DialogTitle>
           <DialogDescription className="sr-only">
-            Buy credits with a saved card or at checkout.
+            使用已保存的银行卡或在结账时购买点数。
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="add-credits-amount">Amount to add</Label>
+          <Label htmlFor="add-credits-amount">充值金额</Label>
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
               $
@@ -247,7 +245,7 @@ export function AddCreditsDialog() {
           </div>
           <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
             <span>
-              Enter an amount between ${MIN_TOPUP_AMOUNT_USD} and $
+              请输入 ${MIN_TOPUP_AMOUNT_USD} 至 $
               {MAX_TOPUP_AMOUNT_USD.toLocaleString()}
             </span>
             <Link
@@ -255,19 +253,19 @@ export function AddCreditsDialog() {
               onClick={() => onOpenChange(false)}
               className="inline-flex shrink-0 items-center gap-1 underline-offset-2 hover:text-foreground hover:underline"
             >
-              Pricing
+              定价
               <ExternalLink className="size-3" />
             </Link>
           </div>
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="add-credits-payment-method">Payment method</Label>
+          <Label htmlFor="add-credits-payment-method">付款方式</Label>
           {pmError ? (
             // Never render a failed fetch as "you have no saved cards" — that
             // silently pushes a returning customer back through Checkout.
             <p role="alert" className="text-xs text-destructive">
-              Couldn&apos;t load your saved cards
+              无法加载您已保存的银行卡
               {pmError instanceof Error && <span>: {pmError.message}</span>}
             </p>
           ) : pmLoading ? (
@@ -282,7 +280,7 @@ export function AddCreditsDialog() {
                 })),
                 {
                   value: NEW_CARD,
-                  label: 'Pay at checkout',
+                  label: '结账时付款',
                 },
               ]}
               onValueChange={(value) => {
@@ -303,7 +301,7 @@ export function AddCreditsDialog() {
                 ))}
                 <SelectItem value={NEW_CARD}>
                   <Plus className="size-4 text-muted-foreground" />
-                  Pay at checkout
+                  结账时付款
                 </SelectItem>
               </SelectContent>
             </Select>
@@ -318,15 +316,15 @@ export function AddCreditsDialog() {
               className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               <Plus className="size-3" />
-              Add payment method
+              添加付款方式
             </button>
           </div>
         </div>
 
         {breakdown && (
           <p className="text-xs text-muted-foreground tabular-nums">
-            You&apos;ll be charged ${breakdown.totalUsd.toFixed(2)} — includes
-            the {formatPlatformFeePercent()} platform fee.
+            将向您收取 ${breakdown.totalUsd.toFixed(2)}，其中包含
+            {formatPlatformFeePercent()} 的平台费。
           </p>
         )}
 
@@ -342,7 +340,7 @@ export function AddCreditsDialog() {
             onClick={() => onOpenChange(false)}
             disabled={isPending}
           >
-            Cancel
+            取消
           </Button>
           {/* pmLoading gates submit: until the cards land, effectivePm is
               NEW_CARD, so an early click would bounce a saved-card customer
@@ -351,7 +349,7 @@ export function AddCreditsDialog() {
             onClick={handleContinue}
             disabled={!isValidAmount || isPending || pmLoading}
           >
-            {isPending ? 'Processing…' : 'Continue'}
+            {isPending ? '处理中…' : '继续'}
           </Button>
         </DialogFooter>
       </DialogContent>

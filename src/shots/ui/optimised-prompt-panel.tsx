@@ -64,7 +64,7 @@ export const OptimisedPromptPanel: React.FC<{
           />
           <span className="flex min-w-0 flex-1 items-baseline justify-between gap-2">
             <span id={headingId} className="font-medium">
-              Optimised prompt
+              优化后的提示词
             </span>
             <span className="flex min-w-0 items-baseline gap-2">
               <span className="truncate text-xs font-normal text-muted-foreground">
@@ -100,9 +100,9 @@ export const OptimisedPromptPanel: React.FC<{
                   variant="outline"
                   size="sm"
                   spacing={0}
-                  aria-label="Optimised prompt view"
+                  aria-label="优化后的提示词视图"
                 >
-                  <ToggleGroupItem value="prompt">Prompt</ToggleGroupItem>
+                  <ToggleGroupItem value="prompt">提示词</ToggleGroupItem>
                   <ToggleGroupItem value="json">JSON</ToggleGroupItem>
                 </ToggleGroup>
               ) : (
@@ -119,8 +119,8 @@ export const OptimisedPromptPanel: React.FC<{
                 disabled={!copyText}
                 aria-label={
                   showingJson
-                    ? `Copy ${preview.modelName} request JSON`
-                    : `Copy ${preview.modelName} optimised prompt`
+                    ? `复制 ${preview.modelName} 请求 JSON`
+                    : `复制 ${preview.modelName} 优化后的提示词`
                 }
               >
                 {copiedKey === copyKey ? (
@@ -180,7 +180,7 @@ const CopyImageButton: React.FC<{ image: BoundPromptImage }> = ({ image }) => {
 
   const handleCopy = async () => {
     if (!(await copyImageToClipboard(image.url))) {
-      toast.error('Failed to copy image', {
+      toast.error('复制图片失败', {
         description:
           'Your browser blocked clipboard access, or the image could not be fetched.',
       });
@@ -197,9 +197,7 @@ const CopyImageButton: React.FC<{ image: BoundPromptImage }> = ({ image }) => {
       size="icon"
       className="absolute top-0.5 right-0.5 h-6 w-6 bg-background/80"
       onClick={() => void handleCopy()}
-      aria-label={
-        copied ? `Copied ${image.label}` : `Copy ${image.label} image`
-      }
+      aria-label={copied ? `已复制 ${image.label}` : `复制 ${image.label} 图片`}
     >
       {copied ? (
         <span aria-hidden className="text-xs">
@@ -219,7 +217,7 @@ const BoundMediaList: React.FC<{
 }> = ({ images, clips, audio }) => {
   if (images.length + clips.length + audio.length === 0) return null;
   return (
-    <ul className="flex flex-wrap gap-2" aria-label="Bound references">
+    <ul className="flex flex-wrap gap-2" aria-label="已绑定的参考素材">
       {images.map((image) => (
         <li key={`${image.label}-${image.url}`} className="shrink-0">
           <figure className="flex flex-col items-center gap-1">
@@ -273,7 +271,7 @@ const HoverPlayTile: React.FC<{
         <button
           type="button"
           className="relative size-16 overflow-hidden rounded-sm border bg-muted outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-          aria-label={`${playing ? 'Stop' : 'Play'} ${media.label}`}
+          aria-label={`${playing ? '停止' : '播放'} ${media.label}`}
           aria-pressed={playing}
           // Hover is a mouse thing: a tap fires an emulated enter AND a
           // click, which would start and stop it in one touch. Touch and

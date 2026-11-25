@@ -6,12 +6,20 @@ import { Button } from '@/ui/shadcn/button';
 import { Checkbox } from '@/ui/shadcn/checkbox';
 import { ScrollArea } from '@/ui/shadcn/scroll-area';
 import {
-  actionLabelForStage,
   DEFAULT_GENERATION_STOP_AT,
   isContinueStage,
   type ContinueStage,
   type GenerationStage,
 } from '@/sequences/pipeline';
+
+const CONTINUE_LABELS: Record<GenerationStage, string> = {
+  script: '分析剧本',
+  references: '生成参考素材',
+  images: '生成图片',
+  dialogue: '生成对白',
+  motion: '生成动态视频',
+  music: '生成动态视频与音乐',
+};
 import { useHydrated } from '@/ui/use-hydrated';
 import { useCreateScene, useReorderScenes } from './use-scene-structure';
 import {
@@ -264,7 +272,7 @@ const SceneListComponent: React.FC<SceneListProps> = ({
       next[swapWith] = a;
       reorderScenes.mutate(next, {
         onError: (error) =>
-          toast.error('Failed to reorder scenes', {
+          toast.error('场景排序失败', {
             description: errorMessage(error),
           }),
       });
@@ -278,7 +286,7 @@ const SceneListComponent: React.FC<SceneListProps> = ({
         onSelectScene(scene.id, false);
       },
       onError: (error) =>
-        toast.error('Failed to add scene', {
+        toast.error('添加场景失败', {
           description: errorMessage(error),
         }),
     });
@@ -371,7 +379,7 @@ const SceneListComponent: React.FC<SceneListProps> = ({
 
   const handleGenerateMotion = async () => {
     if (!onBatchGenerateMotion || notStartedShots.length === 0) return;
-    await runFooterAction('Failed to generate motion', () =>
+    await runFooterAction('生成动态视频失败', () =>
       onBatchGenerateMotion({
         includeMusic,
         musicModel,
@@ -398,21 +406,17 @@ const SceneListComponent: React.FC<SceneListProps> = ({
 
   const handleContinue = async () => {
     if (!onContinueGeneration || !isContinueStage(nextStage)) return;
-    await runFooterAction(
-      `Failed to ${actionLabelForStage(continueStopAt).toLowerCase()}`,
-      () =>
-        onContinueGeneration({
-          startFrom: nextStage,
-          stopAt: continueStopAt,
-        })
+    await runFooterAction(`${CONTINUE_LABELS[continueStopAt]}失败`, () =>
+      onContinueGeneration({
+        startFrom: nextStage,
+        stopAt: continueStopAt,
+      })
     );
   };
 
   const handleGenerateMusicClick = async () => {
     if (!onGenerateMusic) return;
-    await runFooterAction('Failed to generate music', () =>
-      onGenerateMusic(musicModel)
-    );
+    await runFooterAction('生成音乐失败', () => onGenerateMusic(musicModel));
   };
   const isButtonDisabled =
     isGenerating ||
@@ -569,8 +573,8 @@ const SceneListComponent: React.FC<SceneListProps> = ({
         }}
         title={
           isWholeSequence
-            ? 'Play the whole sequence'
-            : 'Show the whole sequence (Esc zooms out one level at a time)'
+            ? '播放完整序列'
+            : '显示完整序列（按 Esc 可逐级缩小视图）'
         }
         className={cn(
           'flex min-h-11 w-full items-center justify-between gap-2 border-b px-4 py-2.5 text-left text-sm transition-colors hover:bg-muted/40 md:min-h-0',
@@ -588,13 +592,13 @@ const SceneListComponent: React.FC<SceneListProps> = ({
         <div className="flex flex-col gap-3 p-4">
           {loadError && (
             <p role="alert" className="text-sm text-destructive">
-              Failed to load scenes: {loadError.message}
+              加载场景失败：{loadError.message}
             </p>
           )}
 
           {!loadError && segmentsError && (
             <p role="alert" className="text-xs text-destructive">
-              Failed to load video segments: {segmentsError.message}
+              加载视频片段失败：{segmentsError.message}
             </p>
           )}
 
@@ -611,7 +615,7 @@ const SceneListComponent: React.FC<SceneListProps> = ({
             !isLoading &&
             groupedScenes.length === 0 &&
             unassignedShots.length === 0 && (
-              <p className="text-sm text-muted-foreground">No scenes yet.</p>
+              <p className="text-sm text-muted-foreground">暂无场景。</p>
             )}
 
           {groupedScenes.map(({ scene, shots: sceneShots }, index) => (
@@ -675,7 +679,7 @@ const SceneListComponent: React.FC<SceneListProps> = ({
               ) : (
                 <Plus className="mr-2 h-4 w-4" />
               )}
-              {createScene.isPending ? 'Adding scene…' : 'Add scene'}
+              {createScene.isPending ? '正在添加场景…' : '添加场景'}
             </Button>
           )}
         </div>
@@ -716,7 +720,7 @@ const SceneListComponent: React.FC<SceneListProps> = ({
               {isGenerating ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generating…
+                  生成中…
                 </>
               ) : !motionPromptsReady ? (
                 <>
@@ -731,7 +735,7 @@ const SceneListComponent: React.FC<SceneListProps> = ({
               ) : (
                 <>
                   <Video className="mr-2 h-4 w-4" />
-                  Generate {notStartedShots.length} / {totalShots}{' '}
+                  生成 {notStartedShots.length} / {totalShots}{' '}
                   {totalShots === 1 ? 'shot' : 'shots'}
                 </>
               )}
@@ -747,7 +751,7 @@ const SceneListComponent: React.FC<SceneListProps> = ({
             <span>
               Also generate music
               {!musicPromptsReady && (
-                <span className="text-xs ml-1">(preparing…)</span>
+                <span className="text-xs ml-1">（准备中…）</span>
               )}
             </span>
           </label>
@@ -760,7 +764,7 @@ const SceneListComponent: React.FC<SceneListProps> = ({
               checked={generateAudio}
               onCheckedChange={(checked) => setGenerateAudio(checked === true)}
             />
-            <span>Include SFX &amp; dialogue (when the model supports it)</span>
+            <span>包含音效和对白（模型支持时）</span>
           </label>
         </div>
       )}
@@ -783,12 +787,12 @@ const SceneListComponent: React.FC<SceneListProps> = ({
             {isGenerating ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Generating…
+                生成中…
               </>
             ) : (
               <>
                 <ContinueIcon className="mr-2 h-4 w-4" />
-                {actionLabelForStage(continueStopAt)}
+                {CONTINUE_LABELS[continueStopAt]}
               </>
             )}
           </Button>
@@ -812,7 +816,7 @@ const SceneListComponent: React.FC<SceneListProps> = ({
             {isGenerating ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Generating…
+                生成中…
               </>
             ) : !musicPromptsReady ? (
               <>
@@ -822,7 +826,7 @@ const SceneListComponent: React.FC<SceneListProps> = ({
             ) : (
               <>
                 <Music className="mr-2 h-4 w-4" />
-                Generate Music
+                生成音乐
               </>
             )}
           </Button>

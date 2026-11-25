@@ -45,7 +45,7 @@ export const EvalSequenceMetadata: React.FC<EvalSequenceMetadataProps> = ({
   const ratioData = getAspectRatioData(sequence.aspectRatio);
   const imageModel = getImageModelById(sequence.imageModel);
   const dotTitle = divergence?.hasMusic
-    ? 'Alternate music track available — click to compare'
+    ? '有可用的备用音乐音轨，点击比较'
     : null;
 
   return (
@@ -63,9 +63,9 @@ export const EvalSequenceMetadata: React.FC<EvalSequenceMetadataProps> = ({
           to="/sequences/$id/scenes"
           params={{ id: sequence.id }}
           className="min-w-0 flex-1 font-medium text-sm text-foreground line-clamp-2 hover:underline"
-          title={sequence.title || 'Untitled Sequence'}
+          title={sequence.title || '未命名序列'}
         >
-          {sequence.title || 'Untitled Sequence'}
+          {sequence.title || '未命名序列'}
         </Link>
         <SequenceRowMenu sequence={sequence} />
       </div>
@@ -128,7 +128,7 @@ const SequenceRowMenu: React.FC<{ sequence: SequenceWithShots }> = ({
           variant="ghost"
           size="icon"
           className="h-6 w-6 shrink-0"
-          aria-label={`Actions for ${sequence.title || 'Untitled Sequence'}`}
+          aria-label={`${sequence.title || '未命名序列'}的操作`}
         >
           <MoreVertical className="h-4 w-4" />
         </Button>
@@ -140,17 +140,17 @@ const SequenceRowMenu: React.FC<{ sequence: SequenceWithShots }> = ({
             archive.mutate(sequence.id, {
               onSuccess: () =>
                 toast.success(`Archived ${sequence.title || 'sequence'}`, {
-                  description: 'Restore it from the Archived section below.',
+                  description: '可从下方“已归档”区域恢复。',
                 }),
               onError: (error) =>
-                toast.error('Failed to archive sequence', {
+                toast.error('归档序列失败', {
                   description: errorMessage(error),
                 }),
             })
           }
         >
           <Archive className="h-4 w-4" />
-          {archive.isPending ? 'Archiving…' : 'Archive sequence'}
+          {archive.isPending ? '归档中…' : '归档序列'}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

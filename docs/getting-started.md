@@ -1,20 +1,20 @@
 ---
-title: Getting Started
-description: Set up OpenStory for local development
+title: 快速开始
+description: 配置 OpenStory 本地开发环境
 section: Developer Guide
 order: 1
 ---
 
-OpenStory is an open-source AI video production platform. This guide walks you through setting up a local development environment.
+OpenStory 是一个开源 AI 视频制作平台。本指南将带你完成本地开发环境的配置。
 
-## Prerequisites
+## 前置要求
 
 - [Bun](https://bun.com/docs/installation) >= 1.3.9
 - [Git](https://git-scm.com)
 
-Nothing else. No Docker, no external database, no Cloudflare account — local dev runs the full stack (D1, R2, Workflows, Durable Objects, email) inside Workerd via Miniflare.
+无需准备其他工具。不需要 Docker、外部数据库或 Cloudflare 账户——本地开发环境通过 Miniflare 在 Workerd 内运行完整技术栈（D1、R2、Workflows、Durable Objects 和邮件服务）。
 
-## Quick Start
+## 快速启动
 
 ```bash
 # Clone the repository
@@ -26,24 +26,24 @@ bun install
 bun dev
 ```
 
-`bun dev` does everything: it generates `.env.local` (with auth/encryption secrets) on first run, migrates and seeds the local database, and starts the dev server.
+`bun dev` 会完成所有准备工作：首次运行时生成 `.env.local`（包含身份验证和加密密钥）、迁移本地数据库并填充种子数据，然后启动开发服务器。
 
-The app will be available at [http://localhost:3000](http://localhost:3000).
+应用将在 [http://localhost:3000](http://localhost:3000) 上运行。
 
-## AI Keys
+## AI 密钥
 
-To use AI generation features you need two API keys — run `bun setup` to add them interactively, or paste them into `.env.local`:
+要使用 AI 生成功能，你需要两个 API 密钥——运行 `bun setup` 以交互方式添加，或将它们粘贴到 `.env.local`：
 
-- `FAL_KEY` — [fal.ai](https://fal.ai/dashboard/keys) for image, video & audio generation
-- `OPENROUTER_KEY` — [OpenRouter](https://openrouter.ai/settings/keys) for LLM script analysis
+- `FAL_KEY` — 用于生成图像、视频和音频的 [fal.ai](https://fal.ai/dashboard/keys) 密钥
+- `OPENROUTER_KEY` — 用于 LLM 剧本分析的 [OpenRouter](https://openrouter.ai/settings/keys) 密钥
 
-## Environment Variables
+## 环境变量
 
-See [`.env.example`](https://github.com/openstory-so/openstory/blob/main/.env.example) for the full list of available environment variables, including optional services like Google OAuth, Stripe, PostHog, and remote R2 storage.
+可用环境变量的完整列表请参阅 [`.env.example`](https://github.com/openstory-so/openstory/blob/main/.env.example)，其中还包括 Google OAuth、Stripe、PostHog 和远程 R2 存储等可选服务。
 
-## Database
+## 数据库
 
-Local development uses a [Cloudflare D1](https://developers.cloudflare.com/d1) database (Miniflare-backed SQLite) via [Drizzle ORM](https://orm.drizzle.team) — no account or remote service required. `bun dev` migrates and seeds it automatically.
+本地开发通过 [Drizzle ORM](https://orm.drizzle.team) 使用 [Cloudflare D1](https://developers.cloudflare.com/d1) 数据库（由 Miniflare 支持的 SQLite），无需账户或远程服务。`bun dev` 会自动迁移数据库并填充种子数据。
 
 ```bash
 # Generate migrations from schema changes
@@ -56,11 +56,11 @@ bun db:migrate:local
 bun db:studio:local
 ```
 
-Production deployments use Cloudflare D1. See the [Cloudflare deployment guide](/docs/deployment/cloudflare) for details.
+生产部署使用 Cloudflare D1。详情请参阅 [Cloudflare 部署指南](/docs/deployment/cloudflare)。
 
-## Next Steps
+## 后续步骤
 
-- [Creating Sequences](/docs/user-guide/creating-sequences) — Create your first video sequence
-- [Working with Scenes](/docs/user-guide/scenes) — Edit and refine individual scenes
-- [AI Models](/docs/user-guide/ai-models) — Complete model reference
-- [Deploy to Cloudflare](/docs/deployment/cloudflare) — Production deployment guide
+- [创建序列](/docs/user-guide/creating-sequences) — 创建你的第一个视频序列
+- [处理场景](/docs/user-guide/scenes) — 编辑和完善单个场景
+- [AI 模型](/docs/user-guide/ai-models) — 完整的模型参考
+- [部署到 Cloudflare](/docs/deployment/cloudflare) — 生产环境部署指南

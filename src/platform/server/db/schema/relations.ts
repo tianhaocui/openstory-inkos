@@ -385,4 +385,125 @@ export const relations = defineRelations(schema, (r) => ({
       alias: 'giftTokenRedemptions_user',
     }),
   },
+
+  // ---- InkOS Story Memory Tables ----
+  storyProjects: {
+    team: r.one.teams({ from: r.storyProjects.teamId, to: r.teams.id }),
+    user: r.one.user({ from: r.storyProjects.userId, to: r.user.id }),
+    facts: r.many.storyFacts(),
+    chapterSummaries: r.many.storyChapterSummaries(),
+    hooks: r.many.storyHooks(),
+    chapters: r.many.storyChapters(),
+    characters: r.many.storyCharacters(),
+    // Filmmaking pipeline
+    segments: r.many.storySegments(),
+    shots: r.many.storyShots(),
+    assets: r.many.storyAssets(),
+    keyframes: r.many.storyKeyframes(),
+    videoClips: r.many.storyVideoClips(),
+    filmSettings: r.one.storyFilmSettings({
+      from: r.storyProjects.id,
+      to: r.storyFilmSettings.projectId,
+    }),
+  },
+  storyFacts: {
+    project: r.one.storyProjects({
+      from: r.storyFacts.projectId,
+      to: r.storyProjects.id,
+    }),
+  },
+  storyChapterSummaries: {
+    project: r.one.storyProjects({
+      from: r.storyChapterSummaries.projectId,
+      to: r.storyProjects.id,
+    }),
+  },
+  storyHooks: {
+    project: r.one.storyProjects({
+      from: r.storyHooks.projectId,
+      to: r.storyProjects.id,
+    }),
+  },
+  storyChapters: {
+    project: r.one.storyProjects({
+      from: r.storyChapters.projectId,
+      to: r.storyProjects.id,
+    }),
+  },
+  storyCharacters: {
+    project: r.one.storyProjects({
+      from: r.storyCharacters.projectId,
+      to: r.storyProjects.id,
+    }),
+  },
+
+  // ---- Filmmaking Pipeline Tables ----
+  storySegments: {
+    project: r.one.storyProjects({
+      from: r.storySegments.projectId,
+      to: r.storyProjects.id,
+    }),
+    shots: r.many.storyShots(),
+    keyframes: r.many.storyKeyframes(),
+    videoClips: r.many.storyVideoClips(),
+  },
+  storyShots: {
+    segment: r.one.storySegments({
+      from: r.storyShots.segmentId,
+      to: r.storySegments.id,
+    }),
+    project: r.one.storyProjects({
+      from: r.storyShots.projectId,
+      to: r.storyProjects.id,
+    }),
+    keyframes: r.many.storyKeyframes(),
+  },
+  storyAssets: {
+    project: r.one.storyProjects({
+      from: r.storyAssets.projectId,
+      to: r.storyProjects.id,
+    }),
+    views: r.many.storyAssetViews(),
+  },
+  storyAssetViews: {
+    asset: r.one.storyAssets({
+      from: r.storyAssetViews.assetId,
+      to: r.storyAssets.id,
+    }),
+  },
+  storyKeyframes: {
+    project: r.one.storyProjects({
+      from: r.storyKeyframes.projectId,
+      to: r.storyProjects.id,
+    }),
+    segment: r.one.storySegments({
+      from: r.storyKeyframes.segmentId,
+      to: r.storySegments.id,
+    }),
+    shot: r.one.storyShots({
+      from: r.storyKeyframes.shotId,
+      to: r.storyShots.id,
+    }),
+    videoClips: r.many.storyVideoClips(),
+  },
+  storyVideoClips: {
+    project: r.one.storyProjects({
+      from: r.storyVideoClips.projectId,
+      to: r.storyProjects.id,
+    }),
+    keyframe: r.one.storyKeyframes({
+      from: r.storyVideoClips.keyframeId,
+      to: r.storyKeyframes.id,
+    }),
+    segment: r.one.storySegments({
+      from: r.storyVideoClips.segmentId,
+      to: r.storySegments.id,
+    }),
+  },
+  storyFilmSettings: {
+    project: r.one.storyProjects({
+      from: r.storyFilmSettings.projectId,
+      to: r.storyProjects.id,
+    }),
+  },
 }));

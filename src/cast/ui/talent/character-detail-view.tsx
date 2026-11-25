@@ -120,16 +120,16 @@ export const CharacterDetailView: React.FC<CharacterDetailViewProps> = ({
               to: '/sequences/$id/cast',
               params: { id: sequenceId },
             });
-            toast(`Removed ${name}`, {
+            toast(`已移除 ${name}`, {
               duration: 60_000,
               action: {
-                label: 'Undo',
+                label: '撤销',
                 onClick: () =>
                   void restoreSequenceCharacter(queryClient, {
                     sequenceId,
                     characterId,
                   }).catch((error: Error) =>
-                    toast.error('Failed to restore character', {
+                    toast.error('恢复角色失败', {
                       description: errorMessage(error),
                     })
                   ),
@@ -137,7 +137,7 @@ export const CharacterDetailView: React.FC<CharacterDetailViewProps> = ({
             });
           },
           onError: (error) =>
-            toast.error('Failed to remove character', {
+            toast.error('移除角色失败', {
               description: errorMessage(error),
             }),
         }
@@ -190,13 +190,13 @@ export const CharacterDetailView: React.FC<CharacterDetailViewProps> = ({
             !('phase' in data) || data.phase !== 'retrying'
               ? null
               : 'promptSoftened' in data && data.promptSoftened === true
-                ? 'Retrying with a rewritten prompt…'
+                ? '正在使用重写的提示词重试…'
                 : 'attempt' in data &&
                     'maxAttempts' in data &&
                     typeof data.attempt === 'number' &&
                     typeof data.maxAttempts === 'number'
-                  ? `Retrying (/)…`
-                  : 'Retrying…'
+                  ? `正在重试 (${data.attempt}/${data.maxAttempts})…`
+                  : '正在重试…'
           );
         } else {
           setIsRegenerating(false);
@@ -246,11 +246,11 @@ export const CharacterDetailView: React.FC<CharacterDetailViewProps> = ({
         undiscardVariant.mutate(
           { sequenceId, variantId: variant.id },
           {
-            onSuccess: () => toast.success('Alternate restored'),
+            onSuccess: () => toast.success('备选版本已恢复'),
             onError: (error) => {
-              toast.error('Failed to restore alternate', {
+              toast.error('恢复备选版本失败', {
                 description:
-                  error instanceof Error ? error.message : 'Unknown error',
+                  error instanceof Error ? error.message : '未知错误',
               });
             },
           }
@@ -260,14 +260,13 @@ export const CharacterDetailView: React.FC<CharacterDetailViewProps> = ({
         {
           onSuccess: () => {
             setCompareVariant(null);
-            toast('Alternate discarded', {
-              action: { label: 'Undo', onClick: restore },
+            toast('备选版本已丢弃', {
+              action: { label: '撤销', onClick: restore },
             });
           },
           onError: (error) => {
-            toast.error('Failed to discard alternate', {
-              description:
-                error instanceof Error ? error.message : 'Unknown error',
+            toast.error('丢弃备选版本失败', {
+              description: error instanceof Error ? error.message : '未知错误',
             });
           },
         }
@@ -283,12 +282,11 @@ export const CharacterDetailView: React.FC<CharacterDetailViewProps> = ({
         {
           onSuccess: () => {
             setCompareVariant(null);
-            toast.success('Alternate promoted');
+            toast.success('备选版本已提升为当前版本');
           },
           onError: (error) => {
-            toast.error('Failed to promote alternate', {
-              description:
-                error instanceof Error ? error.message : 'Unknown error',
+            toast.error('提升备选版本失败', {
+              description: error instanceof Error ? error.message : '未知错误',
             });
           },
         }
@@ -314,9 +312,7 @@ export const CharacterDetailView: React.FC<CharacterDetailViewProps> = ({
   );
   const sheetBusyLabel =
     retryLabel ??
-    (hasPriorSheet
-      ? 'Regenerating character sheet…'
-      : 'Generating character sheet…');
+    (hasPriorSheet ? '正在重新生成角色设定图…' : '正在生成角色设定图…');
   const selectedSheetModel = resolveSheetImageModel({
     explicit: sheetModel,
     liveVersionModel: (versionHistory?.versions ?? []).find(
@@ -346,7 +342,7 @@ export const CharacterDetailView: React.FC<CharacterDetailViewProps> = ({
       },
       {
         onError: (error) =>
-          toast.error('Failed to regenerate sheet', {
+          toast.error('重新生成设定图失败', {
             description: errorMessage(error),
           }),
       }
@@ -376,7 +372,7 @@ export const CharacterDetailView: React.FC<CharacterDetailViewProps> = ({
     return (
       <div className="flex h-full items-center justify-center p-6">
         <div className="text-center">
-          <p className="text-sm text-destructive">Failed to load character</p>
+          <p className="text-sm text-destructive">加载角色失败</p>
           <p className="mt-1 text-xs text-muted-foreground">{error.message}</p>
         </div>
       </div>
@@ -406,13 +402,13 @@ export const CharacterDetailView: React.FC<CharacterDetailViewProps> = ({
       <div className="flex h-full flex-col items-center justify-center gap-4 p-6">
         <User className="h-16 w-16 text-muted-foreground/30" />
         <div className="text-center">
-          <p className="text-sm font-medium">Character not found</p>
+          <p className="text-sm font-medium">未找到角色</p>
           <Link
             to="/sequences/$id/cast"
             params={{ id: sequenceId }}
             className="mt-2 text-sm text-primary hover:underline"
           >
-            Back to cast
+            返回角色列表
           </Link>
         </div>
       </div>
@@ -464,16 +460,16 @@ export const CharacterDetailView: React.FC<CharacterDetailViewProps> = ({
                 <div className="flex items-center gap-3 rounded-lg bg-muted/50 p-3">
                   <Mic className="h-5 w-5 text-muted-foreground" />
                   <div className="flex flex-col gap-1">
-                    <Badge variant="secondary">Voice only</Badge>
+                    <Badge variant="secondary">仅声音</Badge>
                     <p className="text-sm text-muted-foreground">
-                      Heard but never seen. No sheet is generated.
+                      只闻其声不见其人，不会生成设定图。
                     </p>
                   </div>
                 </div>
               ) : (
                 <>
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium">Sheet</p>
+                    <p className="text-sm font-medium">设定图</p>
                     {isSheetStale && (
                       <StalenessIndicator
                         artifact="sheet"
@@ -506,7 +502,7 @@ export const CharacterDetailView: React.FC<CharacterDetailViewProps> = ({
                         <div className="flex h-full w-full flex-col items-center justify-center gap-2">
                           <User className="h-16 w-16 text-muted-foreground/20" />
                           <p className="text-sm text-muted-foreground">
-                            No sheet yet
+                            暂无设定图
                           </p>
                         </div>
                       )}
@@ -520,7 +516,7 @@ export const CharacterDetailView: React.FC<CharacterDetailViewProps> = ({
                       ) : null}
                     </div>
                     <SheetVersionStrip
-                      label="Versions"
+                      label="版本"
                       selectingId={
                         selectVersion.isPending
                           ? selectVersion.variables.versionId
@@ -531,7 +527,7 @@ export const CharacterDetailView: React.FC<CharacterDetailViewProps> = ({
                           { sequenceId, characterId, versionId },
                           {
                             onError: (error) =>
-                              toast.error('Failed to switch sheet', {
+                              toast.error('切换设定图失败', {
                                 description: errorMessage(error),
                               }),
                           }
@@ -554,8 +550,7 @@ export const CharacterDetailView: React.FC<CharacterDetailViewProps> = ({
                     disabled={regenerateSheet.isPending || isSheetGenerating}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Used for this character's sheet. Shot stills still follow
-                    the sequence image model.
+                    用于此角色的设定图。镜头静帧仍使用序列图像模型。
                   </p>
                   <div className="flex w-fit flex-col gap-1">
                     <Button
@@ -569,13 +564,13 @@ export const CharacterDetailView: React.FC<CharacterDetailViewProps> = ({
                       )}
                       {regenerateSheet.isPending
                         ? hasPriorSheet
-                          ? 'Regenerating…'
-                          : 'Generating…'
+                          ? '正在重新生成…'
+                          : '正在生成…'
                         : hasPriorSheet
                           ? isSheetGenerating
-                            ? 'Generate again'
-                            : 'Regenerate Sheet'
-                          : 'Generate Sheet'}
+                            ? '再次生成'
+                            : '重新生成设定图'
+                          : '生成设定图'}
                     </Button>
                     <ActionCost estimate={sheetCostEstimate} />
                   </div>
@@ -590,7 +585,7 @@ export const CharacterDetailView: React.FC<CharacterDetailViewProps> = ({
                     disabled={addToLibrary.isPending}
                   >
                     <Library className="mr-2 h-4 w-4" />
-                    {addToLibrary.isPending ? 'Adding…' : 'Add to Library'}
+                    {addToLibrary.isPending ? '正在添加…' : '添加到演员库'}
                   </Button>
                 )}
                 {!character.voiceOnly && (
@@ -599,13 +594,13 @@ export const CharacterDetailView: React.FC<CharacterDetailViewProps> = ({
                     onClick={() => setIsPickerOpen(true)}
                     disabled={isSheetGenerating}
                   >
-                    {character.talent ? 'Recast' : 'Cast'}
+                    {character.talent ? '替换演员' : '选用演员'}
                   </Button>
                 )}
                 {!character.voiceOnly && (
                   <UploadMediaButton
-                    label="Upload Sheet"
-                    pendingLabel="Uploading…"
+                    label="上传设定图"
+                    pendingLabel="正在上传…"
                     accept="image/*"
                     isPending={uploadSheet.isPending}
                     disabled={isSheetGenerating}
@@ -613,10 +608,9 @@ export const CharacterDetailView: React.FC<CharacterDetailViewProps> = ({
                       uploadSheet.mutate(
                         { file, sequenceId, characterId },
                         {
-                          onSuccess: () =>
-                            toast.success('Character sheet uploaded'),
+                          onSuccess: () => toast.success('角色设定图已上传'),
                           onError: (error) =>
-                            toast.error('Sheet upload failed', {
+                            toast.error('设定图上传失败', {
                               description: errorMessage(error),
                             }),
                         }
@@ -631,7 +625,7 @@ export const CharacterDetailView: React.FC<CharacterDetailViewProps> = ({
                   disabled={softDelete.isPending}
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
-                  {softDelete.isPending ? 'Removing…' : 'Remove'}
+                  {softDelete.isPending ? '正在移除…' : '移除'}
                 </Button>
               </div>
 
@@ -646,7 +640,7 @@ export const CharacterDetailView: React.FC<CharacterDetailViewProps> = ({
                   <User className="h-5 w-5 text-muted-foreground" />
                   <div className="flex-1 min-h-0 min-w-0">
                     <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Cast
+                      饰演演员
                     </p>
                     <p className="truncate text-sm font-medium">
                       {character.talent.name}
@@ -665,12 +659,12 @@ export const CharacterDetailView: React.FC<CharacterDetailViewProps> = ({
               {character.firstMentionSceneId && (
                 <div className="flex flex-col gap-1 rounded-lg bg-muted/50 p-3">
                   <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    First Appears
+                    首次出现
                   </p>
                   <p className="text-sm">
-                    {`Scene ${character.firstMentionSceneId}${
+                    {`场景 ${character.firstMentionSceneId}${
                       character.firstMentionLine
-                        ? `, Line ${character.firstMentionLine}`
+                        ? `，第 ${character.firstMentionLine} 行`
                         : ''
                     }`}
                   </p>
@@ -698,20 +692,19 @@ export const CharacterDetailView: React.FC<CharacterDetailViewProps> = ({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Remove {character.name} from this sequence?
+              从此序列中移除 {character.name}？
             </AlertDialogTitle>
             <AlertDialogDescription>
-              The character is hidden from the cast and prompt context. You can
-              undo from the toast right after removing.
+              此角色将从角色列表和提示词上下文中隐藏。移除后可立即通过通知撤销。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>取消</AlertDialogCancel>
             <AlertDialogAction
               disabled={softDelete.isPending}
               onClick={() => handleRemove(character.name)}
             >
-              {softDelete.isPending ? 'Removing…' : 'Remove'}
+              {softDelete.isPending ? '正在移除…' : '移除'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -1,7 +1,7 @@
 import { PRIVACY_EMAIL, SITE_CONFIG } from '@/ui/marketing/constants';
 import { createFileRoute } from '@tanstack/react-router';
 
-const title = `Privacy Policy — ${SITE_CONFIG.name}`;
+const title = `隐私政策 — ${SITE_CONFIG.name}`;
 
 export const Route = createFileRoute('/_app/privacy')({
   component: PrivacyPage,
@@ -27,62 +27,51 @@ function PrivacyPage() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
       <p className="text-xs uppercase tracking-widest text-muted-foreground">
-        Legal
+        法律
       </p>
       <h1 className="mt-2 font-heading text-4xl font-bold tracking-tight">
-        Privacy Policy
+        隐私政策
       </h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Effective 16 March 2026 &middot; Last updated 16 March 2026
+        生效日期：2026 年 3 月 16 日 &middot; 最后更新：2026 年 3 月 16 日
       </p>
 
       {/* 1. Introduction */}
       <section className="mt-12">
-        <h2 className="text-2xl font-semibold tracking-tight">
-          1. Introduction
-        </h2>
+        <h2 className="text-2xl font-semibold tracking-tight">1. 引言</h2>
         <p className="mt-4 leading-relaxed">
-          {SITE_CONFIG.name} (&ldquo;we&rdquo;, &ldquo;us&rdquo;,
-          &ldquo;our&rdquo;) is an AI-powered video generation platform that
-          transforms film scripts into complete video productions. We are
-          committed to protecting the privacy of individuals who use our
-          platform, visit our website, or otherwise interact with us.
+          {SITE_CONFIG.name}（“我们”）是一个由 AI
+          驱动的视频生成平台，可将电影剧本转化为完整的视频作品。我们致力于保护使用我们平台、访问我们网站或以其他方式与我们互动的个人隐私。
         </p>
         <p className="mt-4 leading-relaxed">
-          This Privacy Policy explains how we collect, use, disclose, store, and
-          protect personal information in accordance with:
+          本隐私政策说明我们如何依据以下法律法规收集、使用、披露、存储和保护个人信息：
         </p>
         <ul className="mt-4 list-disc space-y-2 pl-6 leading-relaxed">
           <li>
-            The <strong>Privacy Act 1988 (Cth)</strong>, the{' '}
-            <strong>Australian Privacy Principles</strong> (&ldquo;APPs&rdquo;),
-            and the{' '}
-            <strong>Privacy and Other Legislation Amendment Act 2024</strong>{' '}
-            (Australia)
+            澳大利亚 <strong>Privacy Act 1988 (Cth)</strong>、
+            <strong>Australian Privacy Principles</strong>（“APPs”）以及{' '}
+            <strong>Privacy and Other Legislation Amendment Act 2024</strong>
           </li>
           <li>
-            The{' '}
-            <strong>General Data Protection Regulation (EU) 2016/679</strong>{' '}
-            (&ldquo;GDPR&rdquo;), where we offer services to individuals in the
-            European Economic Area (&ldquo;EEA&rdquo;) or United Kingdom
+            在我们向欧洲经济区（“EEA”）或英国境内个人提供服务时适用的{' '}
+            <strong>General Data Protection Regulation (EU) 2016/679</strong>
+            （“GDPR”）
           </li>
           <li>
-            Applicable <strong>US state privacy laws</strong>, including the
-            California Consumer Privacy Act as amended by the CPRA
-            (&ldquo;CCPA&rdquo;), to the extent their thresholds are met
+            在达到适用门槛时适用的<strong>美国各州隐私法</strong>，包括经 CPRA
+            修订的 California Consumer Privacy Act（“CCPA”）
           </li>
         </ul>
         <p className="mt-4 leading-relaxed">
-          Where provisions apply only to users in a particular jurisdiction, we
-          indicate this with a label.
+          如果某项规定仅适用于特定司法管辖区的用户，我们会以标签注明。
         </p>
         <div className="mt-4 rounded-lg border bg-muted/50 p-4 text-sm leading-relaxed">
           <p>
-            <strong>Entity:</strong> {SITE_CONFIG.name} is a registered trading
-            name operated by a sole trader in New South Wales, Australia.
+            <strong>主体：</strong> {SITE_CONFIG.name}{' '}
+            是由澳大利亚新南威尔士州个体经营者运营的注册商号。
           </p>
           <p className="mt-1">
-            <strong>Contact:</strong>{' '}
+            <strong>联系方式：</strong>{' '}
             <a
               href={`mailto:${PRIVACY_EMAIL}`}
               className="underline underline-offset-4 hover:text-foreground"
@@ -91,7 +80,7 @@ function PrivacyPage() {
             </a>
           </p>
           <p className="mt-1">
-            <strong>Website:</strong>{' '}
+            <strong>网站：</strong>{' '}
             <a
               href={SITE_CONFIG.url}
               className="underline underline-offset-4 hover:text-foreground"
@@ -104,13 +93,13 @@ function PrivacyPage() {
 
       {/* 2. Scope */}
       <section className="mt-12">
-        <h2 className="text-2xl font-semibold tracking-tight">2. Scope</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">2. 适用范围</h2>
         <p className="mt-4 leading-relaxed">
-          This Privacy Policy applies to personal information collected through:
+          本隐私政策适用于通过以下渠道收集的个人信息：
         </p>
         <ul className="mt-4 list-disc space-y-2 pl-6 leading-relaxed">
           <li>
-            The {SITE_CONFIG.name} platform and web application (
+            {SITE_CONFIG.name} 平台和 Web 应用（
             <a
               href={SITE_CONFIG.url}
               className="underline underline-offset-4 hover:text-foreground"
@@ -119,103 +108,84 @@ function PrivacyPage() {
             </a>
             )
           </li>
-          <li>Our application programming interfaces (APIs)</li>
-          <li>Communications with us, including email and support channels</li>
-          <li>Any related services, tools, or features we provide</li>
+          <li>我们的应用程序编程接口（API）</li>
+          <li>您与我们的通信，包括电子邮件和支持渠道</li>
+          <li>我们提供的任何相关服务、工具或功能</li>
         </ul>
       </section>
 
       {/* 3. What Is Personal Information */}
       <section className="mt-12">
         <h2 className="text-2xl font-semibold tracking-tight">
-          3. What Is Personal Information
+          3. 什么是个人信息
         </h2>
         <p className="mt-4 leading-relaxed">
-          Under the Australian Privacy Act,{' '}
-          <strong>personal information</strong> means information or an opinion
-          about an identified individual, or an individual who is reasonably
-          identifiable, whether the information or opinion is true or not and
-          whether it is recorded in a material form or not. Following the 2024
-          amendments, this definition encompasses technical identifiers such as
-          IP addresses where they can be used to reasonably identify an
-          individual.
+          根据澳大利亚 Privacy Act，<strong>个人信息</strong>
+          是指与已识别个人或可被合理识别的个人有关的信息或意见，无论该信息或意见是否真实，也无论是否以实质形式记录。2024
+          年修正案实施后，如果 IP
+          地址等技术标识符可用于合理识别个人，也属于此定义范围。
         </p>
         <p className="mt-4 leading-relaxed">
-          <JurisdictionTag>GDPR</JurisdictionTag> Under the GDPR,{' '}
-          <strong>personal data</strong> means any information relating to an
-          identified or identifiable natural person. An identifiable person is
-          one who can be identified, directly or indirectly, by reference to an
-          identifier such as a name, identification number, location data, or
-          online identifier.
+          <JurisdictionTag>GDPR</JurisdictionTag> 根据 GDPR，
+          <strong>个人数据</strong>
+          是指与已识别或可识别自然人有关的任何信息。可识别个人是指可通过姓名、身份证明号码、位置数据或在线标识符等标识，直接或间接识别的个人。
         </p>
       </section>
 
       {/* 4. Information We Collect */}
       <section className="mt-12">
         <h2 className="text-2xl font-semibold tracking-tight">
-          4. Information We Collect
+          4. 我们收集的信息
         </h2>
 
-        <h3 className="mt-6 text-lg font-semibold">
-          4.1 Information You Provide Directly
-        </h3>
+        <h3 className="mt-6 text-lg font-semibold">4.1 您直接提供的信息</h3>
         <ul className="mt-4 list-disc space-y-2 pl-6 leading-relaxed">
           <li>
-            <strong>Account information:</strong> name, email address, password
-            (stored in hashed form), and account preferences.
+            <strong>账户信息：</strong>
+            姓名、邮箱地址、密码（以哈希形式存储）和账户偏好。
           </li>
           <li>
-            <strong>Payment information:</strong> billing address and payment
-            details. Payment card information is processed by our third-party
-            payment processor and is not stored on our servers.
+            <strong>付款信息：</strong>
+            账单地址和付款详情。支付卡信息由第三方支付处理商处理，不会存储在我们的服务器上。
           </li>
           <li>
-            <strong>Content and scripts:</strong> film scripts, scene
-            descriptions, character descriptions, creative briefs, and other
-            content you upload or input for video generation.
+            <strong>内容和剧本：</strong>
+            您为视频生成而上传或输入的电影剧本、场景描述、角色描述、创意简报及其他内容。
           </li>
           <li>
-            <strong>Communications:</strong> messages you send to us via email,
-            support requests, or feedback forms.
+            <strong>通信：</strong>
+            您通过电子邮件、支持请求或反馈表单发送给我们的消息。
           </li>
         </ul>
 
-        <h3 className="mt-6 text-lg font-semibold">
-          4.2 Information Collected Automatically
-        </h3>
+        <h3 className="mt-6 text-lg font-semibold">4.2 自动收集的信息</h3>
         <ul className="mt-4 list-disc space-y-2 pl-6 leading-relaxed">
           <li>
-            <strong>Usage data:</strong> features used, actions taken,
-            generation history, timestamps, and session duration.
+            <strong>使用数据：</strong>
+            使用的功能、执行的操作、生成历史、时间戳和会话时长。
           </li>
           <li>
-            <strong>Device and technical data:</strong> IP address, browser type
-            and version, operating system, device identifiers, and screen
-            resolution.
+            <strong>设备和技术数据：</strong>IP
+            地址、浏览器类型和版本、操作系统、设备标识符和屏幕分辨率。
           </li>
           <li>
-            <strong>Log data:</strong> server logs recording access times, pages
-            viewed, referring URLs, and error reports.
+            <strong>日志数据：</strong>记录访问时间、浏览页面、来源 URL
+            和错误报告的服务器日志。
           </li>
           <li>
-            <strong>Cookies and similar technologies:</strong> we use cookies,
-            local storage, and similar tracking technologies to operate and
-            improve the platform (see Section 17).
+            <strong>Cookie 和类似技术：</strong>我们使用
+            Cookie、本地存储和类似跟踪技术来运营和改进平台（见第 17 节）。
           </li>
         </ul>
 
-        <h3 className="mt-6 text-lg font-semibold">
-          4.3 Information from Third Parties
-        </h3>
+        <h3 className="mt-6 text-lg font-semibold">4.3 来自第三方的信息</h3>
         <ul className="mt-4 list-disc space-y-2 pl-6 leading-relaxed">
           <li>
-            <strong>Authentication providers:</strong> if you sign in using a
-            third-party service (e.g., Google), we receive your name, email, and
-            profile picture as authorised by you.
+            <strong>身份验证服务商：</strong>如果您使用第三方服务（例如
+            Google）登录，我们会在您授权的范围内接收您的姓名、邮箱和头像。
           </li>
           <li>
-            <strong>Analytics providers:</strong> aggregated and pseudonymised
-            usage analytics.
+            <strong>分析服务商：</strong>汇总且经过假名化处理的使用分析数据。
           </li>
         </ul>
       </section>
@@ -223,44 +193,39 @@ function PrivacyPage() {
       {/* 5. How We Use Your Information */}
       <section className="mt-12">
         <h2 className="text-2xl font-semibold tracking-tight">
-          5. How We Use Your Information
+          5. 我们如何使用您的信息
         </h2>
         <p className="mt-4 leading-relaxed">
-          We collect and use personal information only for purposes that are
-          reasonably necessary for, or directly related to, our functions and
-          activities (APP 6). These purposes include:
+          我们仅出于履行我们的职能和活动所合理必要或与其直接相关的目的收集和使用个人信息（APP
+          6）。这些目的包括：
         </p>
         <ul className="mt-4 list-disc space-y-2 pl-6 leading-relaxed">
           <li>
-            <strong>Providing and operating the platform:</strong> processing
-            your scripts, generating video content, managing your account, and
-            delivering our services.
+            <strong>提供和运营平台：</strong>
+            处理您的剧本、生成视频内容、管理您的账户并交付我们的服务。
           </li>
           <li>
-            <strong>AI processing:</strong> analysing scripts to identify
-            scenes, characters, and visual elements, and generating images,
-            video, and motion content using AI models (see Section 7).
+            <strong>AI 处理：</strong>分析剧本以识别场景、角色和视觉元素，并使用
+            AI 模型生成图像、视频和动态内容（见第 7 节）。
           </li>
           <li>
-            <strong>Improving our services:</strong> analysing usage patterns,
-            diagnosing technical issues, developing new features, and enhancing
-            platform performance.
+            <strong>改进服务：</strong>
+            分析使用模式、诊断技术问题、开发新功能并提升平台性能。
           </li>
           <li>
-            <strong>Communications:</strong> sending service-related notices,
-            responding to inquiries, and providing customer support.
+            <strong>通信：</strong>发送服务相关通知、回复咨询并提供客户支持。
           </li>
           <li>
-            <strong>Security and fraud prevention:</strong> detecting,
-            preventing, and addressing security incidents, fraud, and abuse.
+            <strong>安全和防欺诈：</strong>
+            检测、预防和处理安全事件、欺诈与滥用行为。
           </li>
           <li>
-            <strong>Legal compliance:</strong> complying with applicable laws,
-            regulations, legal processes, or enforceable governmental requests.
+            <strong>法律合规：</strong>
+            遵守适用的法律、法规、法律程序或可执行的政府要求。
           </li>
           <li>
-            <strong>Marketing (with consent):</strong> sending promotional
-            communications where you have opted in. You may opt out at any time.
+            <strong>营销（经同意）：</strong>
+            在您选择接收时发送推广通信。您可随时选择退出。
           </li>
         </ul>
       </section>
@@ -268,269 +233,209 @@ function PrivacyPage() {
       {/* 6. Lawful Basis for Processing (GDPR) */}
       <section className="mt-12">
         <h2 className="text-2xl font-semibold tracking-tight">
-          6. Lawful Basis for Processing (GDPR)
+          6. 处理的合法依据（GDPR）
         </h2>
         <p className="mt-4 leading-relaxed">
-          <JurisdictionTag>GDPR</JurisdictionTag> Under the GDPR, we must have a
-          lawful basis for each processing activity involving personal data of
-          individuals in the EEA or UK.
+          <JurisdictionTag>GDPR</JurisdictionTag> 根据 GDPR，对于涉及 EEA
+          或英国境内个人数据的每项处理活动，我们都必须具有合法依据。
         </p>
 
         <h3 className="mt-6 text-lg font-semibold">
-          6.1 Performance of a Contract (Article 6(1)(b))
+          6.1 履行合同（第 6(1)(b) 条）
         </h3>
         <p className="mt-4 leading-relaxed">
-          Processing necessary to perform our contract with you: creating and
-          managing your account, processing scripts and generating video
-          content, processing payments, and providing customer support.
+          为履行我们与您之间的合同所必需的处理：创建和管理您的账户、处理剧本并生成视频内容、处理付款以及提供客户支持。
         </p>
 
         <h3 className="mt-6 text-lg font-semibold">
-          6.2 Legitimate Interests (Article 6(1)(f))
+          6.2 合法利益（第 6(1)(f) 条）
         </h3>
         <p className="mt-4 leading-relaxed">
-          Processing necessary for our legitimate interests where not overridden
-          by your rights: improving and optimising the platform, ensuring
-          security and preventing fraud, enforcing our terms of service, and
-          administrative purposes. You have the right to object to this
-          processing (see Section 13).
+          在不凌驾于您的权利之上的情况下，为实现我们的合法利益所必需的处理：改进和优化平台、确保安全和防止欺诈、执行我们的服务条款以及行政管理。您有权反对此类处理（见第
+          13 节）。
         </p>
 
         <h3 className="mt-6 text-lg font-semibold">
-          6.3 Consent (Article 6(1)(a))
+          6.3 同意（第 6(1)(a) 条）
         </h3>
         <p className="mt-4 leading-relaxed">
-          Where we rely on your consent: sending marketing communications and
-          placing non-essential cookies. You may withdraw consent at any time
-          without affecting the lawfulness of prior processing.
+          在我们依赖您同意的情形下：发送营销通信和放置非必要
+          Cookie。您可随时撤回同意，但不影响撤回前处理行为的合法性。
         </p>
 
         <h3 className="mt-6 text-lg font-semibold">
-          6.4 Legal Obligation (Article 6(1)(c))
+          6.4 法定义务（第 6(1)(c) 条）
         </h3>
         <p className="mt-4 leading-relaxed">
-          Processing necessary to comply with legal obligations: tax reporting,
-          responding to lawful government requests, and data breach notification
-          requirements.
+          为遵守法定义务所必需的处理：税务申报、回应合法的政府要求以及履行数据泄露通知要求。
         </p>
 
-        <h3 className="mt-6 text-lg font-semibold">
-          6.5 Data Protection Impact Assessment
-        </h3>
+        <h3 className="mt-6 text-lg font-semibold">6.5 数据保护影响评估</h3>
         <p className="mt-4 leading-relaxed">
-          We have conducted a Data Protection Impact Assessment (DPIA) for our
-          use of AI models to process user-submitted content, as required under
-          GDPR Article 35 for processing that uses innovative technologies and
-          may result in high risk to data subjects. A summary is available on
-          request.
+          我们已针对使用 AI
+          模型处理用户提交内容开展数据保护影响评估（DPIA），以满足 GDPR 第 35
+          条对使用创新技术且可能给数据主体带来高风险之处理活动的要求。摘要可应要求提供。
         </p>
       </section>
 
       {/* 7. AI Processing & Transparency */}
       <section className="mt-12">
         <h2 className="text-2xl font-semibold tracking-tight">
-          7. AI Processing &amp; Transparency
+          7. AI 处理与透明度
         </h2>
         <p className="mt-4 leading-relaxed">
-          {SITE_CONFIG.name} uses artificial intelligence and machine learning
-          systems to analyse scripts, generate visual content, and produce video
-          outputs.
+          {SITE_CONFIG.name}{' '}
+          使用人工智能和机器学习系统分析剧本、生成视觉内容并制作视频输出。
         </p>
 
-        <h3 className="mt-6 text-lg font-semibold">7.1 How We Use AI</h3>
+        <h3 className="mt-6 text-lg font-semibold">7.1 我们如何使用 AI</h3>
         <ul className="mt-4 list-disc space-y-2 pl-6 leading-relaxed">
           <li>
-            Large language models (LLMs) analyse your script content, identify
-            scenes, generate character descriptions, and create visual prompts.
+            大语言模型（LLM）分析您的剧本内容、识别场景、生成角色描述并创建视觉提示词。
           </li>
+          <li>图像生成模型创建角色设定图、场景图像和视觉资产。</li>
+          <li>视频生成模型制作动态内容并组装最终视频输出。</li>
+          <li>您始终可以审阅、修改和重新生成任何 AI 输出。</li>
           <li>
-            Image generation models create character sheets, scene images, and
-            visual assets.
-          </li>
-          <li>
-            Video generation models produce motion content and assemble final
-            video outputs.
-          </li>
-          <li>
-            You retain the ability to review, modify, and regenerate any
-            AI-produced output.
-          </li>
-          <li>
-            No automated process is used to deny you access to our services or
-            to make decisions that produce legal effects concerning you.
+            我们不会使用任何自动化流程拒绝您访问我们的服务，或作出对您产生法律效力的决定。
           </li>
         </ul>
 
-        <h3 className="mt-6 text-lg font-semibold">
-          7.2 Third-Party AI Providers
-        </h3>
+        <h3 className="mt-6 text-lg font-semibold">7.2 第三方 AI 服务商</h3>
         <p className="mt-4 leading-relaxed">
-          Your content is processed by the following categories of third-party
-          AI service providers. We maintain Data Processing Agreements (DPAs)
-          with each provider.
+          您的内容由以下类别的第三方 AI
+          服务商处理。我们与每家服务商均签订数据处理协议（DPA）。
         </p>
         <div className="mt-4 rounded-lg border bg-muted/50 p-4 text-sm leading-relaxed">
           <p>
-            <strong>Large Language Models:</strong> Anthropic (Claude) — script
-            analysis, scene breakdown, and prompt generation. Processed via API
-            under zero-data-retention terms; not used for model training.
+            <strong>大语言模型：</strong>
+            Anthropic（Claude），用于剧本分析、场景拆分和提示词生成。根据零数据保留条款通过
+            API 处理，不用于模型训练。
           </p>
           <p className="mt-2">
-            <strong>Image Generation:</strong> Provider(s) for character sheet
-            and scene image generation. Processed via API under DPAs; not used
-            for model training.
+            <strong>图像生成：</strong>
+            用于生成角色设定图和场景图像的服务商。根据 DPA 通过 API
+            处理，不用于模型训练。
           </p>
           <p className="mt-2">
-            <strong>Video Generation:</strong> Provider(s) for motion content
-            generation. Processed via API under DPAs; not used for model
-            training.
+            <strong>视频生成：</strong>用于生成动态内容的服务商。根据 DPA 通过
+            API 处理，不用于模型训练。
           </p>
         </div>
         <p className="mt-4 leading-relaxed">
-          Each DPA includes purpose limitation, data retention limits,
-          sub-processor notification, breach notification, audit rights, and
-          deletion on termination. We will update this section as provider
-          relationships change.
+          每份 DPA
+          均包括目的限制、数据保留期限、子处理商通知、泄露通知、审计权和终止时删除数据等条款。服务商关系变化时，我们将更新本节。
         </p>
 
-        <h3 className="mt-6 text-lg font-semibold">7.3 Training Data</h3>
+        <h3 className="mt-6 text-lg font-semibold">7.3 训练数据</h3>
         <p className="mt-4 leading-relaxed">
-          <strong>
-            We do not use your scripts, content, or personal information to
-            train AI models.
-          </strong>{' '}
-          Your content is processed solely for generating outputs you have
-          requested. Our third-party AI providers operate under API terms that
-          exclude customer data from model training.
+          <strong>我们不会使用您的剧本、内容或个人信息训练 AI 模型。</strong>{' '}
+          您的内容仅用于生成您所请求的输出。我们的第三方 AI 服务商依据 API
+          条款运营，该条款禁止将客户数据用于模型训练。
         </p>
 
-        <h3 className="mt-6 text-lg font-semibold">
-          7.4 AI-Generated Content Labeling
-        </h3>
+        <h3 className="mt-6 text-lg font-semibold">7.4 AI 生成内容标记</h3>
         <p className="mt-4 leading-relaxed">
-          We are implementing measures to ensure AI-generated video content is
-          marked in a machine-readable format as AI-generated (using C2PA
-          metadata standards where technically feasible), identifiable as
-          artificially generated content, and labeled visibly where required by
-          applicable law. These measures are being implemented ahead of the EU
-          AI Act Article 50 transparency deadline of 2 August 2026.
+          我们正在实施措施，确保 AI 生成的视频内容以机器可读格式标记为 AI
+          生成（在技术可行时使用 C2PA
+          元数据标准）、可被识别为人工生成内容，并在适用法律要求时添加可见标签。这些措施将在
+          EU AI Act 第 50 条规定的 2026 年 8 月 2 日透明度截止日期前落实。
         </p>
 
         <h3 className="mt-6 text-lg font-semibold">
-          7.5 Australian ADM Transparency
+          7.5 澳大利亚自动化决策（ADM）透明度
         </h3>
         <p className="mt-4 leading-relaxed">
-          In compliance with the automated decision-making transparency
-          requirements under the Privacy and Other Legislation Amendment Act
-          2024 (effective 10 December 2026), our AI systems process account
-          identifiers, script content, and usage data. These automated processes
-          determine scene breakdowns, character generation, visual prompts, and
-          video assembly. They are core to service delivery and do not make
-          decisions that could reasonably be expected to significantly affect
-          your rights or interests beyond generating creative content based on
-          your inputs.
+          为遵守 Privacy and Other Legislation Amendment Act 2024（2026 年 12 月
+          10 日生效）中的自动化决策透明度要求，我们的 AI
+          系统会处理账户标识符、剧本内容和使用数据。这些自动化流程决定场景拆分、角色生成、视觉提示词和视频组装，是交付服务的核心环节。除根据您的输入生成创意内容外，它们不会作出可被合理预期为会严重影响您权利或利益的决定。
         </p>
       </section>
 
       {/* 8. Disclosure of Personal Information */}
       <section className="mt-12">
         <h2 className="text-2xl font-semibold tracking-tight">
-          8. Disclosure of Personal Information
+          8. 个人信息的披露
         </h2>
-        <p className="mt-4 leading-relaxed">
-          We may disclose personal information to:
-        </p>
+        <p className="mt-4 leading-relaxed">我们可能向以下主体披露个人信息：</p>
         <ul className="mt-4 list-disc space-y-2 pl-6 leading-relaxed">
           <li>
-            <strong>Service providers:</strong> cloud hosting, payment
-            processors, email delivery, and analytics providers who process data
-            on our behalf under contractual obligations.
+            <strong>服务商：</strong>
+            依据合同义务代表我们处理数据的云托管、支付处理、邮件发送和分析服务商。
           </li>
           <li>
-            <strong>AI model providers:</strong> third-party AI services (see
-            Section 7.2).
+            <strong>AI 模型服务商：</strong>第三方 AI 服务（见第 7.2 节）。
           </li>
           <li>
-            <strong>Professional advisors:</strong> lawyers, accountants, and
-            auditors where necessary.
+            <strong>专业顾问：</strong>必要时包括律师、会计师和审计师。
           </li>
           <li>
-            <strong>Law enforcement and regulators:</strong> where required by
-            law, court order, or regulatory obligation.
+            <strong>执法机关和监管机构：</strong>
+            在法律、法院命令或监管义务要求时。
           </li>
           <li>
-            <strong>Business transfers:</strong> in connection with a sale or
-            transfer of the business.
+            <strong>业务转让：</strong>与出售或转让业务相关的情形。
           </li>
         </ul>
         <p className="mt-4 leading-relaxed">
-          <strong>We do not sell your personal information.</strong> We do not
-          share personal information for cross-context behavioural advertising.
+          <strong>我们不会出售您的个人信息。</strong>
+          我们不会为跨情境行为广告共享个人信息。
         </p>
       </section>
 
       {/* 9. International Data Transfers */}
       <section className="mt-12">
         <h2 className="text-2xl font-semibold tracking-tight">
-          9. International Data Transfers
+          9. 国际数据传输
         </h2>
         <p className="mt-4 leading-relaxed">
-          {SITE_CONFIG.name} is based in Australia and operates cloud
-          infrastructure and third-party services in multiple countries. Your
-          personal information may be transferred to and processed in:
+          {SITE_CONFIG.name}{' '}
+          总部位于澳大利亚，并在多个国家运营云基础设施和使用第三方服务。您的个人信息可能被传输至以下地区并在当地处理：
         </p>
         <div className="mt-4 rounded-lg border bg-muted/50 p-4 text-sm leading-relaxed">
           <p>
-            <strong>Australia:</strong> Primary business operations.
+            <strong>澳大利亚：</strong>主要业务运营。
           </p>
           <p className="mt-1">
-            <strong>United States:</strong> Cloud infrastructure, AI model
-            providers, payment processing, and analytics.
+            <strong>美国：</strong>云基础设施、AI
+            模型服务商、支付处理和分析服务。
           </p>
           <p className="mt-1">
-            <strong>Other countries:</strong> Where our service providers
-            maintain data centres.
+            <strong>其他国家：</strong>我们的服务商设有数据中心的国家。
           </p>
         </div>
 
         <h3 className="mt-6 text-lg font-semibold">
-          9.1 Safeguards for Australian Users (APP 8)
+          9.1 澳大利亚用户保障措施（APP 8）
         </h3>
         <p className="mt-4 leading-relaxed">
-          Before disclosing personal information to an overseas recipient, we
-          take reasonable steps to ensure the recipient handles the information
-          in accordance with the APPs, through contractual arrangements and data
-          processing agreements.
+          在向境外接收方披露个人信息前，我们会通过合同安排和数据处理协议采取合理措施，确保接收方按照
+          APPs 处理这些信息。
         </p>
 
-        <h3 className="mt-6 text-lg font-semibold">
-          9.2 Safeguards for EEA/UK Users
-        </h3>
+        <h3 className="mt-6 text-lg font-semibold">9.2 EEA/英国用户保障措施</h3>
         <p className="mt-4 leading-relaxed">
-          <JurisdictionTag>GDPR</JurisdictionTag> Australia does not have an EU
-          adequacy decision. For transfers of personal data from the EEA or UK,
-          we rely on:
+          <JurisdictionTag>GDPR</JurisdictionTag>{' '}
+          澳大利亚尚未获得欧盟充分性认定。对于从 EEA
+          或英国传输个人数据，我们依赖：
         </p>
         <ul className="mt-4 list-disc space-y-2 pl-6 leading-relaxed">
           <li>
-            <strong>Standard Contractual Clauses (SCCs):</strong> European
-            Commission SCCs (module 2: controller-to-processor) with service
-            providers and AI model providers, supplemented by additional
-            technical and organisational measures where necessary.
+            <strong>标准合同条款（SCCs）：</strong>与服务商和 AI 模型服务商签订
+            European Commission SCCs（模块
+            2：控制者到处理者），并在必要时辅以额外技术和组织措施。
           </li>
           <li>
-            <strong>EU-US Data Privacy Framework:</strong> Where our US-based
-            providers are certified under the Framework.
+            <strong>EU-US Data Privacy Framework：</strong>
+            适用于已通过该框架认证的美国服务商。
           </li>
           <li>
-            <strong>Transfer Impact Assessments:</strong> We conduct TIAs to
-            evaluate the legal framework in each destination country and
-            implement supplementary measures where risks are identified.
+            <strong>传输影响评估：</strong>我们开展 TIA
+            以评估各目的地国家的法律框架，并在发现风险时实施补充措施。
           </li>
         </ul>
         <p className="mt-4 leading-relaxed">
-          You may request a copy of the relevant transfer safeguards by
-          contacting{' '}
+          您可联系以下邮箱，请求获取相关传输保障措施的副本：{' '}
           <a
             href={`mailto:${PRIVACY_EMAIL}`}
             className="underline underline-offset-4 hover:text-foreground"
@@ -543,98 +448,82 @@ function PrivacyPage() {
 
       {/* 10. Data Retention */}
       <section className="mt-12">
-        <h2 className="text-2xl font-semibold tracking-tight">
-          10. Data Retention
-        </h2>
+        <h2 className="text-2xl font-semibold tracking-tight">10. 数据保留</h2>
         <ul className="mt-4 list-disc space-y-2 pl-6 leading-relaxed">
           <li>
-            <strong>Account information:</strong> retained for the duration of
-            your account and 12 months after deletion, unless a longer period is
-            required by law.
+            <strong>账户信息：</strong>在账户存续期间保留，并在账户删除后保留 12
+            个月，法律要求更长期限的除外。
           </li>
           <li>
-            <strong>Generated content:</strong> retained while your account is
-            active. Deleted within 90 days of account deletion.
+            <strong>生成内容：</strong>在账户有效期间保留，并在账户删除后 90
+            天内删除。
           </li>
           <li>
-            <strong>Usage and log data:</strong> retained for up to 24 months,
-            then aggregated or deleted.
+            <strong>使用和日志数据：</strong>最长保留 24 个月，之后汇总或删除。
           </li>
           <li>
-            <strong>Payment records:</strong> retained for 7 years as required
-            by Australian taxation law.
+            <strong>付款记录：</strong>根据澳大利亚税法要求保留 7 年。
           </li>
           <li>
-            <strong>Support communications:</strong> retained for 24 months
-            after resolution.
+            <strong>支持通信：</strong>问题解决后保留 24 个月。
           </li>
           <li>
-            <strong>AI provider processing:</strong> providers do not retain
-            input or output data beyond the API request (zero-data-retention).
+            <strong>AI 服务商处理：</strong>服务商不会在 API
+            请求结束后保留输入或输出数据（零数据保留）。
           </li>
         </ul>
         <p className="mt-4 leading-relaxed">
-          When personal information is no longer needed, we take reasonable
-          steps to destroy or de-identify it (APP 11.2).
+          当不再需要个人信息时，我们会采取合理措施将其销毁或去标识化（APP
+          11.2）。
         </p>
       </section>
 
       {/* 11. Data Security */}
       <section className="mt-12">
-        <h2 className="text-2xl font-semibold tracking-tight">
-          11. Data Security
-        </h2>
+        <h2 className="text-2xl font-semibold tracking-tight">11. 数据安全</h2>
         <p className="mt-4 leading-relaxed">
-          We take reasonable technical and organisational measures to protect
-          personal information (APP 11.1; GDPR Article 32), including:
+          我们采取合理的技术和组织措施保护个人信息（APP 11.1；GDPR 第 32
+          条），包括：
         </p>
         <ul className="mt-4 list-disc space-y-2 pl-6 leading-relaxed">
-          <li>Encryption of data in transit (TLS 1.2+) and at rest</li>
-          <li>Access controls and authentication mechanisms</li>
-          <li>Regular security assessments and monitoring</li>
-          <li>Contractor and staff confidentiality obligations</li>
-          <li>Incident response and data breach notification procedures</li>
+          <li>对传输中（TLS 1.2+）和静态数据进行加密</li>
+          <li>访问控制和身份验证机制</li>
+          <li>定期安全评估和监控</li>
+          <li>承包商和员工保密义务</li>
+          <li>事件响应和数据泄露通知程序</li>
         </ul>
         <p className="mt-4 leading-relaxed">
-          No method of electronic storage or transmission is completely secure.
-          While we strive to protect your personal information, we cannot
-          guarantee its absolute security.
+          任何电子存储或传输方式都无法做到绝对安全。尽管我们努力保护您的个人信息，但无法保证其绝对安全。
         </p>
       </section>
 
       {/* 12. Your Rights — Australia */}
       <section className="mt-12">
         <h2 className="text-2xl font-semibold tracking-tight">
-          12. Your Rights — Australia
+          12. 您的权利——澳大利亚
         </h2>
 
-        <h3 className="mt-6 text-lg font-semibold">12.1 Access (APP 12)</h3>
+        <h3 className="mt-6 text-lg font-semibold">12.1 访问权（APP 12）</h3>
         <p className="mt-4 leading-relaxed">
-          You may request access to personal information we hold about you. We
-          will respond within 30 days.
+          您可请求访问我们持有的与您有关的个人信息。我们将在 30 天内回复。
         </p>
 
-        <h3 className="mt-6 text-lg font-semibold">12.2 Correction (APP 13)</h3>
+        <h3 className="mt-6 text-lg font-semibold">12.2 更正权（APP 13）</h3>
         <p className="mt-4 leading-relaxed">
-          You may request correction of inaccurate, incomplete, out-of-date,
-          irrelevant, or misleading personal information. We will respond within
-          30 days.
-        </p>
-
-        <h3 className="mt-6 text-lg font-semibold">
-          12.3 Anonymity and Pseudonymity (APP 2)
-        </h3>
-        <p className="mt-4 leading-relaxed">
-          Where practicable, you may use a pseudonym or choose not to identify
-          yourself. However, this may limit access to some platform features.
+          您可请求更正不准确、不完整、过时、不相关或具有误导性的个人信息。我们将在
+          30 天内回复。
         </p>
 
         <h3 className="mt-6 text-lg font-semibold">
-          12.4 Direct Marketing (APP 7)
+          12.3 匿名和使用化名（APP 2）
         </h3>
         <p className="mt-4 leading-relaxed">
-          You may opt out of marketing communications at any time via the
-          unsubscribe link or by contacting{' '}
+          在可行的情况下，您可以使用化名或选择不表明身份，但这可能会限制您使用部分平台功能。
+        </p>
+
+        <h3 className="mt-6 text-lg font-semibold">12.4 直接营销（APP 7）</h3>
+        <p className="mt-4 leading-relaxed">
+          您可随时通过退订链接或联系以下邮箱选择退出营销通信：{' '}
           <a
             href={`mailto:${PRIVACY_EMAIL}`}
             className="underline underline-offset-4 hover:text-foreground"
@@ -644,72 +533,62 @@ function PrivacyPage() {
           .
         </p>
 
-        <h3 className="mt-6 text-lg font-semibold">
-          12.5 Direct Right of Action
-        </h3>
+        <h3 className="mt-6 text-lg font-semibold">12.5 直接诉权</h3>
         <p className="mt-4 leading-relaxed">
-          Under the Privacy and Other Legislation Amendment Act 2024,
-          individuals may seek damages directly from APP entities through the
-          Federal Court for serious or repeated interferences with privacy,
-          without first needing to lodge a complaint with the OAIC.
+          根据 Privacy and Other Legislation Amendment Act
+          2024，个人可就严重或反复侵犯隐私的行为，通过 Federal Court 直接向 APP
+          实体索赔，无需先向 OAIC 投诉。
         </p>
       </section>
 
       {/* 13. Your Rights — EU/EEA (GDPR) */}
       <section className="mt-12">
         <h2 className="text-2xl font-semibold tracking-tight">
-          13. Your Rights — EU/EEA (GDPR)
+          13. 您的权利——欧盟/EEA（GDPR）
         </h2>
         <p className="mt-4 leading-relaxed">
-          <JurisdictionTag>GDPR</JurisdictionTag> If you are located in the EEA
-          or UK, you have the following rights. Contact{' '}
+          <JurisdictionTag>GDPR</JurisdictionTag> 如果您位于 EEA
+          或英国，则享有以下权利。请联系{' '}
           <a
             href={`mailto:${PRIVACY_EMAIL}`}
             className="underline underline-offset-4 hover:text-foreground"
           >
             {PRIVACY_EMAIL}
           </a>{' '}
-          to exercise them. We will respond within 30 days.
+          以行使这些权利。我们将在 30 天内回复。
         </p>
         <ul className="mt-4 list-disc space-y-2 pl-6 leading-relaxed">
           <li>
-            <strong>Access (Article 15):</strong> Obtain confirmation of
-            processing and a copy of your personal data.
+            <strong>访问权（第 15 条）：</strong>
+            获得有关处理活动的确认以及您的个人数据副本。
           </li>
           <li>
-            <strong>Rectification (Article 16):</strong> Correct inaccurate or
-            incomplete data.
+            <strong>更正权（第 16 条）：</strong>更正不准确或不完整的数据。
           </li>
           <li>
-            <strong>Erasure (Article 17):</strong> Request deletion where data
-            is no longer necessary, you withdraw consent, you object to
-            processing, or data was unlawfully processed.
+            <strong>删除权（第 17 条）：</strong>
+            在数据不再必要、您撤回同意、您反对处理或数据遭到非法处理时，请求删除数据。
           </li>
           <li>
-            <strong>Restriction (Article 18):</strong> Request restricted
-            processing while accuracy is verified, if processing is unlawful, or
-            pending an objection assessment.
+            <strong>限制处理权（第 18 条）：</strong>
+            在核实准确性期间、处理违法时或等待异议评估时，请求限制处理。
           </li>
           <li>
-            <strong>Portability (Article 20):</strong> Receive your data in a
-            structured, machine-readable format and transmit it to another
-            controller.
+            <strong>数据可携带权（第 20 条）：</strong>
+            以结构化、机器可读格式接收您的数据，并将其传输给另一控制者。
           </li>
           <li>
-            <strong>Object (Article 21):</strong> Object to processing based on
-            legitimate interests. You have an absolute right to object to direct
-            marketing.
+            <strong>反对权（第 21 条）：</strong>
+            反对基于合法利益的处理。您有绝对权利反对直接营销。
           </li>
           <li>
-            <strong>Automated decisions (Article 22):</strong> Not be subject to
-            solely automated decisions producing legal or similarly significant
-            effects. Our AI processing generates creative content and does not
-            produce such effects.
+            <strong>自动化决策（第 22 条）：</strong>
+            不受仅由自动化方式作出且产生法律或类似重大影响之决定的约束。我们的
+            AI 处理用于生成创意内容，不会产生此类影响。
           </li>
         </ul>
         <p className="mt-4 leading-relaxed">
-          You may lodge a complaint with your local supervisory authority. A
-          full list is at{' '}
+          您可向当地监管机构投诉。完整列表请见{' '}
           <a
             href="https://edpb.europa.eu/about-edpb/about-edpb/members_en"
             target="_blank"
@@ -721,13 +600,11 @@ function PrivacyPage() {
           .
         </p>
 
-        <h3 className="mt-6 text-lg font-semibold">EU Representative</h3>
+        <h3 className="mt-6 text-lg font-semibold">欧盟代表</h3>
         <p className="mt-4 leading-relaxed">
-          Under GDPR Article 27, non-EU controllers must appoint a
-          representative in the EU. We will appoint an EU representative and
-          update this section with their contact details as we scale our
-          services to EEA users. In the meantime, all privacy enquiries can be
-          directed to{' '}
+          根据 GDPR 第 27 条，非欧盟控制者必须在欧盟指定代表。随着我们扩大面向
+          EEA
+          用户的服务，我们将指定欧盟代表，并在本节更新其联系方式。在此之前，所有隐私咨询均可发送至{' '}
           <a
             href={`mailto:${PRIVACY_EMAIL}`}
             className="underline underline-offset-4 hover:text-foreground"
@@ -741,219 +618,183 @@ function PrivacyPage() {
       {/* 14. Your Rights — United States */}
       <section className="mt-12">
         <h2 className="text-2xl font-semibold tracking-tight">
-          14. Your Rights — United States
+          14. 您的权利——美国
         </h2>
         <p className="mt-4 leading-relaxed">
-          <JurisdictionTag>US</JurisdictionTag> Several US states have enacted
-          comprehensive privacy laws, including California (CCPA/CPRA), Texas
-          (TDPSA), Colorado, Connecticut, Virginia, and others. The
-          applicability of these laws depends on whether specific thresholds are
-          met (e.g., revenue, volume of consumers, or data sales). As{' '}
-          {SITE_CONFIG.name} grows, we are committed to complying with all
-          applicable US state privacy requirements. This section describes the
-          rights we will honour for US users.
+          <JurisdictionTag>US</JurisdictionTag>{' '}
+          美国多个州已制定综合性隐私法，包括加利福尼亚州（CCPA/CPRA）、德克萨斯州（TDPSA）、科罗拉多州、康涅狄格州和弗吉尼亚州等。这些法律是否适用取决于是否达到特定门槛（例如收入、消费者数量或数据销售量）。随着{' '}
+          {SITE_CONFIG.name}{' '}
+          的发展，我们致力于遵守所有适用的美国州级隐私要求。本节说明我们将为美国用户保障的权利。
         </p>
 
-        <h3 className="mt-6 text-lg font-semibold">14.1 Your Rights</h3>
+        <h3 className="mt-6 text-lg font-semibold">14.1 您的权利</h3>
         <ul className="mt-4 list-disc space-y-2 pl-6 leading-relaxed">
           <li>
-            <strong>Right to Know / Access:</strong> Know what personal
-            information we collect, use, and disclose, and request a copy.
+            <strong>知情权/访问权：</strong>
+            了解我们收集、使用和披露哪些个人信息，并请求副本。
           </li>
           <li>
-            <strong>Right to Delete:</strong> Request deletion of personal
-            information, subject to legal exceptions.
+            <strong>删除权：</strong>在法律例外范围内请求删除个人信息。
           </li>
           <li>
-            <strong>Right to Correct:</strong> Request correction of inaccurate
-            personal information.
+            <strong>更正权：</strong>请求更正不准确的个人信息。
           </li>
           <li>
-            <strong>Right to Opt Out of Sale or Sharing:</strong> We do not sell
-            personal information or share it for cross-context behavioural
-            advertising.
+            <strong>选择退出出售或共享的权利：</strong>
+            我们不会出售个人信息，也不会为跨情境行为广告而共享个人信息。
           </li>
           <li>
-            <strong>Right to Non-Discrimination:</strong> We will not
-            discriminate against you for exercising your rights.
+            <strong>不受歧视权：</strong>我们不会因您行使权利而歧视您。
           </li>
         </ul>
 
-        <h3 className="mt-6 text-lg font-semibold">
-          14.2 How to Exercise Your Rights
-        </h3>
+        <h3 className="mt-6 text-lg font-semibold">14.2 如何行使您的权利</h3>
         <p className="mt-4 leading-relaxed">
-          Email{' '}
+          请发送电子邮件至{' '}
           <a
             href={`mailto:${PRIVACY_EMAIL}`}
             className="underline underline-offset-4 hover:text-foreground"
           >
             {PRIVACY_EMAIL}
           </a>{' '}
-          with your request. We will verify your identity and respond within 45
-          days.
+          提出请求。我们将验证您的身份，并在 45 天内回复。
         </p>
 
         <h3 className="mt-6 text-lg font-semibold">
           14.3 Global Privacy Control
         </h3>
         <p className="mt-4 leading-relaxed">
-          We honour the Global Privacy Control (GPC) signal. When we detect a
-          GPC signal from your browser, we treat it as a valid opt-out request
-          for the sale or sharing of personal information.
+          我们尊重 Global Privacy Control（GPC）信号。当检测到浏览器发出的 GPC
+          信号时，我们会将其视为选择退出出售或共享个人信息的有效请求。
         </p>
 
-        <h3 className="mt-6 text-lg font-semibold">
-          14.4 California Disclosures
-        </h3>
+        <h3 className="mt-6 text-lg font-semibold">14.4 加利福尼亚州披露</h3>
         <p className="mt-4 leading-relaxed">
-          If and when CCPA thresholds are met, we will maintain a full set of
-          California-specific disclosures including categories of personal
-          information collected and disclosed, a &ldquo;Do Not Sell or
-          Share&rdquo; mechanism, and CCPA-specific metrics. We do not currently
-          meet CCPA applicability thresholds.
+          如果达到 CCPA
+          门槛，我们将提供完整的加利福尼亚州专项披露，包括所收集和披露的个人信息类别、“请勿出售或共享”机制以及
+          CCPA 专项指标。目前我们尚未达到 CCPA 的适用门槛。
         </p>
       </section>
 
       {/* 15. Statutory Tort for Serious Invasions of Privacy */}
       <section className="mt-12">
         <h2 className="text-2xl font-semibold tracking-tight">
-          15. Statutory Tort for Serious Invasions of Privacy
+          15. 严重侵犯隐私的法定侵权责任
         </h2>
         <p className="mt-4 leading-relaxed">
-          From 10 June 2025, Australia&rsquo;s statutory tort for serious
-          invasions of privacy (Schedule 2 of the Privacy and Other Legislation
-          Amendment Act 2024) provides individuals with a personal right of
-          action where their privacy has been seriously invaded through
-          intrusion upon seclusion or misuse of personal information. This
-          applies regardless of entity turnover. We have implemented measures to
-          prevent any conduct that could constitute a serious invasion of
-          privacy.
+          自 2025 年 6 月 10
+          日起，澳大利亚针对严重侵犯隐私的法定侵权制度（Privacy and Other
+          Legislation Amendment Act 2024 附表
+          2）赋予个人诉权，使其可在隐私因侵扰独处或滥用个人信息而受到严重侵犯时提起诉讼。无论实体营业额多少，该制度均适用。我们已采取措施防止任何可能构成严重侵犯隐私的行为。
         </p>
       </section>
 
       {/* 16. Children's Privacy */}
       <section className="mt-12">
-        <h2 className="text-2xl font-semibold tracking-tight">
-          16. Children&rsquo;s Privacy
-        </h2>
+        <h2 className="text-2xl font-semibold tracking-tight">16. 儿童隐私</h2>
         <p className="mt-4 leading-relaxed">
-          {SITE_CONFIG.name} is not directed at children. We do not knowingly
-          collect personal information from children without appropriate
-          consent.
+          {SITE_CONFIG.name}{' '}
+          并非面向儿童。未经适当同意，我们不会故意收集儿童的个人信息。
         </p>
         <ul className="mt-4 list-disc space-y-2 pl-6 leading-relaxed">
           <li>
-            <strong>Australia:</strong> Users must be at least 18 years of age,
-            or have parental consent, to create an account. We are monitoring
-            Australia&rsquo;s Children&rsquo;s Online Privacy Code (to be
-            registered by 10 December 2026).
+            <strong>澳大利亚：</strong>用户必须年满 18
+            岁或获得父母同意才能创建账户。我们正在关注澳大利亚 Children&rsquo;s
+            Online Privacy Code（将于 2026 年 12 月 10 日前登记）。
           </li>
           <li>
-            <strong>EU:</strong> Users must meet the minimum age for consent in
-            their Member State (13&ndash;16 depending on country). Below that
-            age, consent must come from a parent or guardian.
+            <strong>欧盟：</strong>
+            用户必须达到其成员国规定的最低同意年龄（因国家而异，为 13 至 16
+            岁）。低于该年龄者须由父母或监护人同意。
           </li>
           <li>
-            <strong>US:</strong> We comply with COPPA and do not knowingly
-            collect personal information from children under 13. The FTC&rsquo;s
-            amended COPPA Rule (compliance deadline 22 April 2026) broadens the
-            definition of personal information and strengthens protections.
+            <strong>美国：</strong>我们遵守 COPPA，不会故意收集 13
+            岁以下儿童的个人信息。FTC 修订后的 COPPA Rule（合规截止日期为 2026
+            年 4 月 22 日）扩大了个人信息的定义并加强了保护。
           </li>
         </ul>
         <p className="mt-4 leading-relaxed">
-          If we become aware that we have collected personal information from a
-          child without appropriate consent, we will delete that information
-          promptly.
+          如果发现我们在未经适当同意的情况下收集了儿童的个人信息，我们将立即删除该信息。
         </p>
       </section>
 
       {/* 17. Cookies & Tracking Technologies */}
       <section className="mt-12">
         <h2 className="text-2xl font-semibold tracking-tight">
-          17. Cookies &amp; Tracking Technologies
+          17. Cookie 与跟踪技术
         </h2>
         <ul className="mt-4 list-disc space-y-2 pl-6 leading-relaxed">
           <li>
-            <strong>Strictly necessary:</strong> essential for authentication
-            and security.
+            <strong>严格必要：</strong>用于身份验证和安全保障所必需。
           </li>
           <li>
-            <strong>Functional:</strong> remembering your preferences and
-            settings.
+            <strong>功能性：</strong>记住您的偏好和设置。
           </li>
           <li>
-            <strong>Analytics:</strong> understanding how users interact with
-            the platform.
+            <strong>分析：</strong>了解用户如何与平台互动。
           </li>
         </ul>
         <p className="mt-4 leading-relaxed">
-          <JurisdictionTag>GDPR</JurisdictionTag> For EEA/UK users,
-          non-essential cookies are only placed with your prior consent. You can
-          manage preferences through the cookie banner or your account settings.
+          <JurisdictionTag>GDPR</JurisdictionTag> 对于
+          EEA/英国用户，仅在获得您事先同意后才会放置非必要 Cookie。您可通过
+          Cookie 横幅或账户设置管理偏好。
         </p>
         <p className="mt-4 leading-relaxed">
-          You can manage cookies through your browser settings. We honour the
-          Global Privacy Control signal as a cookie opt-out where required by
-          law.
+          您可以通过浏览器设置管理 Cookie。在法律要求的情况下，我们将 Global
+          Privacy Control 信号视为 Cookie 退出选择。
         </p>
       </section>
 
       {/* 18. Notifiable Data Breaches */}
       <section className="mt-12">
         <h2 className="text-2xl font-semibold tracking-tight">
-          18. Notifiable Data Breaches
+          18. 应通知的数据泄露
         </h2>
 
         <h3 className="mt-6 text-lg font-semibold">
-          Australia (Part IIIC, Privacy Act)
+          澳大利亚（Privacy Act 第 IIIC 部分）
         </h3>
         <p className="mt-4 leading-relaxed">
-          We will assess suspected breaches within 30 days and notify the OAIC
-          and affected individuals as soon as practicable if the breach is
-          likely to result in serious harm.
+          我们将在 30
+          天内评估疑似泄露事件；如果泄露可能造成严重损害，我们会在切实可行的情况下尽快通知
+          OAIC 和受影响个人。
         </p>
 
         <h3 className="mt-6 text-lg font-semibold">
-          EU/EEA (GDPR Articles 33&ndash;34)
+          欧盟/EEA（GDPR 第 33 至 34 条）
         </h3>
         <p className="mt-4 leading-relaxed">
-          <JurisdictionTag>GDPR</JurisdictionTag> We will notify the relevant
-          supervisory authority within 72 hours. Where a breach poses high risk
-          to individuals, we will also notify affected data subjects without
-          undue delay.
+          <JurisdictionTag>GDPR</JurisdictionTag> 我们将在 72
+          小时内通知相关监管机构。如果泄露对个人构成高风险，我们也会立即通知受影响的数据主体。
         </p>
 
-        <h3 className="mt-6 text-lg font-semibold">United States</h3>
+        <h3 className="mt-6 text-lg font-semibold">美国</h3>
         <p className="mt-4 leading-relaxed">
-          <JurisdictionTag>US</JurisdictionTag> We will comply with applicable
-          state data breach notification laws.
+          <JurisdictionTag>US</JurisdictionTag>{' '}
+          我们将遵守适用的州级数据泄露通知法律。
         </p>
       </section>
 
       {/* 19. Complaints */}
       <section className="mt-12">
-        <h2 className="text-2xl font-semibold tracking-tight">
-          19. Complaints
-        </h2>
+        <h2 className="text-2xl font-semibold tracking-tight">19. 投诉</h2>
         <p className="mt-4 leading-relaxed">
-          If you believe we have breached applicable privacy laws, contact{' '}
+          如果您认为我们违反了适用的隐私法，请联系{' '}
           <a
             href={`mailto:${PRIVACY_EMAIL}`}
             className="underline underline-offset-4 hover:text-foreground"
           >
             {PRIVACY_EMAIL}
           </a>
-          . We will acknowledge within 5 business days, investigate and respond
-          within 30 days.
+          。我们将在 5 个工作日内确认收到，并在 30 天内调查和回复。
         </p>
         <p className="mt-4 leading-relaxed">
-          If unsatisfied, you may escalate to:
+          如果您对处理结果不满意，可向以下机构申诉：
         </p>
         <div className="mt-4 rounded-lg border bg-muted/50 p-4 text-sm leading-relaxed">
           <p>
-            <strong>Australia:</strong> Office of the Australian Information
-            Commissioner (OAIC) —{' '}
+            <strong>澳大利亚：</strong>Office of the Australian Information
+            Commissioner（OAIC）—{' '}
             <a
               href="https://www.oaic.gov.au"
               target="_blank"
@@ -966,7 +807,7 @@ function PrivacyPage() {
             2001
           </p>
           <p className="mt-2">
-            <strong>EU/EEA:</strong> Your local supervisory authority —{' '}
+            <strong>欧盟/EEA：</strong>您当地的监管机构—{' '}
             <a
               href="https://edpb.europa.eu/about-edpb/about-edpb/members_en"
               target="_blank"
@@ -977,8 +818,7 @@ function PrivacyPage() {
             </a>
           </p>
           <p className="mt-2">
-            <strong>US:</strong> Your state attorney general&rsquo;s office or
-            the FTC at{' '}
+            <strong>美国：</strong>您所在州的州检察长办公室，或 FTC：{' '}
             <a
               href="https://www.ftc.gov"
               target="_blank"
@@ -994,26 +834,20 @@ function PrivacyPage() {
       {/* 20. Changes to This Policy */}
       <section className="mt-12">
         <h2 className="text-2xl font-semibold tracking-tight">
-          20. Changes to This Policy
+          20. 本政策的变更
         </h2>
         <p className="mt-4 leading-relaxed">
-          We may update this Policy to reflect changes in our practices,
-          technology, or legal requirements. Material changes will be posted on
-          our website with an updated &ldquo;Last Updated&rdquo; date. Where
-          required by law, we will seek your consent before materially changing
-          how we process your personal information.
+          我们可能更新本政策，以反映我们的实践、技术或法律要求的变化。重大变更将在我们的网站上发布，并更新“最后更新”日期。在法律要求的情况下，我们会在实质性改变个人信息处理方式前征得您的同意。
         </p>
       </section>
 
       {/* 21. Contact Us */}
       <section className="mt-12">
-        <h2 className="text-2xl font-semibold tracking-tight">
-          21. Contact Us
-        </h2>
+        <h2 className="text-2xl font-semibold tracking-tight">21. 联系我们</h2>
         <div className="mt-4 rounded-lg border bg-muted/50 p-4 text-sm leading-relaxed">
-          <p className="font-semibold">{SITE_CONFIG.name} — Data Controller</p>
+          <p className="font-semibold">{SITE_CONFIG.name} — 数据控制者</p>
           <p className="mt-1">
-            Email:{' '}
+            邮箱：{' '}
             <a
               href={`mailto:${PRIVACY_EMAIL}`}
               className="underline underline-offset-4 hover:text-foreground"
@@ -1022,7 +856,7 @@ function PrivacyPage() {
             </a>
           </p>
           <p className="mt-1">
-            Website:{' '}
+            网站：{' '}
             <a
               href={SITE_CONFIG.url}
               className="underline underline-offset-4 hover:text-foreground"

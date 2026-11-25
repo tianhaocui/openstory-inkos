@@ -101,17 +101,16 @@ export function resolutionCeilingNote(
     RESOLUTION_OPTIONS.find((option) => option.value === resolution)?.label ??
     resolution;
   const clauses = [
-    lower.length > 0 && `${subject(lower)} below ${label}`,
-    higher.length > 0 && `${subject(higher)} above ${label}`,
-    fixed.length > 0 && `${subject(fixed)} at a fixed size`,
+    lower.length > 0 && `${subject(lower)} 将以低于 ${label} 的分辨率生成`,
+    higher.length > 0 && `${subject(higher)} 将以高于 ${label} 的分辨率生成`,
+    fixed.length > 0 && `${subject(fixed)} 使用固定分辨率`,
   ].filter((clause): clause is string => clause !== false);
   return clauses.length > 0 ? clauses.join(' · ') : null;
 }
 
-/** "X renders" / "X and Y render" / "X and Y and 2 more render". */
+/** Format at most two model names, then summarize the remaining count. */
 function subject(names: string[]): string {
-  const named = names.slice(0, 2).join(' and ');
+  const named = names.slice(0, 2).join('、');
   const rest = names.length - 2;
-  const who = rest > 0 ? `${named} and ${rest} more` : named;
-  return `${who} render${names.length === 1 ? 's' : ''}`;
+  return rest > 0 ? `${named} 等 ${names.length} 个模型` : named;
 }

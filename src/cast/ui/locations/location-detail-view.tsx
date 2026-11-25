@@ -105,16 +105,16 @@ export const LocationDetailView: React.FC<LocationDetailViewProps> = ({
               to: '/sequences/$id/locations',
               params: { id: sequenceId },
             });
-            toast(`Removed ${name}`, {
+            toast(`已移除 ${name}`, {
               duration: 60_000,
               action: {
-                label: 'Undo',
+                label: '撤销',
                 onClick: () =>
                   void restoreSequenceLocation(queryClient, {
                     sequenceId,
                     locationDbId: locationId,
                   }).catch((error: Error) =>
-                    toast.error('Failed to restore location', {
+                    toast.error('恢复场景失败', {
                       description: errorMessage(error),
                     })
                   ),
@@ -122,7 +122,7 @@ export const LocationDetailView: React.FC<LocationDetailViewProps> = ({
             });
           },
           onError: (error) =>
-            toast.error('Failed to remove location', {
+            toast.error('移除场景失败', {
               description: errorMessage(error),
             }),
         }
@@ -174,13 +174,13 @@ export const LocationDetailView: React.FC<LocationDetailViewProps> = ({
             !('phase' in data) || data.phase !== 'retrying'
               ? null
               : 'promptSoftened' in data && data.promptSoftened === true
-                ? 'Retrying with a rewritten prompt…'
+                ? '正在使用重写的提示词重试…'
                 : 'attempt' in data &&
                     'maxAttempts' in data &&
                     typeof data.attempt === 'number' &&
                     typeof data.maxAttempts === 'number'
-                  ? `Retrying (/)…`
-                  : 'Retrying…'
+                  ? `正在重试 (${data.attempt}/${data.maxAttempts})…`
+                  : '正在重试…'
           );
         } else {
           setIsRegenerating(false);
@@ -231,11 +231,11 @@ export const LocationDetailView: React.FC<LocationDetailViewProps> = ({
         undiscardVariant.mutate(
           { sequenceId, variantId: variant.id },
           {
-            onSuccess: () => toast.success('Alternate restored'),
+            onSuccess: () => toast.success('备选版本已恢复'),
             onError: (error) => {
-              toast.error('Failed to restore alternate', {
+              toast.error('恢复备选版本失败', {
                 description:
-                  error instanceof Error ? error.message : 'Unknown error',
+                  error instanceof Error ? error.message : '未知错误',
               });
             },
           }
@@ -245,14 +245,13 @@ export const LocationDetailView: React.FC<LocationDetailViewProps> = ({
         {
           onSuccess: () => {
             setCompareVariant(null);
-            toast('Alternate discarded', {
-              action: { label: 'Undo', onClick: restore },
+            toast('备选版本已丢弃', {
+              action: { label: '撤销', onClick: restore },
             });
           },
           onError: (error) => {
-            toast.error('Failed to discard alternate', {
-              description:
-                error instanceof Error ? error.message : 'Unknown error',
+            toast.error('丢弃备选版本失败', {
+              description: error instanceof Error ? error.message : '未知错误',
             });
           },
         }
@@ -268,12 +267,11 @@ export const LocationDetailView: React.FC<LocationDetailViewProps> = ({
         {
           onSuccess: () => {
             setCompareVariant(null);
-            toast.success('Alternate promoted');
+            toast.success('备选版本已提升为当前版本');
           },
           onError: (error) => {
-            toast.error('Failed to promote alternate', {
-              description:
-                error instanceof Error ? error.message : 'Unknown error',
+            toast.error('提升备选版本失败', {
+              description: error instanceof Error ? error.message : '未知错误',
             });
           },
         }
@@ -296,9 +294,7 @@ export const LocationDetailView: React.FC<LocationDetailViewProps> = ({
   );
   const sheetBusyLabel =
     retryLabel ??
-    (hasPriorSheet
-      ? 'Regenerating location reference…'
-      : 'Generating location reference…');
+    (hasPriorSheet ? '正在重新生成场景参考素材…' : '正在生成场景参考素材…');
   const selectedSheetModel = resolveSheetImageModel({
     explicit: sheetModel,
     liveVersionModel: (versionHistory?.versions ?? []).find(
@@ -327,7 +323,7 @@ export const LocationDetailView: React.FC<LocationDetailViewProps> = ({
       },
       {
         onError: (error) =>
-          toast.error('Failed to regenerate reference', {
+          toast.error('重新生成参考素材失败', {
             description: errorMessage(error),
           }),
       }
@@ -366,7 +362,7 @@ export const LocationDetailView: React.FC<LocationDetailViewProps> = ({
     return (
       <div className="flex h-full items-center justify-center p-6">
         <div className="text-center">
-          <p className="text-sm text-destructive">Failed to load location</p>
+          <p className="text-sm text-destructive">加载场景失败</p>
           <p className="mt-1 text-xs text-muted-foreground">{error.message}</p>
         </div>
       </div>
@@ -396,13 +392,13 @@ export const LocationDetailView: React.FC<LocationDetailViewProps> = ({
       <div className="flex h-full flex-col items-center justify-center gap-4 p-6">
         <MapPin className="h-16 w-16 text-muted-foreground/30" />
         <div className="text-center">
-          <p className="text-sm font-medium">Location not found</p>
+          <p className="text-sm font-medium">未找到场景</p>
           <Link
             to="/sequences/$id/locations"
             params={{ id: sequenceId }}
             className="mt-2 text-sm text-primary hover:underline"
           >
-            Back to locations
+            返回场景列表
           </Link>
         </div>
       </div>
@@ -450,7 +446,7 @@ export const LocationDetailView: React.FC<LocationDetailViewProps> = ({
           <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-2">
-                <p className="text-sm font-medium">Reference</p>
+                <p className="text-sm font-medium">参考素材</p>
                 {isSheetStale && (
                   <StalenessIndicator
                     artifact="sheet"
@@ -483,7 +479,7 @@ export const LocationDetailView: React.FC<LocationDetailViewProps> = ({
                     <div className="flex h-full w-full flex-col items-center justify-center gap-2">
                       <MapPin className="h-16 w-16 text-muted-foreground/20" />
                       <p className="text-sm text-muted-foreground">
-                        No reference yet
+                        暂无参考素材
                       </p>
                     </div>
                   )}
@@ -497,7 +493,7 @@ export const LocationDetailView: React.FC<LocationDetailViewProps> = ({
                   ) : null}
                 </div>
                 <SheetVersionStrip
-                  label="Versions"
+                  label="版本"
                   selectingId={
                     selectVersion.isPending
                       ? selectVersion.variables.versionId
@@ -508,7 +504,7 @@ export const LocationDetailView: React.FC<LocationDetailViewProps> = ({
                       { sequenceId, locationDbId: locationId, versionId },
                       {
                         onError: (error) =>
-                          toast.error('Failed to switch reference', {
+                          toast.error('切换参考素材失败', {
                             description: errorMessage(error),
                           }),
                       }
@@ -531,8 +527,7 @@ export const LocationDetailView: React.FC<LocationDetailViewProps> = ({
                 disabled={regenerateSheet.isPending || isSheetGenerating}
               />
               <p className="text-xs text-muted-foreground">
-                Used for this location's reference. Shot stills still follow the
-                sequence image model.
+                用于此场景的参考素材。镜头静帧仍使用序列图像模型。
               </p>
               <div className="flex w-fit flex-col gap-1">
                 <Button
@@ -546,13 +541,13 @@ export const LocationDetailView: React.FC<LocationDetailViewProps> = ({
                   )}
                   {regenerateSheet.isPending
                     ? hasPriorSheet
-                      ? 'Regenerating…'
-                      : 'Generating…'
+                      ? '正在重新生成…'
+                      : '正在生成…'
                     : hasPriorSheet
                       ? isSheetGenerating
-                        ? 'Generate again'
-                        : 'Regenerate Reference'
-                      : 'Generate Reference'}
+                        ? '再次生成'
+                        : '重新生成参考素材'
+                      : '生成参考素材'}
                 </Button>
                 <ActionCost estimate={sheetCostEstimate} />
               </div>
@@ -563,11 +558,11 @@ export const LocationDetailView: React.FC<LocationDetailViewProps> = ({
                   onClick={() => setIsPickerOpen(true)}
                   disabled={isSheetGenerating}
                 >
-                  Replace from library
+                  从场景库替换
                 </Button>
                 <UploadMediaButton
-                  label="Upload Reference"
-                  pendingLabel="Uploading…"
+                  label="上传参考素材"
+                  pendingLabel="正在上传…"
                   accept="image/*"
                   isPending={uploadReference.isPending}
                   disabled={isSheetGenerating}
@@ -575,10 +570,9 @@ export const LocationDetailView: React.FC<LocationDetailViewProps> = ({
                     uploadReference.mutate(
                       { file, sequenceId, locationDbId: locationId },
                       {
-                        onSuccess: () =>
-                          toast.success('Location reference uploaded'),
+                        onSuccess: () => toast.success('场景参考素材已上传'),
                         onError: (error) =>
-                          toast.error('Reference upload failed', {
+                          toast.error('参考素材上传失败', {
                             description: errorMessage(error),
                           }),
                       }
@@ -592,14 +586,13 @@ export const LocationDetailView: React.FC<LocationDetailViewProps> = ({
                   disabled={softDelete.isPending}
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
-                  {softDelete.isPending ? 'Removing…' : 'Remove'}
+                  {softDelete.isPending ? '正在移除…' : '移除'}
                 </Button>
               </div>
 
               {shotData && shotData.count > 0 && (
                 <p className="text-sm text-muted-foreground">
-                  Used in {shotData.count}{' '}
-                  {shotData.count === 1 ? 'shot' : 'shots'}
+                  用于 {shotData.count} 个镜头
                 </p>
               )}
             </div>
@@ -613,12 +606,12 @@ export const LocationDetailView: React.FC<LocationDetailViewProps> = ({
               {location.firstMentionSceneId && (
                 <div className="flex flex-col gap-1 rounded-lg bg-muted/50 p-3">
                   <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    First Appears
+                    首次出现
                   </p>
                   <p className="text-sm">
-                    {`Scene ${location.firstMentionSceneId}${
+                    {`场景 ${location.firstMentionSceneId}${
                       location.firstMentionLine
-                        ? `, Line ${location.firstMentionLine}`
+                        ? `，第 ${location.firstMentionLine} 行`
                         : ''
                     }`}
                   </p>
@@ -646,20 +639,19 @@ export const LocationDetailView: React.FC<LocationDetailViewProps> = ({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Remove {location.name} from this sequence?
+              从此序列中移除 {location.name}？
             </AlertDialogTitle>
             <AlertDialogDescription>
-              The location is hidden from the sequence and prompt context. You
-              can undo from the toast right after removing.
+              此场景将从序列和提示词上下文中隐藏。移除后可立即通过通知撤销。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>取消</AlertDialogCancel>
             <AlertDialogAction
               disabled={softDelete.isPending}
               onClick={() => handleRemove(location.name)}
             >
-              {softDelete.isPending ? 'Removing…' : 'Remove'}
+              {softDelete.isPending ? '正在移除…' : '移除'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

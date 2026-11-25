@@ -1,9 +1,6 @@
 import {
-  GENERATION_STAGE_META,
   sliderStages,
-  sliderStopLabel,
   sliderThumbIndex,
-  stopAfterSentence,
   stopAtFromSliderIndex,
 } from '@/sequences/pipeline';
 import type { GenerationStage } from '@/sequences/pipeline';
@@ -31,6 +28,24 @@ type GenerationStopSliderProps = {
   generateVoices?: boolean;
   onGenerateVoicesChange?: (value: boolean) => void;
   disabled?: boolean;
+};
+
+const STAGE_LABELS: Record<GenerationStage, string> = {
+  script: '选角',
+  references: '参考素材与提示词',
+  images: '图片',
+  dialogue: '对白',
+  motion: '动态视频与音乐',
+  music: '动态视频与音乐',
+};
+
+const STOP_LABELS: Record<GenerationStage, string> = {
+  script: '选角后停止',
+  references: '参考素材与提示词后停止',
+  images: '图片生成后停止',
+  dialogue: '对白生成后停止',
+  motion: '生成完整序列',
+  music: '生成完整序列',
 };
 
 function stopLabelPercent(index: number, lastStop: number): number {
@@ -62,7 +77,7 @@ export const GenerationStopSlider: FC<GenerationStopSliderProps> = ({
         id="generation-stop-label"
         className="text-sm font-medium text-foreground"
       >
-        {stopAfterSentence(selected)}
+        {STOP_LABELS[selected]}
       </h3>
       <Slider
         min={0}
@@ -75,7 +90,7 @@ export const GenerationStopSlider: FC<GenerationStopSliderProps> = ({
           if (index === undefined) return;
           onChange(stopAtFromSliderIndex(Math.max(minIndex, index), stages));
         }}
-        aria-label="How far generation should run"
+        aria-label="生成流程运行到哪一步"
       />
       {/*
         Radix insets each thumb by half its width so it stays on the track
@@ -110,9 +125,7 @@ export const GenerationStopSlider: FC<GenerationStopSliderProps> = ({
               {/* Ticks name the stop; the heading above says what happens
                   there. The last tick used stopAfterSentence, so it repeated
                   the heading ("Don't stop") instead of naming the stage. */}
-              {index === lastStop
-                ? sliderStopLabel(stage)
-                : GENERATION_STAGE_META[stage].shortName}
+              {STAGE_LABELS[stage]}
             </button>
           ))}
         </div>
@@ -137,13 +150,13 @@ export const GenerationStopSlider: FC<GenerationStopSliderProps> = ({
               disabled={disabled}
             />
             <Label htmlFor="generate-start-frames" className="text-sm">
-              Use start frames
+              使用起始帧
             </Label>
           </div>
           <p className="text-xs text-muted-foreground">
             {generateStartFrames
-              ? 'Each shot’s video starts from a generated still.'
-              : 'Video is generated straight from the reference sheets.'}
+              ? '每个镜头的视频都从生成的静帧开始。'
+              : '视频将直接根据参考设定图生成。'}
           </p>
         </div>
       )}
@@ -165,13 +178,13 @@ export const GenerationStopSlider: FC<GenerationStopSliderProps> = ({
               disabled={disabled}
             />
             <Label htmlFor="generate-voices" className="text-sm">
-              Voices
+              声音
             </Label>
           </div>
           <p className="text-xs text-muted-foreground">
             {generateVoices
-              ? `Each speaking character gets a designed voice (${microsToDisplayUsd(VOICE_DESIGN_COST)} each).`
-              : 'Characters have no voice.'}
+              ? `为每个有台词的角色设计声音（每个 ${microsToDisplayUsd(VOICE_DESIGN_COST)}）。`
+              : '角色不包含声音。'}
           </p>
         </div>
       )}

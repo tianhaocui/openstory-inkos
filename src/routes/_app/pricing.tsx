@@ -16,14 +16,14 @@ import { openAddCreditsDialog } from '@/billing/ui/use-add-credits-dialog';
 import { SITE_CONFIG } from '@/ui/marketing/constants';
 import { ArrowUpRight, KeyRound } from 'lucide-react';
 
-const title = `Pricing — ${SITE_CONFIG.name}`;
+const title = `定价 — ${SITE_CONFIG.name}`;
 const description =
-  'Pay providers as you go. Estimates before every spend. Bring your own keys to skip the wallet.';
+  '按使用量向服务商付费，每次消费前均会显示预估费用。使用您自己的密钥可跳过钱包。';
 
 export const Route = createFileRoute('/_app/pricing')({
   component: PricingPage,
   loader: () => getPricingCatalogFn(),
-  staticData: { breadcrumb: 'Pricing' },
+  staticData: { breadcrumb: '定价' },
   head: () => ({
     meta: [
       { title },
@@ -49,21 +49,17 @@ function PricingPage() {
   return (
     <div className="mx-auto w-full max-w-5xl p-6 pb-16">
       <header className="max-w-2xl">
-        <h1 className="font-heading text-3xl font-bold tracking-tight">
-          Pricing
-        </h1>
+        <h1 className="font-heading text-3xl font-bold tracking-tight">定价</h1>
         <p className="mt-3 text-base leading-relaxed text-muted-foreground">
-          Pay providers as you go. We show an estimate under each action before
-          you spend.
+          按使用量向服务商付费。每次消费前，我们都会在相应操作下显示预估费用。
           {filmCosts?.welcomeCredits ? (
             <>
               {' '}
-              New accounts get{' '}
+              新账户保存银行卡（不会扣款）后可免费获得{' '}
               <span className="font-medium text-foreground tabular-nums">
                 {filmCosts.welcomeCredits}
               </span>{' '}
-              free after saving a card (no charge) — enough for a typical 30s
-              short with motion and music.
+              ，足够制作一部包含动态画面和音乐的典型 30 秒短片。
             </>
           ) : null}
         </p>
@@ -73,15 +69,15 @@ function PricingPage() {
         <section id="film-cost" className="mt-10">
           <div className="mb-4 max-w-2xl">
             <h2 className="text-xl font-semibold tracking-tight">
-              Typical first film
+              典型的第一部影片
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              {filmCosts.targetDurationSeconds}s target (Enhance default) with
-              product defaults ({filmCosts.imageModelName},{' '}
-              {filmCosts.videoModelName}, {filmCosts.audioModelName}). These use
-              the same estimators as Generate (fixed 30s showcase) — we try to
-              be as accurate as possible; the final charge can differ once
-              generation finishes.
+              目标时长 {filmCosts.targetDurationSeconds} 秒（Enhance
+              默认值），采用产品默认模型（
+              {filmCosts.imageModelName}、{filmCosts.videoModelName}、
+              {filmCosts.audioModelName}
+              ）。这些费用使用与“生成”相同的估算器（固定 30
+              秒展示片）；我们会尽量准确，但生成完成后的最终费用可能不同。
             </p>
           </div>
 
@@ -116,7 +112,7 @@ function PricingPage() {
           </div>
 
           <div className="mt-6">
-            <Button onClick={onAddCredits}>Add credits</Button>
+            <Button onClick={onAddCredits}>充值点数</Button>
           </div>
         </section>
       )}
@@ -126,26 +122,27 @@ function PricingPage() {
         className="mt-10 flex flex-col gap-3 text-sm text-muted-foreground"
       >
         <h2 className="text-base font-semibold tracking-tight text-foreground">
-          How billing works
+          计费方式
         </h2>
         <ul className="flex flex-col gap-2">
           <li>
-            Credits are drawn at fal.ai / OpenRouter rates when you use the
-            wallet. Media is fal; script analysis is OpenRouter.
+            使用钱包时，点数按 fal.ai / OpenRouter 的费率扣除。媒体生成使用
+            fal，剧本分析使用 OpenRouter。
           </li>
           <li>
-            A {feePercent} fee applies only when you{' '}
-            <span className="text-foreground">buy</span> credits ($
-            {chargeFor100} charged → $100 wallet) — not on each generation.
+            {feePercent} 的费用仅在您
+            <span className="text-foreground">购买</span>
+            点数时收取（支付 ${chargeFor100}，钱包到账
+            $100），不会在每次生成时收取。
           </li>
           <li className="flex items-start gap-2">
             <KeyRound className="mt-0.5 size-4 shrink-0" aria-hidden />
             <span>
               <span className="font-medium text-foreground">
-                Bring your own keys
+                使用您自己的密钥
               </span>{' '}
-              in Settings to pay platforms directly and skip the wallet. fal.ai
-              covers media; OpenRouter is optional for analysis.
+              可在“设置”中直接向平台付费并跳过钱包。fal.ai
+              覆盖媒体生成；OpenRouter 可选用于分析。
             </span>
           </li>
         </ul>
@@ -167,11 +164,11 @@ function PricingPage() {
               <table className="w-full min-w-[36rem] text-left text-sm">
                 <thead>
                   <tr className="border-b bg-muted/40">
-                    <th className="px-4 py-3 font-medium">Model</th>
-                    <th className="px-4 py-3 font-medium">Vendor</th>
-                    <th className="px-4 py-3 font-medium">Via</th>
+                    <th className="px-4 py-3 font-medium">模型</th>
+                    <th className="px-4 py-3 font-medium">供应商</th>
+                    <th className="px-4 py-3 font-medium">渠道</th>
                     <th className="px-4 py-3 font-medium text-right">
-                      Indicative rate
+                      参考费率
                     </th>
                   </tr>
                 </thead>
@@ -186,7 +183,7 @@ function PricingPage() {
                           <span className="font-medium">{row.name}</span>
                           {row.license === 'open-weight' && (
                             <Badge variant="secondary" className="text-xs">
-                              Open weight
+                              开放权重
                             </Badge>
                           )}
                         </div>
@@ -223,18 +220,17 @@ function PricingPage() {
       </div>
 
       <p className="mt-10 text-center text-xs text-muted-foreground">
-        Indicative rates from platform APIs ({lastUpdated}). Actual charges
-        follow billed units. Via links open that platform&rsquo;s full pricing.
+        参考费率来自平台 API（{lastUpdated}
+        ）。实际费用以计费单位为准。渠道链接将打开对应平台的完整定价页面。
       </p>
 
       <div className="mt-12 flex flex-col items-center gap-4 rounded-2xl border bg-muted/30 px-6 py-10 text-center">
-        <h2 className="text-xl font-semibold">Ready when you are</h2>
+        <h2 className="text-xl font-semibold">随时可以开始</h2>
         <p className="max-w-md text-sm text-muted-foreground">
-          Top up the wallet, or connect provider keys in Settings to pay
-          platforms directly. No subscriptions.
+          为钱包充值，或在“设置”中连接服务商密钥并直接向平台付费。无需订阅。
         </p>
         <Button size="lg" onClick={onAddCredits}>
-          Add credits
+          充值点数
         </Button>
       </div>
     </div>

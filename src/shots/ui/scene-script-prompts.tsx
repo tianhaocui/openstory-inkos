@@ -176,26 +176,26 @@ export function tabsForScope(scope: SelectionScope): TabDescriptor[] {
     // image and motion prompts. Video leads: it is the deliverable, and in
     // the default reference-only mode the start frame is optional.
     return [
-      { value: 'motion-prompt', label: 'Video' },
-      { value: 'image-prompt', label: 'Start Frame' },
-      { value: 'cast', label: 'Cast' },
-      { value: 'location', label: 'Locations' },
-      { value: 'elements', label: 'Elements' },
+      { value: 'motion-prompt', label: '视频' },
+      { value: 'image-prompt', label: '起始帧' },
+      { value: 'cast', label: '演员' },
+      { value: 'location', label: '场景' },
+      { value: 'elements', label: '元素' },
     ];
   }
   if (scope === 'scenes') {
     return [
-      { value: 'script', label: 'Script' },
-      { value: 'cast', label: 'Cast' },
-      { value: 'location', label: 'Locations' },
-      { value: 'elements', label: 'Elements' },
+      { value: 'script', label: '剧本' },
+      { value: 'cast', label: '演员' },
+      { value: 'location', label: '场景' },
+      { value: 'elements', label: '元素' },
     ];
   }
   return [
-    { value: 'cast', label: 'Cast' },
-    { value: 'location', label: 'Locations' },
-    { value: 'elements', label: 'Elements' },
-    { value: 'music', label: 'Music' },
+    { value: 'cast', label: '演员' },
+    { value: 'location', label: '场景' },
+    { value: 'elements', label: '元素' },
+    { value: 'music', label: '音乐' },
   ];
 }
 
@@ -457,7 +457,7 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
         { sequenceId, shotId: shot.id, versionId },
         {
           onError: (error) => {
-            toast.error('Failed to switch video version', {
+            toast.error('切换视频版本失败', {
               description: errorMessage(error),
             });
           },
@@ -560,11 +560,11 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
     },
     onSuccess: (result, vars) => {
       if (result.alreadyUpToDate) {
-        toast.info('Prompt is already up to date');
+        toast.info('提示词已是最新');
       } else if (result.alreadyInFlight) {
         // Server-side dedup hit (#1085): a run — this tab's, another tab's,
         // or a teammate's — is already producing this prompt.
-        toast.info('This prompt is already being regenerated');
+        toast.info('此提示词已在重新生成');
       } else {
         // Workflow is now enqueued; hold the busy state via the stream's
         // `'pending'` status until deltas start arriving. Naturally cleared
@@ -572,8 +572,8 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
         markPromptPending(vars.promptType);
         toast.success(
           vars.promptType === 'visual'
-            ? 'Regenerating visual prompt…'
-            : 'Regenerating motion prompt…'
+            ? '正在重新生成图片提示词…'
+            : '正在重新生成动态提示词…'
         );
       }
       // Deliberately no staleness invalidation here: the workflow has only been
@@ -582,7 +582,7 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
     },
     onError: (error, _vars, context) => {
       context?.rollback?.();
-      toast.error('Prompt regenerate failed', {
+      toast.error('重新生成提示词失败', {
         description: errorMessage(error),
       });
     },
@@ -599,11 +599,7 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
       });
     },
     onSuccess: async (result) => {
-      toast.success(
-        result.cancelled
-          ? 'Video generation cancelled'
-          : 'Video had already finished'
-      );
+      toast.success(result.cancelled ? '视频生成已取消' : '视频已生成完成');
       if (shot?.id) {
         await queryClient.invalidateQueries({
           queryKey: shotKeys.detail(shot.id),
@@ -621,7 +617,7 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
       ]);
     },
     onError: (error) =>
-      toast.error('Failed to cancel video', {
+      toast.error('取消视频失败', {
         description: errorMessage(error),
       }),
   });
@@ -647,11 +643,11 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
         {
           onSuccess: (r) => {
             dirtyImageRef.current = false;
-            toast.success(r.unchanged ? 'No changes to save' : 'Prompt saved');
+            toast.success(r.unchanged ? '没有需要保存的更改' : '提示词已保存');
           },
           onError: (e) =>
-            toast.error('Save failed', {
-              description: e instanceof Error ? e.message : 'Unknown error',
+            toast.error('保存失败', {
+              description: e instanceof Error ? e.message : '未知错误',
             }),
         }
       );
@@ -666,11 +662,11 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
         {
           onSuccess: (r) => {
             dirtyMotionRef.current = false;
-            toast.success(r.unchanged ? 'No changes to save' : 'Prompt saved');
+            toast.success(r.unchanged ? '没有需要保存的更改' : '提示词已保存');
           },
           onError: (e) =>
-            toast.error('Save failed', {
-              description: e instanceof Error ? e.message : 'Unknown error',
+            toast.error('保存失败', {
+              description: e instanceof Error ? e.message : '未知错误',
             }),
         }
       );
@@ -695,14 +691,14 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
   const motionError = shotPromptStream.motion.error;
   useEffect(() => {
     if (shotPromptStream.visual.status === 'failed' && visualError) {
-      toast.error('Visual prompt regenerate failed', {
+      toast.error('图片提示词重新生成失败', {
         description: visualError,
       });
     }
   }, [shotPromptStream.visual.status, visualError]);
   useEffect(() => {
     if (shotPromptStream.motion.status === 'failed' && motionError) {
-      toast.error('Motion prompt regenerate failed', {
+      toast.error('动态提示词重新生成失败', {
         description: motionError,
       });
     }
@@ -753,10 +749,10 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
       {
         onSuccess: () => {
           setEditedScript(undefined);
-          toast.success('Scene saved');
+          toast.success('场景已保存');
         },
         onError: (error) => {
-          toast.error('Failed to save scene', {
+          toast.error('保存场景失败', {
             description: errorMessage(error),
           });
         },
@@ -781,10 +777,9 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
       if (!text) return;
 
       if (!(await copyTextToClipboard(text))) {
-        toast.error('Failed to copy', {
+        toast.error('复制失败', {
           id: 'copy-prompt-failed',
-          description:
-            'Your browser blocked clipboard access. Select the prompt text to copy it manually.',
+          description: '浏览器阻止了剪贴板访问，请选择提示词文本并手动复制。',
         });
         return;
       }
@@ -846,7 +841,7 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
     if (!currentPrompt || currentPrompt.length < 20) {
       setShortenStatus((s) => ({
         ...s,
-        error: 'Prompt is too short to shorten',
+        error: '提示词太短，无法精简',
       }));
       return;
     }
@@ -860,7 +855,7 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
       // Persist immediately — a shortened prompt is a real edit, not a throwaway
       // draft. Without this it'd be lost on the next refetch.
       handleSaveVisualPrompt(result.shortenedPrompt);
-      const msg = `Prompt shortened by ${result.reductionPercent}% (${result.originalLength} → ${result.shortenedLength} chars)`;
+      const msg = `提示词已精简 ${result.reductionPercent}%（${result.originalLength} → ${result.shortenedLength} 个字符）`;
       setShortenStatus({ loading: false, error: null, success: msg });
       // Clear success message after 5 seconds
       setTimeout(
@@ -870,7 +865,7 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
     } catch (error) {
       logger.error('Failed to shorten prompt:', { err: error });
       const errorMessage =
-        error instanceof Error ? error.message : 'Failed to shorten prompt';
+        error instanceof Error ? error.message : '精简提示词失败';
       setShortenStatus({ loading: false, error: errorMessage, success: null });
     }
   }, [editedImagePrompt, imagePrompt, handleSaveVisualPrompt]);
@@ -954,7 +949,7 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
           queryKey: [...BILLING_BALANCE_KEY],
         });
       } else {
-        toastGenerationError('Image generation failed', error);
+        toastGenerationError('图片生成失败', error);
       }
 
       // Rollback on error - set status to failed
@@ -1052,7 +1047,7 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
           queryKey: [...BILLING_BALANCE_KEY],
         });
       } else {
-        toastGenerationError('Motion generation failed', error);
+        toastGenerationError('动态视频生成失败', error);
       }
 
       // Rollback on error
@@ -1111,7 +1106,7 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
   const unusableElementLines = promptPreview?.motionUnusable ?? [];
   useEffect(() => {
     if (promptPreviewError) {
-      toast.error('Prompt preview failed', {
+      toast.error('提示词预览失败', {
         description: errorMessage(promptPreviewError),
       });
     }
@@ -1285,8 +1280,8 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
   // image prompt ever written — and the button offering to redo one that does
   // not exist is why it reads wrong. Keyed on the prompt itself rather than on
   // the mode, so it is also right for a shot whose prompt generation failed.
-  const visualPromptAction = imagePrompt?.trim() ? 'Regenerate' : 'Generate';
-  const motionPromptAction = rawMotionPrompt.trim() ? 'Regenerate' : 'Generate';
+  const visualPromptAction = imagePrompt?.trim() ? '重新生成' : '生成';
+  const motionPromptAction = rawMotionPrompt.trim() ? '重新生成' : '生成';
   // Generate Image / Generate Motion spend credits; an empty (or whitespace)
   // base prompt has nothing to render. Generate Prompt above is the way out.
   const hasVisualPrompt = !isBlankPrompt(editedImagePrompt);
@@ -1325,18 +1320,16 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
           onSuccess: (result) => {
             if (result.promptChanged) dirtyImageRef.current = false;
             toast.success(
-              result.promptChanged
-                ? 'Image replaced and prompt saved'
-                : 'Image replaced',
+              result.promptChanged ? '图片及提示词已替换并保存' : '图片已替换',
               result.cropped
                 ? {
-                    description: `Cropped to ${ratio} so motion generation matches the sequence.`,
+                    description: `已裁剪为 ${ratio}，以使动态视频生成与序列匹配。`,
                   }
                 : undefined
             );
           },
           onError: (error) =>
-            toast.error('Image upload failed', {
+            toast.error('图片上传失败', {
               description: errorMessage(error),
             }),
         }
@@ -1351,9 +1344,9 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
       replaceShotVideo.mutate(
         { file, sequenceId: shot.sequenceId, shotId: shot.id },
         {
-          onSuccess: () => toast.success('Video replaced'),
+          onSuccess: () => toast.success('视频已替换'),
           onError: (error) =>
-            toast.error('Video upload failed', {
+            toast.error('视频上传失败', {
               description: errorMessage(error),
             }),
         }
@@ -1419,7 +1412,7 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
           entityType="shot"
           density="status-line"
           tone="unknown"
-          message="Couldn’t check whether this shot is up to date"
+          message="无法检查此镜头是否为最新"
         />
       )}
 
@@ -1570,11 +1563,11 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
                   copyKey="image-prompt-field"
                   copiedTab={copiedTab}
                   onCopy={(text, key) => void handleCopy(text, key)}
-                  label="Copy image prompt"
+                  label="复制图片提示词"
                 />
                 <VoiceInputButton
                   key={shot?.id}
-                  label="image prompt"
+                  label="图片提示词"
                   size="icon-xs"
                   disabled={isAwaitingVisualPrompt}
                   {...imageVoice}
@@ -1608,9 +1601,9 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
               placeholder={
                 isAwaitingVisualPrompt
                   ? isStreamingVisualPrompt
-                    ? 'Streaming prompt…'
-                    : 'Regenerating prompt…'
-                  : 'Enter image prompt… (type @ to insert elements, cast, locations)'
+                    ? '正在生成提示词…'
+                    : '正在重新生成提示词…'
+                  : '输入图片提示词…（输入 @ 可插入元素、演员和场景）'
               }
               className="min-h-[120px]"
               // Lock while streaming so local edits can't fight the LLM.
@@ -1629,7 +1622,7 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
                   }}
                   disabled={saveVisualPrompt.isPending}
                 >
-                  Cancel
+                  取消
                 </Button>
                 <Button
                   size="sm"
@@ -1639,7 +1632,7 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
                   {saveVisualPrompt.isPending && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
-                  {saveVisualPrompt.isPending ? 'Saving…' : 'Save'}
+                  {saveVisualPrompt.isPending ? '保存中…' : '保存'}
                 </Button>
               </div>
             )}
@@ -1649,7 +1642,7 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
               from the shot's selected image version and picking a different one
               applies to the next generation. */}
           <div className="space-y-2">
-            <span className="text-sm font-medium">Model</span>
+            <span className="text-sm font-medium">模型</span>
             <ImageModelSelector
               selectedModel={effectiveImageModel}
               onModelChange={(model) => onImageModelChange?.(model)}
@@ -1658,8 +1651,7 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
               generatedStatuses={imageModelStatuses}
             />
             <p className="text-xs text-muted-foreground">
-              Changing the model applies to the next generation. In-flight gens
-              still finish into history.
+              更改模型会应用于下一次生成，正在进行的任务仍会完成并记录到历史中。
             </p>
           </div>
 
@@ -1694,17 +1686,17 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
               {!shortenStatus.loading && <Minimize2 className="mr-2 h-4 w-4" />}
-              {shortenStatus.loading ? 'Shortening…' : 'Shorten Prompt'}
+              {shortenStatus.loading ? '精简中…' : '精简提示词'}
             </Button>
             <Button
               type="button"
               variant="outline"
               onClick={() => setHistoryOpen('visual')}
               disabled={!shot}
-              aria-label="Show visual history"
+              aria-label="查看图片历史"
             >
               <History className="mr-2 h-4 w-4" />
-              History
+              历史记录
             </Button>
           </div>
 
@@ -1766,10 +1758,10 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
               {isGenerating || variantIsGenerating
-                ? 'Generating…'
+                ? '生成中…'
                 : imageModelGenerated
-                  ? 'Regenerate Image'
-                  : 'Generate Image'}
+                  ? '重新生成图片'
+                  : '生成图片'}
             </Button>
             <p
               className={
@@ -1789,8 +1781,8 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
           {/* Manual still inject (#1108) — upload replaces the selected image;
               a pending prompt edit is saved atomically with it (§4.3 C). */}
           <UploadMediaButton
-            label="Replace Image"
-            pendingLabel="Uploading…"
+            label="替换图片"
+            pendingLabel="上传中…"
             accept="image/*"
             isPending={replaceFrameImage.isPending}
             disabled={!shot || isGenerating}
@@ -1892,11 +1884,11 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
                   copyKey="motion-prompt-field"
                   copiedTab={copiedTab}
                   onCopy={(text, key) => void handleCopy(text, key)}
-                  label="Copy motion prompt"
+                  label="复制动态提示词"
                 />
                 <VoiceInputButton
                   key={shot?.id}
-                  label="motion prompt"
+                  label="动态提示词"
                   size="icon-xs"
                   disabled={isAwaitingMotionPrompt}
                   {...motionVoice}
@@ -1927,9 +1919,9 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
               placeholder={
                 isAwaitingMotionPrompt
                   ? isStreamingMotionPrompt
-                    ? 'Streaming prompt…'
-                    : 'Regenerating prompt…'
-                  : 'Enter motion prompt… (type @ to insert elements, cast, locations)'
+                    ? '正在生成提示词…'
+                    : '正在重新生成提示词…'
+                  : '输入动态提示词…（输入 @ 可插入元素、演员和场景）'
               }
               className="min-h-[120px]"
               // Lock while streaming so local edits can't fight the LLM.
@@ -1948,7 +1940,7 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
                   }}
                   disabled={saveMotionPrompt.isPending}
                 >
-                  Cancel
+                  取消
                 </Button>
                 <Button
                   size="sm"
@@ -1958,7 +1950,7 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
                   {saveMotionPrompt.isPending && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
-                  {saveMotionPrompt.isPending ? 'Saving…' : 'Save'}
+                  {saveMotionPrompt.isPending ? '保存中…' : '保存'}
                 </Button>
               </div>
             )}
@@ -2016,7 +2008,7 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
           {/* Model selector — per-asset (#1066): seeded from the shot's selected
               video version; a pick applies to the next generation. */}
           <div className="space-y-2">
-            <span className="text-sm font-medium">Model</span>
+            <span className="text-sm font-medium">模型</span>
             <MotionModelSelector
               selectedModel={effectiveMotionModel}
               onModelChange={(model) => onVideoModelChange?.(model)}
@@ -2031,7 +2023,7 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
               referenceOnly={!shotUsesStartFrame}
             />
             <p className="text-xs text-muted-foreground">
-              Changing the model applies to the next generation.
+              更改模型会应用于下一次生成。
             </p>
           </div>
 
@@ -2079,7 +2071,7 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
             onClick={() => setHistoryOpen('motion')}
             disabled={!shot}
             className="w-full"
-            aria-label="Show motion history"
+            aria-label="查看动态历史"
           >
             <History className="mr-2 h-4 w-4" />
             History
@@ -2134,7 +2126,7 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
                 }
                 disabled={isGenerating || isGeneratingMotion}
               />
-              <span>Include SFX &amp; dialogue</span>
+              <span>包含音效和对白</span>
             </label>
           )}
 
@@ -2160,11 +2152,11 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
               }
             />
             <span>
-              Use start frame
+              使用起始帧
               {!startFrameAvailable && !shotUsesStartFrame && (
                 <span className="text-muted-foreground/70">
                   {' '}
-                  — generate one first
+                  — 请先生成起始帧
                 </span>
               )}
             </span>
@@ -2172,16 +2164,14 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
 
           {modelCannotRenderReferenceOnly && (
             <p className="text-xs text-muted-foreground">
-              {IMAGE_TO_VIDEO_MODELS[effectiveMotionModel].name} needs a start
-              frame. Pick another model, or tick Use start frame.
+              {IMAGE_TO_VIDEO_MODELS[effectiveMotionModel].name}
+              需要起始帧。请选择其他模型，或启用“使用起始帧”。
             </p>
           )}
 
           {noReferencesMatched && (
             <p className="text-xs text-muted-foreground">
-              No character, location or element references match this scene, so
-              it will render from the prompt alone — same price, but nothing
-              holds the cast or set consistent with the other shots.
+              没有与此场景匹配的角色、场景或元素参考素材，因此将仅根据提示词渲染。费用不变，但演员和布景可能与其他镜头不一致。
             </p>
           )}
 
@@ -2239,7 +2229,7 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
               {isGeneratingMotion || videoVariantIsGenerating
-                ? 'Generating…'
+                ? '生成中…'
                 : motionGenerateLabel(packedShotCount, videoModelGenerated)}
             </Button>
             <p
@@ -2264,18 +2254,18 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
           >
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Generate without audio?</AlertDialogTitle>
+                <AlertDialogTitle>不带音频生成？</AlertDialogTitle>
                 <AlertDialogDescription>
-                  SFX &amp; dialogue is off, so {silencedVoiceLines.join(', ')}{' '}
-                  won&apos;t be heard. The clip will be silent.
+                  音效和对白已关闭，因此不会听到
+                  {silencedVoiceLines.join('、')}。生成的片段将为静音。
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogCancel>取消</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => void handleRegenerateMotion()}
                 >
-                  Generate silent
+                  生成静音视频
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -2293,17 +2283,15 @@ export const SceneScriptPrompts: React.FC<SceneScriptPromptsProps> = ({
                 cancelVideoRender.mutate(videoVariantForSelectedModel.id)
               }
             >
-              {cancelVideoRender.isPending
-                ? 'Cancelling…'
-                : 'Cancel Generation'}
+              {cancelVideoRender.isPending ? '正在取消…' : '取消生成'}
             </Button>
           )}
 
           {/* Manual clip inject (#1108) — upload appends + selects a video
               version whose manifest snapshots the current pointers. */}
           <UploadMediaButton
-            label="Replace Video"
-            pendingLabel="Uploading…"
+            label="替换视频"
+            pendingLabel="上传中…"
             accept="video/*"
             isPending={replaceShotVideo.isPending}
             disabled={!shot || isGeneratingMotion}

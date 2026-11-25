@@ -90,7 +90,7 @@ export const StyleBadge: React.FC<StyleBadgeProps> = ({
     return (
       <Badge
         className={cn('text-xs', getStyleBadgeColor(style.name))}
-        title={`Style: ${style.name}`}
+        title={`风格：${style.name}`}
       >
         {style.name}
       </Badge>
@@ -104,17 +104,17 @@ export const StyleBadge: React.FC<StyleBadgeProps> = ({
           <button
             type="button"
             className="rounded-4xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            aria-label={`Match script: ${style.name}. Open style menu`}
+            aria-label={`匹配剧本：${style.name}。打开风格菜单`}
           >
             <Badge
               className={cn(
                 'flex items-center gap-1 text-xs',
                 getStyleBadgeColor(style.name)
               )}
-              title={`Match script: ${style.name}`}
+              title={`匹配剧本：${style.name}`}
             >
               <Wand2 className="size-3" aria-hidden />
-              {stylePending ? 'Deriving style…' : style.name}
+              {stylePending ? '正在生成风格…' : style.name}
               <ChevronDown className="size-3" aria-hidden />
             </Badge>
           </button>
@@ -122,14 +122,14 @@ export const StyleBadge: React.FC<StyleBadgeProps> = ({
         <DropdownMenuContent align="end">
           <DropdownMenuItem onSelect={() => setDetailOpen(true)}>
             <Info />
-            View style
+            查看风格
           </DropdownMenuItem>
           <DropdownMenuItem
             disabled={stylePending}
             onSelect={() => setPromoteOpen(true)}
           >
             <Library />
-            Add to library…
+            添加到风格库…
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

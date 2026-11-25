@@ -36,7 +36,7 @@ export const ShotMediaDropZone: React.FC<ShotMediaDropZoneProps> = ({
         {
           onSuccess: (result) =>
             toast.success(
-              'Image replaced',
+              '图片已替换',
               result.cropped
                 ? {
                     description: `Cropped to ${aspectRatio} so motion generation matches the sequence.`,
@@ -44,7 +44,7 @@ export const ShotMediaDropZone: React.FC<ShotMediaDropZoneProps> = ({
                 : undefined
             ),
           onError: (error) =>
-            toast.error('Image upload failed', {
+            toast.error('图片上传失败', {
               description: errorMessage(error),
             }),
         }
@@ -55,16 +55,16 @@ export const ShotMediaDropZone: React.FC<ShotMediaDropZoneProps> = ({
       replaceVideo.mutate(
         { file, sequenceId, shotId },
         {
-          onSuccess: () => toast.success('Video replaced'),
+          onSuccess: () => toast.success('视频已替换'),
           onError: (error) =>
-            toast.error('Video upload failed', {
+            toast.error('视频上传失败', {
               description: errorMessage(error),
             }),
         }
       );
       return;
     }
-    toast.error('Drop an image or video file');
+    toast.error('请拖放图片或视频文件');
   };
 
   return (
@@ -103,7 +103,7 @@ export const ShotMediaDropZone: React.FC<ShotMediaDropZoneProps> = ({
             <Upload className="h-6 w-6 text-muted-foreground" />
           )}
           <p className="text-sm text-muted-foreground">
-            {uploading ? 'Uploading…' : 'Drop to replace this shot’s media'}
+            {uploading ? '上传中…' : '拖放以替换此镜头的媒体'}
           </p>
         </div>
       )}
@@ -111,7 +111,7 @@ export const ShotMediaDropZone: React.FC<ShotMediaDropZoneProps> = ({
           while it is already in the DOM, so the visual overlay above cannot
           double as one. */}
       <span aria-live="polite" className="sr-only">
-        {uploading ? 'Uploading media…' : 'Ready to upload media'}
+        {uploading ? '正在上传媒体…' : '可以上传媒体'}
       </span>
     </div>
   );

@@ -193,7 +193,7 @@ const SceneListItemComponent: React.FC<SceneListItemProps> = ({
                 videoUrl={hasVideo ? shot.video?.url : null}
                 videoStartSeconds={videoStartSeconds}
                 generationError={shot?.frame.imageError}
-                alt={linkLabel ?? 'Shot thumbnail'}
+                alt={linkLabel ?? '镜头缩略图'}
                 aspectRatio={aspectRatio}
                 className="w-full rounded-md"
                 gridSheetUrl={shot?.gridSheet?.url}
@@ -203,11 +203,9 @@ const SceneListItemComponent: React.FC<SceneListItemProps> = ({
               {!showDivergentDot && shot && !isRegeneratingImage && isStale && (
                 <span
                   className="pointer-events-none absolute top-1 right-1"
-                  title="Out of date since your last edit"
+                  title="上次编辑后已过期"
                 >
-                  <span className="sr-only">
-                    Out of date since your last edit
-                  </span>
+                  <span className="sr-only">上次编辑后已过期</span>
                   <span
                     aria-hidden="true"
                     className="block h-2 w-2 rounded-full bg-amber-500 ring-2 ring-amber-500/30"
@@ -217,7 +215,7 @@ const SceneListItemComponent: React.FC<SceneListItemProps> = ({
               {(hasVideo || isGeneratingVideo) && (
                 <span
                   aria-label={
-                    isGeneratingVideo ? 'Generating motion…' : 'Motion ready'
+                    isGeneratingVideo ? '正在生成动态视频…' : '动态视频已就绪'
                   }
                   className={cn(
                     'absolute bottom-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-background/60 text-foreground/80',
@@ -257,7 +255,7 @@ const SceneListItemComponent: React.FC<SceneListItemProps> = ({
                 variant="ghost"
                 size="icon"
                 className="h-6 w-6 opacity-0 transition-opacity focus-visible:opacity-100 group-hover/scene-item:opacity-100 data-[state=open]:opacity-100"
-                aria-label="Shot actions"
+                aria-label="镜头操作"
               >
                 <MoreVertical className="h-4 w-4" />
               </Button>
@@ -265,11 +263,11 @@ const SceneListItemComponent: React.FC<SceneListItemProps> = ({
             <DropdownMenuContent align="end">
               <DropdownMenuItem disabled={!onMoveUp} onClick={onMoveUp}>
                 <ArrowUp className="h-4 w-4" />
-                Move up
+                上移
               </DropdownMenuItem>
               <DropdownMenuItem disabled={!onMoveDown} onClick={onMoveDown}>
                 <ArrowDown className="h-4 w-4" />
-                Move down
+                下移
               </DropdownMenuItem>
               {onRequestDelete && (
                 <>
@@ -279,7 +277,7 @@ const SceneListItemComponent: React.FC<SceneListItemProps> = ({
                     onClick={onRequestDelete}
                   >
                     <Trash2 className="h-4 w-4" />
-                    Remove shot
+                    移除镜头
                   </DropdownMenuItem>
                 </>
               )}

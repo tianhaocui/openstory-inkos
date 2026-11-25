@@ -49,7 +49,7 @@ export function VerifyForm({ email, redirectTo = '/' }: VerifyFormProps) {
           });
 
           if (result.error) {
-            setError(result.error.message || 'Invalid code');
+            setError('验证码无效或已过期，请重新输入。');
             return;
           }
 
@@ -57,7 +57,7 @@ export function VerifyForm({ email, redirectTo = '/' }: VerifyFormProps) {
           await finishSignInRedirect(navigate, redirectTo);
         } catch (err) {
           logger.error('Verify OTP error:', { err });
-          setError(err instanceof Error ? err.message : 'Verification failed');
+          setError('验证失败，请稍后重试。');
         }
       });
     },
@@ -88,15 +88,15 @@ export function VerifyForm({ email, redirectTo = '/' }: VerifyFormProps) {
         });
 
         if (result.error) {
-          setError(result.error.message || 'Failed to resend code');
+          setError('验证码重新发送失败，请稍后重试。');
           return;
         }
 
-        setSuccess('New code sent!');
+        setSuccess('验证码已重新发送！');
         setOtp('');
       } catch (err) {
         logger.error('Resend OTP error:', { err });
-        setError(err instanceof Error ? err.message : 'Failed to resend code');
+        setError('验证码重新发送失败，请稍后重试。');
       }
     });
   };
@@ -104,8 +104,8 @@ export function VerifyForm({ email, redirectTo = '/' }: VerifyFormProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Check your email</CardTitle>
-        <CardDescription>Enter the code sent to {email}</CardDescription>
+        <CardTitle>查收邮件</CardTitle>
+        <CardDescription>请输入发送到 {email} 的验证码</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {error && (
@@ -146,7 +146,7 @@ export function VerifyForm({ email, redirectTo = '/' }: VerifyFormProps) {
             className="w-full"
             disabled={!hydrated || isPending || otp.length !== 6}
           >
-            {isPending ? 'Verifying…' : 'Verify'}
+            {isPending ? '验证中…' : '验证'}
           </Button>
         </form>
 
@@ -156,7 +156,7 @@ export function VerifyForm({ email, redirectTo = '/' }: VerifyFormProps) {
             search={{ redirectTo }}
             className="text-muted-foreground hover:underline"
           >
-            &larr; Back
+            &larr; 返回
           </Link>
           <button
             type="button"
@@ -164,7 +164,7 @@ export function VerifyForm({ email, redirectTo = '/' }: VerifyFormProps) {
             className="text-primary hover:underline"
             disabled={isPending}
           >
-            Resend code
+            重新发送
           </button>
         </div>
       </CardContent>

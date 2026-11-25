@@ -42,10 +42,10 @@ describe('buildFilmCostExamples', () => {
     expect(motion.costMicros).toBeGreaterThan(images.costMicros);
     expect(full.costMicros).toBeGreaterThan(motion.costMicros);
     expect(images.cost.startsWith('~')).toBe(true);
-    expect(images.subtitle).toMatch(/30s target/);
-    expect(images.breakdown.some((line) => /est\./i.test(line))).toBe(true);
-    expect(motion.breakdown.some((line) => /refs/i.test(line))).toBe(true);
-    expect(motion.breakdown.some((line) => /6 × 5s/i.test(line))).toBe(true);
+    expect(images.subtitle).toMatch(/30 秒目标时长/);
+    expect(images.breakdown.some((line) => /预估/.test(line))).toBe(true);
+    expect(motion.breakdown.some((line) => /含参考图/.test(line))).toBe(true);
+    expect(motion.breakdown.some((line) => /6 × 5 秒/.test(line))).toBe(true);
   });
 
   // Skipped while free credits are off (#1529).

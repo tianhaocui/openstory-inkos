@@ -1,40 +1,40 @@
 ---
-title: Settings
-description: Configure API keys, passkeys, and account settings
+title: 设置
+description: 配置 API 密钥、通行密钥和账户设置
 section: User Guide
 order: 11
 ---
 
-Access settings from the user menu in the header. Settings are organized into sections:
+从页头的用户菜单进入设置。设置按以下部分组织：
 
-## API Keys
+## API 密钥
 
-Manage your BYOK (Bring Your Own Key) credentials. See [Credits & Billing](/docs/user-guide/credits-and-billing) for details on:
+管理你的 BYOK（使用自己的密钥）凭据。以下内容的详情请参阅[点数与计费](/docs/user-guide/credits-and-billing)：
 
-- Fal.ai API key for media generation
-- OpenRouter API key or OAuth for LLM access
+- 用于媒体生成的 Fal.ai API 密钥
+- 用于访问 LLM 的 OpenRouter API 密钥或 OAuth
 
-After connecting via OpenRouter OAuth, the settings page shows a success message. If there's an error, the error details are displayed.
+通过 OpenRouter OAuth 连接后，设置页面会显示成功消息。如果发生错误，则会显示错误详情。
 
-## Developer
+## 开发者
 
-Keys and grants for programmatic access to your account.
+用于以编程方式访问账户的密钥和授权。
 
-- **API access** — Create `osk_` keys for the [public API](/docs/developer-guide/public-api). The secret is shown once, on creation. Keys minted by a device-code login (an agent or CLI showing you a short code) appear here too and can be revoked the same way.
-- **Authorized apps** — Apps and agents you have signed in to with your OpenStory account: hosted MCP clients such as Claude or Cursor, or a fork of OpenStory that offers "Connect OpenStory". Each entry shows the app, where it sends you back, and what you approved. **Revoke** stops new tokens immediately; an access token already issued can keep working for up to an hour. The app has to ask you to sign in again.
+- **API 访问** — 为[公开 API](/docs/developer-guide/public-api) 创建 `osk_` 密钥。密钥仅在创建时显示一次。通过设备代码登录（由智能体或 CLI 向你显示一个短代码）生成的密钥也会出现在这里，并可以用相同方式撤销。
+- **已授权应用** — 你使用 OpenStory 账户登录过的应用和智能体，包括 Claude、Cursor 等托管 MCP 客户端，或提供“连接 OpenStory”功能的 OpenStory 分支。每个条目都会显示应用、返回地址以及你批准的权限。点击**撤销**后会立即停止签发新令牌；已经签发的访问令牌最多还可继续使用一小时。之后应用必须重新请求你登录。
 
-When an app asks for access you land on the **Authorize app** page. It names the app, where it will send you back to, and what it is asking for. Only approve requests you started yourself — `localhost` is normal for a fork or a CLI running on your own machine, but an unfamiliar name or address is a reason to deny.
+当应用请求访问权限时，你会进入**授权应用**页面。页面会列出应用名称、返回地址和请求的权限。只批准由你本人发起的请求——对于在本机运行的分支或 CLI，`localhost` 很正常；但如果名称或地址陌生，应拒绝授权。
 
-## Passkeys
+## 通行密钥
 
-Manage passwordless authentication via passkeys (WebAuthn). You can:
+通过通行密钥（WebAuthn）管理无密码身份验证。你可以：
 
-- **Register new passkeys** — Add hardware keys or biometric authentication
-- **View registered passkeys** — See all your registered devices
-- **Remove passkeys** — Deregister devices you no longer use
+- **注册新通行密钥** — 添加硬件密钥或生物识别验证
+- **查看已注册的通行密钥** — 查看所有已注册设备
+- **移除通行密钥** — 取消注册不再使用的设备
 
-Passkeys provide a secure, passwordless login experience.
+通行密钥提供安全的无密码登录体验。
 
-## Generation Settings Persistence
+## 持久保存生成设置
 
-While not in the settings page itself, your generation preferences (aspect ratio, selected models, auto-generation toggles) are automatically saved to localStorage. When you create a new sequence, your last-used settings are pre-filled.
+虽然这些选项不在设置页面本身，但你的生成偏好（宽高比、所选模型和自动生成开关）会自动保存到 localStorage。创建新序列时，系统会预填你上次使用的设置。

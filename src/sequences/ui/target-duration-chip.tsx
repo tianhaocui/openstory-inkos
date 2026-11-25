@@ -43,19 +43,19 @@ export const TargetDurationChip: React.FC<{
   const setTarget = useSetSequenceTargetDuration(sequenceId);
   const customId = useId();
   const target = targetDurationSeconds ?? null;
-  const targetLabel = target === null ? 'Auto' : formatSeconds(target);
+  const targetLabel = target === null ? '自动' : formatSeconds(target);
   let label = targetLabel;
   if (totalSeconds !== undefined) {
     label =
       target === null
         ? formatSeconds(totalSeconds)
-        : `${formatSeconds(totalSeconds)} · target ${targetLabel}`;
+        : `${formatSeconds(totalSeconds)} · 目标 ${targetLabel}`;
   }
   const commit = (next: number | null) => {
     if (next === target) return;
     setTarget.mutate(next, {
       onError: (error) =>
-        toast.error('Failed to set target length', {
+        toast.error('设置目标时长失败', {
           description: errorMessage(error),
         }),
     });
@@ -69,8 +69,8 @@ export const TargetDurationChip: React.FC<{
           className="rounded-md px-1.5 py-0.5 text-xs tabular-nums text-muted-foreground hover:bg-muted/60 hover:text-foreground"
           aria-label={
             totalSeconds === undefined
-              ? `Target length ${label}. Change`
-              : `Running time ${label}. Change target length`
+              ? `目标时长 ${label}。更改`
+              : `当前时长 ${label}。更改目标时长`
           }
           data-testid="film-length-chip"
         >
@@ -79,7 +79,7 @@ export const TargetDurationChip: React.FC<{
       </PopoverTrigger>
       <PopoverContent align="end" className="w-auto">
         <div className="flex flex-col gap-2">
-          <p className="text-sm font-medium">Target length</p>
+          <p className="text-sm font-medium">目标时长</p>
           <ToggleGroup
             type="single"
             value={target === null ? 'auto' : String(target)}
@@ -91,7 +91,7 @@ export const TargetDurationChip: React.FC<{
             size="sm"
             spacing={0}
           >
-            <ToggleGroupItem value="auto">Auto</ToggleGroupItem>
+            <ToggleGroupItem value="auto">自动</ToggleGroupItem>
             {TARGET_DURATION_PRESETS.map((preset) => (
               <ToggleGroupItem key={preset.value} value={preset.value}>
                 {preset.label}
@@ -99,7 +99,7 @@ export const TargetDurationChip: React.FC<{
             ))}
           </ToggleGroup>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <label htmlFor={customId}>Custom</label>
+            <label htmlFor={customId}>自定义</label>
             <Input
               id={customId}
               key={target ?? 'auto'}
@@ -108,7 +108,7 @@ export const TargetDurationChip: React.FC<{
               min={5}
               step={1}
               defaultValue={target ?? ''}
-              placeholder="seconds"
+              placeholder="秒"
               className="h-8 w-24 text-base md:text-sm"
               onBlur={(e) => {
                 const raw = e.currentTarget.value;
@@ -130,7 +130,7 @@ export const TargetDurationChip: React.FC<{
             s
           </div>
           <p className="text-xs text-muted-foreground">
-            Steers Enhance and the estimate. Shots keep their lengths.
+            用于指导剧本增强和时长估算，不会修改各镜头时长。
           </p>
         </div>
       </PopoverContent>

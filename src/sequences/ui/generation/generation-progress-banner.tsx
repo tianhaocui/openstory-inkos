@@ -11,10 +11,10 @@ import { useEffect, useRef, useState } from 'react';
  */
 
 const PHASE_DESCRIPTIONS: Record<number, string> = {
-  1: 'Breaking your script into scenes and casting characters, locations & elements',
-  2: 'Generating reference sheets and crafting visual prompts',
-  3: 'Generating images and writing motion & music prompts',
-  4: 'Generating motion video and music',
+  1: '正在拆分剧本并匹配演员、场景与元素',
+  2: '正在生成参考图并编写图片提示词',
+  3: '正在生成图片并编写动态与音乐提示词',
+  4: '正在生成动态视频和音乐',
 };
 
 type GenerationProgressBannerProps = {
@@ -93,16 +93,12 @@ export const GenerationProgressBanner: React.FC<
       // Parent mounts this only while status is processing. A leftover or
       // replayed COMPLETE must not self-unmount the chip (#1641).
       isComplete={generationState.isComplete && !isProcessing}
-      defaultLabel="Generating&#xa0;sequence"
-      ariaPrefix="Generation"
+      defaultLabel="正在生成序列"
+      ariaPrefix="生成"
       exitDelayMs={0}
       isOpen={isOpen}
       onOpenChange={setIsOpen}
-      leaveHint={
-        willEmail ? (
-          <>We&rsquo;ll email you when it&rsquo;s ready.</>
-        ) : undefined
-      }
+      leaveHint={willEmail ? <>完成后我们会通过电子邮件通知你。</> : undefined}
     />
   );
 };

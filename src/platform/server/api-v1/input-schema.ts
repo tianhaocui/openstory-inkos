@@ -10,7 +10,10 @@
  * without hand-writing the spec. Uses Zod 4 top-level formats (`z.url`, `z.int`).
  */
 
-import { PORTRAIT_RIGHTS_V1 } from '@/platform/compliance/attestations';
+import {
+  PORTRAIT_RIGHTS_V1,
+  PORTRAIT_RIGHTS_V2,
+} from '@/platform/compliance/attestations';
 import { aspectRatioSchema } from '@/models/aspect-ratios';
 import { resolutionSchema } from '@/models/resolutions';
 import { MUSIC_REQUIRES_MOTION_ERROR } from '@/sequences/server/sequence.schemas';
@@ -38,9 +41,14 @@ const referenceImageUrls = z.array(z.url()).optional().meta({
  */
 const portraitAttestationSchema = z
   .object({
-    statementVersion: z.literal(PORTRAIT_RIGHTS_V1.version).meta({
-      description: 'The portrait-rights statement version being affirmed.',
-    }),
+    statementVersion: z
+      .union([
+        z.literal(PORTRAIT_RIGHTS_V1.version),
+        z.literal(PORTRAIT_RIGHTS_V2.version),
+      ])
+      .meta({
+        description: 'The portrait-rights statement version being affirmed.',
+      }),
     authorizationBasis: z.string().trim().min(1).max(500).meta({
       description:
         'Basis for the authorization: a release reference, "self", a contract id.',

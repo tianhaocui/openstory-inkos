@@ -6,7 +6,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/ui/shadcn/sidebar';
-import { SECTION_ORDER } from './sections';
+import { getSectionLabel, SECTION_ORDER } from './sections';
 import { Link, useRouterState } from '@tanstack/react-router';
 import { allDocs } from 'content-collections';
 
@@ -18,9 +18,9 @@ type NavItem = { slug: string; title: string; order: number };
 // among the markdown docs' frontmatter `order`.
 const EXTRA_NAV_ITEMS: Record<string, NavItem[]> = {
   'Developer Guide': [
-    { slug: 'dependency-graph', title: 'Dependency graph', order: 6 },
+    { slug: 'dependency-graph', title: '依赖关系图', order: 6 },
   ],
-  Support: [{ slug: 'faq', title: 'FAQ', order: 99 }],
+  Support: [{ slug: 'faq', title: '常见问题', order: 99 }],
 };
 
 function buildNavTree() {
@@ -61,7 +61,7 @@ export const DocsSidebar: React.FC = () => {
     <>
       {navTree.map(({ section, items }) => (
         <SidebarGroup key={section}>
-          <SidebarGroupLabel>{section}</SidebarGroupLabel>
+          <SidebarGroupLabel>{getSectionLabel(section)}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((doc) => {

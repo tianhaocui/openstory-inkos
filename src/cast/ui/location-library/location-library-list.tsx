@@ -49,9 +49,9 @@ export const LocationLibraryList: React.FC<LocationLibraryListProps> = ({
   if (error) {
     return (
       <Card className="p-8 text-center">
-        <p className="text-destructive mb-4">Failed to load locations</p>
+        <p className="text-destructive mb-4">加载场景失败</p>
         <Button variant="outline" onClick={() => window.location.reload()}>
-          Try Again
+          重试
         </Button>
       </Card>
     );

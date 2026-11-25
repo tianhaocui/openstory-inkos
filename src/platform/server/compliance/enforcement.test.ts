@@ -151,8 +151,8 @@ describe('resolveEnforcementState', () => {
       NOW
     );
     const notice = restrictionNotice(state);
-    expect(notice).toContain('deepfake impersonation');
-    expect(notice).toContain('paused');
+    expect(notice).toContain('深度伪造冒充');
+    expect(notice).toContain('暂停');
   });
 
   it('produces a notice for every action type', () => {

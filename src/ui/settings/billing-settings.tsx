@@ -93,7 +93,7 @@ function getErrorMessage(
 ): string {
   if (error) return error;
   if (balanceError instanceof Error) return balanceError.message;
-  return 'Something went wrong';
+  return '出现错误';
 }
 
 const RETURN_KEY = 'openstory:billing-return';
@@ -138,10 +138,10 @@ export function BillingSettings({
       const returnTo = localStorage.getItem(RETURN_KEY);
       if (returnTo) {
         localStorage.removeItem(RETURN_KEY);
-        toast.success('Credits added successfully', {
-          description: 'Your balance has been updated.',
+        toast.success('点数充值成功', {
+          description: '您的余额已更新。',
           action: {
-            label: 'Continue creating',
+            label: '继续创作',
             onClick: () => void navigate({ to: returnTo }),
           },
           duration: 15_000,
@@ -203,9 +203,7 @@ export function BillingSettings({
       setError(null);
     },
     onError: (err) => {
-      setError(
-        err instanceof Error ? err.message : 'Failed to update auto top-up'
-      );
+      setError(err instanceof Error ? err.message : '更新自动充值设置失败');
     },
   });
 
@@ -216,32 +214,28 @@ export function BillingSettings({
     <div className="space-y-6">
       {success && (
         <Alert className="mb-4">
-          <AlertDescription>
-            Credits added successfully. Your balance has been updated.
-          </AlertDescription>
+          <AlertDescription>点数充值成功。您的余额已更新。</AlertDescription>
         </Alert>
       )}
 
       {canceled && (
         <Alert className="mb-4">
-          <AlertDescription>
-            Top-up canceled. No charges were made.
-          </AlertDescription>
+          <AlertDescription>充值已取消，未产生任何费用。</AlertDescription>
         </Alert>
       )}
 
       <AlertDialog open={autoTopUpPrompt !== null}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Enable auto-reload?</AlertDialogTitle>
+            <AlertDialogTitle>启用自动充值？</AlertDialogTitle>
             <AlertDialogDescription>
-              Automatically top your balance back up to ${autoTopUpPrompt} when
-              it drops below ${autoTopUpThreshold}.
+              当余额低于 ${autoTopUpThreshold} 时，自动充值至 ${autoTopUpPrompt}
+              。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setAutoTopUpPrompt(null)}>
-              No thanks
+              不用了，谢谢
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
@@ -254,7 +248,7 @@ export function BillingSettings({
               }}
               disabled={autoTopUpMutation.isPending}
             >
-              {autoTopUpMutation.isPending ? 'Enabling…' : 'Enable auto-reload'}
+              {autoTopUpMutation.isPending ? '启用中…' : '启用自动充值'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -273,14 +267,14 @@ export function BillingSettings({
         <CardHeader>
           <SectionHeader
             icon={Wallet}
-            title="Credit Balance"
-            description="Pay-as-you-go wallet for AI generation at provider cost"
+            title="点数余额"
+            description="按服务商成本计费的 AI 生成随用随付钱包"
             action={
               stripeEnabled ? (
                 <Button
                   onClick={() => openAddCreditsDialog('billing_settings')}
                 >
-                  Add credits
+                  充值点数
                 </Button>
               ) : undefined
             }
@@ -305,7 +299,7 @@ export function BillingSettings({
         <Card>
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground">
-              Credits can be added via gift codes.
+              可通过礼品码充值点数。
             </p>
             <div className="pt-2">
               <Link
@@ -313,7 +307,7 @@ export function BillingSettings({
                 search={{ tab: 'transactions' }}
                 className="text-sm text-muted-foreground hover:text-foreground"
               >
-                View all transactions
+                查看全部交易记录
               </Link>
             </div>
           </CardContent>
@@ -327,15 +321,15 @@ export function BillingSettings({
             <CardHeader>
               <SectionHeader
                 icon={RefreshCw}
-                title="Auto-reload"
-                description="Automatically add credits when your balance runs low"
+                title="自动充值"
+                description="余额不足时自动充值点数"
                 action={
                   balanceData?.hasPaymentMethod ? (
                     <Button
                       variant="outline"
                       onClick={() => setAutoTopUpDialogOpen(true)}
                     >
-                      Modify
+                      修改
                     </Button>
                   ) : undefined
                 }
@@ -346,25 +340,22 @@ export function BillingSettings({
                 <Skeleton className="h-5 w-64" />
               ) : !balanceData?.hasPaymentMethod ? (
                 <p className="text-sm text-muted-foreground">
-                  Save a card (no charge) or make a purchase to enable
-                  auto-reload.
+                  保存银行卡（不会扣款）或完成一次购买，即可启用自动充值。
                 </p>
               ) : balanceData.autoTopUp.enabled ? (
                 <p className="text-sm text-muted-foreground tabular-nums">
-                  Adds ${balanceData.autoTopUp.amountUsd?.toFixed(2)} when your
-                  balance falls below $
-                  {balanceData.autoTopUp.thresholdUsd?.toFixed(2)}.
+                  当余额低于 ${balanceData.autoTopUp.thresholdUsd?.toFixed(2)}
+                  时，充值 ${balanceData.autoTopUp.amountUsd?.toFixed(2)}。
                 </p>
               ) : (
-                <p className="text-sm text-muted-foreground">Off</p>
+                <p className="text-sm text-muted-foreground">已关闭</p>
               )}
               {balanceData?.autoTopUp.lastFailure && (
                 <Alert variant="destructive">
                   <AlertCircle />
-                  <AlertTitle>Auto top-up failed — update your card</AlertTitle>
+                  <AlertTitle>自动充值失败，请更新银行卡</AlertTitle>
                   <AlertDescription>
-                    We paused auto-reload after your card was declined. Add a
-                    working payment method to resume.
+                    银行卡被拒绝后，我们已暂停自动充值。请添加有效的付款方式以恢复。
                   </AlertDescription>
                 </Alert>
               )}
@@ -381,8 +372,8 @@ export function BillingSettings({
             <CardHeader>
               <SectionHeader
                 icon={CreditCard}
-                title="Invoices"
-                description="Recent purchases"
+                title="账单"
+                description="近期购买记录"
               />
             </CardHeader>
             <CardContent>
@@ -394,7 +385,7 @@ export function BillingSettings({
                 </div>
               ) : invoiceData?.transactions.length === 0 ? (
                 <p className="text-center text-muted-foreground py-4">
-                  No purchases yet
+                  暂无购买记录
                 </p>
               ) : (
                 <div className="space-y-2">
@@ -405,7 +396,8 @@ export function BillingSettings({
                     >
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">
-                          {tx.description ?? 'Credit purchase'}
+                          {tx.description?.replace(/^Top-up:/, '充值：') ??
+                            '购买点数'}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {new Date(tx.createdAt).toLocaleString()}
@@ -421,7 +413,7 @@ export function BillingSettings({
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-muted-foreground hover:text-foreground"
-                            aria-label="View receipt"
+                            aria-label="查看收据"
                           >
                             <ExternalLink className="h-4 w-4" />
                           </a>
@@ -436,7 +428,7 @@ export function BillingSettings({
                       search={{ tab: 'transactions' }}
                       className="text-sm text-muted-foreground hover:text-foreground"
                     >
-                      View all transactions
+                      查看全部交易记录
                     </Link>
                   </div>
                 </div>
@@ -455,15 +447,15 @@ function ShowCostsToggle() {
   return (
     <div className="flex items-center justify-between border-t pt-4">
       <div>
-        <p className="text-sm font-medium">Show costs</p>
+        <p className="text-sm font-medium">显示费用</p>
         <p className="text-xs text-muted-foreground">
-          Balance in the sidebar and estimates under generation actions
+          在侧边栏显示余额，并在生成操作下显示预估费用
         </p>
       </div>
       <Switch
         checked={showCosts}
         onCheckedChange={setShowCosts}
-        aria-label="Show costs"
+        aria-label="显示费用"
       />
     </div>
   );

@@ -58,7 +58,7 @@ export function UpscaleOverlay({
     <div
       className={cn('absolute inset-0 overflow-hidden', className)}
       aria-live="polite"
-      aria-label="Upscaling selected variant"
+      aria-label="正在放大所选变体"
     >
       {showCss ? (
         <div

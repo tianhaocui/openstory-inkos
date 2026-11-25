@@ -42,9 +42,9 @@ export const AskFounderCard: React.FC = () => {
           <Check className="size-4" />
         </div>
         <div className="flex-1 space-y-0.5">
-          <span className="text-sm font-medium">Request sent</span>
+          <span className="text-sm font-medium">请求已发送</span>
           <p className="text-xs text-muted-foreground">
-            Tom will reply to your account email soon.
+            Tom 很快会回复您的账户邮箱。
           </p>
         </div>
       </div>
@@ -62,11 +62,9 @@ export const AskFounderCard: React.FC = () => {
           <HeartHandshake className="size-4" />
         </div>
         <div className="flex-1 space-y-0.5">
-          <span className="text-sm font-medium">
-            Ask the founder for credits
-          </span>
+          <span className="text-sm font-medium">向创始人申请点数</span>
           <p className="text-xs text-muted-foreground">
-            Seriously. Tom replies.
+            真的，Tom 会亲自回复。
           </p>
         </div>
         <ArrowRight className="size-3.5 shrink-0 -translate-x-1 text-muted-foreground opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-60" />
@@ -81,11 +79,9 @@ export const AskFounderCard: React.FC = () => {
           <HeartHandshake className="size-4" />
         </div>
         <div className="flex-1 space-y-0.5">
-          <span className="text-sm font-medium">
-            Ask the founder for credits
-          </span>
+          <span className="text-sm font-medium">向创始人申请点数</span>
           <p className="text-xs text-muted-foreground">
-            Seriously. Tom replies.
+            真的，Tom 会亲自回复。
           </p>
         </div>
       </div>
@@ -97,7 +93,7 @@ export const AskFounderCard: React.FC = () => {
             mutation.mutate();
           }
         }}
-        placeholder="Tell Tom what you're making (optional)"
+        placeholder="告诉 Tom 您在创作什么（可选）"
         rows={3}
         maxLength={2000}
       />
@@ -108,21 +104,21 @@ export const AskFounderCard: React.FC = () => {
           onClick={() => setExpanded(false)}
           disabled={mutation.isPending}
         >
-          Cancel
+          取消
         </Button>
         <Button
           size="sm"
           onClick={() => mutation.mutate()}
           disabled={mutation.isPending}
         >
-          {mutation.isPending ? 'Sending…' : 'Send request'}
+          {mutation.isPending ? '发送中…' : '发送请求'}
         </Button>
       </div>
       {mutation.isError && (
         <p role="alert" className="text-xs text-destructive">
           {mutation.error instanceof Error
             ? mutation.error.message
-            : 'Failed to send request'}
+            : '发送请求失败'}
         </p>
       )}
     </div>

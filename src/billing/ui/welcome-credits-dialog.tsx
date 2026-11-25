@@ -121,10 +121,10 @@ function subscribeNever(): () => void {
 
 function claimErrorMessage(err: unknown): string {
   if (isWelcomeCardAlreadyClaimedError(err)) {
-    return 'This card has already been used to claim welcome credits';
+    return '此银行卡已用于领取过欢迎点数';
   }
   if (err instanceof Error) return err.message;
-  return 'Could not unlock credits yet';
+  return '暂时无法解锁点数';
 }
 
 const WelcomeCreditsContext = createContext<{
@@ -242,9 +242,7 @@ export const WelcomeCreditsProvider: React.FC<{ children: ReactNode }> = ({
     },
     onError: (err) => {
       setRedirectingToStripe(false);
-      setSetupError(
-        err instanceof Error ? err.message : 'Could not open card setup'
-      );
+      setSetupError(err instanceof Error ? err.message : '无法打开银行卡设置');
     },
   });
 
@@ -269,9 +267,9 @@ export const WelcomeCreditsProvider: React.FC<{ children: ReactNode }> = ({
         return result;
       }
       if (!result.hasCard) {
-        throw new Error('Could not unlock credits yet');
+        throw new Error('暂时无法解锁点数');
       }
-      throw new Error('Could not unlock credits');
+      throw new Error('无法解锁点数');
     },
     enabled: Boolean(user && open && returnedFromStripe),
     retry: (count, err) => !isWelcomeCardAlreadyClaimedError(err) && count < 3,
@@ -290,9 +288,7 @@ export const WelcomeCreditsProvider: React.FC<{ children: ReactNode }> = ({
     [user, settled, open, mode, hasSignupGrant, reopen]
   );
 
-  const primaryLabel = hasPendingGenerate()
-    ? 'Keep creating'
-    : 'Start creating';
+  const primaryLabel = hasPendingGenerate() ? '继续创作' : '开始创作';
 
   const claimError =
     setupError ??
@@ -365,12 +361,12 @@ function ClaimDialogContent({
     <>
       <WelcomeHeader
         amount={grantDisplay}
-        description="Add a card to unlock it. We won't charge you — it just confirms you're a real person."
+        description="添加银行卡即可解锁。我们不会向您收费，此操作仅用于确认您是真实用户。"
       />
 
       <div className="flex flex-col gap-4 px-6 py-5">
         <Button className="self-center" onClick={onAddCard} disabled={busy}>
-          {claiming ? 'Unlocking…' : opening ? 'Opening…' : 'Add a card'}
+          {claiming ? '解锁中…' : opening ? '打开中…' : '添加银行卡'}
         </Button>
 
         <Button
@@ -379,7 +375,7 @@ function ClaimDialogContent({
           onClick={onBuyCredits}
           disabled={busy}
         >
-          Can&apos;t add a card? Buy credits
+          无法添加银行卡？购买点数
         </Button>
 
         {setupError ? (
@@ -396,7 +392,7 @@ function ClaimDialogContent({
           onClick={onSkip}
           disabled={busy}
         >
-          Skip for now
+          暂时跳过
         </Button>
       </div>
     </>
@@ -420,7 +416,7 @@ function GiftDialogContent({
     <>
       <WelcomeHeader
         amount={grantDisplay}
-        description="Free credits on us — enough for a typical 30s short with motion and music. Generations draw from this balance at provider rates."
+        description="我们赠送的免费点数，足够制作一部包含动态画面和音乐的典型 30 秒短片。生成费用按服务商费率从此余额中扣除。"
       />
 
       <div className="flex flex-col gap-4 px-6 py-5">
@@ -454,7 +450,7 @@ function WelcomeHeader({
           <Sparkles className="size-6" aria-hidden />
         </div>
         <p className="text-xs font-medium uppercase tracking-widest text-primary">
-          Welcome gift
+          欢迎礼物
         </p>
         <DialogHeader className="items-center gap-1.5 sm:text-center">
           <DialogTitle className="font-heading text-3xl font-bold tracking-tight tabular-nums sm:text-4xl">
@@ -479,15 +475,15 @@ function ShowCostsRow({
   return (
     <div className="flex items-center justify-between gap-3 rounded-xl border border-primary/15 bg-primary/[0.04] p-3.5">
       <div className="space-y-0.5">
-        <p className="text-sm font-medium">Show costs</p>
+        <p className="text-sm font-medium">显示费用</p>
         <p className="text-xs text-muted-foreground">
-          Balance in the sidebar and estimates under Generate
+          在侧边栏显示余额，并在“生成”按钮下显示预估费用
         </p>
       </div>
       <Switch
         checked={checked}
         onCheckedChange={onCheckedChange}
-        aria-label="Show costs"
+        aria-label="显示费用"
       />
     </div>
   );

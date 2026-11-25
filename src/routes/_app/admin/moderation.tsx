@@ -47,8 +47,50 @@ const searchSchema = z.object({
 export const Route = createFileRoute('/_app/admin/moderation')({
   validateSearch: searchSchema,
   component: ModerationPage,
-  staticData: { breadcrumb: 'Moderation' },
+  staticData: { breadcrumb: '内容审核' },
 });
+
+const REASON_LABELS: Record<ContentReportReason, string> = {
+  csam: '儿童性虐待材料',
+  portrait_rights: '肖像权',
+  deepfake_impersonation: '深度伪造冒充',
+  copyright: '著作权或商标侵权',
+  sexual_content: '未经同意或露骨的色情内容',
+  violence_or_harm: '暴力或有害内容',
+  hate_or_harassment: '仇恨或骚扰',
+  illegal_or_regulated: '非法或受管制内容',
+  misleading_content: '误导性内容',
+  other: '其他',
+};
+
+const ASSET_KIND_LABELS: Record<string, string> = {
+  frame_variant: '画面变体',
+  video_variant: '视频变体',
+  shot_variant: '镜头变体',
+  character_sheet: '角色设定图',
+  character_voice: '角色配音',
+  location_sheet: '场景设定图',
+  talent_sheet: '演员设定图',
+  element_sheet: '元素设定图',
+  music_variant: '音乐变体',
+  sequence_export: '故事序列导出',
+  generated_asset: '生成资产',
+  style_preview: '风格预览',
+};
+
+const TARGET_TYPE_LABELS: Record<string, string> = {
+  sequence: '故事序列',
+  frame_variant: '画面变体',
+  video_variant: '视频变体',
+  music_variant: '音乐变体',
+  sequence_export: '故事序列导出',
+  generated_asset: '生成资产',
+  talent: '演员',
+  sequence_element: '故事序列元素',
+  style: '风格',
+  user: '用户',
+  external_url: '外部 URL',
+};
 
 function ModerationPage() {
   const { tab } = Route.useSearch();
@@ -58,11 +100,10 @@ function ModerationPage() {
     <div className="flex flex-1 flex-col gap-6 overflow-auto">
       <div className="flex flex-col gap-1">
         <h1 className="font-heading text-2xl font-bold tracking-tight">
-          Moderation
+          内容审核
         </h1>
         <p className="text-sm text-muted-foreground">
-          Triage reports, trace generated content to the account that produced
-          it, and record enforcement.
+          分类处理举报，追溯生成内容的来源账户，并记录处置措施。
         </p>
       </div>
 
@@ -74,8 +115,8 @@ function ModerationPage() {
         }}
       >
         <TabsList>
-          <TabsTrigger value="reports">Reports</TabsTrigger>
-          <TabsTrigger value="trace">Trace content</TabsTrigger>
+          <TabsTrigger value="reports">举报</TabsTrigger>
+          <TabsTrigger value="trace">内容追溯</TabsTrigger>
         </TabsList>
       </Tabs>
 
@@ -113,10 +154,10 @@ const ReportsTab: React.FC = () => {
     }) => resolveContentReportFn({ data: input }),
     onSuccess: () => {
       invalidate();
-      toast.success('Report updated');
+      toast.success('举报已更新');
     },
     onError: (error) =>
-      toast.error(error instanceof Error ? error.message : 'Update failed'),
+      toast.error(error instanceof Error ? error.message : '更新失败'),
   });
 
   const enforceMutation = useMutation({
@@ -130,12 +171,10 @@ const ReportsTab: React.FC = () => {
     }) => applyEnforcementFn({ data: input }),
     onSuccess: () => {
       invalidate();
-      toast.success('Enforcement recorded');
+      toast.success('处置措施已记录');
     },
     onError: (error) =>
-      toast.error(
-        error instanceof Error ? error.message : 'Enforcement failed'
-      ),
+      toast.error(error instanceof Error ? error.message : '执行处置失败'),
   });
 
   const reports = data?.reports ?? [];
@@ -144,16 +183,16 @@ const ReportsTab: React.FC = () => {
   return (
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <SummaryCard label="Open" value={counts?.open ?? 0} emphasize />
-        <SummaryCard label="Triaged" value={counts?.triaged ?? 0} />
-        <SummaryCard label="Actioned" value={counts?.actioned ?? 0} />
-        <SummaryCard label="Dismissed" value={counts?.dismissed ?? 0} />
+        <SummaryCard label="待处理" value={counts?.open ?? 0} emphasize />
+        <SummaryCard label="已分类" value={counts?.triaged ?? 0} />
+        <SummaryCard label="已处置" value={counts?.actioned ?? 0} />
+        <SummaryCard label="已驳回" value={counts?.dismissed ?? 0} />
       </div>
 
       {reports.length === 0 ? (
         <Card>
           <CardContent className="py-10 text-center text-sm text-muted-foreground">
-            No open reports.
+            暂无待处理举报。
           </CardContent>
         </Card>
       ) : (
@@ -166,15 +205,15 @@ const ReportsTab: React.FC = () => {
                   {report.priority === 0 ? (
                     <Badge variant="destructive" className="gap-1">
                       <ShieldAlert className="size-3" aria-hidden />
-                      Urgent
+                      紧急
                     </Badge>
                   ) : null}
                   <Badge variant="secondary">
-                    {report.reason.replace(/_/g, ' ')}
+                    {REASON_LABELS[report.reason]}
                   </Badge>
                   <span className="text-sm text-muted-foreground">
-                    {report.targetType} ·{' '}
-                    {new Date(report.createdAt).toLocaleString()}
+                    {TARGET_TYPE_LABELS[report.targetType] ?? report.targetType}{' '}
+                    · {new Date(report.createdAt).toLocaleString()}
                   </span>
                   <code className="ml-auto text-xs text-muted-foreground">
                     {formatReportReference(report.id)}
@@ -182,20 +221,18 @@ const ReportsTab: React.FC = () => {
                 </div>
 
                 <dl className="grid gap-2 text-sm sm:grid-cols-2">
-                  <Field label="Target">
+                  <Field label="举报对象">
                     <span className="break-all">{report.targetId}</span>
                   </Field>
-                  <Field label="Reporter">
-                    {report.reporterUserEmail ??
-                      report.reporterEmail ??
-                      'Anonymous'}
+                  <Field label="举报人">
+                    {report.reporterUserEmail ?? report.reporterEmail ?? '匿名'}
                   </Field>
-                  <Field label="Owner">
+                  <Field label="内容所有者">
                     {report.subjectUserEmail ??
                       report.subjectTeamName ??
-                      'Not yet attributed'}
+                      '尚未归属'}
                   </Field>
-                  <Field label="Trace">{report.traceId ?? '—'}</Field>
+                  <Field label="追溯编号">{report.traceId ?? '—'}</Field>
                 </dl>
 
                 {report.details ? (
@@ -206,7 +243,7 @@ const ReportsTab: React.FC = () => {
 
                 <Textarea
                   rows={2}
-                  placeholder="Resolution notes (recorded on the report)"
+                  placeholder="处理备注（将记录在举报中）"
                   value={notes[report.id] ?? ''}
                   onChange={(event) =>
                     setNotes((prev) => ({
@@ -231,7 +268,7 @@ const ReportsTab: React.FC = () => {
                       })
                     }
                   >
-                    Trace target
+                    追溯举报对象
                   </Button>
                   <Button
                     size="sm"
@@ -245,7 +282,7 @@ const ReportsTab: React.FC = () => {
                       })
                     }
                   >
-                    Mark triaged
+                    标记为已分类
                   </Button>
                   <Button
                     size="sm"
@@ -266,11 +303,11 @@ const ReportsTab: React.FC = () => {
                     }
                     title={
                       report.subjectUserId || report.subjectTeamId
-                        ? 'Pause new generations on the reported account'
-                        : 'Attribute the report to an account first — use Trace content'
+                        ? '暂停被举报账户的新生成任务'
+                        : '请先通过“内容追溯”将举报归属到某个账户'
                     }
                   >
-                    Pause generation
+                    暂停生成
                   </Button>
                   <Button
                     size="sm"
@@ -290,7 +327,7 @@ const ReportsTab: React.FC = () => {
                       })
                     }
                   >
-                    Suspend account
+                    封禁账户
                   </Button>
                   <Button
                     size="sm"
@@ -304,7 +341,7 @@ const ReportsTab: React.FC = () => {
                       })
                     }
                   >
-                    Dismiss
+                    驳回
                   </Button>
                   <Button
                     size="sm"
@@ -317,7 +354,7 @@ const ReportsTab: React.FC = () => {
                       })
                     }
                   >
-                    Close as actioned
+                    结案为已处置
                   </Button>
                 </div>
               </CardContent>
@@ -355,12 +392,10 @@ const TraceTab: React.FC = () => {
     }) => attributeContentReportFn({ data: input }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['moderation-reports'] });
-      toast.success('Report attributed to this account');
+      toast.success('举报已归属到此账户');
     },
     onError: (error) =>
-      toast.error(
-        error instanceof Error ? error.message : 'Attribution failed'
-      ),
+      toast.error(error instanceof Error ? error.message : '归属失败'),
   });
 
   const enforceMutation = useMutation({
@@ -373,12 +408,10 @@ const TraceTab: React.FC = () => {
     }) => applyEnforcementFn({ data: input }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['moderation-reports'] });
-      toast.success('Enforcement recorded');
+      toast.success('处置措施已记录');
     },
     onError: (error) =>
-      toast.error(
-        error instanceof Error ? error.message : 'Enforcement failed'
-      ),
+      toast.error(error instanceof Error ? error.message : '执行处置失败'),
   });
 
   const results = data?.results ?? [];
@@ -396,17 +429,17 @@ const TraceTab: React.FC = () => {
         <Input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="OS-01J… · videos/teams/…/shot.mp4 · https://… · sha256 · fal request id"
+          placeholder="OS-01J… · videos/teams/…/shot.mp4 · https://… · sha256 · fal 请求 ID"
           autoComplete="off"
         />
         <Button type="submit" disabled={query.trim().length < 3}>
           <Search className="size-4" aria-hidden />
-          Trace
+          追溯
         </Button>
       </form>
       <p className="text-sm text-muted-foreground">
-        Paste anything a complainant sent: our own reference, the asset URL or
-        R2 key, a SHA-256 of the file, or the provider’s request id.
+        粘贴举报人提供的任何信息：我们的参考编号、资产 URL 或 R2 密钥、文件的
+        SHA-256，或服务商请求 ID。
       </p>
 
       {isFetching ? <Skeleton className="h-32 w-full" /> : null}
@@ -414,9 +447,7 @@ const TraceTab: React.FC = () => {
       {submitted && !isFetching && results.length === 0 ? (
         <Card>
           <CardContent className="py-10 text-center text-sm text-muted-foreground">
-            No provenance record matched. Uploaded reference photos and assets
-            generated before provenance recording shipped will not resolve here
-            — check the sequence or the account’s attestations.
+            没有匹配的来源记录。上传的参考照片，以及来源记录功能上线前生成的资产无法在此解析；请检查相应故事序列或账户声明。
           </CardContent>
         </Card>
       ) : null}
@@ -425,7 +456,7 @@ const TraceTab: React.FC = () => {
         <Card key={row.id}>
           <CardContent className="flex flex-col gap-3 py-6">
             <div className="flex flex-wrap items-center gap-3">
-              <Badge>{row.assetKind.replace(/_/g, ' ')}</Badge>
+              <Badge>{ASSET_KIND_LABELS[row.assetKind] ?? row.assetKind}</Badge>
               <code className="text-xs text-muted-foreground">
                 {row.traceId}
               </code>
@@ -434,31 +465,29 @@ const TraceTab: React.FC = () => {
               </span>
             </div>
             <dl className="grid gap-2 text-sm sm:grid-cols-2">
-              <Field label="Account">
-                {row.userEmail ?? row.userName ?? row.userId ?? 'Unknown user'}
+              <Field label="账户">
+                {row.userEmail ?? row.userName ?? row.userId ?? '未知用户'}
               </Field>
-              <Field label="Team">{row.teamName ?? row.teamId}</Field>
-              <Field label="Model">
+              <Field label="团队">{row.teamName ?? row.teamId}</Field>
+              <Field label="模型">
                 {row.provider} · {row.model}
               </Field>
-              <Field label="Provider request">
-                {row.providerRequestId ?? '—'}
-              </Field>
-              <Field label="Storage key">
+              <Field label="服务商请求">{row.providerRequestId ?? '—'}</Field>
+              <Field label="存储密钥">
                 <span className="break-all">{row.storageKey ?? '—'}</span>
               </Field>
-              <Field label="Content SHA-256">
+              <Field label="内容 SHA-256">
                 <span className="break-all">{row.contentSha256 ?? '—'}</span>
               </Field>
-              <Field label="Reference images">
+              <Field label="参考图像">
                 {row.usedReferenceImages
-                  ? `Yes (${row.referenceImageCount})`
-                  : 'No'}
+                  ? `是（${row.referenceImageCount}）`
+                  : '否'}
               </Field>
-              <Field label="Sequence">{row.sequenceId ?? '—'}</Field>
+              <Field label="故事序列">{row.sequenceId ?? '—'}</Field>
             </dl>
             <p className="text-xs text-muted-foreground">
-              Prompt hash {row.promptSha256 ?? '—'} · workflow{' '}
+              提示词哈希 {row.promptSha256 ?? '—'} · 工作流{' '}
               {row.workflowRunId ?? '—'}
             </p>
             <div className="flex flex-wrap gap-2">
@@ -477,7 +506,7 @@ const TraceTab: React.FC = () => {
                     })
                   }
                 >
-                  Attribute to this account
+                  归属到此账户
                 </Button>
               ) : null}
               <Button
@@ -496,7 +525,7 @@ const TraceTab: React.FC = () => {
                   })
                 }
               >
-                Pause generation
+                暂停生成
               </Button>
               <Button
                 size="sm"
@@ -514,7 +543,7 @@ const TraceTab: React.FC = () => {
                   })
                 }
               >
-                Suspend account
+                封禁账户
               </Button>
             </div>
           </CardContent>

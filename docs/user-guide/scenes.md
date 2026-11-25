@@ -1,106 +1,106 @@
 ---
-title: Working with Scenes
-description: Explore, edit, and regenerate individual scenes in your sequence
+title: 处理场景
+description: 浏览、编辑并重新生成序列中的各个场景
 section: User Guide
 order: 2
 ---
 
-The **Scenes** tab is the primary workspace for reviewing and refining your generated sequence. It provides a split-panel interface with a scene list, a media player, and detailed editing tabs.
+**场景**标签页是审查和完善已生成序列的主要工作区。它采用分栏界面，包含场景列表、媒体播放器和详细编辑标签页。
 
-## Layout
+## 布局
 
-The scenes view has three main areas:
+场景视图包含三个主要区域：
 
-- **Scene List** (left sidebar on desktop, bottom drawer on mobile) — Scrollable list of all scene thumbnails with status indicators
-- **Scene Player** (center) — Large preview showing the selected scene's image or video, sized to your sequence's aspect ratio
-- **Detail Tabs** (below the player) — Six tabs for inspecting and editing each scene
+- **场景列表**（桌面端位于左侧边栏，移动端位于底部抽屉）— 可滚动浏览所有场景缩略图及其状态指示
+- **场景播放器**（中央）— 大尺寸预览所选场景的图像或视频，并适配序列的宽高比
+- **详情标签页**（播放器下方）— 用于检查和编辑各个场景的六个标签页
 
-## Scene List
+## 场景列表
 
-Each scene in the sidebar shows:
+侧边栏中的每个场景会显示：
 
-- **Thumbnail** — The generated image (or a placeholder if still generating)
-- **Status indicators** — Visual badges showing image and motion generation status
-- **Scene number** — Sequential position in the sequence
+- **缩略图** — 已生成的图像（仍在生成时显示占位符）
+- **状态指示** — 显示图像和动态生成状态的视觉徽标
+- **场景编号** — 该场景在序列中的顺序位置
 
-Click any scene to select it. On mobile, scenes appear in a bottom drawer that can be pulled up.
+点击任意场景即可选中。在移动端，场景会显示在可向上拉出的底部抽屉中。
 
-### Batch Motion Generation
+### 批量生成动态
 
-At the top of the scene list, a **Generate Motion** button lets you start video generation for all eligible frames at once (frames with completed images but no video). You can optionally include music generation in the batch.
+场景列表顶部的**生成动态**按钮可以一次性为所有符合条件的帧启动视频生成（即已生成图像但还没有视频的帧）。你还可以选择在该批任务中同时生成音乐。
 
-## Scene Player
+## 场景播放器
 
-The central player displays:
+中央播放器会显示：
 
-- **Still image** — When no video exists yet
-- **Video playback** — When motion has been generated, with play/pause controls
-- **Progress overlay** — During generation, shows the current phase name
-- **Model hint** — When the inspector model differs from the current still, a badge points at Set Image / Generate without replacing the primary image
+- **静态图** — 尚无视频时显示
+- **视频播放** — 已生成动态后显示，并提供播放/暂停控件
+- **进度叠层** — 生成期间显示当前阶段名称
+- **模型提示** — 检查器中的模型与当前静态图所用模型不同时，徽标会提示使用“设为图像”或“生成”，但不会替换主图
 
-The player automatically sizes to match your sequence's aspect ratio (16:9, 9:16, or 1:1).
+播放器会自动调整尺寸，以匹配序列的宽高比（16:9、9:16 或 1:1）。
 
-## Detail Tabs
+## 详情标签页
 
-Below the player, six tabs provide different views and controls for the selected scene.
+播放器下方有六个标签页，为所选场景提供不同视图和控件。
 
-### Variants Tab
+### 变体标签页
 
-Generate multiple visual interpretations of a scene. This is useful for A/B testing different compositions or finding the best framing.
+为场景生成多种视觉诠释。这有助于对不同构图进行 A/B 测试，或寻找最佳取景方式。
 
-- **Generate Scene Variants** — Creates a grid of variant images using the selected image model
-- **Click any variant** to set it as the scene's primary image
-- **Choose a different model** before generating to compare outputs across providers
+- **生成场景变体** — 使用所选图像模型创建变体图像网格
+- **点击任意变体**，将其设为场景主图
+- 生成前**选择其他模型**，以比较不同提供商的输出
 
-### Script Tab
+### 剧本标签页
 
-Shows the original script extract for this scene — the exact text from your screenplay that corresponds to this scene. Also displays the scene duration.
+显示该场景对应的原始剧本摘录，即剧本中与此场景对应的确切文本。同时还会显示场景时长。
 
-### Cast Tab
+### 演员标签页
 
-Shows which characters appear in this scene. Each character links to their detail page where you can view their full profile and recast them.
+显示此场景中出现的角色。每个角色都链接到其详情页，你可以在其中查看完整资料并重新选角。
 
-### Location Tab
+### 地点标签页
 
-Shows the location for this scene with its reference image and details. Links to the location's detail page for updating references.
+显示此场景的地点及其参考图和详情，并链接到地点详情页以便更新参考。
 
-### Image Tab
+### 图像标签页
 
-Full control over the scene's image generation:
+全面控制场景的图像生成：
 
-- **Editable prompt** — The full visual prompt used to generate the image. Edit it to refine the composition, lighting, or details.
-- **Character count** — Displayed in real-time as you edit
-- **Model selector** — Switch between image models for this specific scene
-- **Optimised prompt** — A collapsed panel for the currently selected model only. Expand it to read the assembled prompt (reference bindings included); toggle **JSON** to copy the exact request body.
-- **Shorten Prompt** — AI-powered prompt compression that preserves intent while reducing length. Shows the reduction percentage (e.g., "Prompt shortened by 35% (2400 to 1560 chars)")
-- **Generate Image** / **Regenerate Image** — Create a new image with the current prompt and model
-- **Set Image** — When previewing a variant from a different model, set it as the scene's primary image
-- **Copy Prompt** — Copy the prompt to clipboard
+- **可编辑提示词** — 用于生成图像的完整视觉提示词。编辑提示词可完善构图、光照或细节。
+- **字符数** — 编辑时实时显示
+- **模型选择器** — 为当前场景切换图像模型
+- **优化提示词** — 仅针对当前所选模型的折叠面板。展开可查看组装后的提示词（包括参考绑定）；切换到 **JSON** 可复制确切的请求正文。
+- **缩短提示词** — 由 AI 驱动的提示词压缩功能，可在保留原意的同时缩短长度。界面会显示缩减百分比（例如“提示词已缩短 35%（从 2400 个字符缩减到 1560 个）”）
+- **生成图像** / **重新生成图像** — 使用当前提示词和模型创建新图像
+- **设为图像** — 预览其他模型生成的变体时，将其设为场景主图
+- **复制提示词** — 将提示词复制到剪贴板
 
-### Motion Tab
+### 动态标签页
 
-Control over the scene's video generation:
+控制场景的视频生成：
 
-- **Editable prompt** — The motion direction prompt (camera movements, character actions). Edit to change the animation style.
-- **Model selector** — Switch between video models for this scene. Models are filtered by aspect ratio compatibility and style category.
-- **Optimised prompt** — A collapsed panel for the currently selected model only. The header shows character count against that model's maximum prompt length (highlighted if over). Expand it to read the assembled prompt (dialogue, audio cues, reference bindings); toggle **JSON** to copy the exact request body.
-- **Generate Motion** / **Regenerate Motion** — Create a new video clip
-- **Copy Prompt** — Copy the assembled prompt to clipboard
+- **可编辑提示词** — 动态指导提示词（镜头运动、角色动作）。编辑它可改变动画风格。
+- **模型选择器** — 为当前场景切换视频模型。模型会根据宽高比兼容性和风格类别进行筛选。
+- **优化提示词** — 仅针对当前所选模型的折叠面板。标题会显示字符数与该模型提示词长度上限的对比（超出时高亮）。展开可查看组装后的提示词（对白、音频提示、参考绑定）；切换到 **JSON** 可复制确切的请求正文。
+- **生成动态** / **重新生成动态** — 创建新的视频片段
+- **复制提示词** — 将组装后的提示词复制到剪贴板
 
-## Smart Retry
+## 智能重试
 
-If any images or videos fail to generate, a **failure summary banner** appears at the top of the scenes view with:
+如果有任何图像或视频生成失败，场景视图顶部会显示**失败摘要横幅**，其中包含：
 
-- A count of failed items
-- **Smart Retry** — Automatically retries only the failed items
-- **Regenerate All** — Takes you back to the script tab for a full regeneration
+- 失败项目数量
+- **智能重试** — 仅自动重试失败项目
+- **全部重新生成** — 返回剧本标签页进行完整重新生成
 
-## Real-Time Progress
+## 实时进度
 
-During generation, progress banners show:
+生成期间，进度横幅会显示：
 
-- **Generation Progress** — For the initial pipeline (script analysis, image generation, etc.) with phase indicators
-- **Motion Progress** — For batch motion generation, tracking individual frame completion
-- **Estimated time** — Based on the number of frames and selected model
+- **生成进度** — 显示初始流水线（剧本分析、图像生成等）及各阶段指示
+- **动态进度** — 跟踪批量动态生成中各个帧的完成情况
+- **预计时间** — 根据帧数和所选模型估算
 
-Progress updates arrive via Server-Sent Events (SSE) in real-time. If the connection drops, the UI falls back to polling.
+进度更新通过服务器发送事件（SSE）实时到达。如果连接中断，界面会回退到轮询方式。

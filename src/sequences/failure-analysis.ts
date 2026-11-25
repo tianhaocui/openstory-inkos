@@ -85,7 +85,7 @@ function toneOf(error: string | null | undefined): FailureSummary['tone'] {
   return 'error';
 }
 
-const FULL_RETRY_HEADLINE = 'Generation failed \u2014 full retry required';
+const FULL_RETRY_HEADLINE = '生成失败，需要完整重试';
 
 /** "A", "A and B", "A, B and C". */
 function listNames(names: string[]): string {
@@ -98,7 +98,7 @@ function fullRetryHeadline(error: string | null | undefined): string {
   if (tone === 'credits') return CREDITS_SHORT_TITLE;
   if (tone !== 'warning') return FULL_RETRY_HEADLINE;
   const subjects = contentRejectionSubjects(error ?? '');
-  return `${subjects.length > 0 ? listNames(subjects) : 'Script'} didn't pass the content checker \u2014 regenerate to retry`;
+  return `${subjects.length > 0 ? listNames(subjects) : '剧本'}未通过内容审核，请重新生成后重试`;
 }
 
 function buildHeadline(
@@ -110,7 +110,7 @@ function buildHeadline(
 ): string {
   if (groups.length === 0) {
     if (requiresFullRetry) return fullRetryHeadline(error);
-    return 'No failures detected';
+    return '未检测到失败';
   }
 
   if (requiresFullRetry) {
@@ -119,7 +119,7 @@ function buildHeadline(
     );
     if (promptGroups.length > 0) {
       const names = promptGroups.map((g) => g.label).join(' and ');
-      return `${names} \u2014 full retry required`;
+      return `${names}，需要完整重试`;
     }
     return fullRetryHeadline(error);
   }
@@ -131,27 +131,25 @@ function buildHeadline(
       parts.push(
         groupIsContentOnly(group)
           ? n === 1
-            ? "1 still didn't pass the content checker"
-            : `${n} stills didn't pass the content checker`
-          : `${n} image${n !== 1 ? 's' : ''} failed`
+            ? '1 张静态画面未通过内容审核'
+            : `${n} 张静态画面未通过内容审核`
+          : `${n} 张图片生成失败`
       );
     } else if (group.category === 'motion') {
       const n = group.shots.length;
       parts.push(
         groupIsContentOnly(group)
           ? n === 1
-            ? "1 clip didn't pass the content checker"
-            : `${n} clips didn't pass the content checker`
-          : `${n} motion video${n !== 1 ? 's' : ''} failed`
+            ? '1 个视频片段未通过内容审核'
+            : `${n} 个视频片段未通过内容审核`
+          : `${n} 个动态视频生成失败`
       );
     } else if (group.category === 'music') {
       parts.push(
-        groupIsContentOnly(group)
-          ? "music didn't pass the content checker"
-          : 'music generation failed'
+        groupIsContentOnly(group) ? '音乐未通过内容审核' : '音乐生成失败'
       );
     } else if (group.category === 'music-prompt') {
-      parts.push('music prompt generation failed');
+      parts.push('音乐提示词生成失败');
     }
   }
 
@@ -159,7 +157,7 @@ function buildHeadline(
   // Lead with what worked so a single miss doesn't headline the first run
   // (#1286). "6 of 7 clips ready · 1 image failed".
   if (clipsTotal > 0) {
-    const ready = `${clipsReady} of ${clipsTotal} clips ready`;
+    const ready = `${clipsTotal} 个视频片段中已有 ${clipsReady} 个就绪`;
     return failure ? `${ready} \u00b7 ${failure}` : ready;
   }
   return failure;

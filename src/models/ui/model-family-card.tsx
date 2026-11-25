@@ -24,7 +24,7 @@ export const ModelFamilyCard: FC<{ family: ModelFamily }> = ({ family }) => {
       to="/models/family/$"
       params={{ _splat: family.family }}
       search={{ activity: family.activity }}
-      aria-label={`${family.title} model family`}
+      aria-label={`${family.title} 模型系列`}
       className="group flex flex-col overflow-hidden rounded-xl border bg-card shadow-sm transition-all hover:scale-[1.02] hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
     >
       <div
@@ -52,7 +52,7 @@ export const ModelFamilyCard: FC<{ family: ModelFamily }> = ({ family }) => {
           {family.latestVersion && (
             <Badge variant="outline">{family.latestVersion}</Badge>
           )}
-          <Badge variant="outline">{family.variants.length} variants</Badge>
+          <Badge variant="outline">{family.variants.length} 个变体</Badge>
         </div>
       </div>
     </Link>

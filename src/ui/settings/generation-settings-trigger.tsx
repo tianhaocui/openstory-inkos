@@ -18,7 +18,7 @@ export const GenerationSettingsTrigger: FC<GenerationSettingsTriggerProps> = ({
     <Button
       variant="outline"
       className="gap-2"
-      aria-label="Generation settings"
+      aria-label="生成设置"
       {...props}
     >
       {aspectRatioData && (

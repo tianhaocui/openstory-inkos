@@ -106,7 +106,7 @@ export const ScriptEditor: React.FC<ScriptEditorProps> = ({
               <>
                 {' / '}
                 <span>{maxLength.toLocaleString()}</span>
-                <span> characters</span>
+                <span> 个字符</span>
               </>
             )}
           </div>

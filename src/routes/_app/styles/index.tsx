@@ -7,7 +7,7 @@ import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/_app/styles/')({
   component: StylesPage,
-  staticData: { breadcrumb: 'Styles' },
+  staticData: { breadcrumb: '风格' },
 });
 
 function StylesPage() {
@@ -16,10 +16,10 @@ function StylesPage() {
 
   return (
     <div className="h-full overflow-auto">
-      <PageIntro title="Styles">
+      <PageIntro title="风格">
         {isAuthenticated
-          ? 'Browse every visual style. Hover a tile to preview it in motion, or open one to see its sample video and look.'
-          : 'Browse every visual style available for your sequences. Hover a tile to preview it in motion, or open one for a closer look.'}
+          ? '浏览所有视觉风格。悬停在卡片上预览动效，点击查看示例视频和详细风格。'
+          : '浏览所有可用的视觉风格。悬停在卡片上预览动效，点击了解更多详情。'}
       </PageIntro>
       <PageContainer padding="none" className="pb-8">
         <StyleLibraryView styles={styles} />

@@ -77,15 +77,10 @@ const TheatreShareOverlay: React.FC<{
       ? `Export · ${sequenceExport.clipsReady} of ${sequenceExport.clipsTotal} clips ready`
       : null;
   const downloadLabel =
-    wait ??
-    (sequenceExport.freshExportUrl
-      ? 'Download MP4'
-      : 'Export and download MP4');
+    wait ?? (sequenceExport.freshExportUrl ? '下载 MP4' : '导出并下载 MP4');
   const copyLabel =
     wait ??
-    (sequenceExport.freshExportUrl
-      ? 'Copy video link'
-      : 'Export and copy video link');
+    (sequenceExport.freshExportUrl ? '复制视频链接' : '导出并复制视频链接');
   return (
     <>
       <Tooltip>
@@ -179,7 +174,7 @@ export const SceneCanvas: React.FC<SceneCanvasProps> = ({
           role="alert"
           className="max-w-md text-center text-sm text-destructive"
         >
-          Failed to load shots: {loadError.message}
+          加载镜头失败：{loadError.message}
         </p>
       </div>
     );
@@ -274,7 +269,7 @@ export const SceneCanvas: React.FC<SceneCanvasProps> = ({
     return (
       <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-4 py-16">
         <Film className="h-8 w-8 text-muted-foreground" />
-        <p className="text-muted-foreground">No scenes ready to play yet</p>
+        <p className="text-muted-foreground">暂无可播放的场景</p>
         <p className="max-w-md text-center text-sm text-muted-foreground">
           Generate motion for your shots to preview playback here.
         </p>

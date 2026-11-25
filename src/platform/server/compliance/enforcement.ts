@@ -46,6 +46,19 @@ const SEVERITY: Record<EnforcementActionType, number> = {
   account_terminated: 4,
 };
 
+const REASON_LABELS: Record<ContentReportReason, string> = {
+  csam: '儿童性虐待材料',
+  portrait_rights: '肖像权侵害',
+  deepfake_impersonation: '深度伪造冒充',
+  copyright: '版权或商标侵权',
+  sexual_content: '未经同意或露骨的性内容',
+  violence_or_harm: '暴力、有害或危险内容',
+  hate_or_harassment: '仇恨言论或骚扰',
+  illegal_or_regulated: '违法或受监管内容',
+  misleading_content: '误导或欺骗性内容',
+  other: '其他违规内容',
+};
+
 /**
  * Is this action in force at `now`?
  *
@@ -142,18 +155,18 @@ export function restrictionNotice(state: EnforcementState): string | null {
   const worst = state.mostSevere;
   if (!worst) return null;
 
-  const category = worst.reason.replace(/_/g, ' ');
+  const category = REASON_LABELS[worst.reason];
   switch (worst.action) {
     case 'account_terminated':
-      return `This account has been closed following a ${category} violation.`;
+      return `此账号因涉及${category}违规已被关闭。`;
     case 'account_suspended':
-      return `This account is suspended following a ${category} report and is currently read-only.`;
+      return `此账号因涉及${category}的举报已被暂停，目前仅可查看。`;
     case 'generation_suspended':
-      return `New generations are paused on this account following a ${category} report.`;
+      return `此账号因涉及${category}的举报，已暂停新的生成任务。`;
     case 'content_removed':
-      return `Content on this account was removed following a ${category} report.`;
+      return `此账号中涉及${category}举报的内容已被移除。`;
     case 'warning':
-      return `This account has a recorded warning for ${category}.`;
+      return `此账号已因${category}收到警告。`;
   }
 }
 
@@ -165,7 +178,7 @@ export function assertCanGenerate(state: EnforcementState): void {
   if (state.canGenerate) return;
   const worst = state.mostSevere;
   throw new AccountRestrictedError(
-    restrictionNotice(state) ?? 'This account may not generate content',
+    restrictionNotice(state) ?? '此账号暂时无法生成内容。',
     {
       action: worst?.action,
       reason: worst?.reason,
@@ -180,7 +193,7 @@ export function assertCanWrite(state: EnforcementState): void {
   if (state.canWrite) return;
   const worst = state.mostSevere;
   throw new AccountRestrictedError(
-    restrictionNotice(state) ?? 'This account is read-only',
+    restrictionNotice(state) ?? '此账号目前仅可查看。',
     {
       action: worst?.action,
       reason: worst?.reason,

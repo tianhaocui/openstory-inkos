@@ -105,7 +105,7 @@ export const setStudioAssetFavoriteFn = createServerFn({ method: 'POST' })
   .handler(async ({ context, data }) => {
     const asset = await context.scopedDb.generatedAssets.getById(data.id);
     if (!asset || asset.source !== 'studio') {
-      throw new Error('Generated asset not found');
+      throw new Error('未找到生成内容');
     }
     await context.scopedDb.generatedAssets.setFavorite(
       data.id,
@@ -120,7 +120,7 @@ export const deleteStudioAssetFn = createServerFn({ method: 'POST' })
   .handler(async ({ context, data }) => {
     const asset = await context.scopedDb.generatedAssets.getById(data.id);
     if (!asset || asset.source !== 'studio') {
-      throw new Error('Generated asset not found');
+      throw new Error('未找到生成内容');
     }
     await context.scopedDb.generatedAssets.delete(data.id);
     // Storage deletion is best-effort: a leaked object beats a failed delete.
@@ -168,9 +168,7 @@ export const draftStudioPromptFn = createServerFn({ method: 'POST' })
         estimateLLMCost(1)
       );
       if (!canAfford) {
-        throw new InsufficientCreditsError(
-          'Insufficient credits to draft a prompt'
-        );
+        throw new InsufficientCreditsError('积分不足，无法起草提示词');
       }
     }
 

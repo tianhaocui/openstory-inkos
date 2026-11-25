@@ -77,7 +77,7 @@ export function useSequencesListPrefs(
 export const Route = createFileRoute('/_app/sequences/')({
   validateSearch: sequencesListSearchSchema,
   component: SequencesPage,
-  staticData: { breadcrumb: 'Sequences' },
+  staticData: { breadcrumb: '我的序列' },
 });
 
 function SequencesPage() {
@@ -86,8 +86,8 @@ function SequencesPage() {
 
   return (
     <>
-      <PageIntro title="Your Sequences" maxWidth="full">
-        Your films, from first draft to final cut.
+      <PageIntro title="我的序列" maxWidth="full">
+        从初稿到终剪，你的所有影片都在这里。
       </PageIntro>
       <PageContainer
         maxWidth="full"
@@ -99,8 +99,8 @@ function SequencesPage() {
         ) : (
           <SignInPrompt
             icon={<Video className="h-12 w-12" />}
-            title="Sign in to see your sequences"
-            description="Your generated sequences live here once you create an account."
+            title="登录查看你的序列"
+            description="创建账号后，你生成的序列将显示在这里。"
           />
         )}
       </PageContainer>

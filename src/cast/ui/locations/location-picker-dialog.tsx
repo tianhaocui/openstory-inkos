@@ -95,9 +95,9 @@ export const LocationPickerDialog: React.FC<LocationPickerDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Select Location Reference</DialogTitle>
+          <DialogTitle>选择场景参考素材</DialogTitle>
           <DialogDescription>
-            Choose a location from your library to use as a visual reference.
+            从场景库中选择一个场景作为视觉参考。
           </DialogDescription>
         </DialogHeader>
 
@@ -106,7 +106,7 @@ export const LocationPickerDialog: React.FC<LocationPickerDialogProps> = ({
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             type="text"
-            placeholder="Search locations..."
+            placeholder="搜索场景…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9"
@@ -129,12 +129,10 @@ export const LocationPickerDialog: React.FC<LocationPickerDialogProps> = ({
             <div className="flex h-full flex-col items-center justify-center py-12 text-center">
               <MapPin className="h-12 w-12 text-muted-foreground/30" />
               <p className="mt-4 text-sm text-muted-foreground">
-                {searchQuery
-                  ? 'No locations matching your search'
-                  : 'No locations available'}
+                {searchQuery ? '没有匹配搜索条件的场景' : '暂无可用场景'}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Locations from other sequences will appear here
+                其他序列中的场景将显示在这里
               </p>
             </div>
           ) : (

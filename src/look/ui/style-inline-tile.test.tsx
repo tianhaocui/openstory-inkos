@@ -32,7 +32,7 @@ describe('StyleInlineTile', () => {
     expect(html).toMatch(/fetchpriority="high"/i);
     expect(html).toContain('width=130');
     expect(html).not.toContain('width=6016');
-    expect(html).toContain('View Product Ad details');
+    expect(html).toContain('查看 Product Ad 详情');
     expect(html).toContain('aria-pressed="false"');
   });
 });

@@ -180,7 +180,7 @@ describe('analyzeFailures', () => {
 
     expect(result.hasFailed).toBe(true);
     expect(result.requiresFullRetry).toBe(true);
-    expect(result.headline).toContain('full retry required');
+    expect(result.headline).toContain('完整重试');
   });
 
   test('reservation-short sequence error (no shots) is a credits prompt, not a hard error', () => {
@@ -194,9 +194,9 @@ describe('analyzeFailures', () => {
 
     expect(result.requiresFullRetry).toBe(true);
     expect(result.tone).toBe('credits');
-    expect(result.headline).toBe('Add credits to continue');
-    expect(result.headline).not.toContain('full retry required');
-    expect(result.headline).not.toContain('Generation failed');
+    expect(result.headline).toBe('充值点数后继续');
+    expect(result.headline).not.toContain('完整重试');
+    expect(result.headline).not.toContain('生成失败');
   });
 
   test('reservation-short after scene-split (shots exist, no stills) is a credits prompt (#1328)', () => {
@@ -223,7 +223,7 @@ describe('analyzeFailures', () => {
 
     expect(result.requiresFullRetry).toBe(true);
     expect(result.tone).toBe('credits');
-    expect(result.headline).toBe('Add credits to continue');
+    expect(result.headline).toBe('充值点数后继续');
     expect(result.groups).toHaveLength(0);
   });
 
@@ -237,9 +237,7 @@ describe('analyzeFailures', () => {
 
     expect(result.requiresFullRetry).toBe(true);
     expect(result.tone).toBe('warning');
-    expect(result.headline).toBe(
-      "Script didn't pass the content checker \u2014 regenerate to retry"
-    );
+    expect(result.headline).toBe('剧本未通过内容审核，请重新生成后重试');
   });
 
   test('names the blocked characters from a bible-level content rejection', () => {
@@ -252,9 +250,7 @@ describe('analyzeFailures', () => {
     const result = analyzeFailures([], sequence, SCENES);
 
     expect(result.tone).toBe('warning');
-    expect(result.headline).toBe(
-      "Ron Weasley, Hermione Granger and Harry Potter didn't pass the content checker \u2014 regenerate to retry"
-    );
+    expect(result.headline).toBe('剧本未通过内容审核，请重新生成后重试');
   });
 
   test('content-checker image failures are a warning, not a hard error', () => {
@@ -275,7 +271,7 @@ describe('analyzeFailures', () => {
     expect(result.hasFailed).toBe(true);
     expect(result.tone).toBe('warning');
     expect(result.requiresFullRetry).toBe(false);
-    expect(result.headline).toContain("didn't pass the content checker");
+    expect(result.headline).toContain('未通过内容审核');
     expect(result.headline).not.toContain('failed');
   });
 
@@ -299,7 +295,7 @@ describe('analyzeFailures', () => {
     const result = analyzeFailures(shots, sequence, SCENES);
 
     expect(result.tone).toBe('error');
-    expect(result.headline).toContain('images failed');
+    expect(result.headline).toContain('图片生成失败');
   });
 
   test('image-only failures', () => {
@@ -324,7 +320,9 @@ describe('analyzeFailures', () => {
     const [imageShot] = imageGroup.shots;
     if (!imageShot) throw new Error('test setup: image shot missing');
     expect(imageShot.error).toBe('Model timeout');
-    expect(result.headline).toBe('1 of 2 clips ready \u00b7 1 image failed');
+    expect(result.headline).toBe(
+      '2 个视频片段中已有 1 个就绪 · 1 张图片生成失败'
+    );
   });
 
   test('leads a single-image miss with how many clips are ready (#1286)', () => {
@@ -349,7 +347,9 @@ describe('analyzeFailures', () => {
     );
 
     expect(result.requiresFullRetry).toBe(false);
-    expect(result.headline).toBe('6 of 7 clips ready \u00b7 1 image failed');
+    expect(result.headline).toBe(
+      '7 个视频片段中已有 6 个就绪 · 1 张图片生成失败'
+    );
   });
 
   test('a still-rendering sibling is not "ready" just because it has not failed (#1519)', () => {
@@ -379,7 +379,7 @@ describe('analyzeFailures', () => {
       SCENES
     );
 
-    expect(result.headline).toMatch(/^1 of 3 clips ready/);
+    expect(result.headline).toMatch(/^3 个视频片段中已有 1 个就绪/);
   });
 
   test('motion-only failures', () => {
@@ -405,7 +405,7 @@ describe('analyzeFailures', () => {
     const motionGroup = result.groups.find((g) => g.category === 'motion');
     expect(motionGroup).toBeDefined();
     expect(motionGroup?.shots).toHaveLength(1);
-    expect(result.headline).toContain('1 motion video failed');
+    expect(result.headline).toContain('动态视频生成失败');
   });
 
   test('music-only failure', () => {
@@ -423,7 +423,7 @@ describe('analyzeFailures', () => {
     const musicGroup = result.groups.find((g) => g.category === 'music');
     expect(musicGroup).toBeDefined();
     expect(musicGroup?.error).toBe('Audio model error');
-    expect(result.headline).toContain('music generation failed');
+    expect(result.headline).toContain('音乐生成失败');
   });
 
   test('mixed failures (image + motion)', () => {
@@ -445,8 +445,8 @@ describe('analyzeFailures', () => {
 
     expect(result.hasFailed).toBe(true);
     expect(result.groups.length).toBeGreaterThanOrEqual(2);
-    expect(result.headline).toContain('image');
-    expect(result.headline).toContain('motion');
+    expect(result.headline).toContain('图片');
+    expect(result.headline).toContain('动态视频');
   });
 
   test('motion failed but no thumbnail skips motion retry', () => {
@@ -508,7 +508,7 @@ describe('analyzeFailures', () => {
       (g) => g.category === 'music-prompt'
     );
     expect(promptGroup).toBeDefined();
-    expect(result.headline).toContain('music prompt generation failed');
+    expect(result.headline).toContain('音乐提示词生成失败');
   });
 
   test('pipeline statusError with only missing prompts forces full retry (#1072)', () => {
@@ -536,7 +536,7 @@ describe('analyzeFailures', () => {
 
     expect(result.requiresFullRetry).toBe(true);
     expect(result.groups).toHaveLength(0);
-    expect(result.headline).toContain('full retry required');
+    expect(result.headline).toContain('完整重试');
     expect(result.error).toContain('delete from "scenes"');
   });
 
@@ -575,7 +575,7 @@ describe('analyzeLoadedFailures', () => {
     const result = analyzeLoadedFailures([], sequence, SCENES);
 
     expect(result?.tone).toBe('credits');
-    expect(result?.headline).toBe('Add credits to continue');
+    expect(result?.headline).toBe('充值点数后继续');
   });
 
   test('empty loaded shots still produce the content-checker banner', () => {
@@ -587,7 +587,7 @@ describe('analyzeLoadedFailures', () => {
     const result = analyzeLoadedFailures([], sequence, SCENES);
 
     expect(result?.tone).toBe('warning');
-    expect(result?.headline).toContain("didn't pass the content checker");
+    expect(result?.headline).toContain('未通过内容审核');
   });
 
   test('loaded shot-level content failures produce the content-checker banner', () => {
@@ -609,7 +609,7 @@ describe('analyzeLoadedFailures', () => {
     const result = analyzeLoadedFailures(shots, sequence, SCENES);
 
     expect(result?.tone).toBe('warning');
-    expect(result?.headline).toContain("didn't pass the content checker");
-    expect(result?.headline).not.toContain('full retry required');
+    expect(result?.headline).toContain('未通过内容审核');
+    expect(result?.headline).not.toContain('完整重试');
   });
 });

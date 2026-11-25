@@ -80,7 +80,7 @@ export const EvalSequenceRow: React.FC<EvalSequenceRowProps> = ({
           >
             <AppImage
               src={previewUrl}
-              alt={`${sequence.title || 'Sequence'} preview`}
+              alt={`${sequence.title || '序列'}预览`}
               className="max-w-full max-h-full object-contain rounded-md"
               loading="lazy"
               width={400}

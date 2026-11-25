@@ -67,7 +67,7 @@ export const MotionDialoguePanel: React.FC<{
   const voices = (elements ?? []).filter((el) => el.kind === 'audio');
   const generatedLabel = (() => {
     const length = formatElementDuration(clip?.durationSeconds ?? null);
-    return length ? `Generated · ${length}` : 'Generated';
+    return length ? `已生成 · ${length}` : '已生成';
   })();
   const value = shotPickerValue(lines);
   const boundElement = voices.find((el) => el.token === value);
@@ -77,7 +77,7 @@ export const MotionDialoguePanel: React.FC<{
       : orphanedVoiceTokens(lines, new Set(voices.map((el) => el.token)));
   const voiceItems: Record<string, string> = {
     [GENERATED_VOICE]: generatedLabel,
-    [VIDEO_MODEL_VOICE_TOKEN]: 'Video model',
+    [VIDEO_MODEL_VOICE_TOKEN]: '视频模型',
     ...Object.fromEntries(voices.map((el) => [el.token, voiceLabel(el)])),
     ...Object.fromEntries(
       orphans.map((token) => [token, `${token} (deleted)`])
@@ -105,11 +105,11 @@ export const MotionDialoguePanel: React.FC<{
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-baseline justify-between gap-2">
-        <span className="text-sm font-medium">Dialogue</span>
+        <span className="text-sm font-medium">对白</span>
         <span className="text-xs text-muted-foreground">
           {source === 'prompt'
-            ? 'Appended to the prompt at render'
-            : 'From the script — bind audio once the motion prompt exists'}
+            ? '渲染时附加到提示词'
+            : '来自剧本，动态提示词生成后可绑定音频'}
         </span>
       </div>
       {(onChange || playbackUrl) && (
@@ -123,19 +123,15 @@ export const MotionDialoguePanel: React.FC<{
               }}
               disabled={disabled}
             >
-              <SelectTrigger
-                size="sm"
-                className="w-full"
-                aria-label="Shot audio"
-              >
-                <SelectValue placeholder="Generated" />
+              <SelectTrigger size="sm" className="w-full" aria-label="镜头音频">
+                <SelectValue placeholder="已生成" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={GENERATED_VOICE}>
                   {generatedLabel}
                 </SelectItem>
                 <SelectItem value={VIDEO_MODEL_VOICE_TOKEN}>
-                  Video model
+                  视频模型
                 </SelectItem>
                 {voices.map((el) => (
                   <SelectItem key={el.id} value={el.token}>
@@ -144,7 +140,7 @@ export const MotionDialoguePanel: React.FC<{
                 ))}
                 {orphans.map((token) => (
                   <SelectItem key={token} value={token}>
-                    <span>{token} (deleted)</span>
+                    <span>{token}（已删除）</span>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -152,15 +148,14 @@ export const MotionDialoguePanel: React.FC<{
           )}
           {orphans.length > 0 && (
             <p className="text-xs text-warning">
-              {orphans.join(', ')} was deleted — pick another source, or this
-              shot won't render.
+              {orphans.join('、')}{' '}
+              已被删除，请选择其他来源，否则此镜头无法生成。
             </p>
           )}
           {dialogueLonger && audioSeconds != null && shotSeconds != null && (
             <p className="text-xs text-muted-foreground">
-              Dialogue is {formatElementDuration(audioSeconds)} — this shot is{' '}
-              {formatElementDuration(shotSeconds)}. Generate will stretch the
-              shot to cover it.
+              对白时长为 {formatElementDuration(audioSeconds)}，此镜头为{' '}
+              {formatElementDuration(shotSeconds)}。生成时会延长镜头以覆盖对白。
             </p>
           )}
           {playbackUrl ? (
@@ -170,7 +165,7 @@ export const MotionDialoguePanel: React.FC<{
               preload="none"
               src={playbackUrl}
               className="w-full"
-              aria-label="Shot dialogue audio"
+              aria-label="镜头对白音频"
             />
           ) : null}
         </div>
@@ -182,9 +177,7 @@ export const MotionDialoguePanel: React.FC<{
             className="flex flex-col gap-1.5"
           >
             <p className="text-sm">
-              <span className="font-medium">
-                {line.character || 'Narrator'}
-              </span>
+              <span className="font-medium">{line.character || '旁白'}</span>
               {line.tone && (
                 <span className="text-muted-foreground"> · {line.tone}</span>
               )}

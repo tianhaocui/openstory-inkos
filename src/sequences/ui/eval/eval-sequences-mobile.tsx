@@ -181,9 +181,9 @@ const MobileReelRow: React.FC<MobileReelRowProps> = ({
             to="/sequences/$id/scenes"
             params={{ id: sequence.id }}
             className="font-medium text-sm text-foreground line-clamp-1 hover:underline"
-            title={sequence.title || 'Untitled Sequence'}
+            title={sequence.title || '未命名序列'}
           >
-            {sequence.title || 'Untitled Sequence'}
+            {sequence.title || '未命名序列'}
           </Link>
           <CreatorIdentity sequence={sequence} />
           <SequenceListStatus sequence={sequence} />
@@ -191,8 +191,8 @@ const MobileReelRow: React.FC<MobileReelRowProps> = ({
         <div className="flex items-center gap-1 shrink-0">
           {hasVariants && (
             <span
-              aria-label="Variants available — open to compare"
-              title="Variants available — open to compare"
+              aria-label="有可用变体，打开以比较"
+              title="有可用变体，打开以比较"
               className="inline-flex h-2 w-2 rounded-full bg-sky-500 ring-2 ring-sky-500/30"
             />
           )}
@@ -201,7 +201,7 @@ const MobileReelRow: React.FC<MobileReelRowProps> = ({
             variant="ghost"
             size="icon"
             className="h-8 w-8"
-            aria-label="Open sequence"
+            aria-label="打开序列"
           >
             <Link to="/sequences/$id/scenes" params={{ id: sequence.id }}>
               <ChevronRight className="h-4 w-4" />
@@ -353,7 +353,7 @@ const SequencePosterCell: React.FC<SequencePosterCellProps> = ({
       <Link {...linkProps} className={baseClass} style={style}>
         <AppImage
           src={previewUrl}
-          alt={`${sequence.title || 'Sequence'} poster`}
+          alt={`${sequence.title || '序列'}海报`}
           className="w-full h-full object-cover"
           loading="lazy"
           width={400}

@@ -21,21 +21,21 @@ describe('buildPricingCatalog native vias', () => {
     const r = rows({ byteplus: true, xai: true, google: true });
     expect(r['Grok Imagine Image 2.0']).toMatchObject({
       via: 'xAI',
-      price: '$0.04 / image',
+      price: '$0.04 / 张图像',
     });
     expect(r['Grok Imagine Video 1.5']).toMatchObject({
       via: 'xAI',
-      price: 'from $0.08 / second',
+      price: '$0.08 / 秒起',
     });
     expect(r['Nano Banana 2']).toMatchObject({
       via: 'Google',
-      price: 'from $0.07 / image',
+      price: '$0.07 / 张图像起',
     });
     expect(r['Gemini Omni Flash 1.1']).toMatchObject({ via: 'Google' });
     expect(r['Seedream 5.0 Pro']).toMatchObject({ via: 'BytePlus' });
     expect(r['Grok 4.6']).toMatchObject({
       via: 'xAI',
-      price: '$2.00 / M in · $6.00 / M out',
+      price: '输入 $2.00 / 百万 token · 输出 $6.00 / 百万 token',
     });
     expect(r['Gemini 3.1 Pro']).toMatchObject({ via: 'Google' });
   });
@@ -45,7 +45,7 @@ describe('buildPricingCatalog native vias', () => {
     expect(r['Grok Imagine Image 2.0']?.via).toBe('fal.ai');
     expect(r['Grok Imagine Video 1.5']).toMatchObject({
       via: 'fal.ai',
-      price: 'from $0.01 / generation',
+      price: '$0.01 / 次生成起',
     });
     expect(r['Seedream 5.0 Pro']?.via).toBe('fal.ai');
     expect(r['Grok 4.6']?.via).toBe('OpenRouter');

@@ -33,14 +33,14 @@ const STATUS: Record<
   }
 > = {
   idle: {
-    label: 'Copy script',
-    announced: 'Copy the whole script',
+    label: '复制剧本',
+    announced: '复制完整剧本',
     Icon: CopyIcon,
   },
-  copied: { label: 'Copied', announced: 'Script copied', Icon: Check },
+  copied: { label: '已复制', announced: '剧本已复制', Icon: Check },
   failed: {
-    label: 'Copy failed',
-    announced: 'Copy failed',
+    label: '复制失败',
+    announced: '复制失败',
     Icon: AlertCircle,
     className: 'text-destructive',
   },
@@ -69,7 +69,7 @@ export const CopyScriptButton: React.FC<{ sequenceId: string }> = ({
     setAttempt((n) => n + 1);
     if (copied) return;
     // Stable id: three taps in half a second should not stack three toasts.
-    toast.error('Could not copy the script', {
+    toast.error('无法复制剧本', {
       id: 'copy-script-failed',
       description:
         'Your browser blocked clipboard access. Select the script text to copy it manually.',

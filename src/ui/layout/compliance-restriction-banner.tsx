@@ -25,7 +25,7 @@ export const ComplianceRestrictionBanner: React.FC = () => {
       <AlertDescription className="flex items-center justify-between gap-4">
         <span>{data.restrictionNotice}</span>
         <Link to="/report" className="shrink-0 font-medium underline">
-          Appeal or report →
+          申诉或举报 →
         </Link>
       </AlertDescription>
     </Alert>

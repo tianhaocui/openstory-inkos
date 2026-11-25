@@ -20,7 +20,7 @@ const searchParamsSchema = z.object({
 export const Route = createFileRoute('/_app/talent/')({
   validateSearch: searchParamsSchema,
   component: TalentPage,
-  staticData: { breadcrumb: 'Talent' },
+  staticData: { breadcrumb: '角色' },
 });
 
 function TalentPage() {
@@ -41,10 +41,10 @@ function TalentPage() {
 
   return (
     <div className="h-full overflow-auto">
-      <PageIntro title="Talent Library" actions={addAction}>
+      <PageIntro title="角色库" actions={addAction}>
         {isAuthenticated
-          ? "Manage your team's talent library for consistent AI-generated content."
-          : 'Browse system talent. Sign in to add your own and keep characters consistent across sequences.'}
+          ? '管理团队的角色库，确保 AI 生成内容的一致性。'
+          : '浏览系统角色。登录后可添加自己的角色，保持序列间的角色一致性。'}
       </PageIntro>
       <PageContainer padding="none" className="pb-8">
         {isAuthenticated && <TalentLibraryFilters currentFilter={filter} />}
@@ -52,11 +52,11 @@ function TalentPage() {
         {!isLoading && talent && talent.length === 0 ? (
           <EmptyState
             icon={<User className="h-12 w-12" />}
-            title={isAuthenticated ? 'No talent yet' : 'No system talent yet'}
+            title={isAuthenticated ? '暂无角色' : '暂无系统角色'}
             description={
               isAuthenticated
-                ? 'Add talent to your library to maintain visual consistency across your sequences.'
-                : 'Check back soon, or sign in to build your own talent library.'
+                ? '添加角色到你的库中，以保持序列间的视觉一致性。'
+                : '敬请期待，或登录创建你自己的角色库。'
             }
             action={addAction}
           />

@@ -26,6 +26,7 @@ import {
   LIKENESS_CLEARED_V1,
   LIKENESS_DETECTED_V1,
   PORTRAIT_RIGHTS_V1,
+  PORTRAIT_RIGHTS_V2,
   statementHash,
   type AttestationStatement,
 } from '@/platform/compliance/attestations';
@@ -57,6 +58,7 @@ function rightsFromRow(row: UploadAttestation): UploadRights {
     case LIKENESS_DETECTED_V1.version:
       return { status: 'needs_portrait' };
     case PORTRAIT_RIGHTS_V1.version:
+    case PORTRAIT_RIGHTS_V2.version:
       return { status: 'signed' };
     default:
       // A statement this code no longer writes (the retired asset warranty).
@@ -158,10 +160,14 @@ export async function attestUploads(
   for (const claim of attestations) {
     const existing = await latestRow(scopedDb, claim.url);
     if (existing && rightsFromRow(existing).status === 'signed') continue;
+    const statement =
+      claim.statementVersion === PORTRAIT_RIGHTS_V2.version
+        ? PORTRAIT_RIGHTS_V2
+        : PORTRAIT_RIGHTS_V1;
     await record(
       scopedDb,
       claim.url,
-      PORTRAIT_RIGHTS_V1,
+      statement,
       claim.authorizationBasis,
       request
     );

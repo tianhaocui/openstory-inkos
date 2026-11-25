@@ -74,7 +74,7 @@ export const CharacterVoiceSection: React.FC<{
         }
         setIsDesigning(data.status === 'generating');
         if (data.status === 'failed') {
-          toast.error('Voice design failed', {
+          toast.error('声音设计失败', {
             description:
               'error' in data && typeof data.error === 'string'
                 ? data.error
@@ -114,7 +114,7 @@ export const CharacterVoiceSection: React.FC<{
       },
       {
         onError: (error) =>
-          toast.error('Failed to save take', {
+          toast.error('保存录音版本失败', {
             description: errorMessage(error),
           }),
       }
@@ -135,7 +135,7 @@ export const CharacterVoiceSection: React.FC<{
       {
         onSuccess: () => setLibraryOpen(false),
         onError: (error) =>
-          toast.error('Failed to use voice', {
+          toast.error('使用声音失败', {
             description: errorMessage(error),
           }),
       }
@@ -154,7 +154,7 @@ export const CharacterVoiceSection: React.FC<{
               { sequenceId, characterId: character.id, enabled: next },
               {
                 onError: (error) =>
-                  toast.error('Failed to update voice', {
+                  toast.error('更新声音失败', {
                     description: errorMessage(error),
                   }),
               }
@@ -162,7 +162,7 @@ export const CharacterVoiceSection: React.FC<{
           }
         />
         <Label htmlFor="character-voice" className="text-sm font-medium">
-          Voice
+          声音
         </Label>
       </div>
       {enabled && (
@@ -170,9 +170,9 @@ export const CharacterVoiceSection: React.FC<{
           {character.voiceId || previews.length > 0 ? (
             <div className="flex flex-col gap-3">
               {(inUseTake || catalogVoice || character.voiceId) && (
-                <section className="flex flex-col gap-2" aria-label="In use">
+                <section className="flex flex-col gap-2" aria-label="使用中">
                   <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    In use
+                    使用中
                   </p>
                   {catalogVoice ? (
                     <VoiceTakeCard
@@ -184,28 +184,28 @@ export const CharacterVoiceSection: React.FC<{
                   ) : inUseTake ? (
                     <VoiceTakeCard
                       src={inUseTake.url}
-                      label="Designed take"
+                      label="设计的录音版本"
                       inUse
                     />
                   ) : (
-                    <VoiceTakeCard src={null} label="Saved voice" inUse />
+                    <VoiceTakeCard src={null} label="已保存的声音" inUse />
                   )}
                 </section>
               )}
               {otherTakes.length > 0 && (
                 <section
                   className="flex flex-col gap-2"
-                  aria-label="Other takes"
+                  aria-label="其他录音版本"
                 >
                   <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Other takes
+                    其他录音版本
                   </p>
                   <ul className="flex flex-col gap-2">
                     {otherTakes.map((preview, index) => (
                       <li key={preview.generatedVoiceId}>
                         <VoiceTakeCard
                           src={preview.url}
-                          label={`Take ${index + 1}`}
+                          label={`录音版本 ${index + 1}`}
                           disabled={busy || chooseTake.isPending}
                           onUse={() =>
                             handleChooseTake(preview.generatedVoiceId)
@@ -219,9 +219,7 @@ export const CharacterVoiceSection: React.FC<{
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
-              {busy
-                ? 'Designing voice…'
-                : 'No voice yet. Browse the library or generate one.'}
+              {busy ? '正在设计声音…' : '暂无声音。请浏览声音库或生成一个。'}
             </p>
           )}
           <div className="flex flex-wrap gap-2">
@@ -231,7 +229,7 @@ export const CharacterVoiceSection: React.FC<{
               onClick={() => setLibraryOpen(true)}
             >
               <Library className="mr-2 h-4 w-4" />
-              Browse voices
+              浏览声音
             </Button>
             <div className="flex w-fit flex-col gap-1">
               <Button
@@ -243,7 +241,7 @@ export const CharacterVoiceSection: React.FC<{
                     {
                       onSuccess: () => setIsDesigning(true),
                       onError: (error) =>
-                        toast.error('Failed to design voice', {
+                        toast.error('设计声音失败', {
                           description: errorMessage(error),
                         }),
                     }
@@ -256,10 +254,10 @@ export const CharacterVoiceSection: React.FC<{
                   <Mic className="mr-2 h-4 w-4" />
                 )}
                 {isDesigning || generate.isPending
-                  ? 'Designing…'
+                  ? '正在设计…'
                   : character.voiceId
-                    ? 'Regenerate voice'
-                    : 'Generate voice'}
+                    ? '重新生成声音'
+                    : '生成声音'}
               </Button>
               <ActionCost estimate={VOICE_DESIGN_COST} />
             </div>
@@ -297,17 +295,17 @@ const VoiceTakeCard: React.FC<{
     <div className="flex items-center justify-between gap-2">
       <p className="truncate text-sm font-medium">{label}</p>
       {inUse ? (
-        <Badge variant="default">{isPremade ? 'Default' : 'In use'}</Badge>
+        <Badge variant="default">{isPremade ? '默认' : '使用中'}</Badge>
       ) : (
         <Button
           type="button"
           variant="outline"
           size="sm"
           disabled={disabled}
-          aria-label={`Use ${label}`}
+          aria-label={`使用 ${label}`}
           onClick={onUse}
         >
-          Use this take
+          使用此录音版本
         </Button>
       )}
     </div>
@@ -315,7 +313,7 @@ const VoiceTakeCard: React.FC<{
       // oxlint-disable-next-line jsx-a11y/media-has-caption -- a voice audition has no words to caption
       <audio controls preload="none" src={src} className="w-full" />
     ) : (
-      <p className="text-xs text-muted-foreground">No preview</p>
+      <p className="text-xs text-muted-foreground">暂无预听</p>
     )}
   </div>
 );

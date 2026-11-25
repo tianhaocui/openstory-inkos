@@ -107,14 +107,14 @@ type StalenessIndicatorProps = StalenessIndicatorBaseProps &
   );
 
 const ARTIFACT_LABEL: Record<StalenessArtifact, string> = {
-  thumbnail: 'image',
-  video: 'video',
-  audio: 'audio',
-  sheet: 'sheet',
-  'visual-prompt': 'visual prompt',
-  'motion-prompt': 'motion prompt',
-  'music-prompt': 'music prompt',
-  music: 'music',
+  thumbnail: '图片',
+  video: '视频',
+  audio: '音频',
+  sheet: '设定图',
+  'visual-prompt': '图片提示词',
+  'motion-prompt': '动态提示词',
+  'music-prompt': '音乐提示词',
+  music: '音乐',
 };
 
 export const StalenessIndicator: React.FC<StalenessIndicatorProps> = (
@@ -129,8 +129,8 @@ export const StalenessIndicator: React.FC<StalenessIndicatorProps> = (
 
   const artifact = 'artifact' in props ? props.artifact : undefined;
   const ariaLabel = artifact
-    ? `Stale ${ARTIFACT_LABEL[artifact]} on this ${entityType} — inputs changed since it was generated`
-    : `Stale artifacts on this ${entityType} — inputs changed since they were generated`;
+    ? `此项目的${ARTIFACT_LABEL[artifact]}已过期，生成后输入发生了变化`
+    : '此项目的内容已过期，生成后输入发生了变化';
 
   if (props.density === 'corner-dot') {
     // Non-interactive: corner-dot is a presentational signal that nests inside
@@ -139,14 +139,12 @@ export const StalenessIndicator: React.FC<StalenessIndicatorProps> = (
     // artifact is required on this density branch.
     const cornerArtifact = props.artifact;
     const dotLabel = isRegenerating
-      ? `Regenerating ${ARTIFACT_LABEL[cornerArtifact]}…`
+      ? `正在重新生成${ARTIFACT_LABEL[cornerArtifact]}…`
       : ariaLabel;
     return (
       <span
         aria-busy={isRegenerating || undefined}
-        title={
-          isRegenerating ? 'Regenerating…' : 'Inputs changed since generation'
-        }
+        title={isRegenerating ? '正在重新生成…' : '生成后输入已更改'}
         data-slot="staleness-indicator-dot"
         data-artifact={cornerArtifact}
         data-entity-type={entityType}
@@ -172,8 +170,8 @@ export const StalenessIndicator: React.FC<StalenessIndicatorProps> = (
   }
 
   if (props.density === 'status-line') {
-    const message = props.message ?? 'Out of date since your last edit';
-    const actionLabel = props.actionLabel ?? 'Update all';
+    const message = props.message ?? '上次编辑后已过期';
+    const actionLabel = props.actionLabel ?? '全部更新';
     const unknown = props.tone === 'unknown';
     return (
       <div
@@ -266,7 +264,7 @@ export const StalenessIndicator: React.FC<StalenessIndicatorProps> = (
           aria-hidden="true"
           className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500"
         />
-        <span>Outdated</span>
+        <span>已过期</span>
         <span aria-hidden="true">·</span>
         <Button
           type="button"
@@ -276,7 +274,7 @@ export const StalenessIndicator: React.FC<StalenessIndicatorProps> = (
           onClick={props.onRegenerate}
           disabled={isRegenerating}
           aria-busy={isRegenerating}
-          aria-label={`Regenerate — ${ariaLabel}`}
+          aria-label={`重新生成 — ${ariaLabel}`}
         >
           {isRegenerating && (
             <Loader2
@@ -284,7 +282,7 @@ export const StalenessIndicator: React.FC<StalenessIndicatorProps> = (
               className="mr-1 h-3 w-3 animate-spin motion-reduce:animate-none"
             />
           )}
-          {isRegenerating ? 'Regenerating…' : 'Regenerate'}
+          {isRegenerating ? '正在重新生成…' : '重新生成'}
         </Button>
       </span>
     );
@@ -308,9 +306,9 @@ export const StalenessIndicator: React.FC<StalenessIndicatorProps> = (
       )}
     >
       <AlertTriangle aria-hidden="true" />
-      <AlertTitle>Inputs changed</AlertTitle>
+      <AlertTitle>输入已更改</AlertTitle>
       <AlertDescription>
-        This {ARTIFACT_LABEL[inlineArtifact]} was generated from earlier inputs.
+        此{ARTIFACT_LABEL[inlineArtifact]}基于较早的输入生成。
       </AlertDescription>
       <AlertAction className="flex items-center gap-1">
         <Button
@@ -327,7 +325,7 @@ export const StalenessIndicator: React.FC<StalenessIndicatorProps> = (
               className="mr-2 h-3 w-3 animate-spin motion-reduce:animate-none"
             />
           )}
-          {isRegenerating ? 'Regenerating…' : 'Regenerate'}
+          {isRegenerating ? '正在重新生成…' : '重新生成'}
         </Button>
         {onDismiss && (
           <Button
@@ -335,7 +333,7 @@ export const StalenessIndicator: React.FC<StalenessIndicatorProps> = (
             size="icon-sm"
             variant="ghost"
             onClick={handleDismiss}
-            aria-label="Dismiss staleness indicator"
+            aria-label="关闭过期提示"
           >
             <X aria-hidden="true" />
           </Button>

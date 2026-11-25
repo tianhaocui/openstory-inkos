@@ -72,16 +72,16 @@ export const SceneLocationTab: React.FC<SceneLocationTabProps> = ({
       {
         onSuccess: () => {
           setPendingDelete(null);
-          toast(`Removed ${location.name}`, {
+          toast(`已移除 ${location.name}`, {
             duration: 60_000,
             action: {
-              label: 'Undo',
+              label: '撤销',
               onClick: () =>
                 void restoreSequenceLocation(queryClient, {
                   sequenceId,
                   locationDbId: location.id,
                 }).catch((error: Error) =>
-                  toast.error('Failed to restore location', {
+                  toast.error('恢复场景失败', {
                     description: errorMessage(error),
                   })
                 ),
@@ -89,7 +89,7 @@ export const SceneLocationTab: React.FC<SceneLocationTabProps> = ({
           });
         },
         onError: (error) =>
-          toast.error('Failed to remove location', {
+          toast.error('移除场景失败', {
             description: errorMessage(error),
           }),
       }
@@ -131,9 +131,7 @@ export const SceneLocationTab: React.FC<SceneLocationTabProps> = ({
           <MapPin className="h-8 w-8 text-muted-foreground/50" />
         </div>
         <p className="text-sm text-muted-foreground">
-          {canAdd
-            ? 'No locations yet'
-            : 'No locations in this selection — clear the selection to add one'}
+          {canAdd ? '暂无场景' : '当前选择中没有场景，清除选择后可添加'}
         </p>
         {canAdd && <AddLocationDialog sequenceId={sequenceId} />}
       </div>
@@ -144,7 +142,7 @@ export const SceneLocationTab: React.FC<SceneLocationTabProps> = ({
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
-          <span>{canAdd ? 'All Locations' : 'Locations'}</span>
+          <span>{canAdd ? '全部场景' : '场景'}</span>
           <span className="text-muted-foreground/50">·</span>
           <span>{scopedLocations.length}</span>
         </div>
@@ -161,10 +159,10 @@ export const SceneLocationTab: React.FC<SceneLocationTabProps> = ({
                   <span className="text-muted-foreground/50">·</span>
                   <span>
                     {shotLocation.type === 'interior'
-                      ? 'Interior'
+                      ? '内景'
                       : shotLocation.type === 'exterior'
-                        ? 'Exterior'
-                        : 'Int/Ext'}
+                        ? '外景'
+                        : '内外景'}
                   </span>
                 </>
               )}
@@ -175,7 +173,7 @@ export const SceneLocationTab: React.FC<SceneLocationTabProps> = ({
                 params={{ id: sequenceId, locationId: shotLocation.id }}
                 className="flex items-center gap-1 text-xs text-primary hover:underline"
               >
-                View Details
+                查看详情
                 <ExternalLink className="h-3 w-3" />
               </Link>
               <Button
@@ -183,7 +181,7 @@ export const SceneLocationTab: React.FC<SceneLocationTabProps> = ({
                 variant="ghost"
                 size="icon"
                 className="h-7 w-7"
-                aria-label={`Remove ${shotLocation.name} from sequence`}
+                aria-label={`从序列中移除 ${shotLocation.name}`}
                 onClick={() => setPendingDelete(shotLocation)}
               >
                 <Trash2 className="h-3.5 w-3.5" />
@@ -205,8 +203,8 @@ export const SceneLocationTab: React.FC<SceneLocationTabProps> = ({
                 <MapPin className="h-12 w-12 text-muted-foreground/20" />
                 <p className="text-xs text-muted-foreground">
                   {shotLocation.referenceStatus === 'generating'
-                    ? 'Generating reference…'
-                    : 'No reference image'}
+                    ? '正在生成参考图…'
+                    : '无参考图'}
                 </p>
               </div>
             )}
@@ -222,15 +220,15 @@ export const SceneLocationTab: React.FC<SceneLocationTabProps> = ({
           </div>
 
           <dl className="space-y-3">
-            <DetailRow label="Description" value={shotLocation.description} />
+            <DetailRow label="描述" value={shotLocation.description} />
             <div className="grid grid-cols-2 gap-3">
-              <DetailRow label="Time of Day" value={shotLocation.timeOfDay} />
+              <DetailRow label="时段" value={shotLocation.timeOfDay} />
               <DetailRow
-                label="Architectural Style"
+                label="建筑风格"
                 value={shotLocation.architecturalStyle}
               />
             </div>
-            <DetailRow label="Key Features" value={shotLocation.keyFeatures} />
+            <DetailRow label="主要特征" value={shotLocation.keyFeatures} />
             {shotLocation.consistencyTag && (
               <div className="pt-2">
                 <span className="rounded bg-muted px-2 py-1 font-mono text-xs text-muted-foreground">
@@ -251,15 +249,14 @@ export const SceneLocationTab: React.FC<SceneLocationTabProps> = ({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Remove {pendingDelete?.name} from this sequence?
+              从当前序列中移除 {pendingDelete?.name}？
             </AlertDialogTitle>
             <AlertDialogDescription>
-              The location is hidden from the sequence and prompt context. You
-              can undo from the toast right after removing.
+              该场景将从序列和提示词上下文中隐藏。移除后可立即在通知中撤销。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>取消</AlertDialogCancel>
             <AlertDialogAction
               disabled={softDelete.isPending}
               // Radix's Action closes on click; hold it open so the pending
@@ -269,7 +266,7 @@ export const SceneLocationTab: React.FC<SceneLocationTabProps> = ({
                 if (pendingDelete) handleConfirmDelete(pendingDelete);
               }}
             >
-              {softDelete.isPending ? 'Removing…' : 'Remove'}
+              {softDelete.isPending ? '移除中…' : '移除'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

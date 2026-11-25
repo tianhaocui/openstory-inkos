@@ -50,10 +50,10 @@ export function UserSidebarFooter() {
   if (!user) {
     return (
       <SidebarMenuItem>
-        <SidebarMenuButton asChild tooltip="Sign in">
+        <SidebarMenuButton asChild tooltip="登录">
           <Link to="/login">
             <LogIn />
-            <span>Sign in</span>
+            <span>登录</span>
           </Link>
         </SidebarMenuButton>
       </SidebarMenuItem>
@@ -61,7 +61,7 @@ export function UserSidebarFooter() {
   }
 
   const userEmail = user.email;
-  const displayName = user.name || userEmail || 'User';
+  const displayName = user.name || userEmail || '用户';
   const initials = getInitials(displayName);
 
   const handleSignOut = async () => {
@@ -137,13 +137,13 @@ export function UserSidebarFooter() {
           <DropdownMenuItem asChild>
             <Link to="/settings">
               <Settings className="mr-2 h-4 w-4" />
-              Settings
+              设置
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link to="/credits" search={{ tab: 'balance' }}>
               <Wallet className="mr-2 h-4 w-4" />
-              Credits
+              积分
             </Link>
           </DropdownMenuItem>
           <AdminMenuItem />
@@ -153,7 +153,7 @@ export function UserSidebarFooter() {
             disabled={isSigningOut}
           >
             <LogOut className="mr-2 h-4 w-4" />
-            {isSigningOut ? 'Signing out…' : 'Sign Out'}
+            {isSigningOut ? '退出中…' : '退出登录'}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -174,18 +174,18 @@ function AdminMenuItem() {
     <>
       <DropdownMenuSeparator />
       <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
-        Admin
+        管理员
       </DropdownMenuLabel>
       <DropdownMenuItem asChild>
         <Link to="/admin/usage">
           <BarChart3 className="mr-2 h-4 w-4" />
-          Usage
+          使用统计
         </Link>
       </DropdownMenuItem>
       <DropdownMenuItem asChild>
         <Link to="/admin/moderation">
           <ShieldAlert className="mr-2 h-4 w-4" />
-          Moderation
+          内容审核
         </Link>
       </DropdownMenuItem>
     </>

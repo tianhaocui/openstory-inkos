@@ -117,8 +117,7 @@ const SceneScriptBlock: React.FC<SceneScriptBlockProps> = ({
         },
         onError: (error) => {
           toast.error(`Failed to save scene ${block.sceneNumber}`, {
-            description:
-              error instanceof Error ? error.message : 'Unknown error',
+            description: error instanceof Error ? error.message : '未知错误',
           });
         },
       }
@@ -153,13 +152,13 @@ const SceneScriptBlock: React.FC<SceneScriptBlockProps> = ({
             {block.sceneNumber}
           </span>
           <span className="text-sm font-medium">
-            {block.title || 'Untitled scene'}
+            {block.title || '未命名场景'}
           </span>
         </button>
 
         <div className="ml-auto flex items-center gap-2">
           <VoiceInputButton
-            label="scene script"
+            label="场景剧本"
             disabled={saveScript.isPending}
             {...voice}
           />
@@ -186,7 +185,7 @@ const SceneScriptBlock: React.FC<SceneScriptBlockProps> = ({
               {saveScript.isPending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              {saveScript.isPending ? 'Saving…' : 'Save'}
+              {saveScript.isPending ? '保存中…' : '保存'}
             </Button>
           </div>
         )}
@@ -197,7 +196,7 @@ const SceneScriptBlock: React.FC<SceneScriptBlockProps> = ({
         ref={editorRef}
         value={current}
         onValueChange={setDraft}
-        placeholder="Enter the script text for this scene… (type @ to insert elements, cast, locations)"
+        placeholder="输入此场景的剧本文本…（输入 @ 可插入元素、演员和场景）"
         className="min-h-[120px]"
         disabled={saveScript.isPending}
         mentionItems={mentionItems}
@@ -270,7 +269,7 @@ export const SceneScriptDocument: React.FC<SceneScriptDocumentProps> = ({
         ))}
         {tail && (
           <section
-            aria-label="Script not yet split into scenes"
+            aria-label="剧本尚未拆分为场景"
             aria-busy="true"
             className="flex flex-col gap-2 rounded-lg border border-dashed p-4"
           >

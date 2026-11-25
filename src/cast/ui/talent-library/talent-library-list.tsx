@@ -64,9 +64,9 @@ export const TalentLibraryList: React.FC<TalentLibraryListProps> = ({
   if (error) {
     return (
       <Card className="p-8 text-center">
-        <p className="text-destructive mb-4">Failed to load talent</p>
+        <p className="text-destructive mb-4">加载演员失败</p>
         <Button variant="outline" onClick={() => window.location.reload()}>
-          Try Again
+          重试
         </Button>
       </Card>
     );

@@ -28,22 +28,20 @@ export const AutoTopUpFailedEmail: React.FC<AutoTopUpFailedEmailProps> = ({
 }) => (
   <EmailLayout
     appName={appName}
-    preview="Auto-reload is paused — your card was declined"
-    footerNote="Questions? Reply to this email."
+    preview="自动充值已暂停，您的银行卡被拒绝"
+    footerNote="如有疑问，请直接回复此邮件。"
   >
     <Section>
       <Heading as="h2" style={headingStyle}>
-        Auto-reload is paused
+        自动充值已暂停
       </Heading>
       <Text style={paragraphStyle}>
-        Your card was declined, so we stopped charging it. Generation stops when
-        your balance runs out — {balanceDisplay} left.
+        您的银行卡被拒绝，因此我们已停止从该卡扣款。余额用尽后将无法继续生成，目前剩余{' '}
+        {balanceDisplay}。
       </Text>
-      <Text style={paragraphStyle}>
-        Update your card and auto-reload starts again.
-      </Text>
+      <Text style={paragraphStyle}>更新银行卡后，自动充值将恢复。</Text>
       <Button href={billingUrl} style={buttonStyle}>
-        Update card
+        更新银行卡
       </Button>
     </Section>
   </EmailLayout>
@@ -57,7 +55,7 @@ export async function sendAutoTopUpFailedEmail(params: {
 }): Promise<{ success: boolean; error?: string }> {
   return sendEmail({
     to: params.to,
-    subject: 'Auto-reload is paused — your card was declined',
+    subject: '自动充值已暂停，您的银行卡被拒绝',
     replyTo: CONTACT_EMAIL,
     body: (
       <AutoTopUpFailedEmail

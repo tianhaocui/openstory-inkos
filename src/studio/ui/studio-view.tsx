@@ -143,16 +143,16 @@ export function StudioView({ activity, search, navigate }: StudioViewProps) {
     <div className="flex h-full min-h-0 flex-col">
       <div className="min-h-0 flex-1 overflow-auto">
         <PageIntro
-          title={activity === 'video' ? 'Videos' : 'Images'}
+          title={activity === 'video' ? '视频' : '图片'}
           maxWidth="wide"
         >
           {supportMode
             ? activity === 'video'
-              ? 'Every clip users have generated.'
-              : 'Every still users have generated.'
+              ? '所有用户生成的视频片段。'
+              : '所有用户生成的图片。'
             : activity === 'video'
-              ? 'Make or edit short clips with any video model.'
-              : 'Make or edit images with any image model.'}
+              ? '使用任意视频模型创作或编辑短片。'
+              : '使用任意图片模型创作或编辑图片。'}
         </PageIntro>
         <PageContainer maxWidth="wide" padding="none" className="pb-8">
           <StudioToolbar
@@ -242,11 +242,11 @@ function StudioToolbar({
       <div className="flex flex-wrap items-center gap-2">
         {isAdmin && prefs.supportMode && (
           <Input
-            placeholder="Search name, email, prompt…"
+            placeholder="搜索姓名、邮箱或提示词…"
             value={searchDraft}
             onChange={(event) => setSearchDraft(event.target.value)}
             className="h-8 w-56"
-            aria-label="Search studio assets"
+            aria-label="搜索工作室素材"
           />
         )}
         <Button
@@ -256,7 +256,7 @@ function StudioToolbar({
         >
           <Link to={to} search={linkSearch({ favorites: !prefs.favorites })}>
             <Star className="size-4" aria-hidden="true" />
-            Favorites
+            收藏
           </Link>
         </Button>
         <div className="ml-auto flex flex-wrap items-center gap-2">
@@ -266,7 +266,7 @@ function StudioToolbar({
             variant={prefs.sort === 'newest' ? 'default' : 'outline'}
           >
             <Link to={to} search={linkSearch({ sort: 'newest' })}>
-              Newest
+              最新
             </Link>
           </Button>
           <Button
@@ -275,7 +275,7 @@ function StudioToolbar({
             variant={prefs.sort === 'oldest' ? 'default' : 'outline'}
           >
             <Link to={to} search={linkSearch({ sort: 'oldest' })}>
-              Oldest
+              最早
             </Link>
           </Button>
           {isAdmin && (
@@ -283,7 +283,7 @@ function StudioToolbar({
               {prefs.supportMode && hideInternalAvailable && (
                 <div className="flex items-center gap-2">
                   <Label htmlFor="studio-hide-internal" className="text-sm">
-                    Hide internal
+                    隐藏内部内容
                   </Label>
                   <Switch
                     id="studio-hide-internal"
@@ -301,7 +301,7 @@ function StudioToolbar({
                   aria-hidden="true"
                 />
                 <Label htmlFor="studio-support-mode" className="text-sm">
-                  Support
+                  支持模式
                 </Label>
                 <Switch
                   id="studio-support-mode"

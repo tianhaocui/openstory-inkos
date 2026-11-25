@@ -40,8 +40,7 @@ import { Check } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-const CONSENT_STALE_MESSAGE =
-  'This request is no longer valid. Start again from the app.';
+const CONSENT_STALE_MESSAGE = '此请求已失效。请返回应用重新发起授权。';
 
 declare global {
   interface Window {
@@ -89,7 +88,7 @@ export const Route = createFileRoute('/_app/oauth/consent')({
     await requireSessionOrRedirect(queryClient, href);
   },
   component: ConsentPage,
-  staticData: { breadcrumb: 'Authorize app' },
+  staticData: { breadcrumb: '应用授权' },
 });
 
 function ConsentPage() {
@@ -107,10 +106,9 @@ function ConsentPage() {
     <div className="mx-auto w-full max-w-md p-6">
       <Card>
         <CardHeader>
-          <CardTitle>Authorize app</CardTitle>
+          <CardTitle>应用授权</CardTitle>
           <CardDescription>
-            An app wants to use your OpenStory account. Only approve requests
-            you started yourself.
+            一个应用希望使用你的 OpenStory 账户。请仅批准由你本人发起的请求。
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
@@ -118,8 +116,7 @@ function ConsentPage() {
             <ConsentDecision consent={consent} oauthQuery={oauthQuery} />
           ) : (
             <p role="alert">
-              This page is missing its authorization request. Start again from
-              the app that sent you here.
+              此页面缺少授权请求。请返回将你带到此处的应用并重新发起授权。
             </p>
           )}
         </CardContent>
@@ -163,8 +160,7 @@ function ConsentDecision({
   if (!consent.client) {
     return (
       <p role="alert">
-        This app isn’t registered with OpenStory, or its registration has
-        expired. Start again from the app.
+        此应用未在 OpenStory 注册，或其注册信息已过期。请返回应用重新发起授权。
       </p>
     );
   }
@@ -175,11 +171,11 @@ function ConsentDecision({
         <div className="flex items-center gap-2">
           <Check className="h-5 w-5" aria-hidden />
           <p className="font-semibold">
-            {outcome === 'granted' ? 'Access granted' : 'Request denied'}
+            {outcome === 'granted' ? '已授予访问权限' : '已拒绝请求'}
           </p>
         </div>
         <p className="text-sm text-muted-foreground">
-          You can close this tab. Sending you back to the app…
+          你可以关闭此标签页。正在返回应用…
         </p>
       </div>
     );
@@ -203,7 +199,7 @@ function ConsentDecision({
           <span className="font-semibold">{client.name}</span>
           {client.redirectOrigin ? (
             <span className="text-sm text-muted-foreground">
-              Sends you back to{' '}
+              授权后将返回{' '}
               <code className="font-mono">{client.redirectOrigin}</code>
             </span>
           ) : null}
@@ -212,20 +208,20 @@ function ConsentDecision({
 
       <div className="flex flex-col gap-1">
         <p className="text-sm">
-          This will let it, on behalf of team <strong>{team.name}</strong>:
+          此应用将能代表团队 <strong>{team.name}</strong>：
         </p>
         <ul className="list-disc pl-5 text-sm">
           {scopes.length > 0 ? (
             scopes.map((s) => <li key={s.id}>{s.description}</li>)
           ) : (
-            <li>Confirm who you are</li>
+            <li>确认你的身份</li>
           )}
         </ul>
       </div>
 
       <p className="text-sm text-muted-foreground">
-        Anything it generates spends this team’s credits. You can revoke access
-        any time under Settings → Developer.
+        此应用生成的任何内容都会消耗该团队的额度。你可以随时在“设置 →
+        开发者”中撤销访问权限。
       </p>
 
       <div className="flex justify-end gap-2">
@@ -234,13 +230,13 @@ function ConsentDecision({
           disabled={!hydrated || decide.isPending}
           onClick={() => decide.mutate(false)}
         >
-          Deny
+          拒绝
         </Button>
         <Button
           disabled={!hydrated || decide.isPending}
           onClick={() => decide.mutate(true)}
         >
-          {!hydrated ? 'Loading…' : decide.isPending ? 'Working…' : 'Approve'}
+          {!hydrated ? '加载中…' : decide.isPending ? '处理中…' : '批准'}
         </Button>
       </div>
     </div>

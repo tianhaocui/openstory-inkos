@@ -49,7 +49,7 @@ export const CharacterBibleForm: React.FC<{
     if (!result.success) {
       // Native `required` covers the empty name; this is the length ceiling,
       // which would otherwise make Save look like it did nothing.
-      toast.error('Check the character fields', {
+      toast.error('请检查角色字段', {
         description: result.error.issues[0]?.message,
       });
       return;
@@ -57,9 +57,9 @@ export const CharacterBibleForm: React.FC<{
     updateCharacter.mutate(
       { sequenceId, characterId: character.id, ...result.data },
       {
-        onSuccess: () => toast.success('Character saved'),
+        onSuccess: () => toast.success('角色已保存'),
         onError: (error) =>
-          toast.error('Failed to save character', {
+          toast.error('保存角色失败', {
             description: errorMessage(error),
           }),
       }
@@ -70,7 +70,7 @@ export const CharacterBibleForm: React.FC<{
     <form onSubmit={onSubmit} className="flex flex-col gap-4">
       <BibleField
         idPrefix="character"
-        label="Name"
+        label="名称"
         name="name"
         defaultValue={character.name}
         required
@@ -78,14 +78,14 @@ export const CharacterBibleForm: React.FC<{
       <div className="grid grid-cols-2 gap-4">
         <BibleField
           idPrefix="character"
-          label="Age"
+          label="年龄"
           name="age"
           defaultValue={character.age}
         />
         {showAppearance(character.gender) && (
           <BibleField
             idPrefix="character"
-            label="Gender"
+            label="性别"
             name="gender"
             defaultValue={character.gender}
           />
@@ -94,7 +94,7 @@ export const CharacterBibleForm: React.FC<{
       {showAppearance(character.ethnicity) && (
         <BibleField
           idPrefix="character"
-          label="Ethnicity"
+          label="族裔"
           name="ethnicity"
           defaultValue={character.ethnicity}
         />
@@ -102,7 +102,7 @@ export const CharacterBibleForm: React.FC<{
       {showAppearance(character.physicalDescription) && (
         <BibleField
           idPrefix="character"
-          label="Physical Description"
+          label="外貌描述"
           name="physicalDescription"
           defaultValue={character.physicalDescription}
           textarea
@@ -111,7 +111,7 @@ export const CharacterBibleForm: React.FC<{
       {showAppearance(character.standardClothing) && (
         <BibleField
           idPrefix="character"
-          label="Standard Clothing"
+          label="标准服装"
           name="standardClothing"
           defaultValue={character.standardClothing}
           textarea
@@ -120,7 +120,7 @@ export const CharacterBibleForm: React.FC<{
       {showAppearance(character.distinguishingFeatures) && (
         <BibleField
           idPrefix="character"
-          label="Distinguishing Features"
+          label="显著特征"
           name="distinguishingFeatures"
           defaultValue={character.distinguishingFeatures}
           textarea
@@ -134,13 +134,11 @@ export const CharacterBibleForm: React.FC<{
           name="voiceOnly"
           defaultChecked={character.voiceOnly}
         />
-        <Label htmlFor="character-voiceOnly">
-          Voice only — heard, never seen
-        </Label>
+        <Label htmlFor="character-voiceOnly">仅声音，只闻其声不见其人</Label>
       </div>
       <BibleField
         idPrefix="character"
-        label="Personality"
+        label="性格"
         name="personality"
         defaultValue={character.personality}
         textarea
@@ -148,7 +146,7 @@ export const CharacterBibleForm: React.FC<{
       {showAppearance(character.movement) && (
         <BibleField
           idPrefix="character"
-          label="Body movement"
+          label="肢体动作"
           name="movement"
           defaultValue={character.movement}
           textarea
@@ -157,19 +155,19 @@ export const CharacterBibleForm: React.FC<{
       <BibleField
         key={`${character.id}-voice-${character.voiceDescription ?? ''}`}
         idPrefix="character"
-        label="Voice"
+        label="声音"
         name="voiceDescription"
         defaultValue={character.voiceDescription}
         textarea
-        placeholder="Native English. Female, mid-50s. Excellent quality. Persona: dry detective. Emotion: unhurried, precise."
-        hint="Language, age, quality, persona, emotion, timbre — what can be heard, not how they look."
+        placeholder="英语母语者，女性，50 多岁，音质优秀。人设：冷幽默的侦探。情绪：从容、精准。"
+        hint="描述语言、年龄、音质、人设、情绪和音色等可听见的特征，而非外貌。"
       />
       <div className="flex justify-end">
         <Button type="submit" disabled={updateCharacter.isPending}>
           {updateCharacter.isPending && (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           )}
-          {updateCharacter.isPending ? 'Saving…' : 'Save'}
+          {updateCharacter.isPending ? '正在保存…' : '保存'}
         </Button>
       </div>
     </form>

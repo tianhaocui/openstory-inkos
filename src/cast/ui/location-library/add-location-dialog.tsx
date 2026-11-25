@@ -48,9 +48,7 @@ export const AddLocationDialog: React.FC<AddLocationDialogProps> = ({
   const handleClose = () => {
     if (
       files.length > 0 &&
-      !window.confirm(
-        'Discard uploaded reference images? Your uploads will be lost.'
-      )
+      !window.confirm('放弃已上传的参考图片？这些上传内容将丢失。')
     ) {
       return;
     }
@@ -102,7 +100,7 @@ export const AddLocationDialog: React.FC<AddLocationDialogProps> = ({
         {trigger ?? (
           <Button disabled={!isHydrated}>
             <Plus className="mr-2 h-4 w-4" />
-            Add Location
+            添加场景
           </Button>
         )}
       </DialogTrigger>
@@ -126,37 +124,36 @@ export const AddLocationDialog: React.FC<AddLocationDialogProps> = ({
           className="flex flex-col gap-4"
         >
           <DialogHeader>
-            <DialogTitle>Add Location</DialogTitle>
+            <DialogTitle>添加场景</DialogTitle>
             <DialogDescription>
-              Add a location to your library. Upload reference images to
-              maintain visual consistency across sequences.
+              将场景添加到场景库。上传参考图片，以保持不同序列之间的视觉一致性。
             </DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">名称</Label>
               <Input
                 id="name"
                 name="name"
-                placeholder="Coffee Shop, City Park, Office Building…"
+                placeholder="咖啡馆、城市公园、办公楼…"
                 autoComplete="off"
                 required
               />
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">描述</Label>
               <Textarea
                 id="description"
                 name="description"
-                placeholder="Describe the location's visual details…"
+                placeholder="描述场景的视觉细节…"
                 rows={3}
               />
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label>Reference Images</Label>
+              <Label>参考图片</Label>
               <LocationMediaUpload
                 files={files}
                 onFilesChange={setFiles}
@@ -170,14 +167,10 @@ export const AddLocationDialog: React.FC<AddLocationDialogProps> = ({
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={handleClose}>
-              Cancel
+              取消
             </Button>
             <Button type="submit" disabled={isPending || isUploading}>
-              {isPending
-                ? 'Creating…'
-                : isUploading
-                  ? 'Uploading…'
-                  : 'Add Location'}
+              {isPending ? '正在创建…' : isUploading ? '正在上传…' : '添加场景'}
             </Button>
           </DialogFooter>
         </form>

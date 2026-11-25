@@ -9,14 +9,12 @@ import { formatSequenceStaleToastMessage } from './use-sequence-stale-detected';
 
 describe('formatSequenceStaleToastMessage', () => {
   it('uses singular music phrasing for one alternate', () => {
-    expect(formatSequenceStaleToastMessage(1)).toBe(
-      'An alternate music track is available.'
-    );
+    expect(formatSequenceStaleToastMessage(1)).toBe('有可用的备用音乐音轨。');
   });
 
   it('pluralizes the music label for counts greater than one', () => {
     expect(formatSequenceStaleToastMessage(3)).toBe(
-      '3 alternate music tracks are available.'
+      '有 3 个备用音乐音轨可用。'
     );
   });
 });

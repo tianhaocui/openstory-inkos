@@ -24,10 +24,8 @@ const StyleBrowserContent: FC<{
 }> = ({ styles, onUseStyle, selectedStyleId }) => (
   <DialogContent className="flex h-[90vh] max-w-[95vw] flex-col sm:max-w-[95vw] lg:max-w-[90vw] xl:max-w-[85vw]">
     <DialogHeader>
-      <DialogTitle>Visual Style</DialogTitle>
-      <DialogDescription>
-        Choose the visual style of your sequence
-      </DialogDescription>
+      <DialogTitle>视觉风格</DialogTitle>
+      <DialogDescription>选择序列的视觉风格</DialogDescription>
     </DialogHeader>
     {/* overscroll-contain: reaching the list's end must not chain the touch
         gesture into scrolling the page behind the dialog. */}

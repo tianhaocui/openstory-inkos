@@ -23,7 +23,7 @@ import { useState } from 'react';
 function errorLabel(error: string | null | undefined): string {
   if (error && isContentRejectionError(error))
     return CONTENT_REJECTION_USER_TITLE;
-  return error?.trim() || 'Unknown error';
+  return error?.trim() || '未知错误';
 }
 
 type FailureSummaryBannerProps = {
@@ -71,9 +71,9 @@ export const FailureSummaryBanner: React.FC<FailureSummaryBannerProps> = ({
         {isCredits
           ? CREDITS_SHORT_TITLE
           : isWarning
-            ? 'Content checker'
+            ? '内容审核'
             : summary.requiresFullRetry
-              ? 'Generation failed'
+              ? '生成失败'
               : summary.headline}
       </AlertTitle>
       {/* min-w-0 lets the collapsed headline truncate instead of stretching
@@ -103,7 +103,7 @@ export const FailureSummaryBanner: React.FC<FailureSummaryBannerProps> = ({
           {summary.groups.length > 0 && !isCredits && (
             <details className="mt-2">
               <summary className="cursor-pointer text-xs underline">
-                {isWarning ? 'Which shots' : 'View error details'}
+                {isWarning ? '查看相关镜头' : '查看错误详情'}
               </summary>
               <div className="mt-2 space-y-2 text-xs font-mono">
                 {summary.groups.map((group) => (
@@ -112,7 +112,7 @@ export const FailureSummaryBanner: React.FC<FailureSummaryBannerProps> = ({
                     {group.shots.map((f) => (
                       <div key={f.shotId} className="ml-2">
                         {[
-                          `Scene ${f.sceneNumber}`,
+                          `场景 ${f.sceneNumber}`,
                           f.sceneTitle !== `Scene ${f.sceneNumber}` &&
                             ` (${f.sceneTitle})`,
                           !isWarning && `: ${errorLabel(f.error)}`,
@@ -137,7 +137,7 @@ export const FailureSummaryBanner: React.FC<FailureSummaryBannerProps> = ({
                 onClick={() => openAddCreditsDialog('failure_banner')}
               >
                 <CreditCard />
-                Add credits
+                充值积分
               </Button>
               <Button
                 variant="outline"
@@ -146,7 +146,7 @@ export const FailureSummaryBanner: React.FC<FailureSummaryBannerProps> = ({
                 disabled={isRetrying}
               >
                 {isRetrying ? <Loader2 className="animate-spin" /> : <Play />}
-                {isRetrying ? 'Continuing\u2026' : 'Continue generation'}
+                {isRetrying ? '继续生成中\u2026' : '继续生成'}
               </Button>
             </div>
           ) : (
@@ -161,10 +161,10 @@ export const FailureSummaryBanner: React.FC<FailureSummaryBannerProps> = ({
                 className={`h-3 w-3 ${isRetrying ? 'animate-spin' : ''}`}
               />
               {isRetrying
-                ? 'Retrying\u2026'
+                ? '重试中\u2026'
                 : summary.requiresFullRetry
-                  ? 'Regenerate Sequence'
-                  : 'Retry'}
+                  ? '重新生成序列'
+                  : '重试'}
             </Button>
           )}
         </div>
@@ -176,7 +176,7 @@ export const FailureSummaryBanner: React.FC<FailureSummaryBannerProps> = ({
         className="absolute top-0 right-0 z-20 h-11 w-11 md:hidden"
         aria-expanded={mobileExpanded}
         aria-controls="failure-banner-details"
-        aria-label={mobileExpanded ? 'Hide details' : 'Show details'}
+        aria-label={mobileExpanded ? '隐藏详情' : '显示详情'}
         onClick={() => setMobileExpanded((expanded) => !expanded)}
       >
         <ChevronDown

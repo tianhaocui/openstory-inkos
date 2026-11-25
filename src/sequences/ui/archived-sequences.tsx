@@ -41,7 +41,7 @@ export const ArchivedSequences: React.FC = () => {
           ) : (
             <ChevronRight className="h-4 w-4" />
           )}
-          <span>Archived ({archived.length})</span>
+          <span>已归档 ({archived.length})</span>
         </Button>
       </CollapsibleTrigger>
       <CollapsibleContent>
@@ -53,10 +53,10 @@ export const ArchivedSequences: React.FC = () => {
             >
               <div className="min-w-0">
                 <p className="truncate text-sm">
-                  {sequence.title || 'Untitled Sequence'}
+                  {sequence.title || '未命名序列'}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Archived {formatDistanceToNow(new Date(sequence.updatedAt))}
+                  归档于 {formatDistanceToNow(new Date(sequence.updatedAt))}
                 </p>
               </div>
               <Button
@@ -67,16 +67,16 @@ export const ArchivedSequences: React.FC = () => {
                 onClick={() =>
                   unarchive.mutate(sequence.id, {
                     onSuccess: () =>
-                      toast.success(`Restored ${sequence.title || 'sequence'}`),
+                      toast.success(`已恢复 ${sequence.title || '序列'}`),
                     onError: (error) =>
-                      toast.error('Failed to unarchive sequence', {
+                      toast.error('恢复序列失败', {
                         description: errorMessage(error),
                       }),
                   })
                 }
               >
                 <ArchiveRestore className="mr-2 h-4 w-4" />
-                {unarchive.isPending ? 'Restoring…' : 'Unarchive'}
+                {unarchive.isPending ? '恢复中…' : '恢复'}
               </Button>
             </li>
           ))}

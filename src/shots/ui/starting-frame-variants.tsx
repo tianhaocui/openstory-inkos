@@ -70,8 +70,8 @@ export const StartingFrameVariants: React.FC<StartingFrameVariantsProps> = ({
         model: imageModel,
       });
     } catch (error) {
-      toast.error('Scene variants generation failed', {
-        description: error instanceof Error ? error.message : 'Unknown error',
+      toast.error('场景变体生成失败', {
+        description: error instanceof Error ? error.message : '未知错误',
       });
     }
   }, [onGenerateStart, generateVariants, sequenceId, shot.id, imageModel]);
@@ -89,8 +89,8 @@ export const StartingFrameVariants: React.FC<StartingFrameVariantsProps> = ({
       try {
         await run;
       } catch (error) {
-        toast.error('Failed to select variant', {
-          description: error instanceof Error ? error.message : 'Unknown error',
+        toast.error('选择变体失败', {
+          description: error instanceof Error ? error.message : '未知错误',
         });
       }
     },
@@ -112,7 +112,7 @@ export const StartingFrameVariants: React.FC<StartingFrameVariantsProps> = ({
         size="sm"
         onClick={() => setOpen(true)}
         className="absolute top-2 left-2 z-20 h-8 gap-1.5 bg-black/50 px-2 text-xs text-white hover:bg-black/70"
-        aria-label={isUpscaling ? 'Upscaling frame variant' : 'Frame variants'}
+        aria-label={isUpscaling ? '正在放大起始帧变体' : '起始帧变体'}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-busy={isUpscaling || isGeneratingGrid}
@@ -122,20 +122,15 @@ export const StartingFrameVariants: React.FC<StartingFrameVariantsProps> = ({
         ) : (
           <Grid2x2 className="h-4 w-4" />
         )}
-        {isUpscaling
-          ? 'Upscaling…'
-          : isGeneratingGrid
-            ? 'Generating…'
-            : 'Frame variants'}
+        {isUpscaling ? '放大中…' : isGeneratingGrid ? '生成中…' : '起始帧变体'}
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Frame variants</DialogTitle>
+            <DialogTitle>起始帧变体</DialogTitle>
             <DialogDescription>
-              Pick an alternate for this shot&apos;s starting frame, or generate
-              a new set.
+              为此镜头选择备用起始帧，或生成一组新变体。
             </DialogDescription>
           </DialogHeader>
 
@@ -150,7 +145,7 @@ export const StartingFrameVariants: React.FC<StartingFrameVariantsProps> = ({
             />
           ) : (
             <div className="rounded-lg border border-dashed border-muted-foreground/30 p-6 text-center text-sm text-muted-foreground">
-              No variants yet. Generate options for this starting frame.
+              暂无变体。请为此起始帧生成选项。
             </div>
           )}
 
@@ -171,10 +166,10 @@ export const StartingFrameVariants: React.FC<StartingFrameVariantsProps> = ({
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
               {isGeneratingGrid
-                ? 'Generating…'
+                ? '生成中…'
                 : shot.gridSheet?.url
-                  ? 'Regenerate frame variants'
-                  : 'Generate frame variants'}
+                  ? '重新生成起始帧变体'
+                  : '生成起始帧变体'}
             </Button>
           </DialogFooter>
         </DialogContent>

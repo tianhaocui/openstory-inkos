@@ -54,6 +54,22 @@ export const PORTRAIT_RIGHTS_V1: AttestationStatement = {
 };
 
 /**
+ * Simplified Chinese portrait / likeness statement. V1 remains immutable so
+ * historical ledger rows keep verifying against the wording users saw.
+ */
+export const PORTRAIT_RIGHTS_V2: AttestationStatement = {
+  version: 'portrait-rights-v2',
+  label: '我已获得使用此人肖像的授权',
+  text: [
+    '我确认此次上传包含一名可识别的真人，并且我已获得该本人（或其法定监护人或授权代表）的书面授权，',
+    '可上传其肖像并将其用于生成 AI 图像和视频。',
+    '我确认该授权明确允许 AI 生成，且未被撤回，并能在收到要求时提供。',
+    '我对本次上传及由其生成的任何内容承担全部法律责任，包括任何涉及肖像权、人格权、隐私权或公开权的主张。',
+  ].join(''),
+  requiresBasis: true,
+};
+
+/**
  * Original-work / IP rights — RETIRED (#1581). Until then every non-person
  * upload (logos, product shots, synthetic avatars) had to affirm this; the
  * per-upload IP warranty now lives in the Terms alone and only a real
@@ -109,6 +125,7 @@ export const LIKENESS_DETECTED_V1: AttestationStatement = {
 
 const STATEMENTS: readonly AttestationStatement[] = [
   PORTRAIT_RIGHTS_V1,
+  PORTRAIT_RIGHTS_V2,
   ASSET_RIGHTS_V1,
   LIKENESS_CLEARED_V1,
   LIKENESS_DETECTED_V1,

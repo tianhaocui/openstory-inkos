@@ -27,9 +27,9 @@ export function DocsAppSidebar() {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={handleBack} tooltip="Back">
+            <SidebarMenuButton onClick={handleBack} tooltip="返回">
               <ArrowLeft />
-              <span>Back</span>
+              <span>返回</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

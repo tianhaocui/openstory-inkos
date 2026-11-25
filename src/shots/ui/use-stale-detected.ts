@@ -17,9 +17,7 @@ const TOAST_DEBOUNCE_MS = 5_000;
  * without a DOM environment).
  */
 export function formatStaleToastMessage(count: number): string {
-  return count === 1
-    ? 'An alternate version is available.'
-    : `${count} alternate versions are available.`;
+  return count === 1 ? '有可用的备用版本。' : `有 ${count} 个备用版本可用。`;
 }
 
 // Bind to the schema's discriminated union so `data.entityType` narrows to a

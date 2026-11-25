@@ -11,18 +11,12 @@ import { formatStaleToastMessage } from './use-stale-detected';
 
 describe('formatStaleToastMessage', () => {
   it('uses the singular phrasing for exactly one alternate', () => {
-    expect(formatStaleToastMessage(1)).toBe(
-      'An alternate version is available.'
-    );
+    expect(formatStaleToastMessage(1)).toBe('有可用的备用版本。');
   });
 
   it('pluralizes for counts greater than one', () => {
-    expect(formatStaleToastMessage(2)).toBe(
-      '2 alternate versions are available.'
-    );
-    expect(formatStaleToastMessage(7)).toBe(
-      '7 alternate versions are available.'
-    );
+    expect(formatStaleToastMessage(2)).toBe('有 2 个备用版本可用。');
+    expect(formatStaleToastMessage(7)).toBe('有 7 个备用版本可用。');
   });
 
   // Zero is a guard for completeness — the debounce only schedules a timer
@@ -30,8 +24,6 @@ describe('formatStaleToastMessage', () => {
   // appear in practice; surfaced as plural to avoid the impression of a
   // single alternate.
   it('treats zero as plural', () => {
-    expect(formatStaleToastMessage(0)).toBe(
-      '0 alternate versions are available.'
-    );
+    expect(formatStaleToastMessage(0)).toBe('有 0 个备用版本可用。');
   });
 });

@@ -128,14 +128,14 @@ describe('stylePreviewImageUrls', () => {
 
 describe('styleCategoryLabel', () => {
   it('maps known categories to friendly labels', () => {
-    expect(styleCategoryLabel('ecommerce')).toBe('E-commerce');
-    expect(styleCategoryLabel('influencer')).toBe('Influencer & UGC');
-    expect(styleCategoryLabel('film')).toBe('Film & Cinematic');
+    expect(styleCategoryLabel('ecommerce')).toBe('电商');
+    expect(styleCategoryLabel('influencer')).toBe('达人与 UGC');
+    expect(styleCategoryLabel('film')).toBe('电影感');
   });
 
   it('title-cases unknown categories and labels missing as Other', () => {
     expect(styleCategoryLabel('experimental')).toBe('Experimental');
-    expect(styleCategoryLabel(null)).toBe('Other');
+    expect(styleCategoryLabel(null)).toBe('其他');
   });
 });
 
@@ -154,11 +154,7 @@ describe('groupStylesByCategory', () => {
       ...trio('commercial'), // "Commercial"
       ...trio('zebra'), // title-cased "Zebra"
     ]);
-    expect(groups.map((g) => g.label)).toEqual([
-      'Commercial',
-      'Film & Cinematic',
-      'Zebra',
-    ]);
+    expect(groups.map((g) => g.label)).toEqual(['Zebra', '商业广告', '电影感']);
   });
 
   it('collapses small/uncategorized categories into a trailing Specialized group', () => {
@@ -172,7 +168,7 @@ describe('groupStylesByCategory', () => {
       'commercial',
       'specialized',
     ]);
-    expect(groups[1]?.label).toBe('Specialized');
+    expect(groups[1]?.label).toBe('特色风格');
     expect(groups[1]?.styles).toHaveLength(3);
   });
 

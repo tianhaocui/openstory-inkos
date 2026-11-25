@@ -5,7 +5,7 @@ import { createFileRoute } from '@tanstack/react-router';
 export const Route = createFileRoute('/_app/images/')({
   validateSearch: studioListSearchSchema,
   component: ImagesPage,
-  staticData: { breadcrumb: 'Images' },
+  staticData: { breadcrumb: '图片' },
 });
 
 function ImagesPage() {

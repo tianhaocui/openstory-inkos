@@ -39,7 +39,7 @@ export const SheetVersionStrip: React.FC<{
                 }}
                 disabled={busy || !version.url}
                 aria-current={version.selected ? 'true' : undefined}
-                aria-label={`Version ${ordinal}${version.selected ? ', current' : ''}`}
+                aria-label={`版本 ${ordinal}${version.selected ? '，当前版本' : ''}`}
                 aria-pressed={version.selected}
                 className={cn(
                   'relative block h-16 w-24 overflow-hidden rounded-md border bg-muted',

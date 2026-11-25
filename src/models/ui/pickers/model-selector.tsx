@@ -88,7 +88,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
 
   return (
     <BaseModelSelector
-      label="Analysis Model"
+      label="分析模型"
       models={models}
       groupOrder={SELECTOR_GROUP_ORDER}
       selectedIds={selectedModels}

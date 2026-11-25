@@ -112,7 +112,7 @@ export const StyleHoverPreview: FC<StyleHoverPreviewProps> = ({
         <AppImage
           key={style.id}
           src={style.previewUrl ?? ''}
-          alt={`${style.name} style preview`}
+          alt={`${style.name} 风格预览`}
           className="h-full w-full object-cover"
           onError={() => setImgError(true)}
           {...(width && height

@@ -16,14 +16,13 @@ export const DefaultNotFound: React.FC = () => {
         <EmptyMedia variant="icon">
           <SearchX />
         </EmptyMedia>
-        <EmptyTitle>Page not found</EmptyTitle>
+        <EmptyTitle>页面不存在</EmptyTitle>
         <EmptyDescription>
-          The page you're looking for doesn't exist or you don't have access to
-          it.
+          你访问的页面不存在，或者你没有访问权限。
         </EmptyDescription>
       </EmptyHeader>
       <Button variant="outline" size="sm" asChild>
-        <Link to="/">Go home</Link>
+        <Link to="/">返回首页</Link>
       </Button>
     </Empty>
   );

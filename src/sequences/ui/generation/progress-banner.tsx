@@ -137,7 +137,7 @@ export const ProgressBanner: React.FC<ProgressBannerProps> = ({
           ) : (
             <>
               {formatTimeRemaining(remaining)}
-              <span className="sr-only"> remaining</span>
+              <span className="sr-only">剩余</span>
             </>
           )}
         </span>

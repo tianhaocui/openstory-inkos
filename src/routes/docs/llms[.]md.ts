@@ -19,7 +19,7 @@ function buildDocsMarkdown(): string {
   });
 
   const lines: string[] = [];
-  lines.push('# OpenStory Documentation');
+  lines.push('# OpenStory 文档');
   lines.push('');
 
   let currentSection = '';

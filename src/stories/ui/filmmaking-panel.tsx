@@ -1,0 +1,860 @@
+/**
+ * 影视制作面板 — 分镜、资产、关键帧、视频生成
+ */
+
+import { useState } from 'react';
+import { Button } from '@/ui/shadcn/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/ui/shadcn/card';
+import { Badge } from '@/ui/shadcn/badge';
+import { Progress } from '@/ui/shadcn/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/shadcn/tabs';
+import { ScrollArea } from '@/ui/shadcn/scroll-area';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/ui/shadcn/dialog';
+import {
+  Loader2Icon,
+  FilmIcon,
+  ImageIcon,
+  VideoIcon,
+  UserIcon,
+  MapPinIcon,
+  SparklesIcon,
+  PlayIcon,
+  CheckCircleIcon,
+  AlertCircleIcon,
+  ChevronRightIcon,
+} from 'lucide-react';
+import type { FilmProjectStatus } from '@/stories/inkos-integration';
+
+// Types
+interface Segment {
+  id: string;
+  segmentNumber: number;
+  startTime: string;
+  endTime: string;
+  duration: number;
+  narrativeFunction: string | null;
+  summary: string | null;
+  status: string;
+}
+
+interface Shot {
+  id: string;
+  segmentId: string;
+  shotNumber: number;
+  shotSize: string | null;
+  cameraAngle: string | null;
+  cameraMovement: string | null;
+  dialogue: string | null;
+  description: string;
+  duration: number;
+}
+
+interface Asset {
+  id: string;
+  name: string;
+  type: string;
+  description: string | null;
+  status: string;
+  views?: AssetView[];
+}
+
+interface AssetView {
+  id: string;
+  viewAngle: string;
+  imageUrl: string | null;
+  status: string;
+}
+
+interface Keyframe {
+  id: string;
+  shotId: string | null;
+  name: string;
+  imageUrl: string | null;
+  status: string;
+}
+
+interface VideoClip {
+  id: string;
+  keyframeId: string | null;
+  videoUrl: string | null;
+  duration: number | null;
+  status: string;
+}
+
+const SHOT_SIZE_LABELS: Record<string, string> = {
+  extreme_wide: '大远景',
+  wide: '远景',
+  full: '全景',
+  medium_wide: '中远景',
+  medium: '中景',
+  medium_close: '中近景',
+  close_up: '近景',
+  extreme_close_up: '特写',
+};
+
+const CAMERA_ANGLE_LABELS: Record<string, string> = {
+  eye_level: '平视',
+  high: '高角度',
+  low: '低角度',
+  bird_eye: '俯瞰',
+  overhead: '顶视',
+  dutch: '倾斜角',
+};
+
+const VIEW_ANGLE_LABELS: Record<string, string> = {
+  front: '正面',
+  side: '侧面',
+  back: '背面',
+  wide: '全景',
+  detail: '细节',
+};
+
+const VIDEO_STATUS_LABELS: Record<string, string> = {
+  pending: '等待中',
+  queued: '排队中',
+  processing: '生成中',
+  generating: '生成中',
+  failed: '失败',
+  completed: '完成',
+};
+
+interface FilmmakingPanelProps {
+  projectId: string;
+  chapters: Array<{ chapterNumber: number; title: string; content: string }>;
+  segments: Segment[];
+  shots: Shot[];
+  assets: Asset[];
+  keyframes: Keyframe[];
+  videoClips: VideoClip[];
+  filmStatus: FilmProjectStatus;
+  onSegmentChapter: (chapterNumber: number) => Promise<void>;
+  onExtractAssets: (chapterNumber: number) => Promise<void>;
+  onGenerateAssetImage: (assetId: string, viewAngle?: string) => Promise<void>;
+  onGenerateKeyframe: (
+    shotId: string,
+    referenceAssetIds?: string[]
+  ) => Promise<void>;
+  onGenerateVideo: (keyframeId: string) => Promise<void>;
+  onBatchGenerateSegment: (segmentId: string) => Promise<void>;
+}
+
+export function FilmmakingPanel({
+  projectId: _projectId,
+  chapters,
+  segments,
+  shots,
+  assets,
+  keyframes,
+  videoClips,
+  filmStatus,
+  onSegmentChapter,
+  onExtractAssets,
+  onGenerateAssetImage,
+  onGenerateKeyframe,
+  onGenerateVideo: _onGenerateVideo,
+  onBatchGenerateSegment,
+}: FilmmakingPanelProps) {
+  const [activeTab, setActiveTab] = useState('pipeline');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingStep, setProcessingStep] = useState('');
+  const [selectedSegment, setSelectedSegment] = useState<Segment | null>(null);
+  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
+  const [showAssetDialog, setShowAssetDialog] = useState(false);
+  const [showVideoPreview, setShowVideoPreview] = useState(false);
+  const [previewVideoUrl, setPreviewVideoUrl] = useState('');
+
+  // 计算进度
+  const segmentProgress = filmStatus.stages.storyboard.completed ? 100 : 0;
+  const assetProgress = filmStatus.stages.assets.completed ? 100 : 0;
+  const videoProgress = filmStatus.stages.video.completed ? 100 : 0;
+
+  // 处理分镜切分
+  const handleSegmentChapter = async (chapterNumber: number) => {
+    setIsProcessing(true);
+    setProcessingStep(`正在切分第 ${chapterNumber} 章...`);
+    try {
+      await onSegmentChapter(chapterNumber);
+    } finally {
+      setIsProcessing(false);
+      setProcessingStep('');
+    }
+  };
+
+  // 处理资产提取
+  const handleExtractAssets = async (chapterNumber: number) => {
+    setIsProcessing(true);
+    setProcessingStep(`正在提取第 ${chapterNumber} 章的角色和场景...`);
+    try {
+      await onExtractAssets(chapterNumber);
+    } finally {
+      setIsProcessing(false);
+      setProcessingStep('');
+    }
+  };
+
+  // 处理资产图像生成
+  const handleGenerateAssetImage = async (
+    assetId: string,
+    viewAngle?: string
+  ) => {
+    setIsProcessing(true);
+    setProcessingStep('正在生成资产图像...');
+    try {
+      await onGenerateAssetImage(assetId, viewAngle);
+    } finally {
+      setIsProcessing(false);
+      setProcessingStep('');
+    }
+  };
+
+  const handleGenerateKeyframe = async (shotId: string) => {
+    setIsProcessing(true);
+    setProcessingStep('正在生成关键帧...');
+    try {
+      await onGenerateKeyframe(shotId);
+    } finally {
+      setIsProcessing(false);
+      setProcessingStep('');
+    }
+  };
+
+  // 处理批量生成
+  const handleBatchGenerate = async (segmentId: string) => {
+    setIsProcessing(true);
+    setProcessingStep('正在批量生成关键帧...');
+    try {
+      await onBatchGenerateSegment(segmentId);
+    } finally {
+      setIsProcessing(false);
+      setProcessingStep('');
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-4">
+      {/* 进度概览 */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <FilmIcon className="size-5" />
+            影视制作进度
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">分镜切分</span>
+                <span>{filmStatus.stages.storyboard.segmentCount} 片段</span>
+              </div>
+              <Progress value={segmentProgress} className="h-2" />
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">资产生成</span>
+                <span>
+                  {filmStatus.stages.assets.characterCount +
+                    filmStatus.stages.assets.sceneAssetCount}{' '}
+                  资产
+                </span>
+              </div>
+              <Progress value={assetProgress} className="h-2" />
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">视频生成</span>
+                <span>
+                  {filmStatus.stages.video.generatedCount}/
+                  {filmStatus.stages.video.clipCount} 片段
+                </span>
+              </div>
+              <Progress value={videoProgress} className="h-2" />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 处理中提示 */}
+      {isProcessing && (
+        <Card className="border-primary/50 bg-primary/5">
+          <CardContent className="flex items-center gap-3 py-4">
+            <Loader2Icon className="size-5 animate-spin text-primary" />
+            <span>{processingStep}</span>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* 主标签页 */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="pipeline">
+            <SparklesIcon className="mr-2 size-4" />
+            流水线
+          </TabsTrigger>
+          <TabsTrigger value="segments">
+            <FilmIcon className="mr-2 size-4" />
+            分镜
+          </TabsTrigger>
+          <TabsTrigger value="assets">
+            <ImageIcon className="mr-2 size-4" />
+            资产
+          </TabsTrigger>
+          <TabsTrigger value="videos">
+            <VideoIcon className="mr-2 size-4" />
+            视频
+          </TabsTrigger>
+        </TabsList>
+
+        {/* 流水线视图 */}
+        <TabsContent value="pipeline" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">影视创作流水线</CardTitle>
+              <CardDescription>
+                按步骤完成：章节 → 分镜 → 资产 → 关键帧 → 视频
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {chapters.map((chapter) => {
+                  const chapterSegments = segments.filter(
+                    (s) => s.segmentNumber >= 1 // TODO: 关联章节
+                  );
+                  const hasSegments = chapterSegments.length > 0;
+
+                  return (
+                    <div
+                      key={chapter.chapterNumber}
+                      className="rounded-lg border p-4"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-medium">
+                            第 {chapter.chapterNumber} 章：{chapter.title}
+                          </h4>
+                          <p className="text-sm text-muted-foreground">
+                            {chapter.content.length} 字
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {hasSegments ? (
+                            <Badge variant="secondary">
+                              <CheckCircleIcon className="mr-1 size-3" />
+                              已分镜
+                            </Badge>
+                          ) : (
+                            <Button
+                              size="sm"
+                              onClick={() =>
+                                void handleSegmentChapter(chapter.chapterNumber)
+                              }
+                              disabled={isProcessing}
+                            >
+                              <SparklesIcon className="mr-2 size-4" />
+                              AI 分镜
+                            </Button>
+                          )}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() =>
+                              void handleExtractAssets(chapter.chapterNumber)
+                            }
+                            disabled={isProcessing}
+                          >
+                            <UserIcon className="mr-2 size-4" />
+                            提取资产
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {chapters.length === 0 && (
+                  <div className="py-8 text-center text-muted-foreground">
+                    还没有章节，请先创建故事内容
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* 分镜视图 */}
+        <TabsContent value="segments" className="space-y-4">
+          <div className="grid gap-4 lg:grid-cols-2">
+            {/* 片段列表 */}
+            <Card className="lg:col-span-1">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">片段列表</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[400px]">
+                  <div className="space-y-2">
+                    {segments.map((segment) => (
+                      <button
+                        type="button"
+                        key={segment.id}
+                        className={`w-full cursor-pointer rounded-lg border p-3 text-left transition-colors hover:bg-muted ${
+                          selectedSegment?.id === segment.id
+                            ? 'border-primary bg-muted'
+                            : ''
+                        }`}
+                        onClick={() => setSelectedSegment(segment)}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-sm">
+                              #{segment.segmentNumber}
+                            </span>
+                            <Badge variant="outline" className="text-xs">
+                              {segment.duration} 秒
+                            </Badge>
+                          </div>
+                          <ChevronRightIcon className="size-4 text-muted-foreground" />
+                        </div>
+                        <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
+                          {segment.summary || '无描述'}
+                        </p>
+                      </button>
+                    ))}
+
+                    {segments.length === 0 && (
+                      <div className="py-8 text-center text-muted-foreground">
+                        还没有分镜片段
+                      </div>
+                    )}
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+
+            {/* 镜头详情 */}
+            <Card className="lg:col-span-1">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-base">
+                    {selectedSegment
+                      ? `片段 #${selectedSegment.segmentNumber} 镜头`
+                      : '镜头详情'}
+                  </CardTitle>
+                  {selectedSegment && (
+                    <Button
+                      size="sm"
+                      onClick={() =>
+                        void handleBatchGenerate(selectedSegment.id)
+                      }
+                      disabled={isProcessing}
+                    >
+                      <SparklesIcon className="mr-2 size-4" />
+                      批量生成关键帧
+                    </Button>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[400px]">
+                  {selectedSegment ? (
+                    <div className="space-y-3">
+                      {shots
+                        .filter((s) => s.segmentId === selectedSegment.id)
+                        .map((shot) => {
+                          const shotKeyframe = keyframes.find(
+                            (k) => k.shotId === shot.id
+                          );
+                          const shotVideo = shotKeyframe
+                            ? videoClips.find(
+                                (v) => v.keyframeId === shotKeyframe.id
+                              )
+                            : null;
+                          const shotVideoUrl = shotVideo?.videoUrl;
+
+                          return (
+                            <div
+                              key={shot.id}
+                              className="rounded-lg border p-3"
+                            >
+                              <div className="flex items-start justify-between">
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-mono text-sm">
+                                      镜头 {shot.shotNumber}
+                                    </span>
+                                    <Badge
+                                      variant="outline"
+                                      className="text-xs"
+                                    >
+                                      {SHOT_SIZE_LABELS[
+                                        shot.shotSize || 'medium'
+                                      ] ?? shot.shotSize}
+                                    </Badge>
+                                    <Badge
+                                      variant="outline"
+                                      className="text-xs"
+                                    >
+                                      {CAMERA_ANGLE_LABELS[
+                                        shot.cameraAngle || 'eye_level'
+                                      ] ?? shot.cameraAngle}
+                                    </Badge>
+                                  </div>
+                                  <p className="mt-1 text-sm text-muted-foreground">
+                                    {shot.description || '无描述'}
+                                  </p>
+                                  {shot.dialogue && (
+                                    <p className="mt-1 text-sm italic">
+                                      "{shot.dialogue}"
+                                    </p>
+                                  )}
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                  {shotKeyframe?.imageUrl ? (
+                                    <img
+                                      src={shotKeyframe.imageUrl}
+                                      alt="关键帧"
+                                      className="h-16 w-24 rounded object-cover"
+                                    />
+                                  ) : (
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() =>
+                                        void handleGenerateKeyframe(shot.id)
+                                      }
+                                      disabled={isProcessing}
+                                    >
+                                      <ImageIcon className="size-4" />
+                                    </Button>
+                                  )}
+                                  {shotVideoUrl ? (
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      onClick={() => {
+                                        setPreviewVideoUrl(shotVideoUrl);
+                                        setShowVideoPreview(true);
+                                      }}
+                                    >
+                                      <PlayIcon className="size-4" />
+                                    </Button>
+                                  ) : shotKeyframe ? (
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      disabled
+                                    >
+                                      <VideoIcon className="size-4" />
+                                    </Button>
+                                  ) : null}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  ) : (
+                    <div className="flex h-full items-center justify-center py-8 text-muted-foreground">
+                      选择一个片段查看镜头
+                    </div>
+                  )}
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* 资产视图 */}
+        <TabsContent value="assets" className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {assets.map((asset) => (
+              <Card
+                key={asset.id}
+                className="cursor-pointer transition-colors hover:bg-muted"
+                onClick={() => {
+                  setSelectedAsset(asset);
+                  setShowAssetDialog(true);
+                }}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex size-10 items-center justify-center rounded-lg bg-muted">
+                      {asset.type === 'character' ? (
+                        <UserIcon className="size-5" />
+                      ) : (
+                        <MapPinIcon className="size-5" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-medium">{asset.name}</h4>
+                        <Badge
+                          variant={
+                            asset.status === 'generated'
+                              ? 'default'
+                              : 'secondary'
+                          }
+                          className="text-xs"
+                        >
+                          {asset.status === 'generated' ? '已生成' : '待生成'}
+                        </Badge>
+                      </div>
+                      <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
+                        {asset.description || '无描述'}
+                      </p>
+                    </div>
+                  </div>
+                  {asset.views && asset.views.length > 0 && (
+                    <div className="mt-3 flex gap-2">
+                      {asset.views.slice(0, 3).map((view) => (
+                        <img
+                          key={view.id}
+                          src={view.imageUrl || ''}
+                          alt={
+                            VIEW_ANGLE_LABELS[view.viewAngle] ?? view.viewAngle
+                          }
+                          className="h-12 w-16 rounded object-cover"
+                        />
+                      ))}
+                      {asset.views.length > 3 && (
+                        <div className="flex h-12 w-16 items-center justify-center rounded bg-muted text-sm">
+                          +{asset.views.length - 3}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+
+            {assets.length === 0 && (
+              <div className="col-span-full py-8 text-center text-muted-foreground">
+                还没有资产，请先从章节中提取角色和场景
+              </div>
+            )}
+          </div>
+        </TabsContent>
+
+        {/* 视频视图 */}
+        <TabsContent value="videos" className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {videoClips.map((clip) => {
+              const keyframe = keyframes.find((k) => k.id === clip.keyframeId);
+              const clipVideoUrl = clip.videoUrl;
+
+              return (
+                <Card key={clip.id}>
+                  <CardContent className="p-4">
+                    <div className="relative aspect-video overflow-hidden rounded-lg bg-muted">
+                      {clipVideoUrl ? (
+                        <>
+                          <img
+                            src={keyframe?.imageUrl || ''}
+                            alt="视频缩略图"
+                            className="h-full w-full object-cover"
+                          />
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            className="absolute bottom-2 right-2"
+                            onClick={() => {
+                              setPreviewVideoUrl(clipVideoUrl);
+                              setShowVideoPreview(true);
+                            }}
+                          >
+                            <PlayIcon className="mr-1 size-4" />
+                            播放
+                          </Button>
+                        </>
+                      ) : (
+                        <div className="flex h-full items-center justify-center">
+                          <Loader2Icon className="size-6 animate-spin" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="mt-2 flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">
+                        {clip.duration ? `${clip.duration} 秒` : '生成中...'}
+                      </span>
+                      <Badge
+                        variant={
+                          clip.status === 'completed' ? 'default' : 'secondary'
+                        }
+                      >
+                        {clip.status === 'completed' ? (
+                          <CheckCircleIcon className="mr-1 size-3" />
+                        ) : (
+                          <AlertCircleIcon className="mr-1 size-3" />
+                        )}
+                        {VIDEO_STATUS_LABELS[clip.status] ?? clip.status}
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+
+            {videoClips.length === 0 && (
+              <div className="col-span-full py-8 text-center text-muted-foreground">
+                还没有视频片段，请先生成关键帧
+              </div>
+            )}
+          </div>
+        </TabsContent>
+      </Tabs>
+
+      {/* 资产详情弹窗 */}
+      <Dialog open={showAssetDialog} onOpenChange={setShowAssetDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {selectedAsset?.type === 'character' ? (
+                <UserIcon className="size-5" />
+              ) : (
+                <MapPinIcon className="size-5" />
+              )}
+              {selectedAsset?.name}
+            </DialogTitle>
+            <DialogDescription>{selectedAsset?.description}</DialogDescription>
+          </DialogHeader>
+
+          {selectedAsset && (
+            <div className="space-y-4">
+              {/* 已生成的视图 */}
+              {selectedAsset.views && selectedAsset.views.length > 0 && (
+                <div className="grid gap-2 sm:grid-cols-3">
+                  {selectedAsset.views.map((view) => (
+                    <div key={view.id} className="space-y-1">
+                      <img
+                        src={view.imageUrl || ''}
+                        alt={
+                          VIEW_ANGLE_LABELS[view.viewAngle] ?? view.viewAngle
+                        }
+                        className="aspect-video w-full rounded-lg object-cover"
+                      />
+                      <p className="text-center text-xs text-muted-foreground">
+                        {VIEW_ANGLE_LABELS[view.viewAngle] ?? view.viewAngle}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* 生成按钮 */}
+              <div className="flex flex-wrap gap-2">
+                {selectedAsset.type === 'character' ? (
+                  <>
+                    <Button
+                      size="sm"
+                      onClick={() =>
+                        void handleGenerateAssetImage(selectedAsset.id, 'front')
+                      }
+                      disabled={isProcessing}
+                    >
+                      生成正面
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() =>
+                        void handleGenerateAssetImage(selectedAsset.id, 'side')
+                      }
+                      disabled={isProcessing}
+                    >
+                      生成侧面
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() =>
+                        void handleGenerateAssetImage(selectedAsset.id, 'back')
+                      }
+                      disabled={isProcessing}
+                    >
+                      生成背面
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      size="sm"
+                      onClick={() =>
+                        void handleGenerateAssetImage(selectedAsset.id, 'wide')
+                      }
+                      disabled={isProcessing}
+                    >
+                      生成全景
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() =>
+                        void handleGenerateAssetImage(
+                          selectedAsset.id,
+                          'detail'
+                        )
+                      }
+                      disabled={isProcessing}
+                    >
+                      生成细节
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAssetDialog(false)}>
+              关闭
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 视频预览弹窗 */}
+      <Dialog open={showVideoPreview} onOpenChange={setShowVideoPreview}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>视频预览</DialogTitle>
+          </DialogHeader>
+          <div className="aspect-video">
+            <video
+              src={previewVideoUrl}
+              controls
+              autoPlay
+              className="h-full w-full rounded-lg"
+            >
+              <track
+                kind="captions"
+                src="data:text/vtt,WEBVTT"
+                srcLang="zh"
+                label="无字幕"
+              />
+            </video>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowVideoPreview(false)}
+            >
+              关闭
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

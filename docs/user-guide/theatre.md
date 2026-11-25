@@ -1,53 +1,53 @@
 ---
-title: Theatre
-description: Preview and export your final merged video
+title: 影院
+description: 预览并导出最终合并的视频
 section: User Guide
 order: 6
 ---
 
-The **Theatre** tab is where you preview and share your final video. It displays the merged video that combines all your scene motion clips with the generated music track.
+你可以在**影院**标签页预览和分享最终视频。这里会显示由所有场景动态片段与生成的音乐轨道合并而成的视频。
 
-## Video Player
+## 视频播放器
 
-When a merged video is available, it displays in a full video player sized to your sequence's aspect ratio. The player is centered in the viewport and constrained to fit the screen height.
+合并视频可用后，会在完整的视频播放器中显示，并适配序列的宽高比。播放器在视口中居中，并限制在屏幕高度以内。
 
-### Share Menu
+### 分享菜单
 
-A share button (top-right corner of the player) opens a dropdown with:
+点击分享按钮（位于播放器右上角）会打开一个下拉菜单，其中包含：
 
-- **Copy video URL** — Copies the direct video URL to your clipboard
-- **Download video** — Downloads the `.mp4` file with a filename based on your sequence title (e.g., `My_Sequence_openstory.mp4`)
+- **复制视频 URL** — 将视频的直接 URL 复制到剪贴板
+- **下载视频** — 下载 `.mp4` 文件，文件名根据序列标题生成（例如 `My_Sequence_openstory.mp4`）
 
-## Video States
+## 视频状态
 
-### Completed
+### 已完成
 
-The full video player is shown with playback controls and the share menu.
+显示带有播放控件和分享菜单的完整视频播放器。
 
-### Merging
+### 正在合并
 
-A spinner with "Merging video segments..." text. The page polls every 2 seconds for status updates.
+显示加载指示器和“正在合并视频片段...”文字。页面每 2 秒轮询一次状态更新。
 
-### Failed
+### 失败
 
-An error message is displayed with the failure reason and a **Retry Merge** button.
+显示包含失败原因的错误消息，以及**重试合并**按钮。
 
-### Pending
+### 等待中
 
-When no merged video exists yet:
+尚无合并视频时：
 
-> "No merged video yet. The merged video will be generated automatically once all motion segments are complete."
+> “尚无合并视频。所有动态片段完成后，将自动生成合并视频。”
 
-A **Generate Now** button is available if you want to trigger the merge manually.
+如果你想手动触发合并，可以点击**立即生成**按钮。
 
-## Aspect Ratio Sizing
+## 宽高比尺寸
 
-The theatre player automatically sizes based on your sequence's aspect ratio:
+影院播放器会根据序列的宽高比自动调整尺寸：
 
-| Ratio    | Behavior                                    |
-| -------- | ------------------------------------------- |
-| **16:9** | Full width, standard widescreen             |
-| **9:16** | Narrow, tall — optimized for mobile preview |
-| **1:1**  | Square, centered                            |
+| 比例     | 显示方式                   |
+| -------- | -------------------------- |
+| **16:9** | 全宽标准宽屏               |
+| **9:16** | 窄而高——针对移动端预览优化 |
+| **1:1**  | 居中的正方形               |
 
-All ratios are constrained to `calc(100dvh - 15rem)` maximum height to fit within the viewport alongside the header and navigation tabs.
+所有比例的最大高度都限制为 `calc(100dvh - 15rem)`，以便播放器与页头和导航标签一同容纳在视口内。

@@ -2,7 +2,7 @@ import { Checkbox } from '@/ui/shadcn/checkbox';
 import { Input } from '@/ui/shadcn/input';
 import { Label } from '@/ui/shadcn/label';
 import {
-  PORTRAIT_RIGHTS_V1,
+  PORTRAIT_RIGHTS_V2,
   type AttestationStatement,
 } from '@/platform/compliance/attestations';
 
@@ -20,7 +20,7 @@ type PortraitAttestationFieldsProps = {
 
 export function PortraitAttestationFields({
   id = 'portrait-attestation',
-  statement = PORTRAIT_RIGHTS_V1,
+  statement = PORTRAIT_RIGHTS_V2,
   attested,
   onAttestedChange,
   authorizationBasis,
@@ -57,12 +57,12 @@ export function PortraitAttestationFields({
       </div>
       {statement.requiresBasis ? (
         <div className="flex flex-col gap-2">
-          <Label htmlFor={`${id}-basis`}>Basis for authorization</Label>
+          <Label htmlFor={`${id}-basis`}>授权依据</Label>
           <Input
             id={`${id}-basis`}
             value={authorizationBasis}
             onChange={(event) => onAuthorizationBasisChange(event.target.value)}
-            placeholder="e.g. signed release on file, this is me, contract #123"
+            placeholder="例如：已存档的肖像授权书、本人照片、合同 #123"
             autoComplete="off"
           />
         </div>

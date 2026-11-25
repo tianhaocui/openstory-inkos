@@ -16,7 +16,7 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 
 const promoteFormSchema = z.object({
-  name: z.string().trim().min(1, 'Give the style a name').max(255),
+  name: z.string().trim().min(1, '请为风格命名').max(255),
 });
 
 type PromoteStyleDialogProps = {
@@ -50,11 +50,11 @@ export function PromoteStyleDialog({
       { sequenceId, name: parsed.data.name },
       {
         onSuccess: (promoted) => {
-          toast.success(`“${promoted.name}” added to your style library`);
+          toast.success(`“${promoted.name}”已添加到风格库`);
           onOpenChange(false);
         },
         onError: (error) => {
-          toast.error('Could not add the style to your library', {
+          toast.error('无法将风格添加到风格库', {
             description: error.message,
           });
         },
@@ -67,15 +67,13 @@ export function PromoteStyleDialog({
       <DialogContent>
         <form onSubmit={onSubmit} className="flex flex-col gap-4">
           <DialogHeader>
-            <DialogTitle>Add style to library</DialogTitle>
+            <DialogTitle>添加到风格库</DialogTitle>
             <DialogDescription>
-              This style was derived from the script and only lives on this
-              sequence. Adding it to your library makes it available to every
-              new sequence.
+              此风格根据剧本生成，当前仅用于这个序列。添加到风格库后，所有新序列都可使用。
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-2">
-            <Label htmlFor={nameId}>Style name</Label>
+            <Label htmlFor={nameId}>风格名称</Label>
             <Input
               id={nameId}
               name="name"
@@ -91,10 +89,10 @@ export function PromoteStyleDialog({
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
-              Cancel
+              取消
             </Button>
             <Button type="submit" disabled={promote.isPending}>
-              {promote.isPending ? 'Adding…' : 'Add to library'}
+              {promote.isPending ? '正在添加…' : '添加到风格库'}
             </Button>
           </DialogFooter>
         </form>

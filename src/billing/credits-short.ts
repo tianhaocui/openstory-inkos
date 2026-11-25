@@ -10,11 +10,11 @@
 
 import { microsToDisplayUsd, type Microdollars } from './money';
 
-export const CREDITS_SHORT_TITLE = 'Add credits to continue';
+export const CREDITS_SHORT_TITLE = '充值点数后继续';
 
-const CREDITS_SHORT_PATTERN = /not enough credits to generate/i;
-const SCENE_COUNT_PATTERN = /images for (\d+) scenes/i;
-const AMOUNT_PATTERN = /add (\$[\d.]+) more/i;
+const CREDITS_SHORT_PATTERN = /not enough credits to generate|所需点数不足/i;
+const SCENE_COUNT_PATTERN = /images for (\d+) scenes|生成 (\d+) 个场景/i;
+const AMOUNT_PATTERN = /add (\$[\d.]+) more|再充值 (\$[\d.]+)/i;
 
 function messageOf(error: unknown): string {
   if (typeof error === 'string') return error;
@@ -32,20 +32,22 @@ export function creditsShortStatusError(opts: {
 }): string {
   const amountBit =
     opts.neededMicros > 0
-      ? `Add ${microsToDisplayUsd(opts.neededMicros)} more, then continue.`
-      : 'Add credits, then continue.';
-  return `Not enough credits to generate images for ${opts.sceneCount} scenes. ${amountBit}`;
+      ? `请再充值 ${microsToDisplayUsd(opts.neededMicros)}，然后继续。`
+      : '请充值点数后继续。';
+  return `生成 ${opts.sceneCount} 个场景的图片所需点数不足。${amountBit}`;
 }
 
 export function creditsShortHint(error: string | null | undefined): string {
   const message = error ?? '';
-  const scenes = message.match(SCENE_COUNT_PATTERN)?.[1];
-  const amount = message.match(AMOUNT_PATTERN)?.[1];
+  const scenesMatch = message.match(SCENE_COUNT_PATTERN);
+  const scenes = scenesMatch?.[1] ?? scenesMatch?.[2];
+  const amountMatch = message.match(AMOUNT_PATTERN);
+  const amount = amountMatch?.[1] ?? amountMatch?.[2];
   const sceneBit = scenes
-    ? `This sequence has ${scenes} scenes — more than the first estimate.`
-    : 'Scene split found more work than the first estimate.';
+    ? `此序列包含 ${scenes} 个场景，超过首次估算。`
+    : '场景拆分后的工作量超过首次估算。';
   const amountBit = amount
-    ? `Add ${amount} more, then continue generation.`
-    : 'Add credits, then continue generation.';
+    ? `请再充值 ${amount}，然后继续生成。`
+    : '请充值点数后继续生成。';
   return `${sceneBit} ${amountBit}`;
 }

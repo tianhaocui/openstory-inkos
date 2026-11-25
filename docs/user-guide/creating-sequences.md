@@ -1,162 +1,162 @@
 ---
-title: Creating Sequences
-description: How to create and manage video sequences in OpenStory
+title: 创建序列
+description: 如何在 OpenStory 中创建和管理视频序列
 section: User Guide
 order: 1
 ---
 
-Sequences are the core unit of work in OpenStory. Each sequence represents a video project that progresses from script to finished video.
+序列是 OpenStory 的核心工作单元。每个序列代表一个从剧本逐步制作成成片的视频项目。
 
-## Creating a New Sequence
+## 创建新序列
 
-1. Navigate to **Sequences** from the top navigation
-2. Click **Create New Sequence**
-3. You'll be taken to the script editor where you can configure your sequence
+1. 从顶部导航进入**序列**
+2. 点击**创建新序列**
+3. 随后进入剧本编辑器，在其中配置序列
 
-### Writing Your Script
+### 编写剧本
 
-The script editor accepts anything from a one-line idea to a full screenplay:
+剧本编辑器既支持一句话创意，也支持完整剧本：
 
-- **One-liner or URL** — Type a brief concept like "A cat exploring a cyberpunk city at night" or paste a website URL. Use **Enhance Script** to expand it into a full screenplay.
-- **Full screenplay** — Paste a complete screenplay and click **Generate Sequence** directly.
+- **一句话创意或 URL** — 输入类似“一只猫在夜晚探索赛博朋克城市”的简短构思，或粘贴网站 URL。使用**增强剧本**将其扩展为完整剧本。
+- **完整剧本** — 粘贴完整剧本，然后直接点击**生成序列**。
 
-The editor starts empty. Its placeholder reads: _"Paste a screenplay, or a one-liner we can expand."_
+编辑器初始为空，占位提示为：_“粘贴剧本，或输入一句话创意，让我们为你扩写。”_
 
-### Enhance Script
+### 增强剧本
 
-For short scripts (under ~1000 characters), OpenStory nudges you to enhance before generating. The **Enhance Script** button (bottom-right of the editor, marked with a sparkle icon) uses AI to expand your idea into a detailed screenplay with:
+对于较短的剧本（少于约 1000 个字符），OpenStory 会建议先增强再生成。**增强剧本**按钮位于编辑器右下角，以闪光图标标识；它使用 AI 将你的创意扩展为详细剧本，其中包含：
 
-- Visual descriptions
-- Camera directions
-- Scene breakdowns
-- Dialogue and action lines
+- 视觉描述
+- 镜头指示
+- 场景拆分
+- 对白和动作描写
 
-Before enhancing, you choose a **target video duration**:
+增强前需要选择**目标视频时长**：
 
-| Preset | Duration   |
-| ------ | ---------- |
-| 15s    | 15 seconds |
-| 30s    | 30 seconds |
-| 1m     | 1 minute   |
-| 2m     | 2 minutes  |
-| 3m     | 3 minutes  |
+| 预设 | 时长   |
+| ---- | ------ |
+| 15s  | 15 秒  |
+| 30s  | 30 秒  |
+| 1m   | 1 分钟 |
+| 2m   | 2 分钟 |
+| 3m   | 3 分钟 |
 
-The enhanced script streams in real-time. You can:
+增强后的剧本会实时流式显示。你可以：
 
-- **Stop** enhancement mid-stream (click Stop or press `Esc` / `Cmd+.`)
-- **Undo** the enhancement to restore your original script
-- Edit the enhanced script before generating
+- 在流式生成途中**停止**增强（点击“停止”或按 `Esc` / `Cmd+.`）
+- **撤销**增强以恢复原始剧本
+- 在生成序列前编辑增强后的剧本
 
-### Keyboard Shortcuts
+### 键盘快捷键
 
-| Shortcut           | Action                  |
-| ------------------ | ----------------------- |
-| `Cmd + Enter`      | Generate sequence       |
-| `Esc` or `Cmd + .` | Stop script enhancement |
+| 快捷键             | 操作         |
+| ------------------ | ------------ |
+| `Cmd + Enter`      | 生成序列     |
+| `Esc` 或 `Cmd + .` | 停止增强剧本 |
 
-## Generation Settings
+## 生成设置
 
-Click the settings button in the control bar to configure all generation parameters. Settings are persisted in localStorage so they carry across sessions.
+点击控制栏中的设置按钮可配置所有生成参数。设置会持久保存到 localStorage，因此可跨会话沿用。
 
-### Aspect Ratio
+### 宽高比
 
-Choose the output aspect ratio for all generated images and videos:
+为所有生成的图像和视频选择输出宽高比：
 
-| Ratio    | Use Case                                                 |
-| -------- | -------------------------------------------------------- |
-| **16:9** | Landscape — standard widescreen video                    |
-| **9:16** | Portrait — vertical/mobile video (TikTok, Reels, Shorts) |
-| **1:1**  | Square — social media posts                              |
+| 比例     | 适用场景                                       |
+| -------- | ---------------------------------------------- |
+| **16:9** | 横向——标准宽屏视频                             |
+| **9:16** | 纵向——竖屏/移动端视频（TikTok、Reels、Shorts） |
+| **1:1**  | 正方形——社交媒体帖子                           |
 
-### Analysis Model
+### 分析模型
 
-The AI model used to analyze your script and break it into scenes. You can select **multiple models** to generate parallel sequences — one per model — for comparison. Available models include options from Anthropic, Google, OpenAI, xAI, Mistral, DeepSeek, and more.
+此 AI 模型用于分析剧本并将其拆分为场景。你可以选择**多个模型**并行生成序列——每个模型生成一个——以便进行比较。可用模型来自 Anthropic、Google、OpenAI、xAI、Mistral、DeepSeek 等提供商。
 
-When multiple models are selected, the footer shows "N sequences will be created" to confirm.
+选择多个模型后，底部会显示“将创建 N 个序列”以供确认。
 
-### Image Model
+### 图像模型
 
-The AI model for generating scene images. You can select **multiple image models** to generate variant images across different providers. Available models include:
+此 AI 模型用于生成场景图像。你可以选择**多个图像模型**，通过不同提供商生成变体图像。可用模型包括：
 
-| Model                      | Vendor            | Notes                                                     |
-| -------------------------- | ----------------- | --------------------------------------------------------- |
-| Nano Banana 2 Lite         | Google            | Turbo default — fastest Google tier, references, fixed 1K |
-| GPT Image 2                | OpenAI            | Quality default — text rendering, UI fidelity, up to 4K   |
-| Nano Banana 2              | Google            | Fast generation and editing                               |
-| Nano Banana Pro            | Google            | Enhanced realism and typography                           |
-| Grok Imagine Image 2.0     | SpaceXAI          | Newest Imagine image model, 1K/2K, edit up to 3 refs      |
-| Grok Imagine Image Quality | SpaceXAI          | Quality Mode — higher fidelity, stronger text             |
-| FLUX.2 Max                 | Black Forest Labs | Exceptional realism and consistency                       |
-| Phota                      | Phota             | Character consistency via profiles                        |
-| Hunyuan Image v3           | Tencent           | Open weights with strong composition                      |
-| FLUX.2 Dev                 | Black Forest Labs | 32B open weights                                          |
-| Qwen Image 2 Pro           | Alibaba           | Apache 2.0, native 2K, text rendering                     |
-| HiDream I1                 | HiDream           | MIT licensed, 17B parameters                              |
-| Seedream 5.0 Pro           | ByteDance         | Flagship generation and editing                           |
-| FLUX.2 Flash               | Black Forest Labs | Cheapest distilled FLUX.2 — sub-second, edit up to 4 refs |
-| FLUX.2 Turbo               | Black Forest Labs | Distilled FLUX.2 — ~2s, edit up to 4 refs                 |
+| 模型                       | 提供商            | 备注                                                  |
+| -------------------------- | ----------------- | ----------------------------------------------------- |
+| Nano Banana 2 Lite         | Google            | Turbo 默认——Google 最快档，支持参考，固定 1K          |
+| GPT Image 2                | OpenAI            | Quality 默认——文字渲染、UI 保真度，最高 4K            |
+| Nano Banana 2              | Google            | 快速生成和编辑                                        |
+| Nano Banana Pro            | Google            | 增强的真实感和排版能力                                |
+| Grok Imagine Image 2.0     | SpaceXAI          | 最新 Imagine 图像模型，支持 1K/2K，最多编辑 3 个参考  |
+| Grok Imagine Image Quality | SpaceXAI          | Quality 模式——更高保真度和更强文字能力                |
+| FLUX.2 Max                 | Black Forest Labs | 出色的真实感和一致性                                  |
+| Phota                      | Phota             | 通过角色档案保持角色一致性                            |
+| Hunyuan Image v3           | Tencent           | 开放权重，构图能力强                                  |
+| FLUX.2 Dev                 | Black Forest Labs | 32B 开放权重                                          |
+| Qwen Image 2 Pro           | Alibaba           | Apache 2.0，原生 2K，支持文字渲染                     |
+| HiDream I1                 | HiDream           | MIT 许可证，17B 参数                                  |
+| Seedream 5.0 Pro           | ByteDance         | 旗舰级生成和编辑                                      |
+| FLUX.2 Flash               | Black Forest Labs | 成本最低的 FLUX.2 蒸馏模型——亚秒级，最多编辑 4 个参考 |
+| FLUX.2 Turbo               | Black Forest Labs | FLUX.2 蒸馏模型——约 2 秒，最多编辑 4 个参考           |
 
-### Motion Model
+### 动态模型
 
-The AI model for image-to-video animation. Toggle **Auto-generate motion** to automatically create video clips for each scene after images are generated.
+此 AI 模型用于图像生成视频动画。开启**自动生成动态**后，会在图像生成完成时自动为每个场景创建视频片段。
 
-| Model                  | Vendor    | Est. Time                          |
-| ---------------------- | --------- | ---------------------------------- |
-| MiniMax H3 Max         | MiniMax   | ~10s (Turbo default; native audio) |
-| Seedance 2.0           | ByteDance | ~3.5 min (Quality default; audio)  |
-| Grok Imagine Video 1.5 | SpaceXAI  | ~30s                               |
-| Kling 3.0 Omni         | Kling     | ~5 min                             |
+| 模型                   | 提供商    | 预计时间                          |
+| ---------------------- | --------- | --------------------------------- |
+| MiniMax H3 Max         | MiniMax   | 约 10 秒（Turbo 默认；原生音频）  |
+| Seedance 2.0           | ByteDance | 约 3.5 分钟（Quality 默认；音频） |
+| Grok Imagine Video 1.5 | SpaceXAI  | 约 30 秒                          |
+| Kling 3.0 Omni         | Kling     | 约 5 分钟                         |
 
-### Music Model
+### 音乐模型
 
-Toggle **Auto-generate music** to automatically create a soundtrack after scene generation. Choose from:
+开启**自动生成音乐**后，会在场景生成完成时自动创建配乐。可选择：
 
-| Model            | Vendor     | Max Duration | Type            |
-| ---------------- | ---------- | ------------ | --------------- |
-| ElevenLabs Music | ElevenLabs | 600s         | Music (default) |
-| ACE-Step 1.5     | ACE Studio | 600s         | Music           |
-| ACE-Step         | ACE Studio | 240s         | Music           |
+| 模型             | 提供商     | 最长时长 | 类型         |
+| ---------------- | ---------- | -------- | ------------ |
+| ElevenLabs Music | ElevenLabs | 600s     | 音乐（默认） |
+| ACE-Step 1.5     | ACE Studio | 600s     | 音乐         |
+| ACE-Step         | ACE Studio | 240s     | 音乐         |
 
-## Pre-Generation Options
+## 生成前选项
 
-Before generating, you can optionally attach resources from your libraries:
+生成前，你可以选择附加素材库中的资源：
 
-### Talent Suggestions
+### 演员建议
 
-Click the talent icon to attach characters from your **Talent Library**. The AI will use these as visual references when generating character appearances, ensuring consistency with your established character designs.
+点击演员图标，附加**演员库**中的角色。AI 在生成角色外观时会将其用作视觉参考，以确保与现有角色设计保持一致。
 
-### Location Suggestions
+### 地点建议
 
-Click the location icon to attach locations from your **Location Library**. The AI will reference these when generating scenes set in matching environments.
+点击地点图标，附加**地点库**中的地点。AI 在生成对应环境中的场景时会参考这些地点。
 
-Both are marked as "optional" in the UI — sequences work fine without them.
+这两项在界面中都标记为“可选”——不添加也能正常生成序列。
 
-## Style Selection
+## 风格选择
 
-Below the script editor, choose a **visual style** that defines the aesthetic of your sequence. Styles appear as a grid of tiles with preview images — hover a tile to play its sample clip, click it to open the style dialog, then **Use this style** (or press Return). Click **More** to browse the full catalog. Recommend lives in the style-category menu.
+在剧本编辑器下方选择一种用于定义序列美学的**视觉风格**。风格以带预览图的图块网格显示——将鼠标悬停在图块上可播放示例片段，点击图块打开风格对话框，然后点击**使用此风格**（或按 Return）。点击**更多**可浏览完整目录。“推荐”位于风格类别菜单中。
 
-Each style includes configuration for color palette, artistic direction, and rendering approach. The selected style influences:
+每种风格都包含色板、艺术方向和渲染方式的配置。所选风格会影响：
 
-- Image generation prompts
-- Color palette and mood
-- Camera and lighting defaults
+- 图像生成提示词
+- 色板与氛围
+- 镜头和光照默认值
 
-## The Generation Pipeline
+## 生成流水线
 
-The line under **Generate** names the current stop-at (**Whole sequence**, or **Stops after Casting**, and so on) and opens the stop-at dialog. Model pickers in generation settings still group Fast / Quality.
+**生成**按钮下方的文字会显示当前的停止阶段（**完整序列**、**选角后停止**等），点击可打开停止阶段对话框。生成设置中的模型选择器仍按 Fast / Quality 分组。
 
-When you click **Generate Sequence**, OpenStory runs an automated pipeline:
+点击**生成序列**后，OpenStory 会运行自动化流水线：
 
-1. **Script Analysis** — The AI model breaks your script into individual scenes with metadata (title, duration, location, time of day, story beat)
-2. **Character Extraction** — Characters are identified from the script with physical descriptions, clothing, and consistency tags
-3. **Location Extraction** — Settings are extracted with architectural details, lighting, and ambiance
-4. **Image Prompts** — Visual prompts are generated for each scene incorporating style, characters, and locations
-5. **Image Generation** — Scene images are generated using your selected image model(s)
-6. **Motion Generation** — If auto-motion is enabled, each image is animated into a video clip
-7. **Music Generation** — If auto-music is enabled, a soundtrack is generated based on the script's mood
+1. **剧本分析** — AI 模型将剧本拆分为单独场景，并添加元数据（标题、时长、地点、时段和剧情节点）
+2. **角色提取** — 从剧本中识别角色及其外貌描述、服装和一致性标签
+3. **地点提取** — 提取环境及其建筑细节、光照和氛围
+4. **图像提示词** — 为每个场景生成融合风格、角色和地点的视觉提示词
+5. **图像生成** — 使用所选图像模型生成场景图像
+6. **动态生成** — 如果已启用自动生成动态，则将每张图像制作成视频片段
+7. **音乐生成** — 如果已启用自动生成音乐，则根据剧本氛围生成配乐
 
-Progress is shown via a real-time banner with phase indicators. You can navigate away and return — the process continues in the background via durable workflows.
+进度会通过带阶段指示的实时横幅显示。你可以离开页面后再返回——该过程会通过持久工作流在后台继续运行。
 
-## Regenerating a Sequence
+## 重新生成序列
 
-From the **Script** tab of an existing sequence, you can edit the script and click **Regenerate Sequence**. This creates a new sequence from the modified script (the original is preserved).
+在现有序列的**剧本**标签页中，你可以编辑剧本并点击**重新生成序列**。系统会根据修改后的剧本创建一个新序列（原序列会保留）。

@@ -4,7 +4,7 @@
  */
 
 import { AuthForm } from '@/platform/ui/auth/auth-form';
-import { OpenStoryLogo } from '@/ui/icons/openstory-logo';
+import { BigKalamiLogo } from '@/ui/icons/big-kalami-logo';
 import { PageContainer } from '@/ui/layout/page-container';
 import { getRedirectFromParams } from '@/platform/ui/auth/navigation';
 import { Link, createFileRoute } from '@tanstack/react-router';
@@ -32,11 +32,9 @@ function LoginPage() {
         <div className="w-full max-w-md space-y-8">
           <div className="flex flex-col items-center gap-4 text-center">
             <Link to="/">
-              <OpenStoryLogo size="lg" />
+              <BigKalamiLogo className="text-2xl" />
             </Link>
-            <p className="text-muted-foreground">
-              AI video production, from script to screen.
-            </p>
+            <p className="text-muted-foreground">AI 视频制作，从剧本到成片。</p>
           </div>
           <AuthForm
             emailEntered={email}

@@ -20,7 +20,7 @@ export const Route = createFileRoute('/_app/models/$')({
   },
   validateSearch: searchParamsSchema,
   component: ModelDetailPage,
-  staticData: { breadcrumb: 'Model' },
+  staticData: { breadcrumb: '模型' },
 });
 
 function ModelDetailPage() {
@@ -36,7 +36,7 @@ function ModelDetailPage() {
           className="flex w-fit items-center gap-2 text-sm text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <ArrowLeft aria-hidden="true" className="size-4" />
-          Back to models
+          返回模型库
         </Link>
         {endpointId ? (
           <ModelDetailView endpointId={endpointId} activity={activity} />

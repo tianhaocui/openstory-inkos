@@ -99,7 +99,7 @@ export const TalentMediaUpload: React.FC<TalentMediaUploadProps> = ({
       // prompt instead of a raw upload error.
       if (!requireAuth()) {
         for (const file of newFiles) {
-          onError(file, new Error('Sign in to upload'));
+          onError(file, new Error('登录后才能上传'));
         }
         return;
       }
@@ -135,8 +135,7 @@ export const TalentMediaUpload: React.FC<TalentMediaUploadProps> = ({
             onProgress(file, 100);
             onSuccess(file);
           } catch (error) {
-            const err =
-              error instanceof Error ? error : new Error('Upload failed');
+            const err = error instanceof Error ? error : new Error('上传失败');
             setFailedKeys((prev) => new Set(prev).add(getFileKey(file)));
             onError(file, err);
             throw err;
@@ -148,8 +147,8 @@ export const TalentMediaUpload: React.FC<TalentMediaUploadProps> = ({
         if (failed.length > 0) {
           toast.error(
             failed.length === newFiles.length
-              ? 'Upload failed'
-              : `${failed.length} of ${newFiles.length} files failed to upload`
+              ? '上传失败'
+              : `${newFiles.length} 个文件中有 ${failed.length} 个上传失败`
           );
           return;
         }
@@ -188,13 +187,13 @@ export const TalentMediaUpload: React.FC<TalentMediaUploadProps> = ({
     >
       <FileUploadDropzone className="min-h-[120px] focus:border-ring/50 focus:bg-accent/30">
         <Upload className="h-8 w-8 text-muted-foreground/50" />
-        <p className="text-sm font-medium">Drag & drop or paste</p>
+        <p className="text-sm font-medium">拖放或粘贴</p>
         <FileUploadTrigger asChild>
           <Button type="button" variant="outline" size="sm">
-            Browse files
+            浏览文件
           </Button>
         </FileUploadTrigger>
-        <p className="text-xs text-muted-foreground">Images and videos</p>
+        <p className="text-xs text-muted-foreground">图片和视频</p>
       </FileUploadDropzone>
 
       <FileUploadList className="grid grid-cols-3 gap-3">
@@ -221,13 +220,13 @@ export const TalentMediaUpload: React.FC<TalentMediaUploadProps> = ({
             <FileUploadItemProgress className="absolute bottom-0 left-0 right-0 h-1" />
             {failedKeys.has(getFileKey(file)) ? (
               <Badge variant="destructive" className="absolute bottom-2 left-2">
-                Failed
+                失败
               </Badge>
             ) : sheetFileKeys?.has(getFileKey(file)) ? (
-              <Badge className="absolute bottom-2 left-2">Sheet</Badge>
+              <Badge className="absolute bottom-2 left-2">设定图</Badge>
             ) : checkingFileKeys?.has(getFileKey(file)) ? (
               <Badge variant="secondary" className="absolute bottom-2 left-2">
-                Checking…
+                正在检查…
               </Badge>
             ) : null}
             <FileUploadItemDelete asChild>

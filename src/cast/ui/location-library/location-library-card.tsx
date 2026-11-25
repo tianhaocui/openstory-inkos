@@ -54,7 +54,7 @@ export const LocationLibraryCard: React.FC<LocationLibraryCardProps> = ({
             <div className="absolute inset-0 bg-background/60 backdrop-blur-sm flex items-center justify-center">
               <div className="flex flex-col items-center gap-2">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <span className="text-xs font-medium">Generating sheet…</span>
+                <span className="text-xs font-medium">正在生成设定图…</span>
               </div>
             </div>
           )}
@@ -62,7 +62,7 @@ export const LocationLibraryCard: React.FC<LocationLibraryCardProps> = ({
           {/* System badge */}
           {location.isPublic && (
             <div className="absolute top-2 left-2 rounded bg-background/80 px-2 py-1 text-xs font-medium text-muted-foreground backdrop-blur-sm">
-              System
+              系统
             </div>
           )}
         </div>

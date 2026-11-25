@@ -72,7 +72,7 @@ const LocationPickerCard: React.FC<LocationPickerCardProps> = ({
       </span>
       {location.isPublic && (
         <div className="absolute left-2 top-2 rounded bg-background/80 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground backdrop-blur-sm">
-          System
+          系统
         </div>
       )}
       {isSelected && (
@@ -181,7 +181,7 @@ export const LocationSuggestionSelector: React.FC<
           className="gap-2 text-muted-foreground"
         >
           <MapPin className="h-4 w-4" />
-          <span>Locations</span>
+          <span>场景</span>
         </Button>
 
         {/* Selected location thumbnails */}
@@ -215,11 +215,10 @@ export const LocationSuggestionSelector: React.FC<
             className="flex flex-col gap-4"
           >
             <DialogHeader>
-              <DialogTitle>Select Locations</DialogTitle>
+              <DialogTitle>选择场景</DialogTitle>
               <DialogDescription>
-                Pick locations here only when you want a specific reference. Any
-                locations you don't pre-pick are auto-extracted from your script
-                and given AI-generated reference shots.
+                仅在需要指定参考场景时在此选择。未预先选择的场景将从剧本中自动提取，并生成
+                AI 参考图。
               </DialogDescription>
             </DialogHeader>
 
@@ -228,7 +227,7 @@ export const LocationSuggestionSelector: React.FC<
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Search locations…"
+                placeholder="搜索场景…"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-9"
@@ -253,9 +252,7 @@ export const LocationSuggestionSelector: React.FC<
                 <div className="flex h-full flex-col items-center justify-center py-12 text-center">
                   <MapPin className="h-12 w-12 text-muted-foreground/30" />
                   <p className="mt-4 text-sm text-muted-foreground">
-                    {searchQuery
-                      ? 'No locations matching your search'
-                      : 'Your location library is empty'}
+                    {searchQuery ? '没有匹配搜索条件的场景' : '你的场景库为空'}
                   </p>
                   {!searchQuery && (
                     <AddLocationDialog
@@ -263,7 +260,7 @@ export const LocationSuggestionSelector: React.FC<
                       trigger={
                         <Button variant="outline" size="sm" className="mt-3">
                           <Plus className="mr-2 h-4 w-4" />
-                          Add Location
+                          添加场景
                         </Button>
                       }
                     />
@@ -290,15 +287,15 @@ export const LocationSuggestionSelector: React.FC<
                 trigger={
                   <Button variant="outline" size="sm">
                     <Plus className="mr-2 h-4 w-4" />
-                    Add Location
+                    添加场景
                   </Button>
                 }
               />
               <div className="flex flex-col items-center gap-1">
                 <Button type="submit">
                   {selectedLocationIds.length > 0
-                    ? `Use ${selectedLocationIds.length} location${selectedLocationIds.length === 1 ? '' : 's'}`
-                    : 'Continue'}
+                    ? `使用 ${selectedLocationIds.length} 个场景`
+                    : '继续'}
                 </Button>
                 <span
                   className={cn(
@@ -306,7 +303,7 @@ export const LocationSuggestionSelector: React.FC<
                     selectedLocationIds.length > 0 && 'invisible'
                   )}
                 >
-                  without picking locations
+                  不预先选择场景
                 </span>
               </div>
             </div>

@@ -96,7 +96,7 @@ export function AuthGateProvider({ children }: { children: ReactNode }) {
   // at a signed-in user whose session refetch blipped (`getSessionFn`
   // throws on lookup failure for exactly this reason).
   if (sessionError) {
-    throw new Error(`Failed to fetch session: ${sessionError.message}`, {
+    throw new Error('无法获取登录状态，请稍后重试。', {
       cause: sessionError,
     });
   }
@@ -160,9 +160,9 @@ export function AuthGateProvider({ children }: { children: ReactNode }) {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-md border-none bg-transparent p-0 shadow-none [&>button]:hidden">
           <DialogHeader className="sr-only">
-            <DialogTitle>Sign in to continue</DialogTitle>
+            <DialogTitle>登录以继续</DialogTitle>
             <DialogDescription>
-              Sign in or create an account to continue this action.
+              登录或创建账号后即可继续此操作。
             </DialogDescription>
           </DialogHeader>
           <AuthForm redirectTo={redirectTo} authOptions={authOptions} />

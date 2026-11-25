@@ -5,10 +5,7 @@ import { Button } from '@/ui/shadcn/button';
 import { Label } from '@/ui/shadcn/label';
 import { Switch } from '@/ui/shadcn/switch';
 import { cn } from '@/ui/utils';
-import {
-  UPDATE_STALE_DEPTHS,
-  UPDATE_STALE_DEPTH_LABELS,
-} from '@/shots/update-stale-depth';
+import { UPDATE_STALE_DEPTHS } from '@/shots/update-stale-depth';
 import {
   BANDS,
   edgesForMode,
@@ -111,24 +108,24 @@ const edgeStroke = (e: GraphEdge): string =>
       : STROKE.tracked;
 
 const TRACKING_COPY: Record<Tracking, string> = {
-  hash: 'in the input hash',
-  pointer: 'by selected version',
-  untracked: 'not tracked',
-  seeded: 'seeded once, then yours',
+  hash: '记录在输入哈希中',
+  pointer: '由所选版本跟踪',
+  untracked: '未跟踪',
+  seeded: '生成一次初稿，之后由你维护',
 };
 
 const edgeCopy = (e: GraphEdge): string =>
   e.tracking === 'untracked'
     ? e.gap
-      ? 'not tracked — a gap'
-      : 'not tracked, by design'
+      ? '未跟踪，存在缺口'
+      : '按设计不跟踪'
     : TRACKING_COPY[e.tracking];
 
 const LEGEND = [
-  ['tracked', STROKE.tracked],
-  ['not tracked — a gap', STROKE.gap],
-  ['not tracked, by design', STROKE.byDesign],
-  ['seeded once, then yours', STROKE.seeded],
+  ['已跟踪', STROKE.tracked],
+  ['未跟踪，存在缺口', STROKE.gap],
+  ['按设计不跟踪', STROKE.byDesign],
+  ['生成一次初稿，之后由你维护', STROKE.seeded],
 ] as const;
 
 // --- View -----------------------------------------------------------------
@@ -175,7 +172,7 @@ export const DependencyGraphView: React.FC<DependencyGraphViewProps> = ({
               onChange({ mode: on ? 'start-frame' : 'reference-only' })
             }
           />
-          <Label htmlFor="use-start-frames">Use start frames</Label>
+          <Label htmlFor="use-start-frames">使用起始帧</Label>
         </div>
         <Legend />
       </div>
@@ -185,7 +182,7 @@ export const DependencyGraphView: React.FC<DependencyGraphViewProps> = ({
           viewBox={`0 0 ${W} ${H}`}
           className="block h-auto w-full min-w-[640px] select-none text-[11px]"
         >
-          <title>Dependency graph</title>
+          <title>依赖关系图</title>
           {BANDS.map(([band, label]) => (
             <text
               key={band}
@@ -332,19 +329,19 @@ const Legend: React.FC = () => (
     ))}
     <li className="flex items-center gap-1.5">
       <span className="inline-block size-3 rounded-sm border border-chart-2" />
-      versioned
+      已版本化
     </li>
     <li className="flex items-center gap-1.5">
       <span className="inline-block size-3 rounded-sm border border-dashed border-foreground" />
-      optional
+      可选
     </li>
     <li className="flex items-center gap-1.5">
       <span className="inline-block size-3 rounded-sm border border-border bg-warning/30" />
-      goes stale
+      将会过期
     </li>
     <li className="flex items-center gap-1.5">
       <span className="inline-block size-3 rounded-sm border border-border bg-primary/10" />
-      makes it stale
+      导致其过期
     </li>
   </ul>
 );
@@ -374,16 +371,16 @@ const DetailPanel: React.FC<DetailPanelProps> = ({
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="text-lg font-semibold">{node.label}</h2>
         <Badge variant="outline">
-          {node.kind === 'input' ? 'you edit' : 'generated'}
+          {node.kind === 'input' ? '由你编辑' : '生成产物'}
         </Badge>
         {node.versionedIn && (
           <Badge variant="outline" className="border-chart-2">
-            versioned — {node.versionedIn}
+            已版本化 — {node.versionedIn}
           </Badge>
         )}
         {node.optional && (
           <Badge variant="outline" className="border-dashed">
-            optional — {node.optional}
+            可选 — {node.optional}
           </Badge>
         )}
         {node.storedAs && (
@@ -395,17 +392,17 @@ const DetailPanel: React.FC<DetailPanelProps> = ({
 
     <div className="grid gap-5 sm:grid-cols-2">
       <FieldList
-        title="Counts"
+        title="参与计算"
         hint={
           node.kind === 'input'
-            ? 'Change one of these and what depends on it goes stale.'
-            : 'The check compares these. Change one upstream and this goes stale.'
+            ? '更改其中任一项，依赖它的内容就会过期。'
+            : '检查过程会比较这些内容。更改任一上游内容，此项就会过期。'
         }
         items={node.counts}
       />
       <FieldList
-        title="Does not count"
-        hint="Change these freely. Nothing goes stale."
+        title="不参与计算"
+        hint="可以自由更改这些内容，不会导致任何内容过期。"
         items={node.ignored}
       />
     </div>
@@ -414,10 +411,10 @@ const DetailPanel: React.FC<DetailPanelProps> = ({
       <ReachList
         title={
           node.kind === 'input'
-            ? 'Edit this and these go stale'
-            : 'Regenerate this and these go stale'
+            ? '编辑此项后，以下内容会过期'
+            : '重新生成此项后，以下内容会过期'
         }
-        empty="Nothing downstream is tracked."
+        empty="没有跟踪任何下游内容。"
         reach={downstream}
         origin={node}
         direction="down"
@@ -426,8 +423,8 @@ const DetailPanel: React.FC<DetailPanelProps> = ({
       />
       {node.kind === 'artifact' && (
         <ReachList
-          title="Goes stale when any of these change"
-          empty="Nothing. It is never flagged stale."
+          title="以下任一内容变化时，此项会过期"
+          empty="无。此项永远不会被标记为过期。"
           reach={upstream}
           origin={node}
           direction="up"
@@ -439,7 +436,7 @@ const DetailPanel: React.FC<DetailPanelProps> = ({
 
     {sideEdges.length > 0 && (
       <div className="flex flex-col gap-2">
-        <h3 className="text-sm font-medium">Connected, but not tracked</h3>
+        <h3 className="text-sm font-medium">已关联但未跟踪</h3>
         <ul className="flex flex-col gap-1 text-sm">
           {sideEdges.map((e) => {
             const other = e.from === node.id ? e.to : e.from;
@@ -478,7 +475,7 @@ const FieldList: React.FC<{
       <p className="text-xs text-muted-foreground">{hint}</p>
     </div>
     {items.length === 0 ? (
-      <p className="text-sm text-muted-foreground">Nothing.</p>
+      <p className="text-sm text-muted-foreground">无。</p>
     ) : (
       <ul className="list-disc pl-5 text-sm text-muted-foreground">
         {items.map((item) =>
@@ -487,7 +484,7 @@ const FieldList: React.FC<{
           ) : (
             <li key={item.gap} className="text-chart-5">
               <TriangleAlert
-                aria-label="A gap: this should count"
+                aria-label="跟踪缺口：此项应参与计算"
                 className="mr-1 inline size-3.5 -translate-y-px"
               />
               {item.gap}
@@ -550,7 +547,7 @@ const ReachList: React.FC<ReachListProps> = ({
                 {withNote(
                   viaId === origin.id
                     ? edgeCopy(r.via)
-                    : `via ${via?.label ?? viaId}`,
+                    : `经由 ${via?.label ?? viaId}`,
                   r.via.note
                 )}
               </span>
@@ -565,21 +562,26 @@ const ReachList: React.FC<ReachListProps> = ({
 // --- Update all -----------------------------------------------------------
 
 const DEPTH_DETAIL: Record<(typeof UPDATE_STALE_DEPTHS)[number], string> = {
-  prompts: 'Rewrites stale visual and motion prompts. Nothing renders.',
-  images:
-    'Also re-renders a still that is stale, or whose prompt was just rewritten. Never renders a first still.',
+  prompts: '重写过期的视觉和动作提示词，不执行渲染。',
+  images: '还会重新渲染已过期或提示词刚被重写的静帧，但不会生成首个静帧。',
   video:
-    'Also re-renders a clip whose prompt or still changed in this run, or whose manifest already diverged. Never renders a first clip.',
+    '还会重新渲染本次任务中提示词或静帧已变化，或清单已经不一致的视频片段，但不会生成首个视频片段。',
   music:
-    'Also rewrites a stale music prompt, then the track if one exists. Never a first track.',
+    '还会重写过期的音乐提示词；如果音轨已存在，则随后重新生成音轨，但不会生成首个音轨。',
+};
+
+const DEPTH_LABELS: Record<(typeof UPDATE_STALE_DEPTHS)[number], string> = {
+  prompts: '仅提示词',
+  images: '提示词 + 图像',
+  video: '提示词、图像 + 视频',
+  music: '全部内容（含音乐）',
 };
 
 const UpdateAllLadder: React.FC = () => (
   <section className="flex flex-col gap-3">
-    <h2 className="text-lg font-semibold">What "Update all" regenerates</h2>
+    <h2 className="text-lg font-semibold">“全部更新”会重新生成什么</h2>
     <p className="text-sm text-muted-foreground">
-      The depth picker is cumulative. Each rung includes the ones above it, and
-      no rung ever creates an artifact that does not exist yet.
+      更新深度会逐级累加，每一级都包含其上方的级别，且任何级别都不会创建尚不存在的产物。
     </p>
     <ol className="flex flex-col gap-2">
       {UPDATE_STALE_DEPTHS.map((depth, i) => (
@@ -588,9 +590,7 @@ const UpdateAllLadder: React.FC = () => (
             {i + 1}.
           </span>
           <span>
-            <span className="font-medium">
-              {UPDATE_STALE_DEPTH_LABELS[depth]}
-            </span>
+            <span className="font-medium">{DEPTH_LABELS[depth]}</span>
             <span className="text-muted-foreground">
               {' '}
               — {DEPTH_DETAIL[depth]}

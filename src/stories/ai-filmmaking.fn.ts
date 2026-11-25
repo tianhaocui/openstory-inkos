@@ -1,0 +1,1093 @@
+/**
+ * AI 影视制作 Server Functions
+ *
+ * 包含：分镜切分、资产生成、关键帧生成、视频生成
+ */
+
+import { createServerFn } from '@tanstack/react-start';
+import { z } from 'zod';
+import { zodValidator } from '@tanstack/zod-adapter';
+import { authWithTeamMiddleware } from '@/platform/middleware.fn';
+import { getDb } from '#db-client';
+import { and, asc, desc, eq, inArray } from 'drizzle-orm';
+import {
+  storyProjects,
+  storyChapters,
+  storySegments,
+  storyShots,
+  storyAssets,
+  storyAssetViews,
+  storyKeyframes,
+  storyFilmSettings,
+} from '@/platform/server/db/schema';
+import { DEFAULT_IMAGE_MODEL, safeTextToImageModel } from '@/models/models';
+import { aspectRatioSchema, type AspectRatio } from '@/models/aspect-ratios';
+import { generateId } from '@/platform/id';
+import {
+  generateAndStoreStoryImage,
+  type StoredStoryImage,
+} from './server/story-image-generation';
+import { toWorkflowScopedDb } from '@/platform/server/db/scoped-workflow';
+import { getEffectiveFalPricing } from '@/billing/server/fal-pricing-live';
+import { estimateImageCost, gateEstimate } from '@/billing/cost-estimation';
+import { requireCredits } from '@/billing/server/preflight';
+import {
+  deductWorkflowCredits,
+  extractImageCost,
+  recordFalUsage,
+} from '@/billing/server/workflow-deduction';
+import { sanitizeFailResponse } from '@/platform/server/workflow/sanitize-fail-response';
+import type { ScopedDb } from '@/platform/server/db/scoped';
+
+// ============================================================================
+// AI 配置
+// ============================================================================
+
+const AI_CONFIG = {
+  baseUrl:
+    process.env.AI_BASE_URL ||
+    'https://kiro.dakalami.com/aiclient2api/claude-kiro-oauth/v1',
+  apiKey: process.env.AI_API_KEY,
+  model: process.env.AI_MODEL || 'claude-opus-4-6',
+};
+
+const chatCompletionResponseSchema = z.object({
+  choices: z.array(
+    z.object({ message: z.object({ content: z.string() }) })
+  ),
+});
+
+type StoryGenerationContext = {
+  teamId: string;
+  user: { id: string };
+  scopedDb: ScopedDb;
+};
+
+function nowIso(): string {
+  return new Date().toISOString();
+}
+
+function secondsToTimecode(totalSeconds: number): string {
+  const seconds = Math.max(0, Math.floor(totalSeconds));
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remainder = seconds % 60;
+  return [hours, minutes, remainder]
+    .map((part) => String(part).padStart(2, '0'))
+    .join(':');
+}
+
+async function requireStoryProject(projectId: string, teamId: string) {
+  const [project] = await getDb()
+    .select()
+    .from(storyProjects)
+    .where(
+      and(eq(storyProjects.id, projectId), eq(storyProjects.teamId, teamId))
+    )
+    .limit(1);
+  if (!project) throw new Error('Project not found');
+  return project;
+}
+
+function resolveStoryAspectRatio(
+  value: string | null | undefined
+): AspectRatio {
+  const parsed = aspectRatioSchema.safeParse(value);
+  return parsed.success ? parsed.data : '9:16';
+}
+
+async function requireStoryImageCredits(
+  context: StoryGenerationContext,
+  model: ReturnType<typeof safeTextToImageModel>,
+  aspectRatio: AspectRatio,
+  hasReferences: boolean
+): Promise<void> {
+  await requireCredits(
+    context.scopedDb,
+    gateEstimate(
+      estimateImageCost(model, aspectRatio, 1, {
+        pricing: await getEffectiveFalPricing(),
+        edit: hasReferences,
+      }),
+      { model, operation: 'shot-image' }
+    ),
+    {
+      providers: ['fal'],
+      errorMessage: 'Insufficient credits to generate story image',
+    }
+  );
+}
+
+async function recordAndChargeStoryImage(
+  context: StoryGenerationContext,
+  image: StoredStoryImage,
+  description: string,
+  idempotencyKey: string
+): Promise<void> {
+  const workflowDb = toWorkflowScopedDb(context.scopedDb);
+  await recordFalUsage(workflowDb, image.metadata);
+  await deductWorkflowCredits({
+    scopedDb: workflowDb,
+    costMicros: extractImageCost(image.metadata),
+    usedOwnKey: image.metadata.usedOwnKey,
+    description,
+    idempotencyKey,
+    metadata: {
+      endpointId: image.metadata.endpointId,
+      requestId: image.metadata.requestId,
+      unitsBilled: image.metadata.unitsBilled,
+      numImages: image.metadata.numImages,
+    },
+    workflowName: 'StoryImageGeneration',
+  });
+}
+
+async function callAI(
+  systemPrompt: string,
+  userPrompt: string,
+  maxTokens = 8000
+): Promise<string> {
+  if (!AI_CONFIG.apiKey) {
+    throw new Error('AI_API_KEY is not configured');
+  }
+  const response = await fetch(`${AI_CONFIG.baseUrl}/chat/completions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${AI_CONFIG.apiKey}`,
+    },
+    body: JSON.stringify({
+      model: AI_CONFIG.model,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+      max_tokens: maxTokens,
+      temperature: 0.7,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`AI API error: ${response.status} - ${error}`);
+  }
+
+  const data = chatCompletionResponseSchema.parse(await response.json());
+  return data.choices[0]?.message.content ?? '';
+}
+
+// ============================================================================
+// AI 分镜切分 — 将章节内容拆分成 15 秒片段和镜头
+// ============================================================================
+
+const segmentChapterSchema = z.object({
+  projectId: z.string(),
+  chapterNumber: z.number(),
+});
+
+export const segmentChapterFn = createServerFn()
+  .middleware([authWithTeamMiddleware])
+  .validator(zodValidator(segmentChapterSchema))
+  .handler(async ({ data, context }) => {
+    const { projectId, chapterNumber } = data;
+    const project = await requireStoryProject(projectId, context.teamId);
+
+    // 1. 获取章节内容
+    const db = getDb();
+    const [chapter] = await db
+      .select()
+      .from(storyChapters)
+      .where(
+        and(
+          eq(storyChapters.projectId, projectId),
+          eq(storyChapters.chapterNumber, chapterNumber)
+        )
+      )
+      .limit(1);
+
+    if (!chapter) {
+      throw new Error(`Chapter ${chapterNumber} not found`);
+    }
+
+    // 2. 调用 AI 进行分镜切分
+    const prompt = buildSegmentationPrompt(chapter.content, project.name);
+
+    const content = await callAI(SEGMENTATION_SYSTEM_PROMPT, prompt);
+    if (!content) {
+      throw new Error('AI response empty');
+    }
+
+    // 4. 解析 AI 返回的 JSON
+    const segmentData = parseSegmentationResponse(content);
+
+    // 5. 批量插入片段和镜头
+    const createdSegments: string[] = [];
+
+    for (const seg of segmentData.segments) {
+      const segmentId = generateId();
+      const timestamp = nowIso();
+
+      await getDb()
+        .insert(storySegments)
+        .values({
+          id: segmentId,
+          projectId,
+          chapterNumber,
+          segmentNumber: seg.segmentNumber,
+          startTime: secondsToTimecode(seg.startTime),
+          endTime: secondsToTimecode(seg.endTime),
+          duration: seg.duration,
+          narrativeFunction: seg.narrativeFunction,
+          summary: seg.summary,
+          status: 'draft',
+          createdAt: timestamp,
+          updatedAt: timestamp,
+        });
+
+      createdSegments.push(segmentId);
+
+      // 插入镜头
+      let shotStartTime = 0;
+      for (const shot of seg.shots) {
+        await getDb()
+          .insert(storyShots)
+          .values({
+            id: generateId(),
+            segmentId,
+            projectId,
+            shotNumber: shot.shotNumber,
+            startTime: secondsToTimecode(shotStartTime),
+            shotSize: shot.shotSize,
+            cameraAngle: shot.cameraAngle,
+            cameraMovement: shot.cameraMovement,
+            dialogue: shot.dialogue,
+            soundEffects: shot.soundEffects,
+            description: shot.description,
+            duration: shot.duration,
+            createdAt: timestamp,
+            updatedAt: timestamp,
+          });
+        shotStartTime += shot.duration;
+      }
+    }
+
+    return {
+      success: true,
+      segmentsCreated: createdSegments.length,
+      totalShots: segmentData.segments.reduce(
+        (acc, s) => acc + s.shots.length,
+        0
+      ),
+    };
+  });
+
+// ============================================================================
+// AI 资产生成 — 生成角色/场景设定图
+// ============================================================================
+
+const generateAssetSchema = z.object({
+  projectId: z.string(),
+  assetId: z.string(),
+  viewAngle: z.string().optional(),
+});
+
+export const generateAssetImageFn = createServerFn()
+  .middleware([authWithTeamMiddleware])
+  .validator(zodValidator(generateAssetSchema))
+  .handler(async ({ data, context }) => {
+    const { projectId, assetId, viewAngle } = data;
+    await requireStoryProject(projectId, context.teamId);
+
+    // 1. 获取资产信息
+    const [asset] = await getDb()
+      .select()
+      .from(storyAssets)
+      .where(
+        and(eq(storyAssets.id, assetId), eq(storyAssets.projectId, projectId))
+      )
+      .limit(1);
+
+    if (!asset) {
+      throw new Error('Asset not found');
+    }
+
+    const [settings] = await getDb()
+      .select()
+      .from(storyFilmSettings)
+      .where(eq(storyFilmSettings.projectId, projectId))
+      .limit(1);
+    const aspectRatio = resolveStoryAspectRatio(settings?.aspectRatio);
+    const model = safeTextToImageModel(
+      settings?.preferredImageModel,
+      DEFAULT_IMAGE_MODEL
+    );
+
+    // 2. 构建图像生成 prompt
+    const prompt = buildAssetPrompt(asset, viewAngle);
+    const viewId = generateId();
+    const attemptId = generateId();
+    const timestamp = nowIso();
+    await getDb()
+      .insert(storyAssetViews)
+      .values({
+        id: viewId,
+        assetId,
+        viewAngle:
+          viewAngle ||
+          (asset.type === 'character' || asset.type === 'character-design'
+            ? 'front'
+            : 'wide'),
+        prompt,
+        generatedBy: model,
+        generationParams: { aspectRatio, attemptId },
+        status: 'generating',
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      });
+
+    await getDb()
+      .update(storyAssets)
+      .set({ status: 'generating', updatedAt: timestamp })
+      .where(eq(storyAssets.id, assetId));
+
+    try {
+      const generationContext: StoryGenerationContext = context;
+      await requireStoryImageCredits(
+        generationContext,
+        model,
+        aspectRatio,
+        false
+      );
+      const image = await generateAndStoreStoryImage({
+        teamId: context.teamId,
+        userId: context.user.id,
+        projectId,
+        recordId: viewId,
+        kind: 'assets',
+        model,
+        prompt,
+        aspectRatio,
+        credentials: toWorkflowScopedDb(context.scopedDb).credentials,
+      });
+      await recordAndChargeStoryImage(
+        generationContext,
+        image,
+        `Story asset image (${model})`,
+        `story-asset:${viewId}:${attemptId}`
+      );
+
+      const completedAt = nowIso();
+      await getDb()
+        .update(storyAssetViews)
+        .set({
+          imageUrl: image.url,
+          imagePath: image.path,
+          generatedBy: model,
+          generationParams: {
+            aspectRatio,
+            attemptId,
+            via: image.via,
+            endpointId: image.metadata.endpointId,
+            requestId: image.metadata.requestId,
+          },
+          status: 'completed',
+          updatedAt: completedAt,
+        })
+        .where(eq(storyAssetViews.id, viewId));
+      await getDb()
+        .update(storyAssets)
+        .set({ status: 'completed', updatedAt: completedAt })
+        .where(eq(storyAssets.id, assetId));
+
+      return { success: true, viewId, imageUrl: image.url };
+    } catch (error) {
+      const message = sanitizeFailResponse(error);
+      await getDb()
+        .update(storyAssetViews)
+        .set({
+          status: 'failed',
+          generationParams: { aspectRatio, attemptId, error: message },
+          updatedAt: nowIso(),
+        })
+        .where(eq(storyAssetViews.id, viewId));
+      await getDb()
+        .update(storyAssets)
+        .set({ status: 'draft', updatedAt: nowIso() })
+        .where(eq(storyAssets.id, assetId));
+      throw error;
+    }
+  });
+
+// ============================================================================
+// AI 关键帧生成 — 为镜头生成关键帧图像
+// ============================================================================
+
+const generateKeyframeSchema = z.object({
+  projectId: z.string(),
+  shotId: z.string(),
+  referenceAssetIds: z.array(z.string()).optional(),
+});
+
+export const generateKeyframeFn = createServerFn()
+  .middleware([authWithTeamMiddleware])
+  .validator(zodValidator(generateKeyframeSchema))
+  .handler(async ({ data, context }) => {
+    const { projectId, shotId, referenceAssetIds } = data;
+    await requireStoryProject(projectId, context.teamId);
+
+    // 1. 获取镜头信息
+    const [shot] = await getDb()
+      .select()
+      .from(storyShots)
+      .where(
+        and(eq(storyShots.id, shotId), eq(storyShots.projectId, projectId))
+      )
+      .limit(1);
+
+    if (!shot) {
+      throw new Error('Shot not found');
+    }
+
+    const [settings] = await getDb()
+      .select()
+      .from(storyFilmSettings)
+      .where(eq(storyFilmSettings.projectId, projectId))
+      .limit(1);
+    const aspectRatio = resolveStoryAspectRatio(settings?.aspectRatio);
+    const model = safeTextToImageModel(
+      settings?.preferredImageModel,
+      DEFAULT_IMAGE_MODEL
+    );
+
+    // Explicit references are validated against this project. Without an
+    // explicit selection, attach generated assets whose names occur in the
+    // shot description so the existing UI still gets consistency references.
+    const projectAssets = await getDb()
+      .select({ id: storyAssets.id, name: storyAssets.name })
+      .from(storyAssets)
+      .where(eq(storyAssets.projectId, projectId));
+    const requestedAssetIds = referenceAssetIds
+      ? [...new Set(referenceAssetIds)]
+      : projectAssets
+          .filter((asset) =>
+            shot.description.toLowerCase().includes(asset.name.toLowerCase())
+          )
+          .map((asset) => asset.id);
+    if (
+      referenceAssetIds &&
+      requestedAssetIds.some(
+        (id) => !projectAssets.some((asset) => asset.id === id)
+      )
+    ) {
+      throw new Error('Reference asset not found in project');
+    }
+
+    const assetViews =
+      requestedAssetIds.length === 0
+        ? []
+        : await getDb()
+            .select({ imageUrl: storyAssetViews.imageUrl })
+            .from(storyAssetViews)
+            .innerJoin(storyAssets, eq(storyAssetViews.assetId, storyAssets.id))
+            .where(
+              and(
+                eq(storyAssets.projectId, projectId),
+                inArray(storyAssets.id, requestedAssetIds)
+              )
+            );
+    const referenceImages = assetViews
+      .map((view) => view.imageUrl)
+      .filter((url): url is string => Boolean(url));
+
+    // 3. 构建关键帧 prompt
+    const prompt = buildKeyframePrompt(
+      shot,
+      settings?.visualStyle ?? undefined
+    );
+    const generationContext: StoryGenerationContext = context;
+    await requireStoryImageCredits(
+      generationContext,
+      model,
+      aspectRatio,
+      referenceImages.length > 0
+    );
+
+    const [existing] = await getDb()
+      .select()
+      .from(storyKeyframes)
+      .where(
+        and(
+          eq(storyKeyframes.projectId, projectId),
+          eq(storyKeyframes.shotId, shotId)
+        )
+      )
+      .orderBy(desc(storyKeyframes.createdAt))
+      .limit(1);
+    if (existing?.status === 'generating') {
+      return {
+        success: true,
+        keyframeId: existing.id,
+        imageUrl: existing.imageUrl,
+        alreadyInFlight: true,
+      } as const;
+    }
+
+    const keyframeId = existing?.id ?? generateId();
+    const attemptId = generateId();
+    const timestamp = nowIso();
+    const pendingValues = {
+      projectId,
+      segmentId: shot.segmentId,
+      shotId,
+      name: `Shot ${shot.shotNumber} Keyframe`,
+      selectionReason: 'AI generated from shot description',
+      description: shot.description,
+      prompt,
+      aspectRatio,
+      imageUrl: null,
+      imagePath: null,
+      referenceAssets: requestedAssetIds,
+      generatedBy: model,
+      generationParams: { aspectRatio, attemptId },
+      status: 'generating',
+      updatedAt: timestamp,
+    };
+    if (existing) {
+      await getDb()
+        .update(storyKeyframes)
+        .set(pendingValues)
+        .where(eq(storyKeyframes.id, keyframeId));
+    } else {
+      await getDb()
+        .insert(storyKeyframes)
+        .values({
+          id: keyframeId,
+          ...pendingValues,
+          createdAt: timestamp,
+        });
+    }
+
+    try {
+      const image = await generateAndStoreStoryImage({
+        teamId: context.teamId,
+        userId: context.user.id,
+        projectId,
+        recordId: keyframeId,
+        kind: 'keyframes',
+        model,
+        prompt,
+        aspectRatio,
+        referenceImageUrls: referenceImages,
+        credentials: toWorkflowScopedDb(context.scopedDb).credentials,
+      });
+      await recordAndChargeStoryImage(
+        generationContext,
+        image,
+        `Story keyframe (${model})`,
+        `story-keyframe:${keyframeId}:${attemptId}`
+      );
+
+      const completedAt = nowIso();
+      await getDb()
+        .update(storyKeyframes)
+        .set({
+          imageUrl: image.url,
+          imagePath: image.path,
+          generatedBy: model,
+          generationParams: {
+            aspectRatio,
+            attemptId,
+            via: image.via,
+            endpointId: image.metadata.endpointId,
+            requestId: image.metadata.requestId,
+          },
+          status: 'completed',
+          updatedAt: completedAt,
+        })
+        .where(eq(storyKeyframes.id, keyframeId));
+      await getDb()
+        .update(storyShots)
+        .set({ keyframeId, updatedAt: completedAt })
+        .where(
+          and(eq(storyShots.id, shotId), eq(storyShots.projectId, projectId))
+        );
+
+      return {
+        success: true,
+        keyframeId,
+        imageUrl: image.url,
+        alreadyInFlight: false,
+      } as const;
+    } catch (error) {
+      await getDb()
+        .update(storyKeyframes)
+        .set({
+          status: 'failed',
+          generationParams: {
+            aspectRatio,
+            attemptId,
+            error: sanitizeFailResponse(error),
+          },
+          updatedAt: nowIso(),
+        })
+        .where(eq(storyKeyframes.id, keyframeId));
+      throw error;
+    }
+  });
+
+// ============================================================================
+// AI 视频生成 — 从关键帧生成视频片段
+// ============================================================================
+
+const generateVideoSchema = z.object({
+  projectId: z.string(),
+  keyframeId: z.string(),
+});
+
+export const generateVideoFn = createServerFn()
+  .middleware([authWithTeamMiddleware])
+  .validator(zodValidator(generateVideoSchema))
+  .handler(async ({ data, context }) => {
+    const { projectId, keyframeId } = data;
+    await requireStoryProject(projectId, context.teamId);
+
+    // 1. 获取关键帧信息
+    const [keyframe] = await getDb()
+      .select()
+      .from(storyKeyframes)
+      .where(
+        and(
+          eq(storyKeyframes.id, keyframeId),
+          eq(storyKeyframes.projectId, projectId)
+        )
+      )
+      .limit(1);
+
+    if (!keyframe) {
+      throw new Error('Keyframe not found');
+    }
+
+    if (!keyframe.imageUrl) {
+      throw new Error('Keyframe has no image');
+    }
+
+    throw new Error(
+      'Story video generation is not configured yet; no placeholder clip was created'
+    );
+  });
+
+// ============================================================================
+// 批量生成 — 一键生成整个片段的所有镜头
+// ============================================================================
+
+const batchGenerateSegmentSchema = z.object({
+  projectId: z.string(),
+  segmentId: z.string(),
+});
+
+export const batchGenerateSegmentFn = createServerFn()
+  .middleware([authWithTeamMiddleware])
+  .validator(zodValidator(batchGenerateSegmentSchema))
+  .handler(async ({ data, context }) => {
+    const { projectId, segmentId } = data;
+    await requireStoryProject(projectId, context.teamId);
+
+    // 1. 获取片段的所有镜头
+    const shots = await getDb()
+      .select()
+      .from(storyShots)
+      .where(
+        and(
+          eq(storyShots.segmentId, segmentId),
+          eq(storyShots.projectId, projectId)
+        )
+      )
+      .orderBy(asc(storyShots.shotNumber));
+
+    if (shots.length === 0) {
+      throw new Error('No shots found in segment');
+    }
+
+    // 2. 获取项目的所有资产（用于 reference）
+    const assets = await getDb()
+      .select({ id: storyAssets.id, name: storyAssets.name })
+      .from(storyAssets)
+      .where(eq(storyAssets.projectId, projectId));
+
+    const results = {
+      keyframesGenerated: 0,
+      videosGenerated: 0,
+      errors: [] as string[],
+    };
+
+    // 3. Generate keyframes. Video generation remains disabled until its
+    // provider path is wired; never persist a placeholder clip as completed.
+    for (const shot of shots) {
+      try {
+        // 匹配相关资产
+        const relevantAssetIds = assets
+          .filter((a) => {
+            // 简单匹配：检查镜头描述是否包含资产名称
+            const desc = (shot.description || '').toLowerCase();
+            return desc.includes(a.name.toLowerCase());
+          })
+          .map((a) => a.id);
+
+        // 生成关键帧
+        const kfResult = await generateKeyframeFn({
+          data: {
+            projectId,
+            shotId: shot.id,
+            referenceAssetIds: relevantAssetIds,
+          },
+        });
+        results.keyframesGenerated++;
+
+        void kfResult;
+      } catch (error) {
+        results.errors.push(
+          `Shot ${shot.shotNumber}: ${sanitizeFailResponse(error)}`
+        );
+      }
+    }
+
+    return results;
+  });
+
+// ============================================================================
+// 辅助函数
+// ============================================================================
+
+const SEGMENTATION_SYSTEM_PROMPT = `你是一位专业的影视分镜师。你的任务是将故事内容拆分成适合视频制作的片段和镜头。
+
+规则：
+1. 每个片段 (segment) 约 15 秒，包含 2-5 个镜头
+2. 每个镜头 (shot) 包含景别、机位、运镜、台词、音效
+3. 景别类型：extreme_wide, wide, medium, close_up, extreme_close_up
+4. 机位角度：eye_level, high_angle, low_angle, bird_eye, worm_eye, dutch_angle
+5. 运镜类型：static, pan_left, pan_right, tilt_up, tilt_down, zoom_in, zoom_out, dolly_in, dolly_out, tracking
+
+输出 JSON 格式：
+{
+  "segments": [
+    {
+      "segmentNumber": 1,
+      "startTime": 0,
+      "endTime": 15,
+      "duration": 15,
+      "narrativeFunction": "opening",
+      "summary": "片段概述...",
+      "shots": [
+        {
+          "shotNumber": 1,
+          "shotSize": "wide",
+          "cameraAngle": "eye_level",
+          "cameraMovement": "static",
+          "dialogue": "台词内容（如有）",
+          "soundEffects": "环境音、音效",
+          "description": "画面描述",
+          "duration": 5
+        }
+      ]
+    }
+  ]
+}`;
+
+function buildSegmentationPrompt(content: string, projectName: string): string {
+  return `项目：${projectName}
+
+请将以下内容分镜切分：
+
+${content}
+
+请输出 JSON 格式的分镜数据。`;
+}
+
+interface SegmentationResult {
+  segments: Array<{
+    segmentNumber: number;
+    startTime: number;
+    endTime: number;
+    duration: number;
+    narrativeFunction: string;
+    summary: string;
+    shots: Array<{
+      shotNumber: number;
+      shotSize: string;
+      cameraAngle: string;
+      cameraMovement: string;
+      dialogue: string | null;
+      soundEffects: string | null;
+      description: string;
+      duration: number;
+    }>;
+  }>;
+}
+
+const segmentationResultSchema: z.ZodType<SegmentationResult> = z.object({
+  segments: z.array(
+    z.object({
+      segmentNumber: z.number(),
+      startTime: z.number(),
+      endTime: z.number(),
+      duration: z.number(),
+      narrativeFunction: z.string(),
+      summary: z.string(),
+      shots: z.array(
+        z.object({
+          shotNumber: z.number(),
+          shotSize: z.string(),
+          cameraAngle: z.string(),
+          cameraMovement: z.string(),
+          dialogue: z.string().nullable(),
+          soundEffects: z.string().nullable(),
+          description: z.string(),
+          duration: z.number(),
+        })
+      ),
+    })
+  ),
+});
+
+function parseSegmentationResponse(content: string): SegmentationResult {
+  // 提取 JSON 部分
+  const jsonMatch = content.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) {
+    throw new Error('No JSON found in AI response');
+  }
+
+  const parsedJson: unknown = JSON.parse(jsonMatch[0]);
+  return segmentationResultSchema.parse(parsedJson);
+}
+
+interface StoryAsset {
+  id: string;
+  name: string;
+  type: string;
+  description: string | null;
+  styleNotes: string | null;
+  colorPalette: Record<string, string | undefined> | null;
+  visualIdentifiers: string | null;
+}
+
+function buildAssetPrompt(asset: StoryAsset, viewAngle?: string): string {
+  const parts = [
+    `Character/Scene: ${asset.name}`,
+    asset.description && `Description: ${asset.description}`,
+    asset.styleNotes && `Style: ${asset.styleNotes}`,
+    asset.colorPalette &&
+      `Color Palette: ${Object.values(asset.colorPalette).filter(Boolean).join(', ')}`,
+    asset.visualIdentifiers && `Visual Identifiers: ${asset.visualIdentifiers}`,
+    viewAngle && `View Angle: ${viewAngle}`,
+    'High quality, cinematic lighting, detailed',
+  ]
+    .filter(Boolean)
+    .join('\n');
+
+  return parts;
+}
+
+interface Shot {
+  shotNumber: number;
+  shotSize: string | null;
+  cameraAngle: string | null;
+  cameraMovement: string | null;
+  dialogue: string | null;
+  soundEffects: string | null;
+  description: string | null;
+}
+
+function buildKeyframePrompt(shot: Shot, visualStyle?: string): string {
+  const parts = [
+    shot.description && `Scene: ${shot.description}`,
+    shot.shotSize && `Shot Size: ${shot.shotSize}`,
+    shot.cameraAngle && `Camera Angle: ${shot.cameraAngle}`,
+    shot.dialogue && `Dialogue moment: "${shot.dialogue}"`,
+    visualStyle && `Visual Style: ${visualStyle}`,
+    'Cinematic film still, high quality, dramatic lighting',
+  ]
+    .filter(Boolean)
+    .join('\n');
+
+  return parts;
+}
+
+// ============================================================================
+// 导出提取角色/场景 AI 功能
+// ============================================================================
+
+const extractAssetsSchema = z.object({
+  projectId: z.string(),
+  chapterNumber: z.number(),
+});
+
+export const extractAssetsFromChapterFn = createServerFn()
+  .middleware([authWithTeamMiddleware])
+  .validator(zodValidator(extractAssetsSchema))
+  .handler(async ({ data, context }) => {
+    const { projectId, chapterNumber } = data;
+    await requireStoryProject(projectId, context.teamId);
+
+    // 1. 获取章节内容
+    const db = getDb();
+    const [chapter] = await db
+      .select()
+      .from(storyChapters)
+      .where(
+        and(
+          eq(storyChapters.projectId, projectId),
+          eq(storyChapters.chapterNumber, chapterNumber)
+        )
+      )
+      .limit(1);
+
+    if (!chapter) {
+      throw new Error(`Chapter ${chapterNumber} not found`);
+    }
+
+    // 2. 调用 AI 提取角色和场景
+    const extractSystemPrompt = `你是一位专业的影视美术设计师。请从文本中提取所有角色和场景，并为每个生成详细的视觉设计描述。
+
+输出 JSON 格式：
+{
+  "characters": [
+    {
+      "name": "角色名",
+      "description": "角色外貌、服装、气质的详细描述",
+      "styleNotes": "视觉风格建议",
+      "colorPalette": "主要配色",
+      "visualIdentifiers": "标志性视觉元素"
+    }
+  ],
+  "scenes": [
+    {
+      "name": "场景名",
+      "description": "场景的详细视觉描述",
+      "styleNotes": "氛围、光线、质感",
+      "colorPalette": "场景主色调",
+      "visualIdentifiers": "标志性元素"
+    }
+  ]
+}`;
+
+    const content = await callAI(
+      extractSystemPrompt,
+      `请从以下内容中提取角色和场景：\n\n${chapter.content}`,
+      4000
+    );
+    if (!content) {
+      throw new Error('AI response empty');
+    }
+
+    // 3. 解析并保存
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error('No JSON found in AI response');
+    }
+
+    const extractedAssetSchema = z.object({
+      characters: z.array(
+        z.object({
+          name: z.string(),
+          description: z.string(),
+          styleNotes: z.string().optional(),
+          colorPalette: z.string().optional(),
+          visualIdentifiers: z.string().optional(),
+        })
+      ),
+      scenes: z.array(
+        z.object({
+          name: z.string(),
+          description: z.string(),
+          styleNotes: z.string().optional(),
+          colorPalette: z.string().optional(),
+          visualIdentifiers: z.string().optional(),
+        })
+      ),
+    });
+    const parsedJson: unknown = JSON.parse(jsonMatch[0]);
+    const extracted = extractedAssetSchema.parse(parsedJson);
+
+    const results = {
+      charactersCreated: 0,
+      scenesCreated: 0,
+    };
+
+    // 保存角色资产
+    for (const char of extracted.characters) {
+      // 检查是否已存在
+      const [existing] = await getDb()
+        .select({ id: storyAssets.id })
+        .from(storyAssets)
+        .where(
+          and(
+            eq(storyAssets.projectId, projectId),
+            eq(storyAssets.name, char.name),
+            eq(storyAssets.type, 'character')
+          )
+        )
+        .limit(1);
+
+      if (!existing) {
+        const timestamp = nowIso();
+        await getDb()
+          .insert(storyAssets)
+          .values({
+            id: generateId(),
+            projectId,
+            name: char.name,
+            type: 'character',
+            description: char.description,
+            styleNotes: char.styleNotes || null,
+            colorPalette: char.colorPalette
+              ? { notes: char.colorPalette }
+              : null,
+            visualIdentifiers: char.visualIdentifiers || null,
+            status: 'draft',
+            createdAt: timestamp,
+            updatedAt: timestamp,
+          });
+        results.charactersCreated++;
+      }
+    }
+
+    // 保存场景资产
+    for (const scene of extracted.scenes) {
+      const [existing] = await getDb()
+        .select({ id: storyAssets.id })
+        .from(storyAssets)
+        .where(
+          and(
+            eq(storyAssets.projectId, projectId),
+            eq(storyAssets.name, scene.name),
+            eq(storyAssets.type, 'scene')
+          )
+        )
+        .limit(1);
+
+      if (!existing) {
+        const timestamp = nowIso();
+        await getDb()
+          .insert(storyAssets)
+          .values({
+            id: generateId(),
+            projectId,
+            name: scene.name,
+            type: 'scene',
+            sceneName: scene.name,
+            description: scene.description,
+            styleNotes: scene.styleNotes || null,
+            colorPalette: scene.colorPalette
+              ? { notes: scene.colorPalette }
+              : null,
+            visualIdentifiers: scene.visualIdentifiers || null,
+            status: 'draft',
+            createdAt: timestamp,
+            updatedAt: timestamp,
+          });
+        results.scenesCreated++;
+      }
+    }
+
+    return results;
+  });

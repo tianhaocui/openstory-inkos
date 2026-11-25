@@ -55,6 +55,52 @@ import { ChevronDown } from 'lucide-react';
 /** Per-field server validation messages, keyed by dot path (`image_size.width`). */
 type SchemaFormErrors = Record<string, string>;
 
+const SCHEMA_LABELS: Record<string, string> = {
+  prompt: '提示词',
+  'negative prompt': '负面提示词',
+  image: '图像',
+  'image url': '图像链接',
+  'image urls': '图像链接',
+  'reference image': '参考图像',
+  'reference images': '参考图像',
+  video: '视频',
+  'video url': '视频链接',
+  audio: '音频',
+  'audio url': '音频链接',
+  duration: '时长',
+  'duration seconds': '时长（秒）',
+  'aspect ratio': '画面比例',
+  resolution: '分辨率',
+  seed: '随机种子',
+  width: '宽度',
+  height: '高度',
+  fps: '帧率',
+  steps: '采样步数',
+  'number of images': '生成数量',
+  'output format': '输出格式',
+  'guidance scale': '引导强度',
+  strength: '重绘强度',
+  'safety tolerance': '安全等级',
+  'enable safety checker': '启用安全检查',
+  item: '项目',
+  string: '文本',
+  number: '数字',
+  integer: '整数',
+  boolean: '开关',
+  object: '对象',
+  array: '列表',
+  choice: '选项',
+};
+
+function localizeSchemaLabel(raw: string): string {
+  const normalized = raw
+    .replaceAll('_', ' ')
+    .replaceAll('-', ' ')
+    .trim()
+    .toLowerCase();
+  return SCHEMA_LABELS[normalized] ?? raw;
+}
+
 type SchemaFormProps = {
   /** The endpoint's input JSON Schema (an object schema, possibly via $ref). */
   schema: JsonSchema;
@@ -166,7 +212,7 @@ const ObjectFields: FC<{
               className="w-fit gap-1 px-0 text-muted-foreground hover:text-foreground"
               disabled={disabled}
             >
-              Advanced
+              高级设置
               <ChevronDown
                 className="size-4 transition-transform [[data-state=open]_&]:rotate-180"
                 aria-hidden="true"
@@ -217,6 +263,7 @@ const Field: FC<{
   );
   const resolved = resolveRef(schema, root);
   const plan = planWidget(name, resolved, root, depth);
+  const fieldLabel = localizeSchemaLabel(resolved.title ?? name);
   const description = resolved.description?.split('\n', 1)[0];
   const error = errors?.[path];
   const isSwitch = plan.kind === 'boolean';
@@ -225,7 +272,7 @@ const Field: FC<{
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center gap-2">
         <Label id={labelId} htmlFor={id}>
-          {resolved.title ?? name}
+          {fieldLabel}
           {required && (
             <span aria-hidden="true" className="text-muted-foreground">
               *
@@ -243,7 +290,7 @@ const Field: FC<{
         )}
         {plan.kind === 'text' && plan.long ? (
           <VoiceInputButton
-            label={(resolved.title ?? name).toLowerCase()}
+            label={fieldLabel}
             disabled={disabled}
             size="icon-xs"
             {...voice}
@@ -304,7 +351,7 @@ const WidgetControl: FC<WidgetProps> = (props) => {
   switch (plan.kind) {
     case 'const':
       return (
-        <Badge variant="secondary" title="Fixed by the schema">
+        <Badge variant="secondary" title="由模型结构固定">
           {optionLabel(plan.value)}
         </Badge>
       );
@@ -385,7 +432,7 @@ const EnumSelect: FC<WidgetProps & { options: JsonValue[] }> = ({
 }) => {
   const selected = options.findIndex((option) => option === value);
   const enumItems = [
-    ...(!required ? [{ value: 'omit', label: 'Model default' }] : []),
+    ...(!required ? [{ value: 'omit', label: '模型默认值' }] : []),
     ...options.map((option, index) => ({
       value: String(index),
       label: optionLabel(option),
@@ -408,7 +455,7 @@ const EnumSelect: FC<WidgetProps & { options: JsonValue[] }> = ({
       disabled={disabled}
     >
       <SelectTrigger id={id} className="w-full sm:max-w-xs">
-        <SelectValue placeholder={required ? 'Choose…' : 'Model default'} />
+        <SelectValue placeholder={required ? '请选择…' : '模型默认值'} />
       </SelectTrigger>
       <SelectContent>
         {enumItems.map((item) => (
@@ -656,7 +703,7 @@ const ArrayControl: FC<WidgetProps & { items: JsonSchema }> = ({
             type="button"
             variant="ghost"
             size="icon-sm"
-            aria-label={`Remove ${schemaLabel(resolvedItems, 'item')} ${index + 1}`}
+            aria-label={`移除${localizeSchemaLabel(schemaLabel(resolvedItems, 'item'))} ${index + 1}`}
             disabled={disabled}
             onClick={() => onChange(list.filter((_, at) => at !== index))}
           >
@@ -673,7 +720,7 @@ const ArrayControl: FC<WidgetProps & { items: JsonSchema }> = ({
         onClick={() => onChange([...list, seedValue(resolvedItems, root)])}
       >
         <Plus aria-hidden="true" />
-        Add {schemaLabel(resolvedItems, 'item')}
+        添加{localizeSchemaLabel(schemaLabel(resolvedItems, 'item'))}
       </Button>
     </div>
   );
@@ -725,7 +772,7 @@ const VariantControl: FC<WidgetProps & { variants: JsonSchema[] }> = (
         <TabsList>
           {variants.map((variant, index) => (
             <TabsTrigger key={index} value={String(index)}>
-              {schemaLabel(variant, `Option ${index + 1}`)}
+              {localizeSchemaLabel(schemaLabel(variant, `选项 ${index + 1}`))}
             </TabsTrigger>
           ))}
         </TabsList>
@@ -766,7 +813,7 @@ const RawJsonControl: FC<WidgetProps> = ({ value, onChange, disabled, id }) => {
             // blocking submit via native validity keeps what's on screen and
             // what would be sent from silently diverging.
             setInvalid(true);
-            event.target.setCustomValidity('Enter valid JSON');
+            event.target.setCustomValidity('请输入有效的 JSON');
           } else {
             onChange(parsed);
             setInvalid(false);
@@ -776,7 +823,7 @@ const RawJsonControl: FC<WidgetProps> = ({ value, onChange, disabled, id }) => {
       />
       {invalid && (
         <p role="alert" className="text-xs text-destructive">
-          Invalid JSON — fix it before running.
+          JSON 无效，请修正后再运行。
         </p>
       )}
     </div>

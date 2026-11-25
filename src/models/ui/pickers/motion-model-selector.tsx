@@ -103,8 +103,8 @@ function useMotionModels({
           const isRecommended = key === recommendedVideoModel;
           const recommendedFor = isRecommended
             ? styleName
-              ? `Recommended for ${styleName}`
-              : 'Recommended for this style'
+              ? `${styleName} 推荐`
+              : '当前风格推荐'
             : undefined;
           return {
             id: key,
@@ -171,26 +171,25 @@ function RecommendationHint({
   if (status === 'incompatible-ratio' && recommendedModelName) {
     return (
       <p className="text-[10px] text-muted-foreground">
-        {styleName ? `${styleName} recommends` : 'Recommended'}{' '}
-        <span className="font-medium">{recommendedModelName}</span>, but it's
-        not compatible with the current aspect ratio.
+        {styleName ? `${styleName} 推荐` : '推荐的'}{' '}
+        <span className="font-medium">{recommendedModelName}</span>
+        ，但它与当前宽高比不兼容。
       </p>
     );
   }
   if (status === 'unknown') {
     return (
       <p className="text-[10px] text-muted-foreground">
-        {styleName ? `${styleName} recommends` : 'Recommended'} a model that's
-        no longer available.
+        {styleName ? `${styleName} 推荐的` : '推荐的'}模型已不可用。
       </p>
     );
   }
   if (status === 'hidden-by-filter' && recommendedModelName) {
     return (
       <p className="text-[10px] text-muted-foreground">
-        {styleName ? `${styleName} recommends` : 'Recommended'}{' '}
-        <span className="font-medium">{recommendedModelName}</span>, but it's
-        not available in this selector.
+        {styleName ? `${styleName} 推荐` : '推荐的'}{' '}
+        <span className="font-medium">{recommendedModelName}</span>
+        ，但它不在当前选择器中。
       </p>
     );
   }
@@ -245,7 +244,7 @@ export const MotionModelSelector: React.FC<MotionModelSelectorProps> = ({
   return (
     <div className="flex flex-col gap-1">
       <BaseModelSelector
-        label="Motion Model"
+        label="动效模型"
         models={models}
         groupOrder={SELECTOR_GROUP_ORDER}
         selectedIds={[selectedModel]}
@@ -306,7 +305,7 @@ export const MotionModelMultiSelector: React.FC<
   return (
     <div className="flex flex-col gap-1">
       <BaseModelSelector
-        label="Motion Models"
+        label="动效模型"
         models={models}
         groupOrder={SELECTOR_GROUP_ORDER}
         selectedIds={selectedModels}

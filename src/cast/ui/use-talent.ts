@@ -126,8 +126,8 @@ export function useDeleteTalent() {
       void queryClient.invalidateQueries({ queryKey: talentKeys.lists() });
     },
     onError: (error) => {
-      toast.error('Failed to delete talent', {
-        description: error instanceof Error ? error.message : 'Unknown error',
+      toast.error('删除演员失败', {
+        description: error instanceof Error ? error.message : '未知错误',
       });
     },
   });
@@ -274,8 +274,8 @@ export function useGenerateTalentSheet() {
       });
     },
     onError: (error) => {
-      toast.error('Could not start sheet generation', {
-        description: error instanceof Error ? error.message : 'Unknown error',
+      toast.error('无法启动设定图生成', {
+        description: error instanceof Error ? error.message : '未知错误',
       });
     },
   });

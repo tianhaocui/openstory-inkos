@@ -117,13 +117,13 @@ function ApiKeySettingsContent({
 
     hasShownToastRef.current = true;
     localStorage.removeItem(RETURN_KEY);
-    toast.success('API keys configured', {
+    toast.success('API 密钥已配置', {
       description:
         keyStatus.openrouter === 'team'
-          ? 'Both fal.ai and OpenRouter are connected.'
-          : 'fal.ai is connected — that covers everything.',
+          ? 'fal.ai 和 OpenRouter 都已连接。'
+          : 'fal.ai 已连接——这已覆盖所有功能。',
       action: {
-        label: 'Continue creating',
+        label: '继续创作',
         onClick: () => void navigate({ to: returnTo }),
       },
       duration: 15_000,
@@ -150,7 +150,7 @@ function ApiKeySettingsContent({
       posthog.capture('api_key_saved', { provider });
     },
     onError: (err) => {
-      setError(err instanceof Error ? err.message : 'Failed to save key');
+      setError(err instanceof Error ? err.message : '保存密钥失败');
     },
   });
 
@@ -163,7 +163,7 @@ function ApiKeySettingsContent({
       posthog.capture('api_key_deleted', { provider });
     },
     onError: (err) => {
-      setError(err instanceof Error ? err.message : 'Failed to delete key');
+      setError(err instanceof Error ? err.message : '删除密钥失败');
     },
   });
 
@@ -174,7 +174,7 @@ function ApiKeySettingsContent({
       window.location.href = data.authUrl;
     },
     onError: (err) => {
-      setError(err instanceof Error ? err.message : 'Failed to start OAuth');
+      setError(err instanceof Error ? err.message : '启动 OAuth 失败');
     },
   });
 
@@ -188,13 +188,13 @@ function ApiKeySettingsContent({
         apiKeys?.find((k) => k.provider === provider)?.isInvalid ?? false;
       invalidateKeys();
       if (result.valid && wasInvalid) {
-        toast.success('Key re-validated', {
-          description: `Your ${PROVIDER_LABELS[provider]} key is valid again.`,
+        toast.success('密钥已重新验证', {
+          description: `你的 ${PROVIDER_LABELS[provider]} 密钥现在有效。`,
         });
       }
     },
     onError: (err) => {
-      setError(err instanceof Error ? err.message : 'Failed to re-validate');
+      setError(err instanceof Error ? err.message : '重新验证失败');
     },
   });
 
@@ -218,17 +218,15 @@ function ApiKeySettingsContent({
   }, [openrouterKey?.id]);
 
   const successMessage =
-    success === 'openrouter_connected'
-      ? 'OpenRouter connected successfully.'
-      : null;
+    success === 'openrouter_connected' ? 'OpenRouter 连接成功。' : null;
 
   const errorMessage =
     urlError === 'openrouter_oauth_missing_code'
-      ? 'OAuth failed: missing authorization code.'
+      ? 'OAuth 失败：缺少授权码。'
       : urlError === 'openrouter_oauth_no_team'
-        ? 'OAuth failed: no team found.'
+        ? 'OAuth 失败：未找到团队。'
         : urlError === 'openrouter_oauth_failed'
-          ? 'OAuth failed: could not connect to OpenRouter.'
+          ? 'OAuth 失败：无法连接到 OpenRouter。'
           : null;
 
   return (
@@ -247,10 +245,10 @@ function ApiKeySettingsContent({
 
       <Card>
         <CardHeader>
-          <CardTitle>API Keys</CardTitle>
+          <CardTitle>API 密钥</CardTitle>
           <CardDescription>
-            Bring your own keys and pay providers directly. A fal.ai key alone
-            covers everything — script analysis included.
+            使用你自己的密钥，直接向服务商付费。只需一个 fal.ai
+            密钥即可覆盖所有功能——包括剧本分析。
           </CardDescription>
         </CardHeader>
 
@@ -258,7 +256,7 @@ function ApiKeySettingsContent({
           <ManualKeyRow
             provider="fal"
             icon={<FalLogo className="size-5" />}
-            blurb="Images, video & audio. Covers script analysis too."
+            blurb="图像、视频和音频。也支持剧本分析。"
             placeholder="fal_..."
             keyUrl="https://fal.ai/dashboard/keys"
             existingKey={falKey}
@@ -275,7 +273,7 @@ function ApiKeySettingsContent({
           <ManualKeyRow
             provider="llmtr"
             icon={<LlmtrLogo className="size-5" />}
-            blurb="Turkey-hosted gateway: Claude, GPT, Gemini & Grok on one key."
+            blurb="土耳其托管网关：一个密钥访问 Claude、GPT、Gemini 和 Grok。"
             placeholder="llmtr-..."
             keyUrl="https://llmtr.com/dashboard/keys"
             existingKey={llmtrKey}
@@ -292,7 +290,7 @@ function ApiKeySettingsContent({
           <ManualKeyRow
             provider="xai"
             icon={<XIcon className="size-4" />}
-            blurb="Grok chat, images & video, billed by xAI directly."
+            blurb="Grok 聊天、图像和视频，直接向 xAI 付费。"
             placeholder="xai-..."
             keyUrl="https://console.x.ai"
             existingKey={xaiKey}
@@ -309,7 +307,7 @@ function ApiKeySettingsContent({
           <ManualKeyRow
             provider="google"
             icon={<GoogleGIcon className="size-4" />}
-            blurb="Gemini chat & Omni Flash video, billed by Google directly."
+            blurb="Gemini 聊天和 Omni Flash 视频，直接向 Google 付费。"
             placeholder="AIza..."
             keyUrl="https://aistudio.google.com/apikey"
             existingKey={googleKey}
@@ -341,14 +339,14 @@ function ApiKeySettingsContent({
                       <Skeleton className="h-5 w-20" />
                     ) : openrouterKey?.isInvalid ? (
                       <Badge variant="destructive" className="text-xs">
-                        Invalid
+                        无效
                       </Badge>
                     ) : (
                       <StatusBadge source={keyStatus?.openrouter} />
                     )}
                   </div>
                   <p className="truncate text-xs text-muted-foreground">
-                    Optional — script analysis falls back to your fal.ai key.
+                    可选——剧本分析会使用你的 fal.ai 密钥作为备选。
                   </p>
                 </div>
               </div>
@@ -364,7 +362,7 @@ function ApiKeySettingsContent({
                         size="icon"
                         onClick={() => revalidateMutation.mutate('openrouter')}
                         disabled={revalidateMutation.isPending}
-                        aria-label="Re-validate OpenRouter key"
+                        aria-label="重新验证 OpenRouter 密钥"
                       >
                         <RotateCcw
                           className={`h-4 w-4 ${revalidateMutation.isPending ? 'animate-spin' : ''}`}
@@ -376,7 +374,7 @@ function ApiKeySettingsContent({
                       size="icon"
                       onClick={() => deleteMutation.mutate('openrouter')}
                       disabled={deleteMutation.isPending}
-                      aria-label="Delete OpenRouter key"
+                      aria-label="删除 OpenRouter 密钥"
                     >
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
@@ -388,10 +386,10 @@ function ApiKeySettingsContent({
                     className="shrink-0"
                     onClick={() => oauthMutation.mutate()}
                     disabled={oauthMutation.isPending}
-                    aria-label="Connect with OpenRouter"
+                    aria-label="连接 OpenRouter"
                   >
                     <ExternalLink className="mr-2 size-3.5" />
-                    {oauthMutation.isPending ? 'Connecting…' : 'Connect'}
+                    {oauthMutation.isPending ? '连接中…' : '连接'}
                   </Button>
                 ))}
             </div>
@@ -400,9 +398,8 @@ function ApiKeySettingsContent({
               <Alert variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>
-                  {openrouterKey.invalidReason ||
-                    'OpenRouter rejected this key.'}{' '}
-                  Re-validate, or reconnect via OAuth to replace it.
+                  {openrouterKey.invalidReason || 'OpenRouter 拒绝了此密钥。'}{' '}
+                  重新验证，或通过 OAuth 重新连接以替换它。
                   <div className="mt-2 flex gap-2">
                     <Button
                       size="sm"
@@ -410,9 +407,7 @@ function ApiKeySettingsContent({
                       onClick={() => revalidateMutation.mutate('openrouter')}
                       disabled={revalidateMutation.isPending}
                     >
-                      {revalidateMutation.isPending
-                        ? 'Checking…'
-                        : 'Re-validate'}
+                      {revalidateMutation.isPending ? '检查中…' : '重新验证'}
                     </Button>
                     <Button
                       size="sm"
@@ -420,7 +415,7 @@ function ApiKeySettingsContent({
                       disabled={oauthMutation.isPending}
                     >
                       <ExternalLink className="mr-2 h-4 w-4" />
-                      Reconnect
+                      重新连接
                     </Button>
                   </div>
                 </AlertDescription>
@@ -507,7 +502,7 @@ function ManualKeyRow({
               size="icon"
               onClick={onDelete}
               disabled={isDeleting}
-              aria-label={`Delete ${label} key`}
+              aria-label={`删除 ${label} 密钥`}
             >
               <Trash2 className="h-4 w-4 text-destructive" />
             </Button>
@@ -529,11 +524,11 @@ function ManualKeyRow({
                 onChange={(e) => setValue(e.target.value)}
                 autoComplete="off"
                 spellCheck={false}
-                aria-label={`${label} API key`}
+                aria-label={`${label} API 密钥`}
                 required
               />
               <Button type="submit" disabled={isSaving || !value.trim()}>
-                {isSaving ? 'Saving…' : 'Save'}
+                {isSaving ? '保存中…' : '保存'}
               </Button>
             </form>
             <a
@@ -542,7 +537,7 @@ function ManualKeyRow({
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-xs text-muted-foreground underline-offset-2 transition-colors hover:text-foreground hover:underline"
             >
-              Get a key from {label}
+              从 {label} 获取密钥
               <ExternalLink className="size-3" />
             </a>
           </div>
@@ -556,14 +551,14 @@ function StatusBadge({ source }: { source?: 'team' | 'platform' | 'none' }) {
   if (source === 'team') {
     return (
       <Badge variant="default" className="text-xs">
-        Your key
+        您的密钥
       </Badge>
     );
   }
   if (source === 'platform') {
     return (
       <Badge variant="secondary" className="text-xs">
-        Platform key
+        平台密钥
       </Badge>
     );
   }

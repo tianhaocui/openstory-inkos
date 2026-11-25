@@ -15,7 +15,7 @@
     },
     "#storage": {
       "workerd": "./src/platform/server/storage/storage-cloudflare.ts",
-      "default": "./src/platform/server/storage/storage-stub.ts"
+      "default": "./src/platform/server/storage/storage-node.ts"
     },
     "#flush-scheduler": {
       "workerd": "./src/platform/server/observability/flush-scheduler.cloudflare.ts",
@@ -24,6 +24,10 @@
     "#actions/*": {
       "storybook": "./src/app/actions/*/index.mock.ts",
       "default": "./src/app/actions/*/index.ts"
+    },
+    "#workflow-client": {
+      "workerd": "./src/platform/server/workflow/client.ts",
+      "default": "./src/platform/server/workflow/client-node.ts"
     }
   },
   "scripts": {
@@ -92,9 +96,13 @@
     "cf:dev": "wrangler dev",
     "cf:deploy:prd": "bun run cf:typegen && CLOUDFLARE_ENV=production bun run build && bun run db:migrate:prd && wrangler deploy --env=production",
     "deploy": "bun scripts/flatten-migrations.ts && wrangler d1 migrations apply DB --remote && wrangler deploy",
-    "deploy:production": "bun scripts/flatten-migrations.ts && wrangler d1 migrations apply DB --env=production --remote && wrangler deploy"
+    "deploy:production": "bun scripts/flatten-migrations.ts && wrangler d1 migrations apply DB --env=production --remote && wrangler deploy",
+    "build:node": "vite build && bun build src/platform/server/server-node.ts --outdir dist/server --target node --external @tanstack/react-start/server-entry",
+    "start:node": "node dist/server/server-node.js",
+    "dev:node": "bun run db:migrate:local && tsx src/platform/server/server-node.ts"
   },
   "dependencies": {
+    "@actalk/inkos-core": "^1.8.0",
     "@base-ui/react": "^1.7.0",
     "@better-auth/api-key": "1.7.2",
     "@better-auth/mcp": "1.7.2",
@@ -144,12 +152,15 @@
     "@videojs/media": "10.0.0-beta.32",
     "@videojs/react": "^10.0.0-beta.26",
     "better-auth": "1.7.2",
+    "bullmq": "^6.3.6",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cn": "^0.3.0",
     "diff": "^9.0.0",
     "drizzle-kit": "1.0.0-rc.5-ab785fc",
     "drizzle-orm": "1.0.0-rc.5-ab785fc",
     "gray-matter": "^4.0.3",
+    "i18next": "^26.4.2",
     "input-otp": "^1.5.0",
     "jose": "6.2.3",
     "lucide-react": "^1.37.0",
@@ -162,6 +173,8 @@
     "radix-ui": "^1.6.7",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "react-i18next": "^17.0.14",
+    "redis": "^6.2.1",
     "sonner": "^2.0.8",
     "stripe": "^22.6.0",
     "tailwind-merge": "^3.6.0",
@@ -175,7 +188,7 @@
     "@copilotkit/aimock": "^1.39.0",
     "@faker-js/faker": "^10.6.0",
     "@hey-api/openapi-ts": "0.0.0-next-20260824173136",
-    "@libsql/client": "^0.17.4",
+    "@libsql/client": "^0.18.0",
     "@logtape/pretty": "^2.3.3",
     "@storybook/addon-a11y": "^10.6.0",
     "@storybook/addon-docs": "^10.6.0",

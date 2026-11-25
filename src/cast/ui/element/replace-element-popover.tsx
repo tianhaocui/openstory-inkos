@@ -98,16 +98,16 @@ export const ReplaceElementPopover: React.FC<ReplaceElementPopoverProps> = ({
         onSuccess: () => {
           setOpen(false);
           setPendingFile(null);
-          toast.success(`Replaced ${token}`, {
+          toast.success(`已替换 ${token}`, {
             description:
               affectedShotCount > 0
-                ? `${affectedShotCount} shot${affectedShotCount === 1 ? '' : 's'} will show as out of date`
+                ? `${affectedShotCount} 个镜头将显示为已过期`
                 : undefined,
           });
         },
         onError: (err) => {
-          toast.error('Failed to replace element', {
-            description: err instanceof Error ? err.message : 'Unknown error',
+          toast.error('替换元素失败', {
+            description: err instanceof Error ? err.message : '未知错误',
           });
         },
       }
@@ -141,10 +141,10 @@ export const ReplaceElementPopover: React.FC<ReplaceElementPopoverProps> = ({
             variant="outline"
             className="flex-1"
             disabled={disabled}
-            aria-label={`Replace ${token}`}
+            aria-label={`替换 ${token}`}
           >
             <RefreshCw className="h-4 w-4" />
-            Replace
+            替换
           </Button>
         ) : (
           <Button
@@ -152,8 +152,8 @@ export const ReplaceElementPopover: React.FC<ReplaceElementPopoverProps> = ({
             variant="ghost"
             size="icon"
             disabled={disabled}
-            aria-label={`Replace ${token}`}
-            title="Replace"
+            aria-label={`替换 ${token}`}
+            title="替换"
           >
             <RefreshCw className="size-4" />
           </Button>
@@ -163,18 +163,18 @@ export const ReplaceElementPopover: React.FC<ReplaceElementPopoverProps> = ({
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1">
             <p className="text-sm font-medium">
-              Replace <span className="font-mono">{token}</span>
+              替换 <span className="font-mono">{token}</span>
             </p>
             <p className="text-xs text-muted-foreground">
               {pendingFile
                 ? affectedShotCount > 0
-                  ? `This replaces the reference. ${affectedShotCount} shot${affectedShotCount === 1 ? '' : 's'}${
+                  ? `这将替换参考素材。使用它的 ${affectedShotCount} 个镜头${
                       affectedVideoCount > 0
-                        ? ` (${affectedVideoCount} with video)`
+                        ? `（其中 ${affectedVideoCount} 个已有视频）`
                         : ''
-                    } that use it will show as out of date until you update them.`
-                  : `This replaces the reference image for ${token}.`
-                : `Drop a new file to replace ${token}. You'll get a chance to confirm before anything changes.`}
+                    } 将显示为已过期，直到你更新它们。`
+                  : `这将替换 ${token} 的参考素材。`
+                : `拖入新文件以替换 ${token}。进行任何更改之前都会让你确认。`}
             </p>
           </div>
 
@@ -207,7 +207,7 @@ export const ReplaceElementPopover: React.FC<ReplaceElementPopoverProps> = ({
                     size="icon"
                     className="absolute top-1 right-1 size-6"
                     onClick={clearPending}
-                    aria-label="Choose a different image"
+                    aria-label="选择其他文件"
                   >
                     <X className="size-3" />
                   </Button>
@@ -227,7 +227,7 @@ export const ReplaceElementPopover: React.FC<ReplaceElementPopoverProps> = ({
                   onClick={clearPending}
                   disabled={isPending}
                 >
-                  Cancel
+                  取消
                 </Button>
                 <Button
                   type="button"
@@ -238,7 +238,7 @@ export const ReplaceElementPopover: React.FC<ReplaceElementPopoverProps> = ({
                   {isPending && (
                     <Loader2 className="mr-2 size-4 animate-spin" />
                   )}
-                  <span>{isPending ? 'Replacing…' : `Replace ${token}`}</span>
+                  <span>{isPending ? '正在替换…' : `替换 ${token}`}</span>
                 </Button>
               </div>
             </div>
@@ -305,7 +305,7 @@ export const ReplaceElementPopover: React.FC<ReplaceElementPopoverProps> = ({
               )}
             >
               <Upload className="size-6 text-muted-foreground/50" />
-              <span className="text-sm font-medium">Drag & drop or paste</span>
+              <span className="text-sm font-medium">拖放或粘贴</span>
               <Button
                 type="button"
                 variant="outline"
@@ -315,15 +315,15 @@ export const ReplaceElementPopover: React.FC<ReplaceElementPopoverProps> = ({
                   inputRef.current?.click();
                 }}
               >
-                Browse
+                浏览
               </Button>
             </div>
           )}
 
           {!pendingFile && (
             <p className="text-[11px] text-muted-foreground">
-              Vision will re-analyze the new image and may rename {token} if a
-              better identifier is visible.
+              视觉分析将重新检查新文件；如果识别到更合适的标识符，可能会重命名{' '}
+              {token}。
             </p>
           )}
         </div>

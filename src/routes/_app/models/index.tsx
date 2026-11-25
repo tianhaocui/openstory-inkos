@@ -19,7 +19,7 @@ export const Route = createFileRoute('/_app/models/')({
   },
   validateSearch: searchParamsSchema,
   component: ModelsPage,
-  staticData: { breadcrumb: 'Models' },
+  staticData: { breadcrumb: '模型' },
 });
 
 function ModelsPage() {
@@ -28,8 +28,8 @@ function ModelsPage() {
 
   return (
     <div className="h-full overflow-auto">
-      <PageIntro title="Models" maxWidth="wide">
-        The latest generation models — sometimes before they're announced.
+      <PageIntro title="模型" maxWidth="wide">
+        体验最新的生成模型，有时甚至早于官方发布。
       </PageIntro>
       <PageContainer maxWidth="wide" padding="none" className="pb-8">
         <ModelCatalogView

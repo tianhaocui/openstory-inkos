@@ -94,15 +94,15 @@ export function stylePreviewImageUrls(style: Style): string[] {
  * value.
  */
 const STYLE_CATEGORY_LABELS: Record<string, string> = {
-  commercial: 'Commercial',
-  ecommerce: 'E-commerce',
-  influencer: 'Influencer & UGC',
-  film: 'Film & Cinematic',
-  animation: 'Animation',
-  animatic: 'Animatic & Previz',
-  kids: 'Kids',
-  tech: 'Tech',
-  specialized: 'Specialized',
+  commercial: '商业广告',
+  ecommerce: '电商',
+  influencer: '达人与 UGC',
+  film: '电影感',
+  animation: '动画',
+  animatic: '动态分镜与预视',
+  kids: '少儿',
+  tech: '科技',
+  specialized: '特色风格',
 };
 
 /** Synthetic key for styles missing a category. */
@@ -150,7 +150,7 @@ export function smallCategoryKeys(styles: Style[]): Set<string> {
 export function styleCategoryLabel(
   category: string | null | undefined
 ): string {
-  if (!category) return 'Other';
+  if (!category) return '其他';
   return (
     STYLE_CATEGORY_LABELS[category] ??
     category.charAt(0).toUpperCase() + category.slice(1)
@@ -198,7 +198,7 @@ export function groupStylesByCategory(styles: Style[]): StyleCategoryGroup[] {
     .map(([category, groupStyles]) => ({
       category: category === UNCATEGORIZED_KEY ? 'other' : category,
       label:
-        category === UNCATEGORIZED_KEY ? 'Other' : styleCategoryLabel(category),
+        category === UNCATEGORIZED_KEY ? '其他' : styleCategoryLabel(category),
       styles: [...groupStyles].sort((a, b) => a.name.localeCompare(b.name)),
     }))
     .sort((a, b) => {

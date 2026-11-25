@@ -169,7 +169,7 @@ const StitchedPlayerInner: React.FC<StitchedPlayerSurfaceProps> = ({
       <canvas
         ref={canvasRef}
         className="h-full w-full object-contain"
-        aria-label="Sequence playback"
+        aria-label="序列播放"
       />
     </MinimalVideoSkin>
   );

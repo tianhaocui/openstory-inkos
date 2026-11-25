@@ -50,9 +50,9 @@ type SceneModelBarProps = {
 };
 
 export const scopeLabel: Record<SelectionScope, string> = {
-  sequence: 'Sequence settings',
-  scenes: 'Scene assets',
-  shot: 'Shot assets',
+  sequence: '序列设置',
+  scenes: '场景素材',
+  shot: '镜头素材',
 };
 
 const SettingRow: React.FC<{ label: string; children: React.ReactNode }> = ({
@@ -91,20 +91,20 @@ export const SceneModelBar: React.FC<SceneModelBarProps> = ({
         {/* Scope zoom-out affordance — Esc walks shot → scene → sequence. */}
         {scope !== 'sequence' && (
           <span className="flex shrink-0 items-center gap-1 text-[11px] text-muted-foreground">
-            <Kbd>esc</Kbd> up
+            <Kbd>esc</Kbd> 返回上级
           </span>
         )}
       </div>
       {showSequenceSettings && (
         <div className="space-y-2">
-          <SettingRow label="Style">
+          <SettingRow label="风格">
             <StyleBadge
               styleId={styleId}
               sequenceId={sequenceId}
               stylePending={stylePending}
             />
           </SettingRow>
-          <SettingRow label="Aspect ratio">
+          <SettingRow label="宽高比">
             <span className="flex items-center gap-1.5">
               {ratio && (
                 <AspectRatioIcon
@@ -120,7 +120,7 @@ export const SceneModelBar: React.FC<SceneModelBarProps> = ({
               composer's generation settings. A pill group here read as a live
               switch for the whole sequence, which it is not. */}
           {resolution && (
-            <SettingRow label="Resolution">
+            <SettingRow label="分辨率">
               <Badge variant="secondary" className="font-mono text-xs">
                 {RESOLUTION_OPTIONS.find((o) => o.value === resolution)
                   ?.label ?? resolution}
@@ -128,14 +128,14 @@ export const SceneModelBar: React.FC<SceneModelBarProps> = ({
             </SettingRow>
           )}
           {sequenceId && (
-            <SettingRow label="Target length">
+            <SettingRow label="目标时长">
               <TargetDurationChip
                 sequenceId={sequenceId}
                 targetDurationSeconds={targetDurationSeconds}
               />
             </SettingRow>
           )}
-          <SettingRow label="Script">
+          <SettingRow label="剧本">
             <ModelBadge model={analysisModel} />
           </SettingRow>
           {/* Both degrade to a plain badge until something has generated, so
@@ -146,12 +146,12 @@ export const SceneModelBar: React.FC<SceneModelBarProps> = ({
               <SequenceImageModelSelector
                 sequenceId={sequenceId}
                 sequenceImageModel={resolvedSequenceImageModel}
-                label="Image"
+                label="图片"
               />
               <SequenceVideoModelSelector
                 sequenceId={sequenceId}
                 sequenceVideoModel={resolvedSequenceVideoModel}
-                label="Video"
+                label="视频"
               />
             </>
           )}
@@ -175,7 +175,7 @@ export const SceneModelBar: React.FC<SceneModelBarProps> = ({
                 }
               >
                 <CopyPlus className="mr-2 h-3.5 w-3.5" />
-                Generate Copy…
+                生成副本…
               </Link>
             </Button>
           )}

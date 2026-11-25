@@ -8,9 +8,18 @@ import {
   GENERATION_STAGE_META,
   GENERATION_STAGES,
   resolveStopAt,
-  sliderStopLabel,
   type GenerationStage,
 } from '@/sequences/pipeline';
+
+const STAGE_COPY: Record<GenerationStage, { name: string; shortName: string }> =
+  {
+    script: { name: '正在分析剧本并选角…', shortName: '选角' },
+    references: { name: '正在生成参考素材与提示词…', shortName: '参考素材' },
+    images: { name: '正在生成图片…', shortName: '图片' },
+    dialogue: { name: '正在生成对白…', shortName: '对白' },
+    motion: { name: '正在生成动态视频…', shortName: '动态视频' },
+    music: { name: '正在生成音乐…', shortName: '音乐' },
+  };
 
 // 'cancelled' (#1108) is video-only in practice; it behaves as a terminal
 // status here (clears 'generating') like completed/failed.
@@ -219,8 +228,12 @@ export function createInitialState(
     const isCombinedLast = combinedMusic && stage === 'motion';
     return {
       phase: meta.phase,
-      phaseName: isCombinedLast ? 'Generating motion & music…' : meta.name,
-      shortName: isCombinedLast ? 'Motion & Music' : meta.shortName,
+      phaseName: isCombinedLast
+        ? '正在生成动态视频与音乐…'
+        : STAGE_COPY[stage].name,
+      shortName: isCombinedLast
+        ? '动态视频与音乐'
+        : STAGE_COPY[stage].shortName,
       status: 'pending' as const,
     };
   });
@@ -278,7 +291,7 @@ export function generationStreamReducer(
         updatedPhases.push({
           phase,
           phaseName,
-          shortName: stage ? sliderStopLabel(stage) : phaseName,
+          shortName: stage ? STAGE_COPY[stage].shortName : phaseName,
           status: 'active',
         });
         updatedPhases.sort((a, b) => a.phase - b.phase);

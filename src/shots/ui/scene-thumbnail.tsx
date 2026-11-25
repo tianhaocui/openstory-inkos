@@ -174,7 +174,7 @@ const SceneThumbnailComponent: React.FC<SceneThumbnailProps> = ({
             ) : (
               <>
                 <AlertCircle className="h-6 w-6" />
-                <span className="text-xs">Failed to generate</span>
+                <span className="text-xs">生成失败</span>
               </>
             )}
           </div>

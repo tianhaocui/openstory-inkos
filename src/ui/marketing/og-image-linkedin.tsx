@@ -29,9 +29,9 @@ export const OgImageLinkedIn: React.FC = () => {
         <OpenStoryLogo className="mb-8 h-16 w-auto text-white" />
 
         <h1 className="font-heading text-[7rem] font-bold tracking-tighter leading-[0.95] text-white">
-          Open Video
+          开放视频
           <br />
-          <span className="text-editorial">Generation.</span>
+          <span className="text-editorial">生成平台</span>
         </h1>
 
         <p className="mt-5 max-w-md text-xl text-white/70">

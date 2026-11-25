@@ -85,15 +85,12 @@ export const ElementDetailView: React.FC<ElementDetailViewProps> = ({
       token: nextToken,
     });
     const updates: string[] = [];
-    if (result.scriptUpdated) updates.push('script');
+    if (result.scriptUpdated) updates.push('剧本');
     if (result.shotsUpdated > 0) {
-      updates.push(
-        `${result.shotsUpdated} shot${result.shotsUpdated === 1 ? '' : 's'}`
-      );
+      updates.push(`${result.shotsUpdated} 个镜头`);
     }
-    const suffix =
-      updates.length > 0 ? ` — updated ${updates.join(' + ')}` : '';
-    toast.success(`Renamed to ${nextToken}${suffix}`);
+    const suffix = updates.length > 0 ? `，已更新${updates.join(' + ')}` : '';
+    toast.success(`已重命名为 ${nextToken}${suffix}`);
   };
 
   const handleDelete = () => {
@@ -101,15 +98,15 @@ export const ElementDetailView: React.FC<ElementDetailViewProps> = ({
       { elementId, sequenceId },
       {
         onSuccess: () => {
-          toast.success(`Deleted ${element?.token ?? 'element'}`);
+          toast.success(`已删除 ${element?.token ?? '元素'}`);
           void navigate({
             to: '/sequences/$id/elements',
             params: { id: sequenceId },
           });
         },
         onError: (err) => {
-          toast.error('Failed to delete element', {
-            description: err instanceof Error ? err.message : 'Unknown error',
+          toast.error('删除元素失败', {
+            description: err instanceof Error ? err.message : '未知错误',
           });
         },
       }
@@ -120,7 +117,7 @@ export const ElementDetailView: React.FC<ElementDetailViewProps> = ({
     return (
       <div className="flex h-full items-center justify-center p-6">
         <div className="text-center">
-          <p className="text-sm text-destructive">Failed to load element</p>
+          <p className="text-sm text-destructive">加载元素失败</p>
           <p className="mt-1 text-xs text-muted-foreground">{error.message}</p>
         </div>
       </div>
@@ -150,13 +147,13 @@ export const ElementDetailView: React.FC<ElementDetailViewProps> = ({
       <div className="flex h-full flex-col items-center justify-center gap-4 p-6">
         <ImagePlus className="h-16 w-16 text-muted-foreground/30" />
         <div className="text-center">
-          <p className="text-sm font-medium">Element not found</p>
+          <p className="text-sm font-medium">未找到元素</p>
           <Link
             to="/sequences/$id/elements"
             params={{ id: sequenceId }}
             className="mt-2 text-sm text-primary hover:underline"
           >
-            Back to elements
+            返回元素列表
           </Link>
         </div>
       </div>
@@ -170,7 +167,7 @@ export const ElementDetailView: React.FC<ElementDetailViewProps> = ({
           to="/sequences/$id/elements"
           params={{ id: sequenceId }}
           className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-muted"
-          aria-label="Back to elements"
+          aria-label="返回元素列表"
         >
           <ArrowLeft className="h-4 w-4" />
         </Link>
@@ -180,7 +177,7 @@ export const ElementDetailView: React.FC<ElementDetailViewProps> = ({
       <ScrollArea className="flex-1 min-h-0">
         <div className="flex flex-col gap-6 p-4">
           <p className="text-sm text-muted-foreground">
-            Type @ in a prompt or script to insert{' '}
+            在提示词或剧本中输入 @ 可插入{' '}
             <span className="font-mono">{element.token}</span>.
           </p>
 
@@ -188,7 +185,7 @@ export const ElementDetailView: React.FC<ElementDetailViewProps> = ({
             {isAnalyzing ? (
               <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-background/70 backdrop-blur-sm">
                 <Loader2 className="size-8 animate-spin text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Analyzing…</p>
+                <p className="text-sm text-muted-foreground">正在分析…</p>
               </div>
             ) : null}
             {element.kind === 'video' && element.imageUrl ? (
@@ -218,7 +215,7 @@ export const ElementDetailView: React.FC<ElementDetailViewProps> = ({
               <div className="flex h-full w-full flex-col items-center justify-center gap-2">
                 <ImagePlus className="size-12 text-muted-foreground/30" />
                 <p className="text-sm text-muted-foreground">
-                  No reference yet — generated at the References stage
+                  暂无参考素材，将在“参考素材”阶段生成
                 </p>
               </div>
             )}
@@ -245,10 +242,10 @@ export const ElementDetailView: React.FC<ElementDetailViewProps> = ({
               variant="outline"
               disabled={deleteElement.isPending || isAnalyzing}
               onClick={() => setDeleteOpen(true)}
-              aria-label={`Delete ${element.token}`}
+              aria-label={`删除 ${element.token}`}
             >
               <Trash2 className="h-4 w-4" />
-              Delete
+              删除
             </Button>
           </div>
 
@@ -256,14 +253,14 @@ export const ElementDetailView: React.FC<ElementDetailViewProps> = ({
             {isAnalyzing ? (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Loader2 className="size-4 animate-spin" />
-                Analyzing image…
+                正在分析图像…
               </div>
             ) : element.visionStatus === 'failed' ? (
               <p className="text-sm text-destructive">
-                Vision failed: {element.visionError ?? 'unknown error'}
+                视觉分析失败：{element.visionError ?? '未知错误'}
               </p>
             ) : element.kind === 'image' ? (
-              <DetailRow label="Description" value={element.description} />
+              <DetailRow label="描述" value={element.description} />
             ) : (
               // Nothing looked at this file, so the description is the user's
               // to write (#1559): a transcript, "upbeat synth bed", "puppet
@@ -271,7 +268,7 @@ export const ElementDetailView: React.FC<ElementDetailViewProps> = ({
               // mention.
               <div className="space-y-1">
                 <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Description
+                  描述
                 </dt>
                 <dd>
                   <Textarea
@@ -280,8 +277,8 @@ export const ElementDetailView: React.FC<ElementDetailViewProps> = ({
                     rows={3}
                     placeholder={
                       element.kind === 'audio'
-                        ? 'What is this? e.g. a transcript, or "upbeat synth bed"'
-                        : 'What is this? e.g. "handheld walk cycle, side on"'
+                        ? '这是什么？例如台词文本或“轻快的合成器铺底”'
+                        : '这是什么？例如“手持摄影的侧面行走循环”'
                     }
                     disabled={setDescription.isPending}
                     onBlur={(event) => {
@@ -291,11 +288,9 @@ export const ElementDetailView: React.FC<ElementDetailViewProps> = ({
                         { sequenceId, elementId, description: next },
                         {
                           onError: (err) =>
-                            toast.error("Couldn't save the description", {
+                            toast.error('无法保存描述', {
                               description:
-                                err instanceof Error
-                                  ? err.message
-                                  : 'Unknown error',
+                                err instanceof Error ? err.message : '未知错误',
                             }),
                         }
                       );
@@ -307,12 +302,12 @@ export const ElementDetailView: React.FC<ElementDetailViewProps> = ({
             {element.kind !== 'image' && (
               <>
                 <DetailRow
-                  label="Length"
+                  label="时长"
                   value={formatElementDuration(element.durationSeconds)}
                 />
                 <div className="space-y-1">
                   <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Model support
+                    模型支持
                   </dt>
                   <dd className="flex items-start gap-2 text-sm leading-relaxed">
                     <ElementSupportBadge
@@ -336,17 +331,17 @@ export const ElementDetailView: React.FC<ElementDetailViewProps> = ({
             )}
             {affectedShotCount > 0 ? (
               <DetailRow
-                label="Used in"
-                value={`${affectedShotCount} shot${affectedShotCount === 1 ? '' : 's'}${
+                label="使用位置"
+                value={`${affectedShotCount} 个镜头${
                   affectedVideoCount > 0
-                    ? ` (${affectedVideoCount} with video)`
+                    ? `（其中 ${affectedVideoCount} 个已有视频）`
                     : ''
                 }`}
               />
             ) : (
               <DetailRow
-                label="Used in"
-                value="No shots yet — mention it with @ in a prompt or script"
+                label="使用位置"
+                value="暂未用于任何镜头，可在提示词或剧本中使用 @ 提及它"
               />
             )}
           </dl>
@@ -356,17 +351,17 @@ export const ElementDetailView: React.FC<ElementDetailViewProps> = ({
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete {element.token}?</AlertDialogTitle>
+            <AlertDialogTitle>删除 {element.token}？</AlertDialogTitle>
             <AlertDialogDescription>
-              This removes the reference image from the sequence.
+              这将从序列中移除该参考素材。
               {affectedShotCount > 0 && (
-                <span>{` ${affectedShotCount} shot${affectedShotCount === 1 ? '' : 's'} still mention it — those prompts will keep the token until you edit them.`}</span>
+                <span>{` 仍有 ${affectedShotCount} 个镜头提及它，在你编辑相关提示词之前，其中会保留该 token。`}</span>
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={deleteElement.isPending}>
-              Cancel
+              取消
             </AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
@@ -376,7 +371,7 @@ export const ElementDetailView: React.FC<ElementDetailViewProps> = ({
               {deleteElement.isPending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              <span>{deleteElement.isPending ? 'Deleting…' : 'Delete'}</span>
+              <span>{deleteElement.isPending ? '正在删除…' : '删除'}</span>
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -39,16 +39,14 @@ export const SetModelButton = ({
           { sequenceId, variantType, model },
           {
             onSuccess: (r) =>
-              toast.success(
-                `Set ${modelName} on ${r.count} scene${r.count === 1 ? '' : 's'}`
-              ),
-            onError: (err) => toast.error(err.message),
+              toast.success(`已将 ${r.count} 个场景设置为 ${modelName}`),
+            onError: () => toast.error('设置模型失败，请重试。'),
           }
         );
       }}
       className="rounded border px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-50"
     >
-      Set
+      设置
     </button>
   );
 };

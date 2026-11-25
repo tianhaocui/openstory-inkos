@@ -152,7 +152,7 @@ export const EvalSceneCell: React.FC<EvalSceneCellProps> = ({
     if (!script) {
       return (
         <div className="border-b p-2 h-full flex items-center justify-center">
-          <div className="text-xs text-muted-foreground">No script</div>
+          <div className="text-xs text-muted-foreground">暂无剧本</div>
         </div>
       );
     }
@@ -213,7 +213,7 @@ export const EvalSceneCell: React.FC<EvalSceneCellProps> = ({
                 />
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                   <span className="text-xs font-medium text-foreground bg-background/80 backdrop-blur-sm px-2 py-1 rounded-md border">
-                    {isGenerating ? 'Generating video…' : 'No video yet'}
+                    {isGenerating ? '正在生成视频…' : '暂无视频'}
                   </span>
                 </div>
               </div>
@@ -295,7 +295,7 @@ export const EvalSceneCell: React.FC<EvalSceneCellProps> = ({
   if (!prompt && !motionPrompt) {
     return (
       <div className="border-b p-2 h-full flex items-center justify-center">
-        <div className="text-xs text-muted-foreground">No prompts</div>
+        <div className="text-xs text-muted-foreground">暂无提示词</div>
       </div>
     );
   }

@@ -56,7 +56,7 @@ const MermaidDiagramClient: React.FC<MermaidDiagramProps> = ({ source }) => {
       } catch (err) {
         // oxlint-disable-next-line typescript/no-unnecessary-condition -- mutated by cleanup
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Failed to render');
+          setError(err instanceof Error ? err.message : '渲染失败');
         }
       }
     })();
@@ -70,7 +70,7 @@ const MermaidDiagramClient: React.FC<MermaidDiagramProps> = ({ source }) => {
     return (
       <div className="my-4 rounded-md border border-destructive/50 bg-destructive/5 p-4">
         <p className="mb-2 text-sm font-medium text-destructive">
-          Failed to render diagram: {error}
+          图表渲染失败：{error}
         </p>
         <pre className="overflow-x-auto text-xs">
           <code>{source}</code>

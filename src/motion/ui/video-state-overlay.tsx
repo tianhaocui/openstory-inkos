@@ -65,8 +65,8 @@ export const VideoStateOverlay: React.FC<VideoStateOverlayProps> = ({
     (videoFailed && isContentRejectionError(videoError));
   const retryMessage = retry
     ? retry.maxAttempts
-      ? `Retrying (${retry.attempt}/${retry.maxAttempts})…`
-      : 'Retrying…'
+      ? `正在重试 (${retry.attempt}/${retry.maxAttempts})…`
+      : '正在重试…'
     : undefined;
 
   // With a thumbnail and no failure the still image carries the UI — surface
@@ -110,7 +110,7 @@ export const VideoStateOverlay: React.FC<VideoStateOverlayProps> = ({
             <div className="flex items-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
               <p className="text-sm font-medium">
-                {retryMessage ?? progressMessage ?? 'Generating shot…'}
+                {retryMessage ?? progressMessage ?? '正在生成镜头…'}
               </p>
             </div>
           </>
@@ -130,9 +130,7 @@ export const VideoStateOverlay: React.FC<VideoStateOverlayProps> = ({
           ) : (
             <>
               <AlertCircle className="h-8 w-8 text-destructive" />
-              <p className="text-sm font-medium text-destructive">
-                Generation failed
-              </p>
+              <p className="text-sm font-medium text-destructive">生成失败</p>
             </>
           ))}
       </div>

@@ -20,7 +20,7 @@ export const ReleaseBadge: FC<{
 }> = ({ releasedAt, className }) => {
   if (!releasedAt) return null;
   const isRecent = Date.now() / 1000 - releasedAt < THIRTY_DAYS_S;
-  const label = new Date(releasedAt * 1000).toLocaleDateString('en-US', {
+  const label = new Date(releasedAt * 1000).toLocaleDateString('zh-CN', {
     month: 'short',
     year: 'numeric',
   });

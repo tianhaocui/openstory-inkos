@@ -40,6 +40,17 @@ import { toast } from 'sonner';
 
 const AUTHORIZED_APPS_QUERY_KEY = ['authorizedApps'] as const;
 
+const SCOPE_LABELS: Record<string, string> = {
+  openid: '确认您的身份',
+  profile: '查看您的姓名和头像',
+  email: '查看您的邮箱地址',
+  offline_access: '无需再次登录即可保持连接',
+  'sequences:read': '查看您的故事序列、场景和已生成媒体',
+  'sequences:write': '编辑故事序列和场景，并开始导出',
+  generate: '发起会消耗点数的生成任务',
+  'credits:read': '查看您的点数余额',
+};
+
 export function DeveloperAuthorizedApps() {
   return (
     <Card>
@@ -49,10 +60,10 @@ export function DeveloperAuthorizedApps() {
             <ShieldCheck className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <CardTitle>Authorized apps</CardTitle>
+            <CardTitle>已授权应用</CardTitle>
             <CardDescription>
-              Apps and agents you have signed in to with your OpenStory account.
-              Revoke one and it has to ask again.
+              您已使用 OpenStory
+              账户登录的应用和代理。撤销授权后，应用需重新请求授权。
             </CardDescription>
           </div>
         </div>
@@ -84,8 +95,8 @@ function AppList() {
   if (apps.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
-        No apps have access yet. When an MCP client or another app asks to sign
-        in with OpenStory, it will show up here.
+        暂无应用获得访问权限。当 MCP 客户端或其他应用请求使用 OpenStory
+        登录时，它会显示在这里。
       </p>
     );
   }
@@ -107,13 +118,13 @@ function AppRow({ app }: { app: AuthorizedApp }) {
         data: { consentId: app.consentId, clientId: app.client.clientId },
       }),
     onSuccess: () => {
-      toast.success(`Revoked access for ${app.client.name}`);
+      toast.success(`已撤销 ${app.client.name} 的访问权限`);
       void queryClient.invalidateQueries({
         queryKey: AUTHORIZED_APPS_QUERY_KEY,
       });
     },
     onError: (err) =>
-      toast.error(err instanceof Error ? err.message : 'Failed to revoke'),
+      toast.error(err instanceof Error ? err.message : '撤销授权失败'),
   });
 
   return (
@@ -123,10 +134,12 @@ function AppRow({ app }: { app: AuthorizedApp }) {
         <span className="truncate text-xs text-muted-foreground">
           {app.client.redirectOrigin ?? app.client.clientId}
           {' · '}
-          approved {app.createdAt.toLocaleDateString()}
+          授权于 {app.createdAt.toLocaleDateString()}
         </span>
         <span className="text-xs text-muted-foreground">
-          {app.scopes.map((s) => s.description).join(' · ')}
+          {app.scopes
+            .map((s) => SCOPE_LABELS[s.id] ?? s.description)
+            .join(' · ')}
         </span>
       </div>
       <AlertDialog>
@@ -134,7 +147,7 @@ function AppRow({ app }: { app: AuthorizedApp }) {
           <Button
             variant="ghost"
             size="icon"
-            aria-label={`Revoke access for ${app.client.name}`}
+            aria-label={`撤销 ${app.client.name} 的访问权限`}
             disabled={revoke.isPending}
           >
             <Trash2 className="h-4 w-4" />
@@ -142,17 +155,15 @@ function AppRow({ app }: { app: AuthorizedApp }) {
         </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Revoke {app.client.name}?</AlertDialogTitle>
+            <AlertDialogTitle>撤销 {app.client.name} 的授权？</AlertDialogTitle>
             <AlertDialogDescription>
-              It will not be able to get new tokens and has to ask you to sign
-              in again. An access token already issued can keep working for up
-              to an hour.
+              撤销后，该应用将无法获取新令牌，并需再次请求您登录。已签发的访问令牌最长仍可继续使用一小时。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>取消</AlertDialogCancel>
             <AlertDialogAction onClick={() => revoke.mutate()}>
-              Revoke
+              撤销
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

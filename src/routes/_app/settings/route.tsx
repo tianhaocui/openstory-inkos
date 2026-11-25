@@ -19,28 +19,36 @@ export const Route = createFileRoute('/_app/settings')({
   beforeLoad: async ({ context: { queryClient }, location }) => {
     await requireSessionOrRedirect(queryClient, location.href);
   },
-  staticData: { breadcrumb: { label: 'Settings', to: '/settings' } },
+  staticData: { breadcrumb: { label: '设置', to: '/settings' } },
   errorComponent: (props) => (
-    <RouteErrorFallback {...props} heading="Settings error" />
+    <RouteErrorFallback
+      {...props}
+      error={
+        new Error('暂时无法加载设置，请稍后重试。', {
+          cause: props.error,
+        })
+      }
+      heading="设置页面出现错误"
+    />
   ),
 });
 
 const tabs = [
   {
     value: 'api-keys',
-    label: 'API Keys',
+    label: 'API 密钥',
     href: '/settings/api-keys',
     icon: <Key className="h-4 w-4" />,
   },
   {
     value: 'passkeys',
-    label: 'Passkeys',
+    label: '通行密钥',
     href: '/settings/passkeys',
     icon: <Fingerprint className="h-4 w-4" />,
   },
   {
     value: 'developer',
-    label: 'Developer',
+    label: '开发者',
     href: '/settings/developer',
     icon: <Terminal className="h-4 w-4" />,
   },

@@ -94,7 +94,7 @@ export const SampleVideoCard: React.FC<{
         <DialogTrigger asChild>
           <button
             type="button"
-            aria-label={`Play the ${entry.styleName} sample video`}
+            aria-label={`播放 ${entry.styleName} 示例视频`}
             className="absolute inset-0 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
           />
         </DialogTrigger>
@@ -112,10 +112,10 @@ export const SampleVideoCard: React.FC<{
               to="/"
               search={{ style: entry.slug }}
               hash="compose"
-              aria-label={`Try the ${entry.styleName} style`}
+              aria-label={`试用 ${entry.styleName} 风格`}
             >
               <Wand2 className="size-3.5" />
-              Try
+              试用
             </Link>
           </Button>
         )}
@@ -147,7 +147,7 @@ export const SampleVideoCard: React.FC<{
           <Button asChild className="gap-1.5">
             <Link to="/" search={{ style: entry.slug }} hash="compose">
               <Wand2 className="size-4" />
-              Try the {entry.styleName} style
+              试用 {entry.styleName} 风格
             </Link>
           </Button>
         )}

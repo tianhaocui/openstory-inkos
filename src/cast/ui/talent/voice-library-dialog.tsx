@@ -37,20 +37,92 @@ type VoiceLibraryDialogProps = {
 };
 
 const QUALITY_OPTIONS: { value: VoiceQualityFilter; label: string }[] = [
-  { value: 'studio', label: 'Studio' },
+  { value: 'studio', label: '录音室品质' },
 ];
 
 const GENDER_OPTIONS: { value: VoiceGenderFilter; label: string }[] = [
-  { value: 'male', label: 'Male' },
-  { value: 'female', label: 'Female' },
-  { value: 'neutral', label: 'Neutral' },
+  { value: 'male', label: '男性' },
+  { value: 'female', label: '女性' },
+  { value: 'neutral', label: '中性' },
 ];
 
 const AGE_OPTIONS: { value: VoiceAgeFilter; label: string }[] = [
-  { value: 'young', label: 'Young' },
-  { value: 'middle_aged', label: 'Middle aged' },
-  { value: 'old', label: 'Old' },
+  { value: 'young', label: '年轻' },
+  { value: 'middle_aged', label: '中年' },
+  { value: 'old', label: '年长' },
 ];
+
+const LANGUAGE_LABELS: Record<string, string> = {
+  en: '英语',
+  ar: '阿拉伯语',
+  zh: '中文',
+  cs: '捷克语',
+  da: '丹麦语',
+  nl: '荷兰语',
+  fil: '菲律宾语',
+  fi: '芬兰语',
+  fr: '法语',
+  de: '德语',
+  el: '希腊语',
+  hi: '印地语',
+  id: '印度尼西亚语',
+  it: '意大利语',
+  ja: '日语',
+  ko: '韩语',
+  pl: '波兰语',
+  pt: '葡萄牙语',
+  ro: '罗马尼亚语',
+  ru: '俄语',
+  es: '西班牙语',
+  sv: '瑞典语',
+  tr: '土耳其语',
+  uk: '乌克兰语',
+};
+
+const ACCENT_LABELS: Record<string, string> = {
+  american: '美国口音',
+  australian: '澳大利亚口音',
+  british: '英国口音',
+  canadian: '加拿大口音',
+  indian: '印度口音',
+  irish: '爱尔兰口音',
+  'new zealand': '新西兰口音',
+  scottish: '苏格兰口音',
+  'south african': '南非口音',
+  welsh: '威尔士口音',
+};
+
+const VOICE_LABELS: Record<string, string> = {
+  studio: '录音室品质',
+  male: '男性',
+  female: '女性',
+  neutral: '中性',
+  young: '年轻',
+  'middle aged': '中年',
+  old: '年长',
+  ...Object.fromEntries(
+    Object.entries(LANGUAGE_LABELS).map(([value, label]) => [value, label])
+  ),
+  ...Object.fromEntries(
+    OTHER_VOICE_LANGUAGES.map((language) => [
+      language.label.toLowerCase(),
+      LANGUAGE_LABELS[language.value] ?? language.label,
+    ])
+  ),
+  english: '英语',
+  ...ACCENT_LABELS,
+  ...Object.fromEntries(
+    VOICE_NATIONALITIES.map((nationality) => [
+      nationality.label.toLowerCase(),
+      ACCENT_LABELS[nationality.value] ?? nationality.label,
+    ])
+  ),
+};
+
+function localizeVoiceLabel(label: string): string {
+  const normalized = label.trim().toLowerCase().replaceAll('_', ' ');
+  return VOICE_LABELS[normalized] ?? label;
+}
 
 const VoiceRow: React.FC<{
   voice: CatalogVoice;
@@ -69,7 +141,7 @@ const VoiceRow: React.FC<{
         <p className="truncate text-sm font-medium">{voice.name}</p>
         {voice.labels.length > 0 && (
           <p className="truncate text-xs text-muted-foreground">
-            {voice.labels.join(' · ')}
+            {voice.labels.map(localizeVoiceLabel).join(' · ')}
           </p>
         )}
       </div>
@@ -80,7 +152,7 @@ const VoiceRow: React.FC<{
         disabled={disabled || selected}
         onClick={onSelect}
       >
-        {selected ? 'In use' : 'Use'}
+        {selected ? '使用中' : '使用'}
       </Button>
     </div>
     {voice.previewUrl ? (
@@ -92,7 +164,7 @@ const VoiceRow: React.FC<{
         className="w-full"
       />
     ) : (
-      <p className="text-xs text-muted-foreground">No preview</p>
+      <p className="text-xs text-muted-foreground">暂无预听</p>
     )}
   </li>
 );
@@ -139,7 +211,7 @@ function FilterPills<T extends string>({
           )}
           onClick={() => onChange(undefined)}
         >
-          Any
+          不限
         </Button>
       </div>
     </div>
@@ -159,7 +231,7 @@ function LanguageSelect({
         htmlFor="voice-library-language"
         className="w-24 shrink-0 text-sm font-medium"
       >
-        Language
+        语言
       </label>
       <select
         id="voice-library-language"
@@ -167,21 +239,21 @@ function LanguageSelect({
         onChange={(event) => onChange(parseVoiceLocale(event.target.value))}
         className="h-8 min-w-40 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
       >
-        <optgroup label="English">
-          <option value={DEFAULT_VOICE_LANGUAGE}>English</option>
+        <optgroup label="英语">
+          <option value={DEFAULT_VOICE_LANGUAGE}>英语</option>
           {VOICE_NATIONALITIES.map((nationality) => (
             <option
               key={nationality.value}
               value={voiceLocaleKey(DEFAULT_VOICE_LANGUAGE, nationality.value)}
             >
-              {nationality.label}
+              {ACCENT_LABELS[nationality.value] ?? nationality.label}
             </option>
           ))}
         </optgroup>
-        <optgroup label="Other languages">
+        <optgroup label="其他语言">
           {OTHER_VOICE_LANGUAGES.map((language) => (
             <option key={language.value} value={language.value}>
-              {language.label}
+              {LANGUAGE_LABELS[language.value] ?? language.label}
             </option>
           ))}
         </optgroup>
@@ -238,9 +310,9 @@ export const VoiceLibraryDialog: React.FC<VoiceLibraryDialogProps> = ({
     >
       <DialogContent className="flex h-[min(90vh,44rem)] w-full flex-col gap-3 sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Voice library</DialogTitle>
+          <DialogTitle>声音库</DialogTitle>
           <DialogDescription className="sr-only">
-            Pick an ElevenLabs voice for {characterName}.
+            为 {characterName} 选择 ElevenLabs 声音。
           </DialogDescription>
         </DialogHeader>
         <div className="relative">
@@ -248,7 +320,7 @@ export const VoiceLibraryDialog: React.FC<VoiceLibraryDialogProps> = ({
           <Input
             type="search"
             autoComplete="off"
-            placeholder={`Search voices${characterName ? ` for ${characterName}` : ''}…`}
+            placeholder={`搜索声音${characterName ? `（${characterName}）` : ''}…`}
             value={input}
             onChange={(event) => handleSearchChange(event.target.value)}
             className="pl-9"
@@ -266,7 +338,7 @@ export const VoiceLibraryDialog: React.FC<VoiceLibraryDialogProps> = ({
             }
           />
           <FilterPills
-            label="Quality"
+            label="品质"
             value={filters.quality}
             options={QUALITY_OPTIONS}
             onChange={(quality) =>
@@ -274,7 +346,7 @@ export const VoiceLibraryDialog: React.FC<VoiceLibraryDialogProps> = ({
             }
           />
           <FilterPills
-            label="Gender"
+            label="性别"
             value={filters.gender}
             options={GENDER_OPTIONS}
             onChange={(gender) =>
@@ -282,7 +354,7 @@ export const VoiceLibraryDialog: React.FC<VoiceLibraryDialogProps> = ({
             }
           />
           <FilterPills
-            label="Age"
+            label="年龄"
             value={filters.age}
             options={AGE_OPTIONS}
             onChange={(age) => setFilters((current) => ({ ...current, age }))}
@@ -295,7 +367,7 @@ export const VoiceLibraryDialog: React.FC<VoiceLibraryDialogProps> = ({
             disabled={!hasFilters}
             onClick={() => setFilters({ language: DEFAULT_VOICE_LANGUAGE })}
           >
-            Clear filters
+            清除筛选
           </Button>
         </div>
         <ScrollArea className="min-h-0 flex-1">
@@ -310,8 +382,8 @@ export const VoiceLibraryDialog: React.FC<VoiceLibraryDialogProps> = ({
               <Library className="h-10 w-10 text-muted-foreground/30" />
               <p className="mt-3 text-sm text-muted-foreground">
                 {search || hasFilters
-                  ? 'No voices matching these filters'
-                  : 'No voices available'}
+                  ? '没有匹配筛选条件的声音'
+                  : '暂无可用声音'}
               </p>
             </div>
           ) : (
@@ -338,13 +410,13 @@ export const VoiceLibraryDialog: React.FC<VoiceLibraryDialogProps> = ({
               disabled={query.isFetchingNextPage}
               onClick={() => void query.fetchNextPage()}
             >
-              {query.isFetchingNextPage ? 'Loading…' : 'Load more'}
+              {query.isFetchingNextPage ? '正在加载…' : '加载更多'}
             </Button>
           ) : null}
         </div>
         <p className="h-5 text-sm text-destructive">
           <span className={query.isError ? undefined : 'invisible'}>
-            Could not load voices. Try again in a moment.
+            无法加载声音。请稍后重试。
           </span>
         </p>
       </DialogContent>

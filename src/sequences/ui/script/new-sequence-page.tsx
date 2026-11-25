@@ -1,5 +1,5 @@
 import { BillingGateDialog } from '@/billing/ui/billing-gate-dialog';
-import { OpenStoryLogo } from '@/ui/icons/openstory-logo';
+import { BigKalamiLogo } from '@/ui/icons/big-kalami-logo';
 import { PageContainer } from '@/ui/layout/page-container';
 import { PageIntro } from '@/ui/typography/page-intro';
 import { ScriptView } from './script-view';
@@ -44,7 +44,7 @@ function GalleryLink() {
       to="/gallery"
       className="mt-4 inline-flex shrink-0 items-center justify-center gap-1 self-center text-sm font-medium text-muted-foreground hover:text-foreground short-h:hidden"
     >
-      Browse the gallery to see what you can create
+      浏览作品集，看看你能创作什么
       <ArrowRight className="size-4" />
     </Link>
   );
@@ -317,7 +317,7 @@ export function NewSequencePage({
         className="space-y-4 sm:space-y-8 short-h:space-y-3 short-h:py-4 sm:short-h:py-4"
       >
         <div className="flex shrink-0 flex-col items-center gap-2 sm:gap-4 short-h:gap-1">
-          <OpenStoryLogo className="h-8 sm:h-12 short-h:h-8" />
+          <BigKalamiLogo className="text-2xl sm:text-3xl short-h:text-2xl" />
           <div className="flex flex-col items-center gap-1">
             <h1 className="text-center text-xl font-semibold tracking-tight sm:text-2xl">
               {SITE_CONFIG.tagline}

@@ -48,7 +48,7 @@ type UpdateAllDialogProps = {
 /** "Changed: Script, Character "Woman"" — deduped across shots, or null. */
 export const describeCauses = (staleShots: ShotStaleness[]): string | null => {
   const causes = [...new Set(staleShots.flatMap((s) => s.causes))];
-  return causes.length > 0 ? `Changed: ${causes.join(', ')}` : null;
+  return causes.length > 0 ? `已更改：${causes.join('、')}` : null;
 };
 
 /** "shot 2" / "shots 2, 3 & 4" / "this shot" at shot scope. */
@@ -57,14 +57,14 @@ export const shotsLabel = (
   numberById: ReadonlyMap<string, number> | undefined,
   singleShotScope: boolean
 ): string => {
-  if (singleShotScope) return 'this shot';
+  if (singleShotScope) return '此镜头';
   const numbers = shotIds
     .map((id) => numberById?.get(id))
     .filter((n): n is number => n != null)
     .sort((a, b) => a - b);
-  if (numbers.length === 0) return `${shotIds.length} shots`;
-  if (numbers.length === 1) return `shot ${numbers[0]}`;
-  return `shots ${numbers.slice(0, -1).join(', ')} & ${numbers[numbers.length - 1]}`;
+  if (numbers.length === 0) return `${shotIds.length} 个镜头`;
+  if (numbers.length === 1) return `镜头 ${numbers[0]}`;
+  return `镜头 ${numbers.join('、')}`;
 };
 
 /**
@@ -84,8 +84,8 @@ export const levelsFromStaleShots = (
     (s) => s.thumbnail === 'stale' || s.visualPrompt === 'stale'
   );
   const levels: Array<{ depth: UpdateStaleDepth; label: string }> = [];
-  if (prompts) levels.push({ depth: 'prompts', label: 'Prompts' });
-  if (images) levels.push({ depth: 'images', label: 'Images' });
+  if (prompts) levels.push({ depth: 'prompts', label: '提示词' });
+  if (images) levels.push({ depth: 'images', label: '图片' });
   return levels;
 };
 
@@ -99,25 +99,25 @@ export const previewLevels = (
   const levels: Array<{ depth: UpdateStaleDepth; label: string }> = [];
   const prompts: string[] = [];
   if (preview.visualPromptShotIds.length > 0)
-    prompts.push(`Image prompts for ${label(preview.visualPromptShotIds)}`);
+    prompts.push(`${label(preview.visualPromptShotIds)}的图片提示词`);
   if (preview.motionPromptShotIds.length > 0)
-    prompts.push(`Motion prompts for ${label(preview.motionPromptShotIds)}`);
+    prompts.push(`${label(preview.motionPromptShotIds)}的动态提示词`);
   if (prompts.length > 0)
     levels.push({ depth: 'prompts', label: prompts.join(' · ') });
   if (preview.imageShotIds.length > 0)
     levels.push({
       depth: 'images',
-      label: `Images for ${label(preview.imageShotIds)}`,
+      label: `${label(preview.imageShotIds)}的图片`,
     });
   if (preview.videoShotIds.length > 0)
     levels.push({
       depth: 'video',
-      label: `Videos for ${label(preview.videoShotIds)}`,
+      label: `${label(preview.videoShotIds)}的视频`,
     });
   if (preview.musicTrack || preview.musicPrompt)
     levels.push({
       depth: 'music',
-      label: preview.musicTrack ? 'Music prompt and track' : 'Music prompt',
+      label: preview.musicTrack ? '音乐提示词和音轨' : '音乐提示词',
     });
   return levels;
 };
@@ -206,26 +206,25 @@ export const UpdateAllDialog: React.FC<UpdateAllDialogProps> = ({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Update out-of-date items</AlertDialogTitle>
+          <AlertDialogTitle>更新已过期内容</AlertDialogTitle>
           <AlertDialogDescription className="flex flex-col gap-1">
             <span className="text-foreground">
               {describeCauses(staleShots) ??
-                'Inputs changed since these were generated.'}
+                '这些内容生成后，其输入已发生变化。'}
             </span>
-            <span>Regenerate:</span>
+            <span>重新生成：</span>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <fieldset className="flex flex-col gap-2">
-          <legend className="sr-only">What to regenerate</legend>
+          <legend className="sr-only">选择要重新生成的内容</legend>
           {isError && (
             <span className="text-xs text-muted-foreground">
-              Couldn’t compute the exact plan — showing out-of-date prompts and
-              images.
+              无法计算精确方案，当前显示已过期的提示词和图片。
             </span>
           )}
           {levels.length === 0 ? (
             <span className="text-xs text-muted-foreground">
-              {isPending ? '…' : 'Nothing to regenerate.'}
+              {isPending ? '…' : '没有需要重新生成的内容。'}
             </span>
           ) : (
             levels.map((level, index) => {
@@ -280,14 +279,14 @@ export const UpdateAllDialog: React.FC<UpdateAllDialogProps> = ({
           )}
         </fieldset>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>取消</AlertDialogCancel>
           <AlertDialogAction
             disabled={selectedDepth == null}
             onClick={() => selectedDepth && onConfirm(selectedDepth)}
           >
             {showCosts && selectedDepth != null && total != null
-              ? `Update · ~${microsToDisplayUsd(total)}`
-              : 'Update'}
+              ? `更新 · ~${microsToDisplayUsd(total)}`
+              : '更新'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

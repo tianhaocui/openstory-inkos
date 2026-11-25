@@ -74,10 +74,10 @@ export type PromptHistorySheetProps = ShotProps | MusicProps;
 
 const SOURCE_LABEL: Record<PromptVariantSource, string> = {
   'ai-generated': 'AI',
-  'user-edit': 'You',
-  regenerated: 'Regenerated',
-  restored: 'Restored',
-  softened: 'Softened',
+  'user-edit': '你',
+  regenerated: '已重新生成',
+  restored: '已恢复',
+  softened: '已柔化',
 };
 
 const SOURCE_VARIANT: Record<
@@ -92,9 +92,9 @@ const SOURCE_VARIANT: Record<
 };
 
 const TITLE: Record<PromptHistoryMode, string> = {
-  visual: 'Visual history',
-  motion: 'Motion history',
-  music: 'Music prompt history',
+  visual: '图片历史',
+  motion: '动态历史',
+  music: '音乐提示词历史',
 };
 
 type PromptRow = {
@@ -151,7 +151,7 @@ function asError(value: unknown): Error | null {
   if (value == null) return null;
   if (value instanceof Error) return value;
   if (typeof value === 'string') return new Error(value);
-  return new Error('Unknown error');
+  return new Error('未知错误');
 }
 
 function MediaStatusIcon({ status }: { status: string }) {
@@ -200,8 +200,8 @@ const MediaHistoryList: React.FC<MediaHistoryListProps> = ({
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const emptyLabel =
     kind === 'image'
-      ? 'No image history yet — generate an image to start a record.'
-      : 'No video history yet — generate a video to start a record.';
+      ? '暂无图片历史，生成图片后即可开始记录。'
+      : '暂无视频历史，生成视频后即可开始记录。';
 
   if (isLoading) {
     return (
@@ -216,7 +216,7 @@ const MediaHistoryList: React.FC<MediaHistoryListProps> = ({
     return (
       <Alert variant="destructive" className="mt-2">
         <AlertCircle aria-hidden="true" />
-        <AlertTitle>Couldn't load history</AlertTitle>
+        <AlertTitle>无法加载历史记录</AlertTitle>
         <AlertDescription className="flex flex-col gap-2">
           <span>{error.message}</span>
           <Button
@@ -321,19 +321,17 @@ const MediaHistoryList: React.FC<MediaHistoryListProps> = ({
                     <span className="truncate text-sm font-medium">
                       {modelLabel}
                     </span>
-                    {row.selected && <Badge variant="outline">Current</Badge>}
+                    {row.selected && <Badge variant="outline">当前版本</Badge>}
                   </div>
                   <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
                     {formatTimestamp(row.createdAt)}
                   </span>
                 </div>
                 {row.status === 'failed' && (
-                  <span className="text-xs text-destructive">Failed</span>
+                  <span className="text-xs text-destructive">失败</span>
                 )}
                 {row.status === 'cancelled' && (
-                  <span className="text-xs text-muted-foreground">
-                    Cancelled
-                  </span>
+                  <span className="text-xs text-muted-foreground">已取消</span>
                 )}
                 {isLiveStatus(row.status) && (
                   <span className="text-xs text-muted-foreground">
@@ -351,12 +349,12 @@ const MediaHistoryList: React.FC<MediaHistoryListProps> = ({
                   variant="ghost"
                   disabled={cancelling}
                   onClick={() => onCancel(row.id)}
-                  aria-label={`Cancel this ${kind} generation`}
+                  aria-label={`取消此次${kind === 'image' ? '图片' : '视频'}生成`}
                 >
                   {cancelling && (
                     <Loader2 className="mr-2 h-3 w-3 animate-spin motion-reduce:animate-none" />
                   )}
-                  <span>Cancel</span>
+                  <span>取消</span>
                 </Button>
               </div>
             )}
@@ -389,10 +387,10 @@ const MediaHistoryList: React.FC<MediaHistoryListProps> = ({
                 ) : (
                   <p className="text-sm text-muted-foreground">
                     {row.status === 'generating'
-                      ? 'Still generating — preview will appear when it finishes.'
+                      ? '仍在生成，完成后将显示预览。'
                       : row.status === 'failed'
-                        ? 'This generation failed — no preview available.'
-                        : 'No preview available.'}
+                        ? '本次生成失败，暂无预览。'
+                        : '暂无预览。'}
                   </p>
                 )}
                 {selectable && (
@@ -406,7 +404,7 @@ const MediaHistoryList: React.FC<MediaHistoryListProps> = ({
                       {selecting && (
                         <Loader2 className="mr-2 h-3 w-3 animate-spin" />
                       )}
-                      <span>Use this version</span>
+                      <span>使用此版本</span>
                     </Button>
                   </div>
                 )}
@@ -459,7 +457,7 @@ const PromptHistoryList: React.FC<PromptHistoryListProps> = ({
     return (
       <Alert variant="destructive" className="mt-2">
         <AlertCircle aria-hidden="true" />
-        <AlertTitle>Couldn't load history</AlertTitle>
+        <AlertTitle>无法加载历史记录</AlertTitle>
         <AlertDescription className="flex flex-col gap-2">
           <span>{error.message}</span>
           <Button
@@ -479,7 +477,7 @@ const PromptHistoryList: React.FC<PromptHistoryListProps> = ({
   if (!rows || rows.length === 0) {
     return (
       <p className="pt-4 text-sm text-muted-foreground">
-        No history yet — generate or edit a prompt to start a record.
+        暂无历史记录，生成或编辑提示词后即可开始记录。
       </p>
     );
   }
@@ -516,8 +514,8 @@ const PromptHistoryList: React.FC<PromptHistoryListProps> = ({
                     {live
                       ? 'Generating…'
                       : row.status === 'failed'
-                        ? 'Generation failed'
-                        : 'Cancelled'}
+                        ? '生成失败'
+                        : '已取消'}
                   </span>
                 </div>
                 <span className="text-xs tabular-nums">
@@ -532,12 +530,12 @@ const PromptHistoryList: React.FC<PromptHistoryListProps> = ({
                     variant="ghost"
                     disabled={cancelling}
                     onClick={() => onCancel(row.id)}
-                    aria-label="Cancel this prompt generation"
+                    aria-label="取消此次提示词生成"
                   >
                     {cancelling && (
                       <Loader2 className="mr-2 h-3 w-3 animate-spin motion-reduce:animate-none" />
                     )}
-                    <span>Cancel</span>
+                    <span>取消</span>
                   </Button>
                 </div>
               )}
@@ -573,7 +571,7 @@ const PromptHistoryList: React.FC<PromptHistoryListProps> = ({
                   <Badge variant={SOURCE_VARIANT[row.source]}>
                     {SOURCE_LABEL[row.source]}
                   </Badge>
-                  {isCurrent && <Badge variant="outline">Current</Badge>}
+                  {isCurrent && <Badge variant="outline">当前版本</Badge>}
                 </div>
                 <span className="text-xs text-muted-foreground tabular-nums">
                   {formatTimestamp(row.createdAt)}
@@ -614,7 +612,7 @@ const PromptHistoryList: React.FC<PromptHistoryListProps> = ({
                       {restorePending && (
                         <Loader2 className="mr-2 h-3 w-3 animate-spin" />
                       )}
-                      <span>Restore this version</span>
+                      <span>恢复此版本</span>
                     </Button>
                   </div>
                 )}
@@ -693,12 +691,11 @@ export const PromptHistorySheet: React.FC<PromptHistorySheetProps> = (
           },
           {
             onSuccess: ({ cancelled }) => {
-              if (!cancelled) toast.info('This generation already finished');
+              if (!cancelled) toast.info('此次生成已完成');
             },
             onError: (err) =>
-              toast.error('Cancel failed', {
-                description:
-                  err instanceof Error ? err.message : 'Unknown error',
+              toast.error('取消失败', {
+                description: err instanceof Error ? err.message : '未知错误',
               }),
           }
         );
@@ -710,12 +707,11 @@ export const PromptHistorySheet: React.FC<PromptHistorySheetProps> = (
             { versionId, artifact: 'image' },
             {
               onSuccess: ({ cancelled }) => {
-                if (!cancelled) toast.info('This generation already finished');
+                if (!cancelled) toast.info('此次生成已完成');
               },
               onError: (err) =>
-                toast.error('Cancel failed', {
-                  description:
-                    err instanceof Error ? err.message : 'Unknown error',
+                toast.error('取消失败', {
+                  description: err instanceof Error ? err.message : '未知错误',
                 }),
             }
           );
@@ -736,10 +732,10 @@ export const PromptHistorySheet: React.FC<PromptHistorySheetProps> = (
 
   const onRestore = (variantId: string) =>
     restoreMutation.mutate(variantId, {
-      onSuccess: () => toast.success('Prompt restored'),
+      onSuccess: () => toast.success('提示词已恢复'),
       onError: (err) =>
-        toast.error('Restore failed', {
-          description: err instanceof Error ? err.message : 'Unknown error',
+        toast.error('恢复失败', {
+          description: err instanceof Error ? err.message : '未知错误',
         }),
     });
 
@@ -751,16 +747,14 @@ export const PromptHistorySheet: React.FC<PromptHistorySheetProps> = (
         onSuccess: () =>
           toast.success(
             mediaKind === 'image'
-              ? 'Image selected — linked prompt restored when available'
-              : 'Video version selected'
+              ? '已选择图片，并恢复可用的关联提示词'
+              : '已选择视频版本'
           ),
         onError: (err) =>
           toast.error(
-            mediaKind === 'image'
-              ? 'Failed to switch image version'
-              : 'Failed to switch video version',
+            mediaKind === 'image' ? '切换图片版本失败' : '切换视频版本失败',
             {
-              description: err instanceof Error ? err.message : 'Unknown error',
+              description: err instanceof Error ? err.message : '未知错误',
             }
           ),
       }
@@ -768,10 +762,10 @@ export const PromptHistorySheet: React.FC<PromptHistorySheetProps> = (
   };
 
   const description = isMusic
-    ? 'Append-only history. Restore writes a new entry without deleting anything.'
+    ? '历史记录仅追加，恢复会新增一条记录，不会删除任何内容。'
     : mode === 'visual'
-      ? 'Prompt edits and generated images. Selecting an image restores the still and the prompt that produced it (when linked). A Softened version is an automatic rewrite to pass a content checker — the original stays here.'
-      : 'Prompt edits and rendered videos. Selecting a video repoints playback without deleting anything.';
+      ? '记录提示词编辑和生成图片。选择图片会恢复该图片及生成它的提示词（如有关联）。“已柔化”版本是为通过内容审核而自动改写的版本，原版本仍保留在此处。'
+      : '记录提示词编辑和生成视频。选择视频会切换播放版本，不会删除任何内容。';
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -803,10 +797,10 @@ export const PromptHistorySheet: React.FC<PromptHistorySheetProps> = (
           >
             <TabsList className="w-full">
               <TabsTrigger value="prompt" className="flex-1">
-                Prompt
+                提示词
               </TabsTrigger>
               <TabsTrigger value="media" className="flex-1">
-                {mode === 'visual' ? 'Images' : 'Videos'}
+                {mode === 'visual' ? '图片' : '视频'}
               </TabsTrigger>
             </TabsList>
             <TabsContent

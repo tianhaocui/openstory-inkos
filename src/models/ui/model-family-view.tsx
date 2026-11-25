@@ -71,8 +71,8 @@ const ModelFamilyContent: FC<{
     return (
       <EmptyState
         icon={<SearchX className="h-12 w-12" />}
-        title="Family not found"
-        description={`We couldn't find “${family}” in the model catalog.`}
+        title="未找到模型系列"
+        description={`模型目录中没有“${family}”。`}
       />
     );
   }
@@ -89,6 +89,8 @@ const ModelFamilyContent: FC<{
     ]);
   }
   const showVersionHeaders = versionGroups.size > 1;
+  const versionLabel = (version: string) =>
+    version === 'other' ? '其他' : version;
 
   return (
     <div className="flex flex-col gap-8">
@@ -107,7 +109,7 @@ const ModelFamilyContent: FC<{
           {data.latestVersion && (
             <Badge variant="outline">{data.latestVersion}</Badge>
           )}
-          <Badge variant="outline">{data.variants.length} variants</Badge>
+          <Badge variant="outline">{data.variants.length} 个变体</Badge>
           <ReleaseBadge releasedAt={data.releasedAt} />
         </div>
         <code className="font-mono text-xs text-muted-foreground">
@@ -119,12 +121,12 @@ const ModelFamilyContent: FC<{
         {[...versionGroups.entries()].map(([version, variants]) => (
           <section
             key={version}
-            aria-label={showVersionHeaders ? version : 'Variants'}
+            aria-label={showVersionHeaders ? versionLabel(version) : '变体'}
             className="flex flex-col gap-2"
           >
             {showVersionHeaders && (
               <h2 className="text-sm font-medium text-muted-foreground">
-                {version}
+                {versionLabel(version)}
               </h2>
             )}
             <ul className="flex flex-col overflow-hidden rounded-xl border">

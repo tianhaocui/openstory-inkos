@@ -17,7 +17,7 @@ import { useHydrated } from '@/ui/use-hydrated';
 import { useAnalyzeTalentMedia, useCreateTalent } from '@/cast/ui/use-talent';
 import { useAttestUploads } from '@/cast/ui/use-upload-rights';
 import { getFileKey } from '@/ui/upload';
-import { PORTRAIT_RIGHTS_V1 } from '@/platform/compliance/attestations';
+import { PORTRAIT_RIGHTS_V2 } from '@/platform/compliance/attestations';
 import { Badge } from '@/ui/shadcn/badge';
 import type { Talent } from '@/platform/server/db/schema';
 import { sheetProgressCopy } from '@/cast/sheet-progress-copy';
@@ -98,9 +98,7 @@ export const AddTalentDialog: React.FC<AddTalentDialogProps> = ({
   const handleClose = () => {
     if (
       files.length > 0 &&
-      !window.confirm(
-        'Discard uploaded reference media? Your uploads will be lost.'
-      )
+      !window.confirm('放弃已上传的参考素材？这些上传内容将丢失。')
     ) {
       return;
     }
@@ -128,7 +126,7 @@ export const AddTalentDialog: React.FC<AddTalentDialogProps> = ({
         );
         if (result.isCharacterSheet) {
           setSheetFileKeys((prev) => new Set(prev).add(key));
-          toast.success('Character sheet detected');
+          toast.success('已识别角色设定图');
         }
         return {
           url,
@@ -146,9 +144,7 @@ export const AddTalentDialog: React.FC<AddTalentDialogProps> = ({
             classified: false,
           };
         }
-        toast.warning(
-          'Could not tell if this is a character sheet. We’ll generate one.'
-        );
+        toast.warning('无法判断该文件是否为角色设定图，将自动生成一张。');
         // Unchecked: the safe reading is a person, and signing is always allowed.
         setSubjectKind('human');
         return {
@@ -233,14 +229,12 @@ export const AddTalentDialog: React.FC<AddTalentDialogProps> = ({
     if (portraitUrls.length > 0 && depictsRealPerson) {
       if (!attested) {
         setCreatePhase('idle');
-        toast.error(
-          'Confirm you have authorization for this person’s likeness'
-        );
+        toast.error('请确认你已获得使用此人肖像的授权');
         return;
       }
       if (!authorizationBasis.trim()) {
         setCreatePhase('idle');
-        toast.error('Add a basis for authorization');
+        toast.error('请填写授权依据');
         return;
       }
     }
@@ -251,7 +245,7 @@ export const AddTalentDialog: React.FC<AddTalentDialogProps> = ({
         await attest.mutateAsync(
           portraitUrls.map((url) => ({
             url,
-            statementVersion: PORTRAIT_RIGHTS_V1.version,
+            statementVersion: PORTRAIT_RIGHTS_V2.version,
             authorizationBasis: authorizationBasis.trim(),
           }))
         );
@@ -272,19 +266,19 @@ export const AddTalentDialog: React.FC<AddTalentDialogProps> = ({
       if (sheetWorkflowRunId) {
         toast.success(
           sheetUrlList.length > 0
-            ? `Talent added. ${sheetProgressCopy('portrait', 'long')}`
-            : `Talent added. ${sheetProgressCopy('sheet', 'long')}`
+            ? `演员已添加。${sheetProgressCopy('portrait', 'long')}`
+            : `演员已添加。${sheetProgressCopy('sheet', 'long')}`
         );
       } else {
-        toast.success('Talent added');
-        toast.error('Could not start talent sheet generation');
+        toast.success('演员已添加');
+        toast.error('无法启动演员设定图生成');
       }
       closeAndReset();
     } catch (error) {
       if (gen !== submitGenRef.current) return;
       setCreatePhase('idle');
-      toast.error('Could not add talent', {
-        description: error instanceof Error ? error.message : 'Unknown error',
+      toast.error('无法添加演员', {
+        description: error instanceof Error ? error.message : '未知错误',
       });
     }
   };
@@ -294,9 +288,9 @@ export const AddTalentDialog: React.FC<AddTalentDialogProps> = ({
   const statusMessage =
     createPhase === 'analyzing' ||
     (checkingFileKeys.size > 0 && createPhase === 'idle')
-      ? 'Looking at the upload (human, animated, or a sheet). Usually about 20 seconds.'
+      ? '正在分析上传内容（真人、动画角色或设定图），通常需约 20 秒。'
       : createPhase === 'creating'
-        ? 'Saving talent…'
+        ? '正在保存演员…'
         : null;
 
   return (
@@ -308,7 +302,7 @@ export const AddTalentDialog: React.FC<AddTalentDialogProps> = ({
         {trigger ?? (
           <Button disabled={!isHydrated}>
             <Plus className="mr-2 h-4 w-4" />
-            Add Talent
+            添加演员
           </Button>
         )}
       </DialogTrigger>
@@ -332,21 +326,19 @@ export const AddTalentDialog: React.FC<AddTalentDialogProps> = ({
           className="flex flex-col gap-4"
         >
           <DialogHeader>
-            <DialogTitle>Add Talent</DialogTitle>
-            <DialogDescription>
-              Add a new talent to your library.
-            </DialogDescription>
+            <DialogTitle>添加演员</DialogTitle>
+            <DialogDescription>将新演员添加到演员库。</DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">名称</Label>
               <Input
                 id="name"
                 name="name"
                 value={name}
                 onChange={(event) => setName(event.target.value)}
-                placeholder="Talent name…"
+                placeholder="演员名称…"
                 autoComplete="off"
                 required
               />
@@ -354,7 +346,7 @@ export const AddTalentDialog: React.FC<AddTalentDialogProps> = ({
 
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between gap-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description">描述</Label>
                 <Button
                   type="button"
                   variant="ghost"
@@ -386,14 +378,14 @@ export const AddTalentDialog: React.FC<AddTalentDialogProps> = ({
                               ? strongestSubjectKind([prev, result.subjectKind])
                               : result.subjectKind
                           );
-                          toast.success('Description generated from photos');
+                          toast.success('已根据照片生成描述');
                         },
                         onError: (error) => {
-                          toast.error('Could not generate description', {
+                          toast.error('无法生成描述', {
                             description:
                               error instanceof Error
                                 ? error.message
-                                : 'Unknown error',
+                                : '未知错误',
                           });
                         },
                       }
@@ -401,9 +393,7 @@ export const AddTalentDialog: React.FC<AddTalentDialogProps> = ({
                   }}
                 >
                   <Sparkles className="h-4 w-4" />
-                  {generateDescription.isPending
-                    ? 'Generating…'
-                    : 'Generate from photos'}
+                  {generateDescription.isPending ? '正在生成…' : '根据照片生成'}
                 </Button>
               </div>
               <Textarea
@@ -411,13 +401,13 @@ export const AddTalentDialog: React.FC<AddTalentDialogProps> = ({
                 name="description"
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
-                placeholder="Describe the talent's appearance, style…"
+                placeholder="描述演员的外貌和风格…"
                 rows={3}
               />
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label>Reference Media</Label>
+              <Label>参考素材</Label>
               <TalentMediaUpload
                 files={files}
                 onFilesChange={handleFilesChange}
@@ -436,13 +426,13 @@ export const AddTalentDialog: React.FC<AddTalentDialogProps> = ({
             {uploadedUrls.length > 0 && subjectKind ? (
               <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-2">
-                  <Label>Subject</Label>
+                  <Label>主体</Label>
                   <Badge variant="secondary" data-testid="subject-kind">
                     {subjectKind === 'human'
-                      ? 'Human'
+                      ? '真人'
                       : subjectKind === 'animated'
-                        ? 'Animated'
-                        : 'Other'}
+                        ? '动画角色'
+                        : '其他'}
                   </Badge>
                 </div>
                 {subjectKind === 'human' ? (
@@ -465,7 +455,7 @@ export const AddTalentDialog: React.FC<AddTalentDialogProps> = ({
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={handleClose}>
-              Cancel
+              取消
             </Button>
             <Button type="submit" disabled={isBusy || isUploading}>
               {(createPhase === 'analyzing' ||
@@ -475,12 +465,12 @@ export const AddTalentDialog: React.FC<AddTalentDialogProps> = ({
               )}
               <span>
                 {createPhase === 'analyzing'
-                  ? 'Analyzing photos…'
+                  ? '正在分析照片…'
                   : createPhase === 'creating' || createTalent.isPending
-                    ? 'Creating…'
+                    ? '正在创建…'
                     : isUploading
-                      ? 'Uploading…'
-                      : 'Add Talent'}
+                      ? '正在上传…'
+                      : '添加演员'}
               </span>
             </Button>
           </DialogFooter>

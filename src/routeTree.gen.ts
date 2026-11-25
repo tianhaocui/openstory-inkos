@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as DocsRouteImport } from './routes/docs'
+import { Route as HealthRouteImport } from './routes/health'
 import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
@@ -57,6 +58,9 @@ import { Route as AppSettingsIndexRouteImport } from './routes/_app/settings/ind
 import { Route as AppSettingsApiKeysRouteImport } from './routes/_app/settings/api-keys'
 import { Route as AppSettingsDeveloperRouteImport } from './routes/_app/settings/developer'
 import { Route as AppSettingsPasskeysRouteImport } from './routes/_app/settings/passkeys'
+import { Route as AppStoriesIndexRouteImport } from './routes/_app/stories/index'
+import { Route as AppStoriesIdRouteImport } from './routes/_app/stories/$id'
+import { Route as AppStoriesNewRouteImport } from './routes/_app/stories/new'
 import { Route as AppStudioIndexRouteImport } from './routes/_app/studio/index'
 import { Route as AppStylesIndexRouteImport } from './routes/_app/styles/index'
 import { Route as AppTalentIndexRouteImport } from './routes/_app/talent/index'
@@ -64,9 +68,8 @@ import { Route as AppTalentIdRouteImport } from './routes/_app/talent/$id'
 import { Route as AppVideosIndexRouteImport } from './routes/_app/videos/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiBillingWebhookRouteImport } from './routes/api/billing/webhook'
+import { Route as ApiInternalInkosSessionRouteImport } from './routes/api/internal/inkos-session'
 import { Route as ApiOpenrouterCallbackRouteImport } from './routes/api/openrouter/callback'
-import { Route as ApiStorageMultipartRouteImport } from './routes/api/storage/multipart'
-import { Route as ApiStorageUploadRouteImport } from './routes/api/storage/upload'
 import { Route as ApiTestCharacterRouteImport } from './routes/api/test/character'
 import { Route as ApiTestImageRouteImport } from './routes/api/test/image'
 import { Route as ApiTestLocationRouteImport } from './routes/api/test/location'
@@ -87,6 +90,8 @@ import { Route as AppSequencesIdScriptRouteImport } from './routes/_app/sequence
 import { Route as AppSequencesIdTheatreRouteImport } from './routes/_app/sequences/$id/theatre'
 import { Route as AppSequencesNewIndexRouteImport } from './routes/_app/sequences/new/index'
 import { Route as AppSequencesNewScenesRouteImport } from './routes/_app/sequences/new/scenes'
+import { Route as ApiIntegrationsInkosLaunchRouteImport } from './routes/api/integrations/inkos/launch'
+import { Route as ApiIntegrationsInkosSyncRouteImport } from './routes/api/integrations/inkos/sync'
 import { Route as ApiV1DeviceCodeRouteImport } from './routes/api/v1/device.code'
 import { Route as ApiV1DeviceTokenRouteImport } from './routes/api/v1/device.token'
 import { Route as ApiV1ScriptsEnhanceRouteImport } from './routes/api/v1/scripts.enhance'
@@ -111,6 +116,11 @@ const AuthRouteRoute = AuthRouteRouteImport.update({
 const DocsRoute = DocsRouteImport.update({
   id: '/docs',
   path: '/docs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HealthRoute = HealthRouteImport.update({
+  id: '/health',
+  path: '/health',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
@@ -338,6 +348,21 @@ const AppSettingsPasskeysRoute = AppSettingsPasskeysRouteImport.update({
   path: '/passkeys',
   getParentRoute: () => AppSettingsRouteRoute,
 } as any)
+const AppStoriesIndexRoute = AppStoriesIndexRouteImport.update({
+  id: '/stories/',
+  path: '/stories/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppStoriesIdRoute = AppStoriesIdRouteImport.update({
+  id: '/stories/$id',
+  path: '/stories/$id',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppStoriesNewRoute = AppStoriesNewRouteImport.update({
+  id: '/stories/new',
+  path: '/stories/new',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppStudioIndexRoute = AppStudioIndexRouteImport.update({
   id: '/studio/',
   path: '/studio/',
@@ -373,19 +398,14 @@ const ApiBillingWebhookRoute = ApiBillingWebhookRouteImport.update({
   path: '/api/billing/webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiInternalInkosSessionRoute = ApiInternalInkosSessionRouteImport.update({
+  id: '/api/internal/inkos-session',
+  path: '/api/internal/inkos-session',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiOpenrouterCallbackRoute = ApiOpenrouterCallbackRouteImport.update({
   id: '/api/openrouter/callback',
   path: '/api/openrouter/callback',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiStorageMultipartRoute = ApiStorageMultipartRouteImport.update({
-  id: '/api/storage/multipart',
-  path: '/api/storage/multipart',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiStorageUploadRoute = ApiStorageUploadRouteImport.update({
-  id: '/api/storage/upload',
-  path: '/api/storage/upload',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiTestCharacterRoute = ApiTestCharacterRouteImport.update({
@@ -488,6 +508,18 @@ const AppSequencesNewScenesRoute = AppSequencesNewScenesRouteImport.update({
   path: '/sequences/new/scenes',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const ApiIntegrationsInkosLaunchRoute =
+  ApiIntegrationsInkosLaunchRouteImport.update({
+    id: '/api/integrations/inkos/launch',
+    path: '/api/integrations/inkos/launch',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiIntegrationsInkosSyncRoute =
+  ApiIntegrationsInkosSyncRouteImport.update({
+    id: '/api/integrations/inkos/sync',
+    path: '/api/integrations/inkos/sync',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiV1DeviceCodeRoute = ApiV1DeviceCodeRouteImport.update({
   id: '/api/v1/device/code',
   path: '/api/v1/device/code',
@@ -557,6 +589,7 @@ const ApiV1SequencesIdExportsRoute = ApiV1SequencesIdExportsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/docs': typeof DocsRouteWithChildren
+  '/health': typeof HealthRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/mcp': typeof McpRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -595,12 +628,13 @@ export interface FileRoutesByFullPath {
   '/settings/api-keys': typeof AppSettingsApiKeysRoute
   '/settings/developer': typeof AppSettingsDeveloperRoute
   '/settings/passkeys': typeof AppSettingsPasskeysRoute
+  '/stories/$id': typeof AppStoriesIdRoute
+  '/stories/new': typeof AppStoriesNewRoute
   '/talent/$id': typeof AppTalentIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
+  '/api/internal/inkos-session': typeof ApiInternalInkosSessionRoute
   '/api/openrouter/callback': typeof ApiOpenrouterCallbackRoute
-  '/api/storage/multipart': typeof ApiStorageMultipartRoute
-  '/api/storage/upload': typeof ApiStorageUploadRoute
   '/api/test/character': typeof ApiTestCharacterRoute
   '/api/test/image': typeof ApiTestImageRoute
   '/api/test/location': typeof ApiTestLocationRoute
@@ -619,6 +653,7 @@ export interface FileRoutesByFullPath {
   '/models/': typeof AppModelsIndexRoute
   '/sequences/': typeof AppSequencesIndexRoute
   '/settings/': typeof AppSettingsIndexRoute
+  '/stories/': typeof AppStoriesIndexRoute
   '/studio/': typeof AppStudioIndexRoute
   '/styles/': typeof AppStylesIndexRoute
   '/talent/': typeof AppTalentIndexRoute
@@ -630,6 +665,8 @@ export interface FileRoutesByFullPath {
   '/sequences/$id/script': typeof AppSequencesIdScriptRoute
   '/sequences/$id/theatre': typeof AppSequencesIdTheatreRoute
   '/sequences/new/scenes': typeof AppSequencesNewScenesRoute
+  '/api/integrations/inkos/launch': typeof ApiIntegrationsInkosLaunchRoute
+  '/api/integrations/inkos/sync': typeof ApiIntegrationsInkosSyncRoute
   '/api/v1/device/code': typeof ApiV1DeviceCodeRoute
   '/api/v1/device/token': typeof ApiV1DeviceTokenRoute
   '/api/v1/scripts/enhance': typeof ApiV1ScriptsEnhanceRoute
@@ -646,6 +683,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof AppIndexRoute
+  '/health': typeof HealthRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/mcp': typeof McpRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -683,12 +721,13 @@ export interface FileRoutesByTo {
   '/settings/api-keys': typeof AppSettingsApiKeysRoute
   '/settings/developer': typeof AppSettingsDeveloperRoute
   '/settings/passkeys': typeof AppSettingsPasskeysRoute
+  '/stories/$id': typeof AppStoriesIdRoute
+  '/stories/new': typeof AppStoriesNewRoute
   '/talent/$id': typeof AppTalentIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
+  '/api/internal/inkos-session': typeof ApiInternalInkosSessionRoute
   '/api/openrouter/callback': typeof ApiOpenrouterCallbackRoute
-  '/api/storage/multipart': typeof ApiStorageMultipartRoute
-  '/api/storage/upload': typeof ApiStorageUploadRoute
   '/api/test/character': typeof ApiTestCharacterRoute
   '/api/test/image': typeof ApiTestImageRoute
   '/api/test/location': typeof ApiTestLocationRoute
@@ -707,6 +746,7 @@ export interface FileRoutesByTo {
   '/models': typeof AppModelsIndexRoute
   '/sequences': typeof AppSequencesIndexRoute
   '/settings': typeof AppSettingsIndexRoute
+  '/stories': typeof AppStoriesIndexRoute
   '/studio': typeof AppStudioIndexRoute
   '/styles': typeof AppStylesIndexRoute
   '/talent': typeof AppTalentIndexRoute
@@ -718,6 +758,8 @@ export interface FileRoutesByTo {
   '/sequences/$id/script': typeof AppSequencesIdScriptRoute
   '/sequences/$id/theatre': typeof AppSequencesIdTheatreRoute
   '/sequences/new/scenes': typeof AppSequencesNewScenesRoute
+  '/api/integrations/inkos/launch': typeof ApiIntegrationsInkosLaunchRoute
+  '/api/integrations/inkos/sync': typeof ApiIntegrationsInkosSyncRoute
   '/api/v1/device/code': typeof ApiV1DeviceCodeRoute
   '/api/v1/device/token': typeof ApiV1DeviceTokenRoute
   '/api/v1/scripts/enhance': typeof ApiV1ScriptsEnhanceRoute
@@ -737,6 +779,7 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteRouteWithChildren
   '/_auth': typeof AuthRouteRouteWithChildren
   '/docs': typeof DocsRouteWithChildren
+  '/health': typeof HealthRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/mcp': typeof McpRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -776,12 +819,13 @@ export interface FileRoutesById {
   '/_app/settings/api-keys': typeof AppSettingsApiKeysRoute
   '/_app/settings/developer': typeof AppSettingsDeveloperRoute
   '/_app/settings/passkeys': typeof AppSettingsPasskeysRoute
+  '/_app/stories/$id': typeof AppStoriesIdRoute
+  '/_app/stories/new': typeof AppStoriesNewRoute
   '/_app/talent/$id': typeof AppTalentIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
+  '/api/internal/inkos-session': typeof ApiInternalInkosSessionRoute
   '/api/openrouter/callback': typeof ApiOpenrouterCallbackRoute
-  '/api/storage/multipart': typeof ApiStorageMultipartRoute
-  '/api/storage/upload': typeof ApiStorageUploadRoute
   '/api/test/character': typeof ApiTestCharacterRoute
   '/api/test/image': typeof ApiTestImageRoute
   '/api/test/location': typeof ApiTestLocationRoute
@@ -800,6 +844,7 @@ export interface FileRoutesById {
   '/_app/models/': typeof AppModelsIndexRoute
   '/_app/sequences/': typeof AppSequencesIndexRoute
   '/_app/settings/': typeof AppSettingsIndexRoute
+  '/_app/stories/': typeof AppStoriesIndexRoute
   '/_app/studio/': typeof AppStudioIndexRoute
   '/_app/styles/': typeof AppStylesIndexRoute
   '/_app/talent/': typeof AppTalentIndexRoute
@@ -811,6 +856,8 @@ export interface FileRoutesById {
   '/_app/sequences/$id/script': typeof AppSequencesIdScriptRoute
   '/_app/sequences/$id/theatre': typeof AppSequencesIdTheatreRoute
   '/_app/sequences/new/scenes': typeof AppSequencesNewScenesRoute
+  '/api/integrations/inkos/launch': typeof ApiIntegrationsInkosLaunchRoute
+  '/api/integrations/inkos/sync': typeof ApiIntegrationsInkosSyncRoute
   '/api/v1/device/code': typeof ApiV1DeviceCodeRoute
   '/api/v1/device/token': typeof ApiV1DeviceTokenRoute
   '/api/v1/scripts/enhance': typeof ApiV1ScriptsEnhanceRoute
@@ -830,6 +877,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/docs'
+    | '/health'
     | '/llms.txt'
     | '/mcp'
     | '/robots.txt'
@@ -868,12 +916,13 @@ export interface FileRouteTypes {
     | '/settings/api-keys'
     | '/settings/developer'
     | '/settings/passkeys'
+    | '/stories/$id'
+    | '/stories/new'
     | '/talent/$id'
     | '/api/auth/$'
     | '/api/billing/webhook'
+    | '/api/internal/inkos-session'
     | '/api/openrouter/callback'
-    | '/api/storage/multipart'
-    | '/api/storage/upload'
     | '/api/test/character'
     | '/api/test/image'
     | '/api/test/location'
@@ -892,6 +941,7 @@ export interface FileRouteTypes {
     | '/models/'
     | '/sequences/'
     | '/settings/'
+    | '/stories/'
     | '/studio/'
     | '/styles/'
     | '/talent/'
@@ -903,6 +953,8 @@ export interface FileRouteTypes {
     | '/sequences/$id/script'
     | '/sequences/$id/theatre'
     | '/sequences/new/scenes'
+    | '/api/integrations/inkos/launch'
+    | '/api/integrations/inkos/sync'
     | '/api/v1/device/code'
     | '/api/v1/device/token'
     | '/api/v1/scripts/enhance'
@@ -919,6 +971,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/health'
     | '/llms.txt'
     | '/mcp'
     | '/robots.txt'
@@ -956,12 +1009,13 @@ export interface FileRouteTypes {
     | '/settings/api-keys'
     | '/settings/developer'
     | '/settings/passkeys'
+    | '/stories/$id'
+    | '/stories/new'
     | '/talent/$id'
     | '/api/auth/$'
     | '/api/billing/webhook'
+    | '/api/internal/inkos-session'
     | '/api/openrouter/callback'
-    | '/api/storage/multipart'
-    | '/api/storage/upload'
     | '/api/test/character'
     | '/api/test/image'
     | '/api/test/location'
@@ -980,6 +1034,7 @@ export interface FileRouteTypes {
     | '/models'
     | '/sequences'
     | '/settings'
+    | '/stories'
     | '/studio'
     | '/styles'
     | '/talent'
@@ -991,6 +1046,8 @@ export interface FileRouteTypes {
     | '/sequences/$id/script'
     | '/sequences/$id/theatre'
     | '/sequences/new/scenes'
+    | '/api/integrations/inkos/launch'
+    | '/api/integrations/inkos/sync'
     | '/api/v1/device/code'
     | '/api/v1/device/token'
     | '/api/v1/scripts/enhance'
@@ -1009,6 +1066,7 @@ export interface FileRouteTypes {
     | '/_app'
     | '/_auth'
     | '/docs'
+    | '/health'
     | '/llms.txt'
     | '/mcp'
     | '/robots.txt'
@@ -1048,12 +1106,13 @@ export interface FileRouteTypes {
     | '/_app/settings/api-keys'
     | '/_app/settings/developer'
     | '/_app/settings/passkeys'
+    | '/_app/stories/$id'
+    | '/_app/stories/new'
     | '/_app/talent/$id'
     | '/api/auth/$'
     | '/api/billing/webhook'
+    | '/api/internal/inkos-session'
     | '/api/openrouter/callback'
-    | '/api/storage/multipart'
-    | '/api/storage/upload'
     | '/api/test/character'
     | '/api/test/image'
     | '/api/test/location'
@@ -1072,6 +1131,7 @@ export interface FileRouteTypes {
     | '/_app/models/'
     | '/_app/sequences/'
     | '/_app/settings/'
+    | '/_app/stories/'
     | '/_app/studio/'
     | '/_app/styles/'
     | '/_app/talent/'
@@ -1083,6 +1143,8 @@ export interface FileRouteTypes {
     | '/_app/sequences/$id/script'
     | '/_app/sequences/$id/theatre'
     | '/_app/sequences/new/scenes'
+    | '/api/integrations/inkos/launch'
+    | '/api/integrations/inkos/sync'
     | '/api/v1/device/code'
     | '/api/v1/device/token'
     | '/api/v1/scripts/enhance'
@@ -1102,6 +1164,7 @@ export interface RootRouteChildren {
   AppRouteRoute: typeof AppRouteRouteWithChildren
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
   DocsRoute: typeof DocsRouteWithChildren
+  HealthRoute: typeof HealthRoute
   LlmsDottxtRoute: typeof LlmsDottxtRoute
   McpRoute: typeof McpRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
@@ -1118,13 +1181,14 @@ export interface RootRouteChildren {
   R2SplatRoute: typeof R2SplatRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiBillingWebhookRoute: typeof ApiBillingWebhookRoute
+  ApiInternalInkosSessionRoute: typeof ApiInternalInkosSessionRoute
   ApiOpenrouterCallbackRoute: typeof ApiOpenrouterCallbackRoute
-  ApiStorageMultipartRoute: typeof ApiStorageMultipartRoute
-  ApiStorageUploadRoute: typeof ApiStorageUploadRoute
   ApiV1OpenapiDotjsonRoute: typeof ApiV1OpenapiDotjsonRoute
   ApiV1SequencesRoute: typeof ApiV1SequencesRouteWithChildren
   ApiV1StylesRoute: typeof ApiV1StylesRouteWithChildren
   ApiV1IndexRoute: typeof ApiV1IndexRoute
+  ApiIntegrationsInkosLaunchRoute: typeof ApiIntegrationsInkosLaunchRoute
+  ApiIntegrationsInkosSyncRoute: typeof ApiIntegrationsInkosSyncRoute
   ApiV1DeviceCodeRoute: typeof ApiV1DeviceCodeRoute
   ApiV1DeviceTokenRoute: typeof ApiV1DeviceTokenRoute
   ApiV1ScriptsEnhanceRoute: typeof ApiV1ScriptsEnhanceRoute
@@ -1151,6 +1215,13 @@ declare module '@tanstack/react-router' {
       path: '/docs'
       fullPath: '/docs'
       preLoaderRoute: typeof DocsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/health': {
+      id: '/health'
+      path: '/health'
+      fullPath: '/health'
+      preLoaderRoute: typeof HealthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/llms.txt': {
@@ -1468,6 +1539,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsPasskeysRouteImport
       parentRoute: typeof AppSettingsRouteRoute
     }
+    '/_app/stories/': {
+      id: '/_app/stories/'
+      path: '/stories'
+      fullPath: '/stories/'
+      preLoaderRoute: typeof AppStoriesIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/stories/$id': {
+      id: '/_app/stories/$id'
+      path: '/stories/$id'
+      fullPath: '/stories/$id'
+      preLoaderRoute: typeof AppStoriesIdRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/stories/new': {
+      id: '/_app/stories/new'
+      path: '/stories/new'
+      fullPath: '/stories/new'
+      preLoaderRoute: typeof AppStoriesNewRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/_app/studio/': {
       id: '/_app/studio/'
       path: '/studio'
@@ -1517,25 +1609,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiBillingWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/internal/inkos-session': {
+      id: '/api/internal/inkos-session'
+      path: '/api/internal/inkos-session'
+      fullPath: '/api/internal/inkos-session'
+      preLoaderRoute: typeof ApiInternalInkosSessionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/openrouter/callback': {
       id: '/api/openrouter/callback'
       path: '/api/openrouter/callback'
       fullPath: '/api/openrouter/callback'
       preLoaderRoute: typeof ApiOpenrouterCallbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/storage/multipart': {
-      id: '/api/storage/multipart'
-      path: '/api/storage/multipart'
-      fullPath: '/api/storage/multipart'
-      preLoaderRoute: typeof ApiStorageMultipartRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/storage/upload': {
-      id: '/api/storage/upload'
-      path: '/api/storage/upload'
-      fullPath: '/api/storage/upload'
-      preLoaderRoute: typeof ApiStorageUploadRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/test/character': {
@@ -1677,6 +1762,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/sequences/new/scenes'
       preLoaderRoute: typeof AppSequencesNewScenesRouteImport
       parentRoute: typeof AppRouteRoute
+    }
+    '/api/integrations/inkos/launch': {
+      id: '/api/integrations/inkos/launch'
+      path: '/api/integrations/inkos/launch'
+      fullPath: '/api/integrations/inkos/launch'
+      preLoaderRoute: typeof ApiIntegrationsInkosLaunchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/integrations/inkos/sync': {
+      id: '/api/integrations/inkos/sync'
+      path: '/api/integrations/inkos/sync'
+      fullPath: '/api/integrations/inkos/sync'
+      preLoaderRoute: typeof ApiIntegrationsInkosSyncRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/v1/device/code': {
       id: '/api/v1/device/code'
@@ -1840,12 +1939,15 @@ interface AppRouteRouteChildren {
   AppLocationsLocationIdRoute: typeof AppLocationsLocationIdRoute
   AppModelsSplatRoute: typeof AppModelsSplatRoute
   AppOauthConsentRoute: typeof AppOauthConsentRoute
+  AppStoriesIdRoute: typeof AppStoriesIdRoute
+  AppStoriesNewRoute: typeof AppStoriesNewRoute
   AppTalentIdRoute: typeof AppTalentIdRoute
   AppGalleryIndexRoute: typeof AppGalleryIndexRoute
   AppImagesIndexRoute: typeof AppImagesIndexRoute
   AppLocationsIndexRoute: typeof AppLocationsIndexRoute
   AppModelsIndexRoute: typeof AppModelsIndexRoute
   AppSequencesIndexRoute: typeof AppSequencesIndexRoute
+  AppStoriesIndexRoute: typeof AppStoriesIndexRoute
   AppStudioIndexRoute: typeof AppStudioIndexRoute
   AppStylesIndexRoute: typeof AppStylesIndexRoute
   AppTalentIndexRoute: typeof AppTalentIndexRoute
@@ -1869,12 +1971,15 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppLocationsLocationIdRoute: AppLocationsLocationIdRoute,
   AppModelsSplatRoute: AppModelsSplatRoute,
   AppOauthConsentRoute: AppOauthConsentRoute,
+  AppStoriesIdRoute: AppStoriesIdRoute,
+  AppStoriesNewRoute: AppStoriesNewRoute,
   AppTalentIdRoute: AppTalentIdRoute,
   AppGalleryIndexRoute: AppGalleryIndexRoute,
   AppImagesIndexRoute: AppImagesIndexRoute,
   AppLocationsIndexRoute: AppLocationsIndexRoute,
   AppModelsIndexRoute: AppModelsIndexRoute,
   AppSequencesIndexRoute: AppSequencesIndexRoute,
+  AppStoriesIndexRoute: AppStoriesIndexRoute,
   AppStudioIndexRoute: AppStudioIndexRoute,
   AppStylesIndexRoute: AppStylesIndexRoute,
   AppTalentIndexRoute: AppTalentIndexRoute,
@@ -1987,6 +2092,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppRouteRoute: AppRouteRouteWithChildren,
   AuthRouteRoute: AuthRouteRouteWithChildren,
   DocsRoute: DocsRouteWithChildren,
+  HealthRoute: HealthRoute,
   LlmsDottxtRoute: LlmsDottxtRoute,
   McpRoute: McpRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
@@ -2003,13 +2109,14 @@ const rootRouteChildren: RootRouteChildren = {
   R2SplatRoute: R2SplatRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiBillingWebhookRoute: ApiBillingWebhookRoute,
+  ApiInternalInkosSessionRoute: ApiInternalInkosSessionRoute,
   ApiOpenrouterCallbackRoute: ApiOpenrouterCallbackRoute,
-  ApiStorageMultipartRoute: ApiStorageMultipartRoute,
-  ApiStorageUploadRoute: ApiStorageUploadRoute,
   ApiV1OpenapiDotjsonRoute: ApiV1OpenapiDotjsonRoute,
   ApiV1SequencesRoute: ApiV1SequencesRouteWithChildren,
   ApiV1StylesRoute: ApiV1StylesRouteWithChildren,
   ApiV1IndexRoute: ApiV1IndexRoute,
+  ApiIntegrationsInkosLaunchRoute: ApiIntegrationsInkosLaunchRoute,
+  ApiIntegrationsInkosSyncRoute: ApiIntegrationsInkosSyncRoute,
   ApiV1DeviceCodeRoute: ApiV1DeviceCodeRoute,
   ApiV1DeviceTokenRoute: ApiV1DeviceTokenRoute,
   ApiV1ScriptsEnhanceRoute: ApiV1ScriptsEnhanceRoute,

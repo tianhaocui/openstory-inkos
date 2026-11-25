@@ -257,7 +257,7 @@ export const EvalView: React.FC<EvalViewProps> = ({
     const options = [...seen.entries()]
       .map(([value, label]) => ({ value, label }))
       .sort((a, b) => a.label.localeCompare(b.label));
-    return [{ value: 'all', label: 'All Styles' }, ...options];
+    return [{ value: 'all', label: '全部风格' }, ...options];
   }, [sequences, styleNameById]);
 
   // Team-scoped divergence flags so own-data rows show a "variants available"
@@ -372,18 +372,18 @@ export const EvalView: React.FC<EvalViewProps> = ({
       ) : filteredAndSorted.length === 0 ? (
         <EmptyState
           icon={<VideoIcon className="h-12 w-12" />}
-          title={filters.search ? 'No matching sequences' : 'No sequences yet'}
+          title={filters.search ? '没有匹配的序列' : '暂无序列'}
           description={
             filters.search
               ? `No sequences match "${filters.search}".`
               : supportMode
-                ? 'No sequences found across any users.'
-                : 'Get started by creating your first video sequence. Transform your script into professional video content with AI assistance.'
+                ? '未在任何用户中找到序列。'
+                : '创建第一个视频序列，借助 AI 将剧本转换为专业视频内容。'
           }
           action={
             !filters.search && !supportMode ? (
               <Button asChild size="lg">
-                <Link to="/">Create Your First Sequence</Link>
+                <Link to="/">创建第一个序列</Link>
               </Button>
             ) : undefined
           }

@@ -1,40 +1,40 @@
 ---
-title: Styles
-description: Choose visual styles that define the aesthetic of your sequences
+title: 风格
+description: 选择用于定义序列美学的视觉风格
 section: User Guide
 order: 9
 ---
 
-Styles define the overall visual aesthetic of your sequence — color palette, artistic direction, lighting, and rendering approach. Every sequence requires a style.
+风格决定序列的整体视觉美学，包括色板、艺术方向、光照和渲染方式。每个序列都必须选择一种风格。
 
-## Selecting a Style
+## 选择风格
 
-When creating or editing a sequence, the style selector appears below the script editor as a row of tiles.
+创建或编辑序列时，风格选择器会以一排图块的形式出现在剧本编辑器下方。
 
-### Quick Selection
+### 快速选择
 
-The most popular styles are shown directly as square tiles with:
+最受欢迎的风格会直接显示为方形图块，其中包含：
 
-- **Preview image** — A sample image showing the style's look
-- **Name overlay** — The style name at the bottom of the tile
-- **Selection highlight** — A primary-color border and subtle scale-up when selected
+- **预览图** — 展示风格外观的示例图像
+- **名称叠层** — 位于图块底部的风格名称
+- **选中高亮** — 选中时显示主题色边框并轻微放大
 
-### Full Catalog
+### 完整目录
 
-Click the **More** tile (shown with a `...` icon) to open the full style selection dialog. This shows all available styles with larger previews, names, and categories. Click any style to select it and close the dialog.
+点击**更多**图块（以 `...` 图标显示）打开完整的风格选择对话框。对话框会通过更大的预览图、名称和类别展示所有可用风格。点击任意风格即可选中并关闭对话框。
 
-## How Styles Work
+## 风格的工作方式
 
-Each style includes a configuration object that influences the AI generation:
+每种风格都包含一个会影响 AI 生成的配置对象：
 
-- **Color Palette** — Defines the dominant colors. When no preview image is available, a gradient is generated from the palette.
-- **Artistic Direction** — Guides the overall visual treatment (photorealistic, cinematic, illustrated, anime, etc.)
-- **Rendering Approach** — Affects how prompts are constructed for image generation
+- **色板** — 定义主色调。没有可用预览图时，会根据色板生成渐变。
+- **艺术方向** — 指导整体视觉表现（写实、电影感、插画、动漫等）
+- **渲染方式** — 影响图像生成提示词的构建方式
 
-## Style Categories
+## 风格类别
 
-Some motion models require specific style categories. For example, the **Seedance 2** motion model is restricted to **animation** styles. If you select a style from a different category, incompatible motion models are automatically switched to the default.
+某些动态模型要求使用特定的风格类别。例如，**Seedance 2** 动态模型仅支持**动画**风格。如果选择其他类别的风格，不兼容的动态模型会自动切换为默认模型。
 
-## Style and Script Enhancement
+## 风格与剧本增强
 
-When you use **Enhance Script**, the selected style's configuration is passed to the AI. The enhanced screenplay is tailored to match the style's visual language — for example, a noir style produces darker, moodier descriptions while a vibrant pop-art style produces bold, colorful ones.
+使用**增强剧本**时，所选风格的配置会传递给 AI。增强后的剧本会适配该风格的视觉语言——例如，黑色电影风格会生成更暗、更有情绪感的描述，而鲜艳的波普艺术风格会生成大胆且色彩丰富的描述。

@@ -240,9 +240,9 @@ export const SceneMusicFacet: React.FC<SceneMusicFacetProps> = ({
           { sequenceId, variantId: variant.id },
           {
             onError: (error) => {
-              toast.error('Failed to restore alternate', {
+              toast.error('恢复备用版本失败', {
                 description:
-                  error instanceof Error ? error.message : 'Unknown error',
+                  error instanceof Error ? error.message : '未知错误',
               });
             },
           }
@@ -252,14 +252,13 @@ export const SceneMusicFacet: React.FC<SceneMusicFacetProps> = ({
         { sequenceId, variantId: variant.id },
         {
           onSuccess: () => {
-            toast('Alternate discarded', {
-              action: { label: 'Undo', onClick: restore },
+            toast('已丢弃备用版本', {
+              action: { label: '撤销', onClick: restore },
             });
           },
           onError: (error) => {
-            toast.error('Failed to discard alternate', {
-              description:
-                error instanceof Error ? error.message : 'Unknown error',
+            toast.error('丢弃备用版本失败', {
+              description: error instanceof Error ? error.message : '未知错误',
             });
           },
         }
@@ -273,11 +272,10 @@ export const SceneMusicFacet: React.FC<SceneMusicFacetProps> = ({
       promoteVariant.mutate(
         { sequenceId, variantId: variant.id },
         {
-          onSuccess: () => toast.success('Alternate promoted'),
+          onSuccess: () => toast.success('已采用备用版本'),
           onError: (error) => {
-            toast.error('Failed to promote alternate', {
-              description:
-                error instanceof Error ? error.message : 'Unknown error',
+            toast.error('采用备用版本失败', {
+              description: error instanceof Error ? error.message : '未知错误',
             });
           },
         }
@@ -291,11 +289,10 @@ export const SceneMusicFacet: React.FC<SceneMusicFacetProps> = ({
       setMusicModel.mutate(
         { sequenceId, model },
         {
-          onSuccess: () => toast.success('Music model set'),
+          onSuccess: () => toast.success('音乐模型已设置'),
           onError: (error) => {
-            toast.error('Failed to set music model', {
-              description:
-                error instanceof Error ? error.message : 'Unknown error',
+            toast.error('设置音乐模型失败', {
+              description: error instanceof Error ? error.message : '未知错误',
             });
           },
         }
@@ -344,8 +341,8 @@ export const SceneMusicFacet: React.FC<SceneMusicFacetProps> = ({
           context.previous
         );
       }
-      toast.error('Music generation failed', {
-        description: error instanceof Error ? error.message : 'Unknown error',
+      toast.error('音乐生成失败', {
+        description: error instanceof Error ? error.message : '未知错误',
       });
     },
   });
@@ -365,7 +362,7 @@ export const SceneMusicFacet: React.FC<SceneMusicFacetProps> = ({
       saveMusicPromptFn({ data: { sequenceId, prompt } }),
     onSuccess: async (result) => {
       toast.success(
-        result.unchanged ? 'No changes to save' : 'Music prompt saved'
+        result.unchanged ? '没有需要保存的更改' : '音乐提示词已保存'
       );
       await queryClient.invalidateQueries({
         queryKey: sequenceKeys.detail(sequenceId),
@@ -375,8 +372,8 @@ export const SceneMusicFacet: React.FC<SceneMusicFacetProps> = ({
       });
     },
     onError: (error) => {
-      toast.error('Failed to save music prompt', {
-        description: error instanceof Error ? error.message : 'Unknown error',
+      toast.error('保存音乐提示词失败', {
+        description: error instanceof Error ? error.message : '未知错误',
       });
     },
   });
@@ -396,7 +393,7 @@ export const SceneMusicFacet: React.FC<SceneMusicFacetProps> = ({
     mutationFn: () => regenerateMusicPromptFn({ data: { sequenceId } }),
     onSuccess: async (result) => {
       if (result.alreadyUpToDate) {
-        toast.info('Music prompt is already up to date');
+        toast.info('音乐提示词已是最新');
       }
       await queryClient.invalidateQueries({
         queryKey: stalenessKey,
@@ -406,8 +403,8 @@ export const SceneMusicFacet: React.FC<SceneMusicFacetProps> = ({
       });
     },
     onError: (error) => {
-      toast.error('Music prompt regenerate failed', {
-        description: error instanceof Error ? error.message : 'Unknown error',
+      toast.error('音乐提示词重新生成失败', {
+        description: error instanceof Error ? error.message : '未知错误',
       });
     },
   });
@@ -424,10 +421,10 @@ export const SceneMusicFacet: React.FC<SceneMusicFacetProps> = ({
             <Music className="h-6 w-6 text-muted-foreground/60" />
           </div>
           <p className="text-sm text-muted-foreground">
-            Music is edited at sequence scope.
+            音乐需在序列范围内编辑。
           </p>
           <p className="mt-1 text-xs text-muted-foreground/70">
-            Clear your selection to edit the sequence track.
+            清除选择后即可编辑序列音轨。
           </p>
         </div>
         {sequence.musicUrl && (
@@ -435,7 +432,7 @@ export const SceneMusicFacet: React.FC<SceneMusicFacetProps> = ({
             src={sequence.musicUrl}
             controls
             className="w-full"
-            aria-label="Sequence music preview"
+            aria-label="序列音乐预览"
           >
             <track kind="captions" />
           </audio>
@@ -485,8 +482,8 @@ export const SceneMusicFacet: React.FC<SceneMusicFacetProps> = ({
           user-upload primary slot; generated alternates stay switchable. */}
       <div className="flex justify-center">
         <UploadMediaButton
-          label="Upload Audio"
-          pendingLabel="Uploading…"
+          label="上传音频"
+          pendingLabel="上传中…"
           accept="audio/*"
           isPending={uploadMusic.isPending}
           disabled={generating}
@@ -494,11 +491,11 @@ export const SceneMusicFacet: React.FC<SceneMusicFacetProps> = ({
             uploadMusic.mutate(
               { file, sequenceId },
               {
-                onSuccess: () => toast.success('Music track uploaded'),
+                onSuccess: () => toast.success('音乐音轨已上传'),
                 onError: (error) =>
-                  toast.error('Music upload failed', {
+                  toast.error('音乐上传失败', {
                     description:
-                      error instanceof Error ? error.message : 'Unknown error',
+                      error instanceof Error ? error.message : '未知错误',
                   }),
               }
             )

@@ -122,11 +122,11 @@ export const ShotDurationField: React.FC<ShotDurationFieldProps> = ({
           queryKey: sequenceKeys.detail(sequenceId),
         }),
       ]);
-      toast.success('Duration saved');
+      toast.success('时长已保存');
     },
     onError: (error) => {
-      toast.error('Failed to save duration', {
-        description: error instanceof Error ? error.message : 'Unknown error',
+      toast.error('保存时长失败', {
+        description: error instanceof Error ? error.message : '未知错误',
       });
     },
   });
@@ -142,11 +142,11 @@ export const ShotDurationField: React.FC<ShotDurationFieldProps> = ({
     onSuccess: ({ durationSeconds }) => {
       const snapped = snapDuration(durationSeconds, motionModel);
       setEditedSeconds(snapped);
-      toast.success(`Suggested duration: ${snapped}s`);
+      toast.success(`建议时长：${snapped} 秒`);
     },
     onError: (error) => {
-      toast.error('Duration estimate failed', {
-        description: error instanceof Error ? error.message : 'Unknown error',
+      toast.error('估算时长失败', {
+        description: error instanceof Error ? error.message : '未知错误',
       });
     },
   });
@@ -158,7 +158,7 @@ export const ShotDurationField: React.FC<ShotDurationFieldProps> = ({
   return (
     <div className="space-y-2">
       <label htmlFor="shot-duration-input" className="text-sm font-medium">
-        Duration (seconds)
+        时长（秒）
       </label>
       <div className="flex flex-wrap items-center gap-2">
         <Select
@@ -192,18 +192,18 @@ export const ShotDurationField: React.FC<ShotDurationFieldProps> = ({
           ) : (
             <Sparkles className="mr-2 h-4 w-4" />
           )}
-          {isEstimating ? 'Estimating…' : 'Estimate'}
+          {isEstimating ? '估算中…' : '估算'}
         </Button>
 
         {sceneSeconds !== undefined && filmSeconds !== undefined && (
           <span className="text-xs tabular-nums text-muted-foreground">
-            Scene {formatSeconds(sceneSeconds)} · Film{' '}
+            场景 {formatSeconds(sceneSeconds)} · 影片{' '}
             {formatSeconds(filmSeconds)}
           </span>
         )}
         {dialogueLonger && dialogueSeconds != null && (
           <span className="text-xs tabular-nums text-muted-foreground">
-            Dialogue {formatSeconds(dialogueSeconds)}
+            对白 {formatSeconds(dialogueSeconds)}
           </span>
         )}
 
@@ -215,7 +215,7 @@ export const ShotDurationField: React.FC<ShotDurationFieldProps> = ({
               onClick={() => setEditedSeconds(undefined)}
               disabled={busy}
             >
-              Cancel
+              取消
             </Button>
             <Button
               size="sm"
@@ -223,7 +223,7 @@ export const ShotDurationField: React.FC<ShotDurationFieldProps> = ({
               disabled={!shot || busy}
             >
               {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isSaving ? 'Saving…' : 'Save'}
+              {isSaving ? '保存中…' : '保存'}
             </Button>
           </div>
         )}
@@ -235,12 +235,12 @@ export const ShotDurationField: React.FC<ShotDurationFieldProps> = ({
           that isn't on screen. */}
       {isDirty ? (
         <p className="text-xs text-muted-foreground">
-          Saving will mark the rendered video as stale. Prompts are unaffected.
+          保存后，已生成的视频将标记为过期，提示词不受影响。
         </p>
       ) : rendersSnapped ? (
         <p className="text-xs text-muted-foreground">
-          Stored as {savedSeconds}s — {videoModelDisplayName(motionModel)}{' '}
-          renders it at {snappedSavedSeconds}s.
+          已存储为 {savedSeconds} 秒，{videoModelDisplayName(motionModel)}
+          将按 {snappedSavedSeconds} 秒生成。
         </p>
       ) : null}
       {dialogueLonger &&
@@ -248,8 +248,8 @@ export const ShotDurationField: React.FC<ShotDurationFieldProps> = ({
         raisedForDialogue != null && (
           <p className="text-xs text-muted-foreground">
             {raisedForDialogue < dialogueSeconds
-              ? `Dialogue is ${formatSeconds(dialogueSeconds)} — ${videoModelDisplayName(motionModel)} maxes at ${formatSeconds(raisedForDialogue)}, so the take won't attach.`
-              : `Dialogue is ${formatSeconds(dialogueSeconds)} — this shot is ${formatSeconds(currentSeconds)}. Generate will render at ${formatSeconds(raisedForDialogue)}.`}
+              ? `对白时长为 ${formatSeconds(dialogueSeconds)}，但 ${videoModelDisplayName(motionModel)} 最长支持 ${formatSeconds(raisedForDialogue)}，因此无法附加此录音。`
+              : `对白时长为 ${formatSeconds(dialogueSeconds)}，当前镜头为 ${formatSeconds(currentSeconds)}。生成时将使用 ${formatSeconds(raisedForDialogue)}。`}
           </p>
         )}
     </div>

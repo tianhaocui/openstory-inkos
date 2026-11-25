@@ -85,13 +85,13 @@ function StudioCard({
         onClick={onOpen}
         className="block w-full overflow-hidden text-left"
         style={{ aspectRatio: studioAspectRatio(asset).replace(':', ' / ') }}
-        aria-label={prompt || 'Generated asset'}
+        aria-label={prompt || '生成内容'}
       >
         {inFlight ? (
           <Skeleton className="h-full w-full rounded-none" />
         ) : asset.status === 'failed' ? (
           <div className="flex h-full items-center justify-center p-4 text-sm text-destructive">
-            {asset.error ?? 'Generation failed'}
+            {asset.error ?? '生成失败'}
           </div>
         ) : isVideo && primary ? (
           <video
@@ -116,7 +116,7 @@ function StudioCard({
         ) : primary ? (
           <AppImage
             src={primary.url}
-            alt={prompt || 'Generated image'}
+            alt={prompt || '生成图片'}
             width={768}
             height={768}
             className="h-full w-full object-cover"
@@ -134,7 +134,7 @@ function StudioCard({
             size="icon"
             variant="secondary"
             className="pointer-events-auto"
-            aria-label={asset.isFavorite ? 'Remove from favorites' : 'Favorite'}
+            aria-label={asset.isFavorite ? '取消收藏' : '收藏'}
             aria-pressed={asset.isFavorite}
             onClick={() =>
               favorite.mutate({
@@ -198,7 +198,7 @@ function StudioViewer({ asset }: { asset: GeneratedAsset }) {
   if (asset.status === 'failed') {
     return (
       <p className="flex min-h-0 flex-1 items-center justify-center text-sm text-destructive">
-        {asset.error ?? 'Generation failed'}
+        {asset.error ?? '生成失败'}
       </p>
     );
   }
@@ -222,7 +222,7 @@ function StudioViewer({ asset }: { asset: GeneratedAsset }) {
       ) : (
         <img
           src={primary.url}
-          alt={prompt || 'Generated image'}
+          alt={prompt || '生成图片'}
           className="max-h-full max-w-full object-contain"
         />
       )}
@@ -282,22 +282,22 @@ export function StudioGallery({
         title={
           supportMode
             ? activity === 'video'
-              ? 'No matching videos'
-              : 'No matching images'
+              ? '没有匹配的视频'
+              : '没有匹配的图片'
             : isAuthenticated
-              ? 'Nothing here yet'
-              : 'Sign in to generate'
+              ? '暂无内容'
+              : '登录后生成'
         }
         description={
           supportMode
             ? activity === 'video'
-              ? 'No clips match this search across any users.'
-              : 'No stills match this search across any users.'
+              ? '没有用户的视频片段匹配当前搜索。'
+              : '没有用户的图片匹配当前搜索。'
             : isAuthenticated
               ? activity === 'video'
-                ? 'Your clips land here. Start with a prompt below.'
-                : 'Your stills land here. Start with a prompt below.'
-              : 'Browse the composer, then sign in to generate and keep a library.'
+                ? '你生成的视频会显示在这里，请从下方输入提示词开始。'
+                : '你生成的图片会显示在这里，请从下方输入提示词开始。'
+              : '浏览创作器并登录，即可生成内容并保存到素材库。'
         }
       />
     );
@@ -329,7 +329,7 @@ export function StudioGallery({
             disabled={isFetchingNextPage}
             onClick={onLoadMore}
           >
-            {isFetchingNextPage ? 'Loading…' : 'Load more'}
+            {isFetchingNextPage ? '加载中…' : '加载更多'}
           </Button>
         </div>
       )}
@@ -345,7 +345,7 @@ export function StudioGallery({
             <>
               <DialogHeader className="shrink-0">
                 <DialogTitle className="line-clamp-2 pr-8 text-base">
-                  {studioPrompt(openAsset) || 'Generated asset'}
+                  {studioPrompt(openAsset) || '生成内容'}
                 </DialogTitle>
                 <DialogDescription>
                   {[
@@ -374,7 +374,7 @@ export function StudioGallery({
                         download={`openstory-${openAsset.id}.${ext}`}
                       >
                         <Download aria-hidden="true" />
-                        Download
+                        下载
                       </a>
                     </Button>
                   );
@@ -390,20 +390,18 @@ export function StudioGallery({
                           disabled={remove.isPending}
                         >
                           <Trash2 aria-hidden="true" />
-                          Delete
+                          删除
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>
-                            Delete this generation?
-                          </AlertDialogTitle>
+                          <AlertDialogTitle>删除此生成内容？</AlertDialogTitle>
                           <AlertDialogDescription>
-                            It is removed from your library for good.
+                            删除后将从素材库中永久移除。
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>Keep</AlertDialogCancel>
+                          <AlertDialogCancel>保留</AlertDialogCancel>
                           <AlertDialogAction
                             onClick={() => {
                               remove.mutate(openAsset.id, {
@@ -411,7 +409,7 @@ export function StudioGallery({
                               });
                             }}
                           >
-                            Delete
+                            删除
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>

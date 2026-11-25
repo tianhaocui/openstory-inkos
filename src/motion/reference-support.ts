@@ -248,32 +248,32 @@ export function unusableReferenceLines(
     const problem = referenceProblem(model, ref);
     const kind = ref.kind ?? 'image';
     if (!problem || kind === 'image') continue;
-    const noun = kind === 'video' ? 'clip' : 'audio file';
-    const token = ref.token ?? `this ${noun}`;
+    const noun = kind === 'video' ? '视频片段' : '音频文件';
+    const token = ref.token ?? `此${noun}`;
     const others = modelsAcceptingReference(ref);
-    const orUse = others.length > 0 ? `, or use ${listModelNames(others)}` : '';
+    const orUse = others.length > 0 ? `，或使用 ${listModelNames(others)}` : '';
     const seconds = Number((ref.durationSeconds ?? 0).toFixed(2));
     switch (problem.reason) {
       case 'format':
         lines.push(
-          `${name} can't use ${token} — it is ${problem.ext.toUpperCase()}, and models take ${problem.accepts}. Replace it with an ${problem.accepts} file.`
+          `${name} 无法使用 ${token}：文件格式为 ${problem.ext.toUpperCase()}，模型仅支持 ${problem.accepts}。请替换为 ${problem.accepts} 文件。`
         );
         break;
       case 'unsupported':
         lines.push(
           others.length > 0
-            ? `${name} can't use ${token} — it takes no reference ${kind === 'video' ? 'clips' : 'audio'}. Use ${listModelNames(others)}.`
-            : `${name} can't use ${token} — it takes no reference ${kind === 'video' ? 'clips' : 'audio'}.`
+            ? `${name} 无法使用 ${token}：它不支持参考${kind === 'video' ? '视频片段' : '音频'}。请使用 ${listModelNames(others)}。`
+            : `${name} 无法使用 ${token}：它不支持参考${kind === 'video' ? '视频片段' : '音频'}。`
         );
         break;
       case 'too-long':
         lines.push(
-          `${name} can't use ${token} — ${seconds}s, over its ${problem.maxSeconds}s limit. Trim it${orUse}.`
+          `${name} 无法使用 ${token}：时长为 ${seconds} 秒，超过 ${problem.maxSeconds} 秒上限。请截短${orUse}。`
         );
         break;
       case 'too-short':
         lines.push(
-          `${name} can't use ${token} — ${seconds}s, under its ${problem.minSeconds}s minimum. Use a longer ${noun}${orUse}.`
+          `${name} 无法使用 ${token}：时长为 ${seconds} 秒，低于 ${problem.minSeconds} 秒下限。请使用更长的${noun}${orUse}。`
         );
         break;
     }
@@ -313,11 +313,11 @@ export function unusableShotReferenceLines(
   if (!support.audio || voices.length === 0 || carriers.length > 0) {
     return lines;
   }
-  const tokens = voices.map((ref) => ref.token ?? 'the audio file');
-  const which = tokens.length === 1 ? tokens[0] : `${tokens.join(' and ')}`;
+  const tokens = voices.map((ref) => ref.token ?? '该音频文件');
+  const which = tokens.length === 1 ? tokens[0] : tokens.join('和');
   return [
     ...lines,
-    `${IMAGE_TO_VIDEO_MODELS[model].name} can't send ${which} on its own — it needs a reference image or clip alongside. Add a cast member, location or element to this shot, or use a start frame.`,
+    `${IMAGE_TO_VIDEO_MODELS[model].name} 无法单独发送 ${which}，需要同时提供参考图片或视频片段。请为此镜头添加演员、场景或元素，或使用起始帧。`,
   ];
 }
 
@@ -356,10 +356,10 @@ function overCombinedLengthLines(
       0
     );
     if (total <= maxCombined) continue;
-    const noun = kind === 'video' ? 'clips' : 'audio files';
-    const tokens = usable.map((ref) => ref.token ?? `a ${noun.slice(0, -1)}`);
+    const noun = kind === 'video' ? '视频片段' : '音频文件';
+    const tokens = usable.map((ref) => ref.token ?? `一个${noun}`);
     lines.push(
-      `${name} can't use ${tokens.join(' and ')} together — ${Number(total.toFixed(2))}s of ${noun}, over its ${maxCombined}s combined limit. Remove one, or trim them.`
+      `${name} 无法同时使用 ${tokens.join('和')}：${noun}总时长为 ${Number(total.toFixed(2))} 秒，超过 ${maxCombined} 秒合计上限。请移除其中一项或将它们截短。`
     );
   }
   return lines;
@@ -385,7 +385,7 @@ export function missingVoiceLines(
   return (dialogue?.lines ?? []).flatMap((line) =>
     isElementVoiceToken(line.voiceToken) && !live.has(line.voiceToken)
       ? [
-          `${line.voiceToken}, the voice on ${line.character || 'the narrator'}'s line, was deleted — pick another voice.`,
+          `${line.voiceToken} 是 ${line.character || '旁白'} 台词使用的声音，但已被删除。请选择其他声音。`,
         ]
       : []
   );
@@ -409,5 +409,5 @@ export function assertReferencesUsable(
 export function listModelNames(models: ImageToVideoModel[]): string {
   const names = models.map((model) => IMAGE_TO_VIDEO_MODELS[model].name);
   if (names.length <= 1) return names[0] ?? '';
-  return `${names.slice(0, -1).join(', ')} and ${names.at(-1)}`;
+  return `${names.slice(0, -1).join('、')}和${names.at(-1)}`;
 }

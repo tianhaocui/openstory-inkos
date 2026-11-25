@@ -21,7 +21,7 @@ export const Route = createFileRoute('/_app/models/family/$')({
   },
   validateSearch: searchParamsSchema,
   component: ModelFamilyPage,
-  staticData: { breadcrumb: 'Model family' },
+  staticData: { breadcrumb: '模型系列' },
 });
 
 function ModelFamilyPage() {
@@ -37,7 +37,7 @@ function ModelFamilyPage() {
           className="flex w-fit items-center gap-2 text-sm text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <ArrowLeft aria-hidden="true" className="size-4" />
-          Back to models
+          返回模型库
         </Link>
         {family ? (
           <ModelFamilyView family={family} activity={activity} />

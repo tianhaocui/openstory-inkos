@@ -62,21 +62,21 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
         {mutation.isSuccess ? (
           <>
             <DialogHeader>
-              <DialogTitle>Thanks</DialogTitle>
+              <DialogTitle>感谢</DialogTitle>
               <DialogDescription>
-                We got your message and will read it soon.
+                我们已收到你的消息，会尽快阅读。
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <Button onClick={() => handleOpenChange(false)}>Done</Button>
+              <Button onClick={() => handleOpenChange(false)}>完成</Button>
             </DialogFooter>
           </>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <DialogHeader>
-              <DialogTitle>Feedback</DialogTitle>
+              <DialogTitle>反馈</DialogTitle>
               <DialogDescription>
-                Bugs, ideas, or anything else — send a short note.
+                Bug、想法或其他任何内容——发送一条简短消息。
               </DialogDescription>
             </DialogHeader>
 
@@ -87,8 +87,8 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
                 autoComplete="email"
                 inputMode="email"
                 maxLength={254}
-                placeholder="Email (optional — if you'd like a reply)"
-                aria-label="Email (optional)"
+                placeholder="邮箱（可选——如果你希望收到回复）"
+                aria-label="邮箱（可选）"
               />
             )}
 
@@ -96,7 +96,7 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
               name="message"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="What's on your mind?"
+              placeholder="有什么想说的？"
               rows={5}
               required
               maxLength={2000}
@@ -107,7 +107,7 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
               <p role="alert" className="text-sm text-destructive">
                 {mutation.error instanceof Error
                   ? mutation.error.message
-                  : 'Failed to send'}
+                  : '发送失败'}
               </p>
             )}
 
@@ -117,13 +117,13 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
                 variant="ghost"
                 onClick={() => handleOpenChange(false)}
               >
-                Cancel
+                取消
               </Button>
               <Button
                 type="submit"
                 disabled={mutation.isPending || !message.trim()}
               >
-                {mutation.isPending ? 'Sending…' : 'Send'}
+                {mutation.isPending ? '发送中…' : '发送'}
               </Button>
             </DialogFooter>
           </form>

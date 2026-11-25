@@ -1,59 +1,59 @@
 ---
-title: Talent Library
-description: Build and manage a library of reusable character references for visual consistency
+title: 演员库
+description: 创建并管理可复用的角色参考库，以保持视觉一致性
 section: User Guide
 order: 7
 ---
 
-The **Talent Library** is a team-wide collection of character references that can be reused across sequences. It ensures visual consistency when the same character appears in multiple projects.
+**演员库**是团队共享的角色参考集合，可在多个序列中复用。当同一角色出现在多个项目中时，它有助于保持视觉一致性。
 
-## Accessing the Talent Library
+## 访问演员库
 
-Navigate to **Talent** from the main navigation. The library shows all talent as a grid of cards.
+从主导航进入**演员**。演员库以卡片网格显示所有演员。
 
-## Adding Talent
+## 添加演员
 
-Click **Add Talent** to create a new entry. You can provide:
+点击**添加演员**创建新条目。你可以提供：
 
-- **Name** — The talent's display name
-- **Reference images** — Upload photos or reference images that define the character's appearance
-- **Description** — Optional notes about the character
+- **姓名** — 演员的显示名称
+- **参考图** — 上传用于定义角色外观的照片或参考图
+- **描述** — 关于角色的可选备注
 
-Reference images are used by the AI during image generation to maintain visual consistency.
+AI 会在生成图像时使用参考图来保持视觉一致性。
 
-## Talent Cards
+## 演员卡片
 
-Each talent card in the library shows:
+演员库中的每张演员卡片包含：
 
-- Reference image thumbnail
-- Talent name
-- Action buttons for editing and managing
+- 参考图缩略图
+- 演员姓名
+- 用于编辑和管理的操作按钮
 
-## Filtering
+## 筛选
 
-Use the filter bar to view:
+使用筛选栏查看：
 
-- **All** — Every talent in the library
-- **Favorites** — Talent you've marked as favorites
+- **全部** — 演员库中的所有演员
+- **收藏** — 你标记为收藏的演员
 
-## Using Talent in Sequences
+## 在序列中使用演员
 
-Talent can be used in two ways:
+演员有两种使用方式：
 
-### Pre-Generation (Suggestions)
+### 生成前（建议）
 
-When creating a new sequence, click the talent icon in the script view's control bar to attach talent as suggestions. The AI will use their reference images when generating scenes with matching characters.
+创建新序列时，点击剧本视图控制栏中的演员图标，将演员作为建议附加。AI 在生成包含对应角色的场景时，会使用他们的参考图。
 
-### Post-Generation (Recasting)
+### 生成后（重新选角）
 
-After a sequence is generated, go to the **Cast** tab, click a character, and use **Recast** to replace the auto-generated appearance with a talent from your library.
+序列生成后，进入**演员**标签页，点击一个角色，然后使用**重新选角**，以演员库中的演员替换自动生成的外观。
 
-## Managing Talent
+## 管理演员
 
-- **Edit** — Update the name, description, or reference images
-- **Upload additional media** — Add more reference images for better consistency
-- **Favorite** — Mark talent for quick access via the Favorites filter
+- **编辑** — 更新姓名、描述或参考图
+- **上传更多媒体** — 添加更多参考图以改善一致性
+- **收藏** — 将演员标记为收藏，以便通过收藏筛选快速访问
 
-## Team Sharing
+## 团队共享
 
-Talent is scoped to your team. All team members can access and use the same talent library, ensuring consistent characters across all team projects.
+演员仅限团队范围。所有团队成员都可以访问并使用同一个演员库，确保角色在团队的所有项目中保持一致。

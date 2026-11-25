@@ -58,14 +58,14 @@ function derivePhases(
     {
       key: 'motion-music',
       name: includeMusic
-        ? 'Generating motion & music\u2026'
-        : 'Generating motion\u2026',
-      shortName: includeMusic ? 'Motion & Music' : 'Motion',
+        ? '正在生成动态视频与音乐\u2026'
+        : '正在生成动态视频\u2026',
+      shortName: includeMusic ? '动态视频与音乐' : '动态视频',
       status: motionMusicStatus,
       budgetSeconds: phase1Budget,
       description: includeMusic
-        ? 'Animating scenes and composing music in parallel.'
-        : 'Animating each scene with camera movement and motion effects.',
+        ? '正在并行为场景制作动态效果与音乐。'
+        : '正在为各场景制作镜头运动和动态效果。',
     },
   ];
 }
@@ -108,10 +108,10 @@ export const MotionProgressBanner: React.FC<MotionProgressBannerProps> = ({
       phases={bannerPhases}
       remaining={remaining}
       isComplete={allComplete}
-      defaultLabel="Generating&#xa0;motion"
-      ariaPrefix="Motion"
-      completedLabel="Motion complete"
-      completedBadge="Done"
+      defaultLabel="正在生成动态视频"
+      ariaPrefix="动态视频"
+      completedLabel="动态视频生成完成"
+      completedBadge="完成"
       exitDelayMs={1500}
       onExitComplete={onComplete}
       isOpen={isOpen}

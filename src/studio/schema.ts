@@ -39,7 +39,7 @@ const imageModelKeySchema = z
   .refine(
     (value): value is TextToImageModel =>
       isValidTextToImageModel(value) && visibleImageModelKeys.includes(value),
-    { message: 'Unknown image model' }
+    { message: '未知图片模型' }
   );
 
 // `requiresVia` models pass here — the schema is static and cannot see a
@@ -53,14 +53,14 @@ const videoModelKeySchema = z
   .refine(
     (value): value is ImageToVideoModel =>
       isValidImageToVideoModel(value) && visibleVideoModelKeys.includes(value),
-    { message: 'Unknown video model' }
+    { message: '未知视频模型' }
   );
 
 const promptSchema = z
   .string()
   .trim()
-  .min(1, 'Enter a prompt')
-  .max(50_000, 'Prompt is too long');
+  .min(1, '请输入提示词')
+  .max(50_000, '提示词过长');
 
 const countSchema = z.number().int().min(1).max(4);
 
@@ -131,7 +131,7 @@ export const studioCreateInputSchema = z.discriminatedUnion('activity', [
           ctx.addIssue({
             code: 'custom',
             path: ['referenceImages'],
-            message: 'Attach at least one reference image or video',
+            message: '请至少附加一张参考图片或一个参考视频',
           });
         }
         if (
@@ -175,7 +175,7 @@ export const studioCreateInputSchema = z.discriminatedUnion('activity', [
           ctx.addIssue({
             code: 'custom',
             path: ['startImageUrl'],
-            message: 'Pick a start frame',
+            message: '请选择起始帧',
           });
         }
         if (input.endImageUrl && !studioSupportsEndFrame(input.videoModel)) {

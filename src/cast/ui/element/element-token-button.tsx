@@ -49,7 +49,7 @@ export const ElementTokenButton: React.FC<{
       await onRename(normalized);
       setOpen(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to rename');
+      setError(err instanceof Error ? err.message : '重命名失败');
     } finally {
       setIsSaving(false);
     }
@@ -60,7 +60,7 @@ export const ElementTokenButton: React.FC<{
       <PopoverTrigger asChild>
         <button
           type="button"
-          aria-label={`Rename ${token}`}
+          aria-label={`重命名 ${token}`}
           className="absolute bottom-0 left-0 right-0 flex min-h-6 cursor-pointer items-center gap-1 bg-background/90 px-1.5 py-0.5 text-left transition-colors hover:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <span className="min-w-0 flex-1 truncate font-mono text-[10px]">
@@ -82,7 +82,7 @@ export const ElementTokenButton: React.FC<{
           onSubmit={(e) => void handleSubmit(e)}
           className="flex flex-col gap-2"
         >
-          <p className="text-sm font-medium">Rename element</p>
+          <p className="text-sm font-medium">重命名元素</p>
           <Input
             ref={inputRef}
             value={value}
@@ -99,7 +99,7 @@ export const ElementTokenButton: React.FC<{
             }
           />
           <p id="token-rename-hint" className="text-xs text-muted-foreground">
-            Saved as <span className="font-mono">{normalized}</span>
+            将保存为 <span className="font-mono">{normalized}</span>
           </p>
           {error && (
             <p
@@ -112,7 +112,7 @@ export const ElementTokenButton: React.FC<{
           )}
           <div className="flex justify-end">
             <Button type="submit" size="sm" disabled={isSaving || isUnchanged}>
-              {isSaving ? 'Renaming…' : 'Save'}
+              {isSaving ? '正在重命名…' : '保存'}
             </Button>
           </div>
         </form>

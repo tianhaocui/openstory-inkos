@@ -121,7 +121,7 @@ export function useLocationSheetRealtime(locationId?: string) {
 
         case 'failed':
           setIsGenerating(false);
-          setError(sheetData.error ?? 'Sheet generation failed');
+          setError(sheetData.error ?? '设定图生成失败');
           break;
       }
     },

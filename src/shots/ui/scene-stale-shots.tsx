@@ -63,7 +63,7 @@ export const SceneStaleShots: React.FC<SceneStaleShotsProps> = ({
           aria-hidden="true"
           className="h-2 w-2 shrink-0 rounded-full bg-muted-foreground/50"
         />
-        <span>Couldn’t check whether these shots are up to date</span>
+        <span>无法检查这些镜头是否为最新</span>
       </div>
     );
   }
@@ -102,9 +102,7 @@ export const SceneStaleShots: React.FC<SceneStaleShotsProps> = ({
         />
       )}
       <span>
-        {staleShots.length > 0
-          ? 'Out of date since your edit'
-          : 'Updating out-of-date shots…'}
+        {staleShots.length > 0 ? '你的编辑使其过期' : '正在更新已过期镜头…'}
       </span>
       <span aria-hidden="true">·</span>
       {[...staleShots, ...updatingShots].map((shot) => {
@@ -145,7 +143,7 @@ export const SceneStaleShots: React.FC<SceneStaleShotsProps> = ({
             onClick={() => setUpdateAllOpen(true)}
             disabled={busy}
             aria-busy={busy}
-            aria-label="Update all out-of-date shots"
+            aria-label="更新所有已过期镜头"
           >
             {isUpdating && (
               <Loader2
@@ -153,7 +151,7 @@ export const SceneStaleShots: React.FC<SceneStaleShotsProps> = ({
                 className="mr-1 h-3 w-3 animate-spin motion-reduce:animate-none"
               />
             )}
-            {isUpdating ? 'Updating…' : 'Update all'}
+            {isUpdating ? '正在更新…' : '全部更新'}
           </Button>
           <UpdateAllDialog
             open={updateAllOpen}

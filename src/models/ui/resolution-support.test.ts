@@ -70,7 +70,7 @@ describe('resolutionCeilingNote', () => {
         imageModels: ['gpt_image_2'],
         videoModels: ['seedance_v2_5'],
       })
-    ).toBe('Seedance 2.5 renders below 4K');
+    ).toBe('Seedance 2.5 将以低于 4K 的分辨率生成');
   });
 
   it('keeps fixed-size models apart from lower — 1K is not "below 720p"', () => {
@@ -79,14 +79,14 @@ describe('resolutionCeilingNote', () => {
         imageModels: ['nano_banana_2_lite'],
         videoModels: ['seedance_v2'],
       })
-    ).toBe('Nano Banana 2 Lite renders at a fixed size');
+    ).toBe('Nano Banana 2 Lite 使用固定分辨率');
     expect(
       resolutionCeilingNote('4k', {
         imageModels: ['gpt_image_2', 'nano_banana_2_lite'],
         videoModels: ['seedance_v2_5'],
       })
     ).toBe(
-      'Seedance 2.5 renders below 4K · Nano Banana 2 Lite renders at a fixed size'
+      'Seedance 2.5 将以低于 4K 的分辨率生成 · Nano Banana 2 Lite 使用固定分辨率'
     );
   });
 
@@ -96,7 +96,7 @@ describe('resolutionCeilingNote', () => {
     // left the picker showing a lone 720p pill that did nothing.
     expect(
       resolutionCeilingNote('720p', { videoModels: ['seedance_v2_mini'] })
-    ).toBe('Seedance 2.0 Mini renders at a fixed size');
+    ).toBe('Seedance 2.0 Mini 使用固定分辨率');
     // The screenshot case: a fixed image model plus a one-tier video model
     // leaves nothing to choose, so the caption has to carry the whole row.
     expect(
@@ -104,7 +104,7 @@ describe('resolutionCeilingNote', () => {
         imageModels: ['nano_banana_2_lite'],
         videoModels: ['seedance_v2_mini'],
       })
-    ).toBe('Nano Banana 2 Lite and Seedance 2.0 Mini render at a fixed size');
+    ).toBe('Nano Banana 2 Lite、Seedance 2.0 Mini 使用固定分辨率');
   });
 
   // No catalog model currently has a floor above 720p, so the "renders above"
@@ -134,6 +134,6 @@ describe('resolutionCeilingNote', () => {
         'flux_2_turbo',
       ],
     });
-    expect(note).toMatch(/and 1 more render below 4K/);
+    expect(note).toMatch(/等 3 个模型 将以低于 4K 的分辨率生成/);
   });
 });

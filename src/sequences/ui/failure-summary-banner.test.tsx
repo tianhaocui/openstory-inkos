@@ -7,12 +7,11 @@ import { FailureSummaryBanner } from './failure-summary-banner';
 
 const contentSummary: FailureSummary = {
   requiresFullRetry: true,
-  headline:
-    "Harry Potter didn't pass the content checker \u2014 regenerate to retry",
+  headline: 'Harry Potter 未通过内容审核，请重新生成后重试',
   groups: [],
   totalFailures: 1,
   hasFailed: true,
-  error: 'Blocked by the content checker: Harry Potter',
+  error: '内容审核未通过：Harry Potter',
   tone: 'warning',
 };
 
@@ -22,14 +21,13 @@ const creditsSummary: FailureSummary = {
   groups: [],
   totalFailures: 1,
   hasFailed: true,
-  error:
-    'Not enough credits to generate images for 11 scenes. Add $4.20 more, then continue.',
+  error: '生成 11 个场景的图片所需点数不足。请再充值 $4.20，然后继续。',
   tone: 'credits',
 };
 
 const generationFailed: FailureSummary = {
   requiresFullRetry: true,
-  headline: 'Generation failed — regenerate to retry',
+  headline: '生成失败，需要重新生成后重试',
   groups: [],
   totalFailures: 1,
   hasFailed: true,
@@ -47,9 +45,9 @@ describe('FailureSummaryBanner', () => {
       />
     );
 
-    expect(html).toContain('Content checker');
-    expect(html).toContain('pass the content checker');
-    expect(html).toContain('regenerate to retry');
+    expect(html).toContain('内容审核');
+    expect(html).toContain('未通过内容审核');
+    expect(html).toContain('重新生成后重试');
     expect(html).toContain(CONTENT_REJECTION_USER_HINT);
     expect(html).not.toContain('Generation failed');
   });
@@ -64,10 +62,10 @@ describe('FailureSummaryBanner', () => {
     );
 
     expect(html).toContain(CREDITS_SHORT_TITLE);
-    expect(html).toContain('This sequence has 11 scenes');
-    expect(html).toContain('Add $4.20 more');
-    expect(html).toContain('Add credits');
-    expect(html).toContain('Continue generation');
+    expect(html).toContain('此序列包含 11 个场景');
+    expect(html).toContain('请再充值 $4.20');
+    expect(html).toContain('充值点数');
+    expect(html).toContain('继续生成');
     expect(html).toContain('role="status"');
     expect(html).not.toContain('Generation failed');
     expect(html).not.toContain('full retry required');
@@ -86,10 +84,10 @@ describe('FailureSummaryBanner', () => {
       />
     );
 
-    expect(html).toContain('Generation failed');
+    expect(html).toContain('生成失败');
     expect(html).toContain('Workflow timed out');
-    expect(html).toContain('Regenerate Sequence');
-    expect(html).toContain('Show details');
+    expect(html).toContain('重新生成序列');
+    expect(html).toContain('显示详情');
     expect(html).toContain('aria-expanded="false"');
   });
 });

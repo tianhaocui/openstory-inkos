@@ -32,34 +32,30 @@ export const RecastConfirmDialog: React.FC<RecastConfirmDialogProps> = ({
   affectedShotCount,
   isLoading,
 }) => {
-  const verb = replacingExisting ? 'Recast' : 'Cast';
+  const verb = replacingExisting ? '替换演员' : '选用演员';
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
-            {verb} {talentName} as {characterName}?
+            {verb}：由 {talentName} 饰演 {characterName}？
           </AlertDialogTitle>
           <AlertDialogDescription>
-            This will generate a new character sheet using {talentName} as the
-            reference.
+            将以 {talentName} 为参考素材生成新的角色设定图。
             {affectedShotCount > 0 && (
               <>
                 {' '}
-                <strong>
-                  {affectedShotCount}{' '}
-                  {affectedShotCount === 1 ? 'shot' : 'shots'}
-                </strong>{' '}
-                containing this character will need to be regenerated.
+                <strong>{affectedShotCount} 个镜头</strong>{' '}
+                包含此角色，需要重新生成。
               </>
             )}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isLoading}>取消</AlertDialogCancel>
           <AlertDialogAction onClick={onConfirm} disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            <span>{isLoading ? `${verb}ing…` : verb}</span>
+            <span>{isLoading ? '正在更新…' : verb}</span>
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

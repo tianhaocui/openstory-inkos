@@ -22,9 +22,9 @@ const TOAST_DEBOUNCE_MS = 5_000;
  */
 export function formatSequenceStaleToastMessage(count: number): string {
   if (count === 1) {
-    return 'An alternate music track is available.';
+    return '有可用的备用音乐音轨。';
   }
-  return `${count} alternate music tracks are available.`;
+  return `有 ${count} 个备用音乐音轨可用。`;
 }
 
 // Bind to the schema's discriminated union so `data.entityType` narrows to a

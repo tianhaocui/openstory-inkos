@@ -1,8 +1,5 @@
 import { usePostHog } from '@posthog/react';
-import { GitHubIcon } from '@/ui/icons/github-icon';
-import { XIcon } from '@/ui/icons/x-icon';
-import { YouTubeIcon } from '@/ui/icons/youtube-icon';
-import { OpenStoryIcon, OpenStoryLogo } from '@/ui/icons/openstory-logo';
+import { BigKalamiLogo, BigKalamiMark } from '@/ui/icons/big-kalami-logo';
 import {
   Sidebar,
   SidebarContent,
@@ -13,29 +10,23 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarSeparator,
   useSidebar,
 } from '@/ui/shadcn/sidebar';
-import { FeedbackDialog } from '@/platform/ui/feedback/feedback-dialog';
 import { MODELS_ENABLED } from '@/platform/flags';
-import { SITE_CONFIG } from '@/ui/marketing/constants';
 import { Link, useRouterState } from '@tanstack/react-router';
-import { useCallback, useEffect, useState, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import {
-  BadgeDollarSign,
+  BookOpenIcon,
   Boxes,
   Clapperboard,
   Film,
   Images,
-  LifeBuoy,
-  Mail,
   MapPin,
   Palette,
   Plus,
   Users,
   Video,
 } from 'lucide-react';
-import { CreditBalancePill } from './credit-balance-pill';
 import { UserSidebarFooter } from './user-sidebar-footer';
 
 /**
@@ -153,16 +144,17 @@ function useLowBalanceWarning() {
 }
 
 const navLinks = [
-  { to: '/sequences', label: 'Sequences', icon: Video },
-  { to: '/images', label: 'Images', icon: Images },
-  { to: '/videos', label: 'Videos', icon: Film },
+  { to: '/sequences', label: '我的序列', icon: Video },
+  { to: '/stories', label: '故事创作', icon: BookOpenIcon },
+  { to: '/images', label: '图片', icon: Images },
+  { to: '/videos', label: '视频', icon: Film },
   ...(MODELS_ENABLED
-    ? [{ to: '/models', label: 'Models', icon: Boxes } as const]
+    ? [{ to: '/models', label: '模型', icon: Boxes } as const]
     : []),
-  { to: '/styles', label: 'Styles', icon: Palette },
-  { to: '/talent', label: 'Talent', icon: Users },
-  { to: '/locations', label: 'Locations', icon: MapPin },
-  { to: '/gallery', label: 'Gallery', icon: Clapperboard },
+  { to: '/styles', label: '风格', icon: Palette },
+  { to: '/talent', label: '角色', icon: Users },
+  { to: '/locations', label: '场景', icon: MapPin },
+  { to: '/gallery', label: '作品集', icon: Clapperboard },
 ] as const;
 
 export function AppSidebar() {
@@ -171,7 +163,6 @@ export function AppSidebar() {
   const { isMobile, setOpenMobile } = useSidebar();
   const posthog = usePostHog();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   useEffect(() => {
     if (isMobile) setOpenMobile(false);
@@ -184,14 +175,8 @@ export function AppSidebar() {
           to="/"
           className="flex h-10 items-center px-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
         >
-          <OpenStoryLogo
-            size="md"
-            className="group-data-[collapsible=icon]:hidden"
-          />
-          <OpenStoryIcon
-            size="md"
-            className="hidden group-data-[collapsible=icon]:block"
-          />
+          <BigKalamiLogo className="group-data-[collapsible=icon]:hidden" />
+          <BigKalamiMark className="hidden group-data-[collapsible=icon]:block" />
         </Link>
       </SidebarHeader>
       <SidebarContent>
@@ -199,7 +184,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="New sequence">
+                <SidebarMenuButton asChild tooltip="新建序列">
                   {/* `/` is the free composer for everyone (#1104); the
                       signed-in alias `/sequences/new` is for copy/breadcrumb
                       entry points that require a session. */}
@@ -212,7 +197,7 @@ export function AppSidebar() {
                     }
                   >
                     <Plus />
-                    <span>New sequence</span>
+                    <span>新建序列</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -236,68 +221,9 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Docs">
-              <Link to="/docs">
-                <LifeBuoy />
-                <span>Docs</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Pricing">
-              <Link to="/pricing">
-                <BadgeDollarSign />
-                <span>Pricing</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              tooltip="Feedback"
-              onClick={() => setFeedbackOpen(true)}
-            >
-              <Mail />
-              <span>Feedback</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="GitHub">
-              <a href={SITE_CONFIG.githubHref} target="_blank" rel="noreferrer">
-                <GitHubIcon className="size-4" />
-                <span>GitHub</span>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="YouTube">
-              <a
-                href={SITE_CONFIG.youtubeHref}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <YouTubeIcon className="size-4" />
-                <span>YouTube</span>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Follow OpenStory">
-              <a href={SITE_CONFIG.xHref} target="_blank" rel="noreferrer">
-                <XIcon className="size-4" />
-                <span>Follow OpenStory</span>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-        <SidebarSeparator />
-        {/* Quiet status chip — not a nav peer of Sequences/Gallery (#1090). */}
-        <CreditBalancePill />
-        <SidebarMenu>
           <UserSidebarFooter />
         </SidebarMenu>
       </SidebarFooter>
-      <FeedbackDialog open={feedbackOpen} onOpenChange={setFeedbackOpen} />
     </Sidebar>
   );
 }

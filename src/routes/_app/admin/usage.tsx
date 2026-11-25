@@ -20,7 +20,7 @@ import { Suspense, useMemo, useState } from 'react';
 
 export const Route = createFileRoute('/_app/admin/usage')({
   component: AdminUsagePage,
-  staticData: { breadcrumb: 'Usage' },
+  staticData: { breadcrumb: '使用情况' },
 });
 
 type SortField =
@@ -39,9 +39,9 @@ type SortDirection = 'asc' | 'desc';
 function AdminUsagePage() {
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="sr-only">User Activity</h1>
+      <h1 className="sr-only">用户活动</h1>
       <p className="text-muted-foreground">
-        Overview of all users, their sequences, and credit activity.
+        查看所有用户、故事序列和点数活动概览。
       </p>
       <Suspense fallback={<PageSkeleton />}>
         <UsageContent />
@@ -128,19 +128,19 @@ function UsageContent() {
   return (
     <>
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-        <SummaryCard label="Total Users" value={String(totals.users)} />
-        <SummaryCard label="Total Sequences" value={String(totals.sequences)} />
-        <SummaryCard label="Failed" value={String(totals.failed)} />
+        <SummaryCard label="用户总数" value={String(totals.users)} />
+        <SummaryCard label="故事序列总数" value={String(totals.sequences)} />
+        <SummaryCard label="失败次数" value={String(totals.failed)} />
         <SummaryCard
-          label="Total Spent"
+          label="总支出"
           value={microsToDisplayUsd(micros(totals.spent))}
         />
         <SummaryCard
-          label="Purchased"
+          label="已购买"
           value={microsToDisplayUsd(micros(totals.purchased))}
         />
         <SummaryCard
-          label="Gifted"
+          label="已赠送"
           value={microsToDisplayUsd(micros(totals.gifted))}
         />
       </div>
@@ -149,14 +149,14 @@ function UsageContent() {
         <div className="relative max-w-sm flex-1">
           <Users className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search by name, email, or team..."
+            placeholder="按姓名、邮箱或团队搜索…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9"
           />
         </div>
         <span className="text-sm text-muted-foreground">
-          {sorted.length} of {rows.length} users
+          共 {rows.length} 名用户，显示 {sorted.length} 名
         </span>
         <Button
           variant="outline"
@@ -165,7 +165,7 @@ function UsageContent() {
           disabled={sorted.length === 0}
         >
           <Download className="h-4 w-4 mr-1" />
-          Export CSV
+          导出 CSV
         </Button>
       </div>
 
@@ -174,27 +174,27 @@ function UsageContent() {
           <thead>
             <tr className="border-b bg-muted/50">
               <SortableHeader
-                label="User"
+                label="用户"
                 field="name"
                 current={sortField}
                 direction={sortDir}
                 onSort={toggleSort}
               />
               <SortableHeader
-                label="Joined"
+                label="加入日期"
                 field="createdAt"
                 current={sortField}
                 direction={sortDir}
                 onSort={toggleSort}
               />
               <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                Status
+                状态
               </th>
               <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                Team
+                团队
               </th>
               <SortableHeader
-                label="Sequences"
+                label="故事序列"
                 field="sequenceCount"
                 current={sortField}
                 direction={sortDir}
@@ -202,7 +202,7 @@ function UsageContent() {
                 align="right"
               />
               <SortableHeader
-                label="Errors"
+                label="错误"
                 field="failedCount"
                 current={sortField}
                 direction={sortDir}
@@ -210,7 +210,7 @@ function UsageContent() {
                 align="right"
               />
               <SortableHeader
-                label="Avg Time"
+                label="平均耗时"
                 field="avgAnalysisDurationMs"
                 current={sortField}
                 direction={sortDir}
@@ -218,7 +218,7 @@ function UsageContent() {
                 align="right"
               />
               <SortableHeader
-                label="Spent"
+                label="支出"
                 field="creditsSpentMicros"
                 current={sortField}
                 direction={sortDir}
@@ -226,7 +226,7 @@ function UsageContent() {
                 align="right"
               />
               <SortableHeader
-                label="Purchased"
+                label="已购买"
                 field="creditsPurchasedMicros"
                 current={sortField}
                 direction={sortDir}
@@ -234,7 +234,7 @@ function UsageContent() {
                 align="right"
               />
               <SortableHeader
-                label="Gifted"
+                label="已赠送"
                 field="creditsGiftedMicros"
                 current={sortField}
                 direction={sortDir}
@@ -242,7 +242,7 @@ function UsageContent() {
                 align="right"
               />
               <SortableHeader
-                label="Balance"
+                label="余额"
                 field="currentBalanceMicros"
                 current={sortField}
                 direction={sortDir}
@@ -250,7 +250,7 @@ function UsageContent() {
                 align="right"
               />
               <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                Support
+                支持
               </th>
             </tr>
           </thead>
@@ -261,7 +261,7 @@ function UsageContent() {
                   colSpan={12}
                   className="px-4 py-8 text-center text-muted-foreground"
                 >
-                  {search ? 'No users match your search.' : 'No users found.'}
+                  {search ? '没有用户符合搜索条件。' : '未找到用户。'}
                 </td>
               </tr>
             ) : (
@@ -328,10 +328,10 @@ function formatDate(date: Date | string): string {
 function formatDuration(ms: number | null): string {
   if (ms === null || ms === 0) return '-';
   const seconds = Math.round(ms / 1000);
-  if (seconds < 60) return `${seconds}s`;
+  if (seconds < 60) return `${seconds} 秒`;
   const minutes = Math.floor(seconds / 60);
   const remaining = seconds % 60;
-  return `${minutes}m${remaining > 0 ? ` ${remaining}s` : ''}`;
+  return `${minutes} 分${remaining > 0 ? ` ${remaining} 秒` : ''}`;
 }
 
 const UserRow: React.FC<{ row: UserActivityRow }> = ({ row }) => {
@@ -341,6 +341,14 @@ const UserRow: React.FC<{ row: UserActivityRow }> = ({ row }) => {
       : row.status === 'suspended'
         ? 'destructive'
         : 'secondary';
+  const statusLabel =
+    row.status === 'active'
+      ? '正常'
+      : row.status === 'suspended'
+        ? '已封禁'
+        : row.status === 'inactive'
+          ? '未激活'
+          : '未知';
 
   return (
     <tr className="border-b last:border-b-0 hover:bg-muted/30">
@@ -355,7 +363,7 @@ const UserRow: React.FC<{ row: UserActivityRow }> = ({ row }) => {
         {formatDate(row.createdAt)}
       </td>
       <td className="px-4 py-3">
-        <Badge variant={statusVariant}>{row.status ?? 'unknown'}</Badge>
+        <Badge variant={statusVariant}>{statusLabel}</Badge>
       </td>
       <td className="px-4 py-3 text-muted-foreground">{row.teamName}</td>
       <td className="px-4 py-3 text-right tabular-nums">{row.sequenceCount}</td>
@@ -385,26 +393,26 @@ const UserRow: React.FC<{ row: UserActivityRow }> = ({ row }) => {
             to="/sequences"
             search={{ user: row.email }}
             className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
-            aria-label={`Open sequence support view for ${row.email}`}
+            aria-label={`打开 ${row.email} 的故事序列支持视图`}
           >
             <LifeBuoy className="h-4 w-4" />
-            Sequences
+            故事序列
           </Link>
           <Link
             to="/images"
             search={{ user: row.email }}
             className="text-sm text-primary hover:underline"
-            aria-label={`Open image support view for ${row.email}`}
+            aria-label={`打开 ${row.email} 的图像支持视图`}
           >
-            Images
+            图像
           </Link>
           <Link
             to="/videos"
             search={{ user: row.email }}
             className="text-sm text-primary hover:underline"
-            aria-label={`Open video support view for ${row.email}`}
+            aria-label={`打开 ${row.email} 的视频支持视图`}
           >
-            Videos
+            视频
           </Link>
         </div>
       </td>

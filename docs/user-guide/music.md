@@ -1,67 +1,67 @@
 ---
-title: Music & Audio
-description: Generate, customize, and merge music and sound effects for your sequence
+title: 音乐与音频
+description: 为序列生成、自定义并合并音乐和音效
 section: User Guide
 order: 5
 ---
 
-The **Music** tab lets you generate AI music and sound effects that match your sequence's mood and merge them with your video.
+你可以在**音乐**标签页生成符合序列氛围的 AI 音乐和音效，并将其与视频合并。
 
-## Music Generation
+## 音乐生成
 
-OpenStory automatically generates a music prompt and tags from your script during analysis. The Music tab shows:
+OpenStory 会在分析期间根据剧本自动生成音乐提示词和标签。音乐标签页会显示以下状态：
 
-### Prompt Ready State
+### 提示词就绪状态
 
-When the music prompt is ready but not yet generated:
+音乐提示词已准备就绪、但尚未生成音乐时：
 
-- **Editable prompt** — The AI-generated music prompt describing the desired soundtrack. You can edit this before generating.
-- **Tags** — AI-generated genre/mood tags (e.g., "cinematic, ambient, dramatic")
-- **Model selector** — Choose which music generation model to use
-- **Duration** — Defaults to the total video duration. Shows a warning if the video duration exceeds the model's maximum.
-- **Generate Music** button
+- **可编辑提示词** — AI 生成的音乐提示词，用于描述期望的配乐。你可以在生成前进行编辑。
+- **标签** — AI 生成的流派/氛围标签（例如“电影感、氛围、戏剧性”）
+- **模型选择器** — 选择要使用的音乐生成模型
+- **时长** — 默认使用视频总时长。如果视频时长超过模型上限，会显示警告。
+- **生成音乐**按钮
 
-### Generating State
+### 生成中状态
 
-A spinner with "Generating music..." text. Music generation happens asynchronously.
+显示加载指示器和“正在生成音乐...”文字。音乐会异步生成。
 
-### Completed State
+### 已完成状态
 
-Once music is generated:
+音乐生成后：
 
-- **Audio player** — HTML5 audio controls for previewing the track
-- **Model selector** — Switch models for regeneration
-- **Read-only prompt and tags** — Shows what was used to generate
-- **Regenerate Music** — Generate a new track with different settings
-- **Merge with Video** — Combine the audio track with your video clips into a final video
+- **音频播放器** — 用于预览音轨的 HTML5 音频控件
+- **模型选择器** — 切换用于重新生成的模型
+- **只读提示词和标签** — 显示生成时使用的内容
+- **重新生成音乐** — 使用不同设置生成新音轨
+- **与视频合并** — 将音轨与视频片段合成为最终视频
 
-### Failed State
+### 失败状态
 
-If generation fails, the error message is displayed with a **Retry** button.
+如果生成失败，会显示错误消息和**重试**按钮。
 
-## Music Models
+## 音乐模型
 
-| Model                | Vendor     | Max Duration | Capabilities                         |
-| -------------------- | ---------- | ------------ | ------------------------------------ |
-| **ElevenLabs Music** | ElevenLabs | 10 minutes   | Prompt-based, instrumental (default) |
-| **MiniMax Music v2** | MiniMax    | 5 minutes    | Prompt + lyrics, instrumental        |
-| **ACE-Step 1.5**     | ACE Studio | 4 minutes    | Open weight, prompt + lyrics         |
-| **Lyria 2**          | Google     | 30 seconds   | Short-form, instrumental             |
-| **MMAudio V2**       | MMAudio    | 8 seconds    | Video-to-audio SFX                   |
-| **ElevenLabs SFX**   | ElevenLabs | 22 seconds   | Sound effects                        |
+| 模型                 | 提供商     | 最长时长 | 功能                       |
+| -------------------- | ---------- | -------- | -------------------------- |
+| **ElevenLabs Music** | ElevenLabs | 10 分钟  | 基于提示词、纯音乐（默认） |
+| **MiniMax Music v2** | MiniMax    | 5 分钟   | 提示词 + 歌词、纯音乐      |
+| **ACE-Step 1.5**     | ACE Studio | 4 分钟   | 开放权重、提示词 + 歌词    |
+| **Lyria 2**          | Google     | 30 秒    | 短音频、纯音乐             |
+| **MMAudio V2**       | MMAudio    | 8 秒     | 视频生成音频音效           |
+| **ElevenLabs SFX**   | ElevenLabs | 22 秒    | 音效                       |
 
-### Duration Limits
+### 时长限制
 
-Each model has a maximum duration. If your video exceeds it, a warning appears:
+每个模型都有最长时长限制。如果视频超出限制，会显示警告：
 
-> Video is 95s but lyria_2 max is 30s — music will be clamped.
+> 视频时长为 95 秒，但 lyria_2 最长仅支持 30 秒——音乐将被截断。
 
-## Merging Video and Music
+## 合并视频与音乐
 
-After generating music, click **Merge with Video** to combine:
+音乐生成后，点击**与视频合并**以完成以下操作：
 
-1. All motion clips are concatenated in scene order
-2. The music track is mixed in
-3. A final `.mp4` file is produced
+1. 按场景顺序拼接所有动态片段
+2. 混入音乐轨道
+3. 生成最终 `.mp4` 文件
 
-The merge status shows as "Merging..." with a spinner. When complete, the merged video appears in the **Theatre** tab.
+合并期间会显示“正在合并...”状态和加载指示器。完成后，合并视频会出现在**影院**标签页中。

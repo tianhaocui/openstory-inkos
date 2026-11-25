@@ -13,7 +13,7 @@
 import { PortraitAttestationFields } from '@/cast/ui/talent-library/portrait-attestation-fields';
 import { attestUploadsFn } from '@/cast/upload-rights.fn';
 import type { UploadRef } from '@/cast/upload-rights';
-import { PORTRAIT_RIGHTS_V1 } from '@/platform/compliance/attestations';
+import { PORTRAIT_RIGHTS_V2 } from '@/platform/compliance/attestations';
 import { Button } from '@/ui/shadcn/button';
 import {
   Dialog,
@@ -36,7 +36,7 @@ import { uploadRightsKeys, uploadRightsQuery } from './use-upload-rights';
 
 class UploadRightsDeclinedError extends Error {
   constructor() {
-    super('Rights to this person’s likeness were not confirmed');
+    super('未确认拥有使用此人肖像的权利');
     this.name = 'UploadRightsDeclinedError';
   }
 }
@@ -50,9 +50,20 @@ const UploadRightsGateContext = createContext<UploadRightsGateValue | null>(
   null
 );
 
+/** SSR fallback — uploads always pass during server render (no dialog to open). */
+const SSR_FALLBACK: UploadRightsGateValue = {
+  ensureUploadRights: () => Promise.resolve(),
+};
+
 export function useUploadRightsGate(): UploadRightsGateValue {
   const value = useContext(UploadRightsGateContext);
+  // During SSR the provider isn't mounted yet; return a no-op so hooks that
+  // depend on this (useUploadDraftElement) can still be called without throwing.
+  // The actual dialog flow only runs client-side after hydration.
   if (!value) {
+    if (typeof window === 'undefined') {
+      return SSR_FALLBACK;
+    }
     throw new Error(
       'useUploadRightsGate must be used within <UploadRightsGateProvider> (app shell) or <UploadRightsGateStub> (stories/tests)'
     );
@@ -126,7 +137,7 @@ export function UploadRightsGateProvider({
         data: {
           attestations: pending.refs.map((ref) => ({
             url: ref.url,
-            statementVersion: PORTRAIT_RIGHTS_V1.version,
+            statementVersion: PORTRAIT_RIGHTS_V2.version,
             authorizationBasis: authorizationBasis.trim(),
           })),
         },
@@ -134,7 +145,7 @@ export function UploadRightsGateProvider({
       await queryClient.invalidateQueries({ queryKey: uploadRightsKeys.all });
       close('confirmed');
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Could not save');
+      setError(cause instanceof Error ? cause.message : '无法保存');
     } finally {
       setSaving(false);
     }
@@ -166,12 +177,12 @@ export function UploadRightsGateProvider({
           }}
         >
           <DialogHeader>
-            <DialogTitle>Real person detected</DialogTitle>
+            <DialogTitle>检测到真人</DialogTitle>
             <DialogDescription>
               {names.length === 1
-                ? `${names[0]} shows a real person.`
-                : `${names.length} uploads show a real person.`}{' '}
-              Confirm you have the rights to their likeness to continue.
+                ? `${names[0]} 中出现了真人。`
+                : `${names.length} 个上传内容中出现了真人。`}{' '}
+              请确认你拥有使用其肖像的权利，然后继续。
             </DialogDescription>
           </DialogHeader>
           <PortraitAttestationFields
@@ -188,14 +199,14 @@ export function UploadRightsGateProvider({
               variant="outline"
               onClick={() => close('declined')}
             >
-              Cancel
+              取消
             </Button>
             <Button
               type="button"
               disabled={!canConfirm || saving}
               onClick={() => void confirm()}
             >
-              {saving ? 'Saving…' : 'Confirm rights'}
+              {saving ? '正在保存…' : '确认权利'}
             </Button>
           </DialogFooter>
         </DialogContent>

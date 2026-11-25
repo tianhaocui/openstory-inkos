@@ -1,46 +1,46 @@
 ---
-title: Location Library
-description: Build and manage a library of reusable location references for visual consistency
+title: 地点库
+description: 创建并管理可复用的地点参考库，以保持视觉一致性
 section: User Guide
 order: 8
 ---
 
-The **Location Library** is a team-wide collection of location references that can be reused across sequences. It ensures visual consistency when the same setting appears in multiple projects.
+**地点库**是团队共享的地点参考集合，可在多个序列中复用。当同一环境出现在多个项目中时，它有助于保持视觉一致性。
 
-## Accessing the Location Library
+## 访问地点库
 
-Navigate to **Locations** from the main navigation. The library shows all locations with a search bar and grid layout.
+从主导航进入**地点**。地点库以网格布局显示所有地点，并提供搜索栏。
 
-## Adding Locations
+## 添加地点
 
-Click **Add Location** to create a new entry. You can provide:
+点击**添加地点**创建新条目。你可以提供：
 
-- **Name** — The location's display name
-- **Description** — A description of the setting
-- **Reference image** — Upload a photo or AI-generated reference that defines the location's visual style
+- **名称** — 地点的显示名称
+- **描述** — 对环境的描述
+- **参考图** — 上传用于定义地点视觉风格的照片或 AI 生成参考图
 
-## Searching
+## 搜索
 
-Use the search bar at the top to filter locations by name or description. The search is reflected in the URL for bookmarking and sharing.
+使用顶部搜索栏按名称或描述筛选地点。搜索条件会反映在 URL 中，便于添加书签和分享。
 
-## Using Locations in Sequences
+## 在序列中使用地点
 
-Locations can be used in two ways:
+地点有两种使用方式：
 
-### Pre-Generation (Suggestions)
+### 生成前（建议）
 
-When creating a new sequence, click the location icon in the script view's control bar to attach locations as suggestions. The AI will reference their images when generating scenes set in matching environments.
+创建新序列时，点击剧本视图控制栏中的地点图标，将地点作为建议附加。AI 在生成对应环境中的场景时，会参考这些地点图像。
 
-### Post-Generation (Updating References)
+### 生成后（更新参考）
 
-After generation, go to the **Locations** tab of your sequence, click a location, and use **Update Reference** to replace the auto-generated reference with one from your library.
+生成完成后，进入序列的**地点**标签页，点击某个地点，然后使用**更新参考**，以地点库中的参考替换自动生成的参考。
 
-## Managing Locations
+## 管理地点
 
-- **Edit** — Update the name, description, or reference image
-- **Upload custom references** — Add photos or images that define the location's look
-- **Search** — Filter by name or description
+- **编辑** — 更新名称、描述或参考图
+- **上传自定义参考** — 添加用于定义地点外观的照片或图像
+- **搜索** — 按名称或描述筛选
 
-## Team Sharing
+## 团队共享
 
-Locations are scoped to your team. All team members can access and use the same location library.
+地点仅限团队范围。所有团队成员都可以访问并使用同一个地点库。

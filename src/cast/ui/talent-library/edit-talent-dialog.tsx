@@ -103,11 +103,11 @@ export const EditTalentDialog: React.FC<EditTalentDialogProps> = ({
         undiscardVariant.mutate(
           { variantId: variant.id, talentId: talent.id },
           {
-            onSuccess: () => toast.success('Alternate restored'),
+            onSuccess: () => toast.success('备选版本已恢复'),
             onError: (error) => {
-              toast.error('Failed to restore alternate', {
+              toast.error('恢复备选版本失败', {
                 description:
-                  error instanceof Error ? error.message : 'Unknown error',
+                  error instanceof Error ? error.message : '未知错误',
               });
             },
           }
@@ -117,14 +117,13 @@ export const EditTalentDialog: React.FC<EditTalentDialogProps> = ({
         {
           onSuccess: () => {
             setCompareVariant(null);
-            toast('Alternate discarded', {
-              action: { label: 'Undo', onClick: restore },
+            toast('备选版本已丢弃', {
+              action: { label: '撤销', onClick: restore },
             });
           },
           onError: (error) => {
-            toast.error('Failed to discard alternate', {
-              description:
-                error instanceof Error ? error.message : 'Unknown error',
+            toast.error('丢弃备选版本失败', {
+              description: error instanceof Error ? error.message : '未知错误',
             });
           },
         }
@@ -140,12 +139,11 @@ export const EditTalentDialog: React.FC<EditTalentDialogProps> = ({
         {
           onSuccess: () => {
             setCompareVariant(null);
-            toast.success('Alternate promoted');
+            toast.success('备选版本已提升为当前版本');
           },
           onError: (error) => {
-            toast.error('Failed to promote alternate', {
-              description:
-                error instanceof Error ? error.message : 'Unknown error',
+            toast.error('提升备选版本失败', {
+              description: error instanceof Error ? error.message : '未知错误',
             });
           },
         }
@@ -197,7 +195,7 @@ export const EditTalentDialog: React.FC<EditTalentDialogProps> = ({
     >
       <DialogTrigger asChild>
         {trigger ?? (
-          <Button variant="outline" size="icon" aria-label="Edit talent">
+          <Button variant="outline" size="icon" aria-label="编辑演员">
             <Pencil className="h-4 w-4" />
           </Button>
         )}
@@ -208,10 +206,8 @@ export const EditTalentDialog: React.FC<EditTalentDialogProps> = ({
           className="flex flex-col gap-4"
         >
           <DialogHeader>
-            <DialogTitle>Edit Talent</DialogTitle>
-            <DialogDescription>
-              Update talent details and reference media.
-            </DialogDescription>
+            <DialogTitle>编辑演员</DialogTitle>
+            <DialogDescription>更新演员详细信息和参考素材。</DialogDescription>
           </DialogHeader>
 
           {focusVariant && (
@@ -226,12 +222,12 @@ export const EditTalentDialog: React.FC<EditTalentDialogProps> = ({
 
           <div className="grid gap-4">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">名称</Label>
               <Input
                 id="name"
                 name="name"
                 defaultValue={talent.name}
-                placeholder="Talent name…"
+                placeholder="演员名称…"
                 autoComplete="off"
                 required
               />
@@ -239,7 +235,7 @@ export const EditTalentDialog: React.FC<EditTalentDialogProps> = ({
 
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between gap-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description">描述</Label>
                 <Button
                   type="button"
                   variant="ghost"
@@ -258,14 +254,14 @@ export const EditTalentDialog: React.FC<EditTalentDialogProps> = ({
                       {
                         onSuccess: (result) => {
                           setDescription(result.description);
-                          toast.success('Description generated from photos');
+                          toast.success('已根据照片生成描述');
                         },
                         onError: (error) => {
-                          toast.error('Could not generate description', {
+                          toast.error('无法生成描述', {
                             description:
                               error instanceof Error
                                 ? error.message
-                                : 'Unknown error',
+                                : '未知错误',
                           });
                         },
                       }
@@ -273,9 +269,7 @@ export const EditTalentDialog: React.FC<EditTalentDialogProps> = ({
                   }}
                 >
                   <Sparkles className="h-4 w-4" />
-                  {analyzeMedia.isPending
-                    ? 'Generating…'
-                    : 'Generate from photos'}
+                  {analyzeMedia.isPending ? '正在生成…' : '根据照片生成'}
                 </Button>
               </div>
               <Textarea
@@ -283,28 +277,28 @@ export const EditTalentDialog: React.FC<EditTalentDialogProps> = ({
                 name="description"
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
-                placeholder="Describe the talent's appearance, style…"
+                placeholder="描述演员的外貌和风格…"
                 rows={3}
               />
             </div>
 
             <BibleField
               idPrefix="talent"
-              label="Personality"
+              label="性格"
               name="personality"
               defaultValue={talent.personality}
               textarea
             />
             <BibleField
               idPrefix="talent"
-              label="Body movement"
+              label="肢体动作"
               name="movement"
               defaultValue={talent.movement}
               textarea
             />
 
             <div className="flex flex-col gap-2">
-              <Label>Reference Media</Label>
+              <Label>参考素材</Label>
               {talent.media.length > 0 ? (
                 <div className="grid grid-cols-3 gap-3">
                   {talent.media.map((media) => (
@@ -321,7 +315,7 @@ export const EditTalentDialog: React.FC<EditTalentDialogProps> = ({
                       ) : (
                         <AppImage
                           src={media.url}
-                          alt="Reference"
+                          alt="参考素材"
                           width={160}
                           height={160}
                           className="size-full object-cover"
@@ -342,7 +336,7 @@ export const EditTalentDialog: React.FC<EditTalentDialogProps> = ({
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground">
-                  No reference media uploaded yet.
+                  暂未上传参考素材。
                 </p>
               )}
               <AddTalentMediaDialog
@@ -350,7 +344,7 @@ export const EditTalentDialog: React.FC<EditTalentDialogProps> = ({
                 trigger={
                   <Button type="button" variant="outline" size="sm">
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Media
+                    添加素材
                   </Button>
                 }
               />
@@ -359,10 +353,10 @@ export const EditTalentDialog: React.FC<EditTalentDialogProps> = ({
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">取消</Button>
             </DialogClose>
             <Button type="submit" disabled={updateTalent.isPending}>
-              {updateTalent.isPending ? 'Saving…' : 'Save Changes'}
+              {updateTalent.isPending ? '正在保存…' : '保存更改'}
             </Button>
           </DialogFooter>
         </form>

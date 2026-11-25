@@ -29,10 +29,10 @@ export function showLowBalanceToast({
   onOtherOptions,
 }: LowBalanceToastProps) {
   const action = {
-    label: `Add $${DEFAULT_TOPUP_AMOUNT_USD}`,
+    label: `充值 $${DEFAULT_TOPUP_AMOUNT_USD}`,
     onClick: onAddCredits,
   };
-  const cancel = { label: 'Other options', onClick: onOtherOptions };
+  const cancel = { label: '其他选项', onClick: onOtherOptions };
   // Two buttons on one toast squeeze the text column to ~4 wrapped lines at
   // Sonner's default 356px. Widened here rather than on the Toaster — every
   // other toast in the app has at most one action. Sonner reads `--width`;
@@ -40,9 +40,9 @@ export function showLowBalanceToast({
   const style: CSSProperties & { '--width': string } = { '--width': '440px' };
 
   if (isZeroBalance) {
-    toast.error('Your credit balance is $0', {
+    toast.error('您的点数余额为 $0', {
       id: 'low-balance',
-      description: 'Generation is off until you add credits.',
+      description: '充值点数后才能继续生成。',
       action,
       cancel,
       style,
@@ -51,9 +51,9 @@ export function showLowBalanceToast({
     return;
   }
 
-  toast.warning(`Balance is $${balanceUsd.toFixed(2)}`, {
+  toast.warning(`余额为 $${balanceUsd.toFixed(2)}`, {
     id: 'low-balance',
-    description: `Another short is about $${Math.round(runCostUsd)}.`,
+    description: `再制作一部短片约需 $${Math.round(runCostUsd)}。`,
     action,
     cancel,
     style,

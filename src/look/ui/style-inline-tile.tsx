@@ -48,7 +48,7 @@ export function StyleInlineTile({
           ? 'border-primary shadow-md scale-105'
           : 'border-transparent hover:border-primary/50'
       )}
-      aria-label={`View ${style.name} details`}
+      aria-label={`查看 ${style.name} 详情`}
       title={reasoning}
     >
       <StyleHoverPreview

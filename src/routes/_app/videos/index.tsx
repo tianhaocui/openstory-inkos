@@ -5,7 +5,7 @@ import { createFileRoute } from '@tanstack/react-router';
 export const Route = createFileRoute('/_app/videos/')({
   validateSearch: studioListSearchSchema,
   component: VideosPage,
-  staticData: { breadcrumb: 'Videos' },
+  staticData: { breadcrumb: '视频' },
 });
 
 function VideosPage() {

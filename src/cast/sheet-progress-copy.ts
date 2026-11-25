@@ -23,10 +23,10 @@ export function sheetProgressCopy(
 ): string {
   if (activity === 'portrait') {
     return variant === 'long'
-      ? 'Creating portrait from the uploaded sheet…'
-      : 'Creating portrait…';
+      ? '正在根据上传的设定图创建肖像…'
+      : '正在创建肖像…';
   }
-  return variant === 'long' ? 'Generating talent sheet…' : 'Generating sheet…';
+  return variant === 'long' ? '正在生成演员设定图…' : '正在生成设定图…';
 }
 
 export function parseSheetProgressActivity(

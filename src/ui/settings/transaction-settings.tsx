@@ -23,12 +23,35 @@ type TransactionData = {
 
 const PAGE_SIZE = 50;
 
+const TRANSACTION_TYPE_LABELS: Record<string, string> = {
+  auto_top_up: '自动充值',
+  credit_adjustment: '点数调整',
+  credit_purchase: '购买点数',
+  credit_usage: '使用点数',
+  gift_code: '礼品码',
+  signup_grant: '欢迎赠金',
+};
+
+function transactionDescription(tx: TransactionData): string {
+  if (!tx.description) return TRANSACTION_TYPE_LABELS[tx.type] ?? tx.type;
+  return tx.description
+    .replace(/^Top-up:/, '充值：')
+    .replace(/^Auto top-up:/, '自动充值：')
+    .replace(/^Welcome credit:/, '欢迎点数：')
+    .replace(/^Gift code redeemed:/, '已兑换礼品码：')
+    .replace(/^Usage:/, '使用：')
+    .replace(/^Image generation/, '图像生成')
+    .replace(/^Motion generation/, '动态生成')
+    .replace(/^Music generation/, '音乐生成')
+    .replace(/^LLM analysis/, 'LLM 分析');
+}
+
 function TransactionRow({ tx }: { tx: TransactionData }) {
   return (
     <div className="flex items-center justify-between rounded-lg border p-3">
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium truncate">
-          {tx.description ?? tx.type}
+          {transactionDescription(tx)}
         </p>
         <p className="text-xs text-muted-foreground">
           {new Date(tx.createdAt).toLocaleString()}
@@ -53,7 +76,7 @@ function TransactionRow({ tx }: { tx: TransactionData }) {
             target="_blank"
             rel="noopener noreferrer"
             className="text-muted-foreground hover:text-foreground"
-            aria-label="View receipt"
+            aria-label="查看收据"
           >
             <ExternalLink className="h-4 w-4" />
           </a>
@@ -110,9 +133,7 @@ export function TransactionSettings() {
     <div className="flex flex-col gap-6">
       {error && (
         <p className="text-sm text-destructive">
-          {error instanceof Error
-            ? error.message
-            : 'Failed to load transactions'}
+          {error instanceof Error ? error.message : '加载交易记录失败'}
         </p>
       )}
 
@@ -121,8 +142,8 @@ export function TransactionSettings() {
           <CreditCard className="h-5 w-5 text-primary" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold">Transaction History</h2>
-          <p className="text-sm text-muted-foreground">All credit activity</p>
+          <h2 className="text-lg font-semibold">交易记录</h2>
+          <p className="text-sm text-muted-foreground">所有点数变动</p>
         </div>
       </div>
 
@@ -133,9 +154,7 @@ export function TransactionSettings() {
           <Skeleton className="h-12 w-full" />
         </div>
       ) : allTransactions.length === 0 ? (
-        <p className="text-center text-muted-foreground py-4">
-          No transactions yet
-        </p>
+        <p className="text-center text-muted-foreground py-4">暂无交易记录</p>
       ) : (
         <div className="space-y-2">
           {allTransactions.map((tx) => (
@@ -144,7 +163,7 @@ export function TransactionSettings() {
           <div ref={sentinelRef}>
             {isFetchingNextPage && (
               <p className="text-center text-sm text-muted-foreground py-2">
-                Loading more…
+                正在加载更多…
               </p>
             )}
           </div>

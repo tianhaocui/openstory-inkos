@@ -1,0 +1,19 @@
+[Unit]
+Description=InkOS Studio screenplay workspace
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/inkos
+EnvironmentFile=-/home/ubuntu/inkos/openstory.env
+Environment=INKOS_PROJECT_ROOT=/home/ubuntu/inkos/openstory-project
+Environment=INKOS_TENANTS_ROOT=/home/ubuntu/inkos/openstory-tenants
+Environment=INKOS_BASE_PATH=/inkos
+Environment=INKOS_STUDIO_PORT=4567
+ExecStart=/home/ubuntu/.hermes/node/bin/node /home/ubuntu/inkos/packages/studio/dist/api/index.js
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

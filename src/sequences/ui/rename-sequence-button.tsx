@@ -54,7 +54,7 @@ export const RenameSequenceButton: React.FC<{
           variant="ghost"
           size="icon"
           className="h-6 w-6"
-          aria-label={`Rename sequence ${title}`}
+          aria-label={`重命名序列 ${title}`}
         >
           <Pencil className="h-3.5 w-3.5" />
         </Button>
@@ -69,7 +69,7 @@ export const RenameSequenceButton: React.FC<{
         }}
       >
         <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-          <p className="text-sm font-medium">Rename sequence</p>
+          <p className="text-sm font-medium">重命名序列</p>
           <Input
             ref={inputRef}
             value={value}
@@ -78,7 +78,7 @@ export const RenameSequenceButton: React.FC<{
               if (error) setError(null);
             }}
             maxLength={500}
-            placeholder="Sequence title"
+            placeholder="序列标题"
             aria-invalid={!!error}
             aria-describedby={error ? 'sequence-rename-error' : undefined}
           />
@@ -99,7 +99,7 @@ export const RenameSequenceButton: React.FC<{
                 renameSequence.isPending || isUnchanged || trimmed.length === 0
               }
             >
-              {renameSequence.isPending ? 'Saving…' : 'Save'}
+              {renameSequence.isPending ? '保存中…' : '保存'}
             </Button>
           </div>
         </form>

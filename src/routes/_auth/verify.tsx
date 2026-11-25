@@ -33,9 +33,9 @@ function VerifyPage() {
       <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
-            <h1 className="text-3xl font-bold">Verify your email</h1>
+            <h1 className="text-3xl font-bold">验证你的邮箱</h1>
             <p className="mt-2 text-muted-foreground">
-              We sent a code to your inbox
+              我们已向你的收件箱发送了验证码
             </p>
           </div>
           <VerifyForm email={search.email} redirectTo={redirectTo} />

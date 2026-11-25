@@ -44,13 +44,13 @@ export const CanvasViewToggle: React.FC<CanvasViewToggleProps> = ({
     >
       <ToggleGroupItem
         value="canvas"
-        aria-label="Show the canvas"
+        aria-label="显示画布"
         disabled={canvasDisabled}
       >
         <Film className="mr-1.5 h-3.5 w-3.5" />
         Canvas
       </ToggleGroupItem>
-      <ToggleGroupItem value="script" aria-label="Show the script">
+      <ToggleGroupItem value="script" aria-label="显示剧本">
         <FileText className="mr-1.5 h-3.5 w-3.5" />
         Script
       </ToggleGroupItem>

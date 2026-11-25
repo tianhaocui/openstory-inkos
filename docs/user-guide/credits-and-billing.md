@@ -1,65 +1,65 @@
 ---
-title: Credits & Billing
-description: Manage your credit balance, API keys, and billing for AI generation
+title: 点数与计费
+description: 管理 AI 生成所需的点数余额、API 密钥和账单
 section: User Guide
 order: 10
 ---
 
-OpenStory uses a credit-based system for AI generation. You can either bring your own API keys (BYOK) or purchase credits.
+OpenStory 的 AI 生成功能采用点数制。你可以使用自己的 API 密钥（BYOK），也可以购买点数。
 
-## Credits Page
+## 点数页面
 
-Navigate to **Credits** from the user menu. The page has three tabs:
+从用户菜单进入**点数**。该页面包含三个标签页：
 
-### Balance
+### 余额
 
-View your current credit balance and purchase additional credits via Stripe. After a successful purchase, a confirmation is shown. If you cancel checkout, a cancellation notice appears.
+查看当前点数余额，并通过 Stripe 购买更多点数。购买成功后会显示确认信息；如果取消结账，则会显示取消通知。
 
-### Transactions
+### 交易记录
 
-View your transaction history — a log of credit purchases, usage, and adjustments.
+查看交易历史，其中记录点数购买、使用和调整情况。
 
-### Gift Codes
+### 礼品码
 
-Redeem gift codes to add credits to your account.
+兑换礼品码，为账户增加点数。
 
-## Billing Gate
+## 计费拦截
 
-When you try to generate content without sufficient credits or API keys, a **billing gate dialog** appears. This dialog explains what's needed and provides options:
+当你在点数不足且未配置 API 密钥的情况下尝试生成内容时，会出现**计费拦截对话框**。该对话框会说明所需条件，并提供以下选项：
 
-- **Add Credits** — Purchase credits via Stripe
-- **Add API Keys** — Bring your own keys for direct provider access
-- **OpenRouter OAuth** — Connect via OpenRouter for LLM access
+- **添加点数** — 通过 Stripe 购买点数
+- **添加 API 密钥** — 使用自己的密钥直接访问服务提供商
+- **OpenRouter OAuth** — 通过 OpenRouter 连接以访问 LLM
 
-The billing gate appears contextually — at first visit (onboarding) and when attempting generation without sufficient resources.
+计费拦截会在相应场景中出现，例如首次访问（新用户引导）时，以及资源不足却尝试生成内容时。
 
-## API Keys (BYOK)
+## API 密钥（BYOK）
 
-Navigate to **Settings > API Keys** to manage your own provider keys:
+进入**设置 > API 密钥**，管理你自己的服务提供商密钥：
 
-### Fal.ai Key
+### Fal.ai 密钥
 
-Used for image generation, video/motion generation, and music generation. Fal.ai is the primary provider for all media generation models.
+用于图像生成、视频/动态生成和音乐生成。Fal.ai 是所有媒体生成模型的主要服务提供商。
 
-### OpenRouter Key
+### OpenRouter 密钥
 
-Used for script analysis (LLM calls). You can either:
+用于剧本分析（LLM 调用）。你可以：
 
-- **Enter a key manually** — Paste your OpenRouter API key
-- **Connect via OAuth** — One-click OAuth flow that automatically provisions a key
+- **手动输入密钥** — 粘贴你的 OpenRouter API 密钥
+- **通过 OAuth 连接** — 使用一键式 OAuth 流程自动配置密钥
 
-### How BYOK Works
+### BYOK 的工作方式
 
-When you provide your own API keys:
+提供自己的 API 密钥后：
 
-- Credits are not consumed for that provider
-- You're billed directly by the provider
-- Both BYOK and credits can coexist — BYOK is used when a key is available, credits are used otherwise
+- 使用相应服务提供商时不会消耗点数
+- 服务提供商会直接向你计费
+- BYOK 和点数可以并存——有可用密钥时使用 BYOK，否则使用点数
 
-## Insufficient Credits
+## 点数不足
 
-If you run out of credits during generation:
+如果生成期间点数用尽：
 
-- In-progress work continues (workflows are durable)
-- New generation requests show an error toast: "Insufficient credits" with an **Add Credits** action button
-- The billing gate dialog appears when you try to generate
+- 进行中的任务仍会继续（工作流具有持久性）
+- 新的生成请求会显示“点数不足”错误提示，并提供**添加点数**操作按钮
+- 再次尝试生成时会出现计费拦截对话框

@@ -98,7 +98,7 @@ export function useSequenceExport(
     queryKey: ['sequence-export-inputs-hash', inputsKey],
     queryFn: () => {
       if (!exportInputs) {
-        throw new Error('Could not fingerprint the scenes for export.');
+        throw new Error('无法为导出计算场景指纹。');
       }
       return hashSequenceExportInputs(exportInputs);
     },
@@ -119,9 +119,9 @@ export function useSequenceExport(
       signal: AbortSignal;
       andThen: SequenceExportAndThen;
     }) => {
-      if (!sequence) throw new Error('No sequence selected.');
+      if (!sequence) throw new Error('未选择序列。');
       if (!shots || shots.length === 0) {
-        throw new Error('This sequence has no shots yet.');
+        throw new Error('此序列暂无镜头。');
       }
       const ready = shots.filter((s) => Boolean(s.video?.url)).length;
       if (ready !== shots.length) {
@@ -130,7 +130,7 @@ export function useSequenceExport(
         );
       }
       if (!inputsHash) {
-        throw new Error('Could not fingerprint the scenes for export.', {
+        throw new Error('无法为导出计算场景指纹。', {
           cause: inputsHashError,
         });
       }
@@ -159,18 +159,18 @@ export function useSequenceExport(
         queryKey: sequenceExportKeys.list(sequenceId),
       });
       if (andThen === 'download') {
-        toast.success('MP4 ready to download.');
+        toast.success('MP4 已可下载。');
         triggerDownload(url, sequence?.title);
       } else {
         const shareable = toShareableExportUrl(url);
         void copyTextToClipboard(shareable).then((copied) => {
           if (copied) {
-            toast.success('Video link copied.');
+            toast.success('视频链接已复制。');
             posthog.capture('video_url_copied', { sequence_id: sequenceId });
           } else {
-            toast.success('MP4 ready.', {
+            toast.success('MP4 已就绪。', {
               action: {
-                label: 'Copy link',
+                label: '复制链接',
                 onClick: () => void copyTextToClipboard(shareable),
               },
             });
@@ -235,10 +235,10 @@ export function useSequenceExport(
       void copyTextToClipboard(toShareableExportUrl(freshExportUrl)).then(
         (copied) => {
           if (copied) {
-            toast.success('Video link copied.');
+            toast.success('视频链接已复制。');
             posthog.capture('video_url_copied', { sequence_id: sequenceId });
           } else {
-            toast.error('Failed to copy URL');
+            toast.error('复制链接失败');
           }
         }
       );
@@ -286,7 +286,7 @@ function toExportErrorMessage(error: unknown): string {
       ? error.message
       : typeof error === 'string'
         ? error
-        : 'Export failed';
+        : '导出失败';
   return raw.length <= MAX_EXPORT_ERROR_LENGTH
     ? raw
     : `${raw.slice(0, MAX_EXPORT_ERROR_LENGTH - 1)}…`;

@@ -97,9 +97,7 @@ describe('contentRejectionSummary / contentRejectionSubjects', () => {
         reason: 'Character sheet rejected by content filter after 3 attempts',
       },
     ]);
-    expect(summary).toBe(
-      'Blocked by the content checker: Ron Weasley, Harry Potter'
-    );
+    expect(summary).toBe('内容审核未通过: Ron Weasley, Harry Potter');
     expect(isContentRejectionError(summary)).toBe(true);
     // Parents only prefix; the tail survives a 500-char truncation ellipsis.
     expect(
@@ -158,7 +156,7 @@ describe('flaggedInputs / clipContentRejectionMessage (#1373)', () => {
       softened: true,
     });
     expect(message).toBe(
-      'Content checker rejected the still and the prompt (LTX 2.3 Pro, then Grok Imagine Video 1.5; softened prompt also rejected). Regenerate the still or rewrite the motion prompt.'
+      '内容审核拒绝了参考静态画面和提示词（LTX 2.3 Pro, then Grok Imagine Video 1.5; 提示词软化版本也被拒绝）。重新生成静态画面，或重写动态提示词。'
     );
     expect(isContentRejectionError(message)).toBe(true);
 
@@ -168,9 +166,7 @@ describe('flaggedInputs / clipContentRejectionMessage (#1373)', () => {
         models: ['LTX 2.3 Pro'],
         softened: false,
       })
-    ).toBe(
-      'Content checker rejected the still (LTX 2.3 Pro). Regenerate the still.'
-    );
+    ).toBe('内容审核拒绝了参考静态画面（LTX 2.3 Pro）。重新生成静态画面。');
 
     expect(
       clipContentRejectionMessage({
@@ -181,7 +177,7 @@ describe('flaggedInputs / clipContentRejectionMessage (#1373)', () => {
         softened: true,
       })
     ).toBe(
-      'Content checker rejected the clip (Veo 3.1; softened prompt also rejected). Rewrite the motion prompt or regenerate the still. (Could not generate images with the given prompts and images.)'
+      '内容审核拒绝了视频片段（Veo 3.1; 提示词软化版本也被拒绝）。请重写动态提示词，或重新生成静态画面。'
     );
   });
 
@@ -192,7 +188,7 @@ describe('flaggedInputs / clipContentRejectionMessage (#1373)', () => {
         models: ['LTX 2.3 Pro', 'Grok Imagine Video 1.5'],
         softened: true,
       })
-    ).toMatch(/^Content checker rejected the still and the prompt \(/);
+    ).toMatch(/^内容审核拒绝了参考静态画面和提示词（/);
   });
 
   it('names studio inputs — a reference image, or nothing but the prompt', () => {
@@ -206,9 +202,7 @@ describe('flaggedInputs / clipContentRejectionMessage (#1373)', () => {
           prompt: 'the prompt',
         },
       })
-    ).toBe(
-      'Content checker rejected a reference image (Seedance 2.5). Swap the reference image.'
-    );
+    ).toBe('内容审核拒绝了参考图像（Seedance 2.5）。替换参考图像。');
     // No reference image was sent, so there is nothing but the prompt to fix.
     expect(
       clipContentRejectionMessage({
@@ -218,7 +212,7 @@ describe('flaggedInputs / clipContentRejectionMessage (#1373)', () => {
         inputs: { prompt: 'the prompt' },
       })
     ).toBe(
-      'Content checker rejected the clip (Seedance 2.5). Rewrite the prompt. (flagged by a content checker)'
+      '内容审核拒绝了视频片段（Seedance 2.5）。请重写提示词，或重新生成静态画面。'
     );
   });
 });

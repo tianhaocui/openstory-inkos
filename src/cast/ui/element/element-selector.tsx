@@ -270,8 +270,8 @@ export const ElementSelector: React.FC<ElementSelectorProps> = (props) => {
         // Say so rather than doing nothing: a dropped .pdf that vanishes with
         // no upload and no message is indistinguishable from a broken app.
         if (newFiles.length > 0) {
-          toast.error("That file can't be a reference", {
-            description: 'Drop an image, an MP3/WAV, or an MP4/MOV.',
+          toast.error('该文件无法作为参考素材', {
+            description: '请拖入图片、MP3/WAV 或 MP4/MOV 文件。',
           });
         }
         return;
@@ -365,13 +365,12 @@ export const ElementSelector: React.FC<ElementSelectorProps> = (props) => {
               }
             }
           } catch (err) {
-            const message =
-              err instanceof Error ? err.message : 'Upload failed';
+            const message = err instanceof Error ? err.message : '上传失败';
             logger.error('Upload failed', {
               filename: file.name,
               error: err,
             });
-            toast.error(`Couldn't upload ${file.name}`, {
+            toast.error(`无法上传 ${file.name}`, {
               description: message,
             });
             setEntries((prev) => {
@@ -413,16 +412,16 @@ export const ElementSelector: React.FC<ElementSelectorProps> = (props) => {
         { elementId: element.id, sequenceId },
         {
           onSuccess: () => {
-            toast(`Removed ${element.token}`, {
+            toast(`已移除 ${element.token}`, {
               duration: 60_000,
               action: {
-                label: 'Undo',
+                label: '撤销',
                 onClick: () =>
                   void restoreSequenceElement(queryClient, {
                     sequenceId,
                     elementId: element.id,
                   }).catch((error: Error) =>
-                    toast.error('Failed to restore element', {
+                    toast.error('恢复元素失败', {
                       description: errorMessage(error),
                     })
                   ),
@@ -430,7 +429,7 @@ export const ElementSelector: React.FC<ElementSelectorProps> = (props) => {
             });
           },
           onError: (error) =>
-            toast.error('Failed to remove element', {
+            toast.error('移除元素失败', {
               description: errorMessage(error),
             }),
         }
@@ -465,9 +464,7 @@ export const ElementSelector: React.FC<ElementSelectorProps> = (props) => {
         (el) => el.tempPath !== tempPath && el.token === nextToken
       );
       if (duplicate) {
-        throw new Error(
-          `Another element is already named "${nextToken}". Pick a different name.`
-        );
+        throw new Error(`已有其他元素名为“${nextToken}”。请选择其他名称。`);
       }
       onDraftElementsChange?.((prev) =>
         prev.map((el) =>
@@ -490,15 +487,12 @@ export const ElementSelector: React.FC<ElementSelectorProps> = (props) => {
         token: nextToken,
       });
       const updates: string[] = [];
-      if (result.scriptUpdated) updates.push('script');
+      if (result.scriptUpdated) updates.push('剧本');
       if (result.shotsUpdated > 0) {
-        updates.push(
-          `${result.shotsUpdated} shot${result.shotsUpdated === 1 ? '' : 's'}`
-        );
+        updates.push(`${result.shotsUpdated} 个镜头`);
       }
-      const suffix =
-        updates.length > 0 ? ` — updated ${updates.join(' + ')}` : '';
-      toast.success(`Renamed to ${nextToken}${suffix}`);
+      const suffix = updates.length > 0 ? `，已更新${updates.join(' + ')}` : '';
+      toast.success(`已重命名为 ${nextToken}${suffix}`);
     },
     [isPersisted, renameToken, sequenceId]
   );
@@ -640,7 +634,7 @@ export const ElementSelector: React.FC<ElementSelectorProps> = (props) => {
             className="gap-2 text-muted-foreground"
           >
             <ImagePlus className="h-4 w-4" />
-            <span>Elements</span>
+            <span>元素</span>
             {count > 0 && (
               <span className="ml-1 rounded-full bg-primary/10 px-1.5 text-xs">
                 {count}
@@ -651,10 +645,11 @@ export const ElementSelector: React.FC<ElementSelectorProps> = (props) => {
         <PopoverContent align="end" className="w-[min(420px,calc(100vw-2rem))]">
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-1">
-              <p className="text-sm font-medium">Upload reference elements</p>
+              <p className="text-sm font-medium">上传参考元素</p>
               <p className="text-xs text-muted-foreground">
-                Images, MP3/WAV or MP4/MOV — a logo, a product shot, a dialogue
-                line, a music bed. Type @ in a prompt or script to insert one.
+                支持图片、MP3/WAV 或
+                MP4/MOV，例如标志、产品照、对白或背景音乐。在提示词或剧本中输入
+                @ 可插入元素。
               </p>
             </div>
             {currentCount < MAX_SEQUENCE_ELEMENTS && (
@@ -695,9 +690,7 @@ export const ElementSelector: React.FC<ElementSelectorProps> = (props) => {
                 )}
               >
                 <Upload className="size-7 text-muted-foreground/50" />
-                <span className="text-sm font-medium">
-                  Drag & drop or paste
-                </span>
+                <span className="text-sm font-medium">拖放或粘贴</span>
                 <Button
                   type="button"
                   variant="outline"
@@ -707,10 +700,10 @@ export const ElementSelector: React.FC<ElementSelectorProps> = (props) => {
                     inputRef.current?.click();
                   }}
                 >
-                  Browse
+                  浏览
                 </Button>
                 <span className="text-[11px] text-muted-foreground">
-                  Up to {MAX_SEQUENCE_ELEMENTS} references
+                  最多 {MAX_SEQUENCE_ELEMENTS} 个参考素材
                 </span>
               </div>
             )}
@@ -726,7 +719,7 @@ export const ElementSelector: React.FC<ElementSelectorProps> = (props) => {
                       <ElementThumbnail
                         kind={item.mediaKind}
                         url={item.imageUrl}
-                        label={item.token ?? 'Element'}
+                        label={item.token ?? '元素'}
                         fit="cover"
                       />
                       {(item.status === 'uploading' ||
@@ -735,14 +728,14 @@ export const ElementSelector: React.FC<ElementSelectorProps> = (props) => {
                           <Loader2 className="size-5 animate-spin text-white" />
                           {item.status === 'analyzing' && (
                             <span className="text-[10px] font-medium text-white">
-                              Analyzing…
+                              正在分析…
                             </span>
                           )}
                         </div>
                       )}
                       {item.status === 'error' && (
                         <div className="absolute inset-0 flex items-center justify-center bg-destructive/70 px-1 text-center text-[10px] font-medium text-white">
-                          {item.errorMessage ?? 'Failed'}
+                          {item.errorMessage ?? '失败'}
                         </div>
                       )}
                       {item.status === 'done' &&

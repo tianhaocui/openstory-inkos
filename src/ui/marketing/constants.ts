@@ -20,12 +20,11 @@ export const FOUNDER_EMAIL = 'tom@openstory.so';
 export const SITE_CONFIG = {
   name: APP_NAME,
   description:
-    'Create 5-minute AI films with consistent characters. Iterate until you nail it. Open source and free to self-host.',
+    '创作长达 5 分钟、角色连贯一致的 AI 影片。反复打磨，直到满意为止。开源且可免费自行部署。',
   /** Logged-out homepage heading. */
-  tagline: 'Tell your whole story',
+  tagline: '讲完整你的故事',
   /** Logged-out homepage subtitle — what the product does. */
-  taglineSub:
-    'Create 5-minute AI films with consistent characters. Iterate until you nail it.',
+  taglineSub: '创作长达 5 分钟、角色连贯一致的 AI 影片，反复打磨直到满意为止。',
   url: APP_URL,
   contactEmail: CONTACT_EMAIL,
   privacyEmail: PRIVACY_EMAIL,
@@ -34,7 +33,7 @@ export const SITE_CONFIG = {
   // with the app (and each preview shows its own) instead of drifting from a
   // hand-uploaded R2 file.
   ogImage: `${APP_URL}/og.jpg`,
-  ctaText: 'Get Started',
+  ctaText: '开始创作',
   ctaHref: '/',
   githubHref: 'https://github.com/openstory-so/openstory',
   xHref: 'https://x.com/openstory_so',
@@ -44,42 +43,41 @@ export const SITE_CONFIG = {
 
 export const TOP_TIER_FEATURES = [
   {
-    title: 'From Idea to Finished Video',
+    title: '从灵感到完整影片',
     description:
-      'Describe what you want in a line or paste a full script. OpenStory breaks it into scenes, generates shots, and scores the music — a multi-scene film with consistent characters, not a single-shot toy.',
+      '用一句话描述创意，或粘贴完整剧本。OpenStory 会拆分场景、生成镜头并配乐，制作角色连贯一致的多场景影片，而不只是单个镜头。',
     image: `https://${VITE_R2_PUBLIC_ASSETS_DOMAIN}/images/marketing/14-fantasy-dragon.webp`,
   },
   {
-    title: 'Cast Your Own Talent & Locations',
+    title: '自定义角色与场景',
     description:
-      'Define your characters and environments once \u2014 age, wardrobe, lighting, architecture. OpenStory maintains consistency across every shot in every sequence.',
+      '只需设定一次角色与环境，包括年龄、服装、光线和建筑风格。OpenStory 会在每段序列的所有镜头中保持一致。',
     images: [
       `https://${VITE_R2_PUBLIC_ASSETS_DOMAIN}/images/marketing/08-fashion-editorial.webp`,
       `https://${VITE_R2_PUBLIC_ASSETS_DOMAIN}/images/marketing/05-corporate-team.webp`,
     ],
   },
   {
-    title: 'Get The Shot You Want',
+    title: '获得理想镜头',
     description:
-      'Generate variations of any shot \u2014 different angles, lighting, compositions \u2014 and iterate the whole film until it\u2019s exactly right.',
+      '为任意镜头生成不同机位、光线和构图的版本，并反复打磨整部影片，直到完全符合预期。',
     image: `https://${VITE_R2_PUBLIC_ASSETS_DOMAIN}/images/marketing/02-product-sneaker.webp`,
   },
   {
-    title: 'Take Your Work Anywhere',
+    title: '作品随处可用',
     description:
-      'Download individual shots, export full sequences, and get the prompts behind every generation. Your work isn\u2019t trapped here \u2014 use it in any editing tool or pipeline.',
+      '下载单个镜头、导出完整序列，并获取每次生成使用的提示词。作品不会被锁在平台内，可用于任何剪辑工具或工作流。',
     image: `https://${VITE_R2_PUBLIC_ASSETS_DOMAIN}/images/marketing/12-travel-adventure.webp`,
   },
   {
-    title: 'Latest Models',
+    title: '最新模型',
     description:
-      'Access the best image and video models as they ship. Switch per shot, or let OpenStory pick the best one for the job.',
+      '及时使用最新的优秀图像和视频模型。你可以为每个镜头切换模型，也可以让 OpenStory 自动选择最合适的模型。',
     image: `https://${VITE_R2_PUBLIC_ASSETS_DOMAIN}/images/marketing/01-product-cosmetics.webp`,
   },
   {
-    title: 'Music & Audio',
-    description:
-      'Generate music tracks and sound effects that match your sequence. Full audio composition built in.',
+    title: '音乐与音频',
+    description: '生成与画面序列相配的音乐和音效，内置完整的音频编排能力。',
     image: `https://${VITE_R2_PUBLIC_ASSETS_DOMAIN}/images/marketing/09-music-video.webp`,
   },
 ] as const;
@@ -87,87 +85,86 @@ export const TOP_TIER_FEATURES = [
 export const PROCESS_STEPS = [
   {
     number: '01',
-    title: 'Describe Your Idea',
+    title: '描述你的创意',
     description:
-      'Start with a one-liner or a full script. OpenStory builds out scenes, assigns characters and locations, and prepares shot directions for a multi-scene film.',
+      '从一句话或完整剧本开始。OpenStory 会构建场景、分配角色和地点，并为多场景影片规划镜头。',
   },
   {
     number: '02',
-    title: 'Define Your Look',
-    description:
-      'Set your visual style, cast your talent, choose your locations. These carry across your entire project.',
+    title: '定义视觉风格',
+    description: '设定视觉风格、选择角色与地点，这些设定会贯穿整个项目。',
   },
   {
     number: '03',
-    title: 'Generate & Refine',
+    title: '生成并打磨',
     description:
-      'Generate AI shots for every shot. Swap models, try variations, regenerate until every shot is right.',
+      '为每个分镜生成 AI 镜头，切换模型、尝试不同版本并反复生成，直到每个镜头都符合预期。',
   },
   {
     number: '04',
-    title: 'Export Everything',
+    title: '导出全部内容',
     description:
-      'Download shots, sequences, prompts, and music. Take it all into your editing tool of choice.',
+      '下载镜头、序列、提示词和音乐，并在你常用的剪辑工具中继续创作。',
   },
 ] as const;
 
 export const FAQ_ITEMS = [
   {
-    question: 'What is OpenStory?',
+    question: 'OpenStory 是什么？',
     answer:
-      'OpenStory is an open source AI video production platform. Paste a script or a one-liner and it builds a multi-scene film \u2014 consistent characters, locations, and look across every shot, up to around five minutes. Iterate on scenes until you nail it, then export. Free to self-host.',
+      'OpenStory 是开源 AI 视频制作平台。粘贴剧本或输入一句创意，即可生成长达约 5 分钟的多场景影片，并让所有镜头中的角色、地点和视觉风格保持一致。你可以反复打磨场景，满意后再导出，也可免费自行部署。',
   },
   {
-    question: 'Do I need to write a full script?',
+    question: '需要编写完整剧本吗？',
     answer:
-      'No. You can start with a single line and OpenStory will expand it into a full script with scenes, characters, and shot directions. Or paste in a complete script if you have one.',
+      '不需要。你可以从一句话开始，OpenStory 会将其扩展为包含场景、角色和镜头设计的完整剧本；如果已经有完整剧本，也可以直接粘贴。',
   },
   {
-    question: 'What AI models does it support?',
+    question: '支持哪些 AI 模型？',
     answer:
-      'OpenStory fully supports the latest image and video models as close to day zero as possible. You can switch models per shot or let OpenStory pick the best one.',
+      'OpenStory 会尽快支持最新的图像和视频模型。你可以为每个镜头切换模型，也可以让 OpenStory 自动选择最合适的模型。',
   },
   {
-    question: 'How does pricing work?',
+    question: '如何计费？',
     answer:
-      'No subscriptions. Generations are billed at the rates of the labs and platforms that run them (fal.ai, OpenRouter, and more soon). A platform fee applies only when you buy credits, not on each generation. See openstory.so/pricing for the full model price list. Bring your own API keys to skip credits entirely.',
+      '无需订阅。生成费用按提供服务的实验室和平台价格收取，例如 fal.ai、OpenRouter，后续还会支持更多平台。仅在购买积分时收取平台服务费，不会对每次生成额外收费。完整模型价格请查看 openstory.so/pricing。使用自己的 API 密钥则无需购买积分。',
   },
   {
-    question: 'Can I use my own API keys?',
+    question: '可以使用自己的 API 密钥吗？',
     answer:
-      'Absolutely. You can enter your own API keys directly\u2009\u2014\u2009no self-hosting required. Pay providers directly with full control over costs and usage.',
+      '可以。无需自行部署，直接输入自己的 API 密钥即可使用。费用直接支付给服务提供商，成本与用量由你掌控。',
   },
   {
-    question: 'Is it open source?',
+    question: 'OpenStory 是开源的吗？',
     answer:
-      'Yes. MIT licensed, full source on GitHub. You can self-host it, fork it, or use the managed cloud version.',
+      '是的。OpenStory 采用 MIT 许可证，完整源代码托管在 GitHub。你可以自行部署、创建分支版本，也可以使用托管云服务。',
   },
   {
-    question: 'How do I get started?',
+    question: '如何开始使用？',
     answer:
-      'Sign up to start immediately, or clone the GitHub repo to self-host. Describe your idea, define your look, and generate your first storyboard in minutes.',
+      '注册后即可开始，也可以克隆 GitHub 仓库自行部署。描述你的创意、设定视觉风格，几分钟内即可生成第一份分镜。',
   },
 ] as const;
 
 export const OPEN_FAIR_BENEFITS = [
   {
-    title: 'Open Source',
+    title: '开源',
     description:
-      'MIT licensed, full source on GitHub. Fork it, self-host it, or build entirely new workflows on top.',
+      '采用 MIT 许可证，完整源代码托管在 GitHub。你可以创建分支版本、自行部署，或在此基础上构建全新的工作流。',
   },
   {
-    title: 'Bring Your Own Keys',
+    title: '使用自己的密钥',
     description:
-      'Use your own API keys or self-host entirely. Pay providers directly with no platform fees.',
+      '使用自己的 API 密钥或完全自行部署，费用直接支付给服务提供商，无需支付平台服务费。',
   },
   {
-    title: 'At Cost Pricing',
+    title: '按成本计费',
     description:
-      'No subscriptions. AI usage at provider cost. A small fee applies only when buying credits.',
+      '无需订阅，AI 用量按服务商成本计费，仅在购买积分时收取少量服务费。',
   },
   {
-    title: 'Export Everything',
+    title: '导出全部内容',
     description:
-      'Shots, sequences, prompts, and music. Your work isn\u2019t trapped\u2009\u2014\u2009take it anywhere.',
+      '镜头、序列、提示词和音乐均可导出，作品不受平台限制，可在任何地方继续使用。',
   },
 ] as const;

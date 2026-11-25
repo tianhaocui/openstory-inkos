@@ -50,6 +50,8 @@ import { createRenderSegmentsMethods } from '@/motion/server/db/render-segments'
 import { createShotVariantsMethods } from '@/shots/server/db/shot-variants';
 import { createShotsMethods } from '@/shots/server/db/shots';
 import { createVideoVariantsMethods } from '@/motion/server/db/video-variants';
+import { createStorySyncMethods } from '@/platform/server/db/scoped/stories';
+import type { InkOSChapterSyncInput } from '@/platform/server/db/scoped/stories';
 import { createLibraryMethods } from '@/look/server/db/library';
 import {
   createLocationSheetsMethods,
@@ -506,6 +508,7 @@ export function createScopedDb(teamId: string, userId: string) {
     billing: createBillingMethods(db, teamId, userId),
     apiKeys: createApiKeysMethods(db, teamId, userId),
     teamManagement: createTeamManagementMethods(db, teamId, userId),
+    stories: createStorySyncMethods(db, teamId),
 
     // Compliance (#1180). `provenance` is its own domain rather than a member
     // of `compliance` because workflows must reach it and the workflow write
@@ -517,6 +520,13 @@ export function createScopedDb(teamId: string, userId: string) {
 }
 
 export type ScopedDb = ReturnType<typeof createScopedDb>;
+
+export async function syncInkOSStoryForTeam(
+  teamId: string,
+  input: InkOSChapterSyncInput
+) {
+  return createStorySyncMethods(getDb(), teamId).syncInkOSChapters(input);
+}
 
 export function createSystemAdminScopedDb() {
   const db = getDb();

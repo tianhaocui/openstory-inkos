@@ -50,6 +50,7 @@ cerebras-validation-error.json
 # src/lib/gen.types.ts
 
 # local database (SQLite)
+/data/
 local*.db
 local.db-shm
 local.db-wal
@@ -92,6 +93,7 @@ drizzle/migrations-wrangler/
 # output
 .output/
 dist/
+/storage/
 
 # opennext
 .open-next

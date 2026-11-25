@@ -47,7 +47,7 @@ export const LocationBibleForm: React.FC<{
     if (!result.success) {
       // See the character twin: without this, a too-long field makes Save
       // look like a no-op.
-      toast.error('Check the location fields', {
+      toast.error('请检查场景字段', {
         description: result.error.issues[0]?.message,
       });
       return;
@@ -55,9 +55,9 @@ export const LocationBibleForm: React.FC<{
     updateLocation.mutate(
       { sequenceId, locationDbId: location.id, ...result.data },
       {
-        onSuccess: () => toast.success('Location saved'),
+        onSuccess: () => toast.success('场景已保存'),
         onError: (error) =>
-          toast.error('Failed to save location', {
+          toast.error('保存场景失败', {
             description: errorMessage(error),
           }),
       }
@@ -68,7 +68,7 @@ export const LocationBibleForm: React.FC<{
     <form onSubmit={onSubmit} className="flex flex-col gap-4">
       <BibleField
         idPrefix="location"
-        label="Name"
+        label="名称"
         name="name"
         defaultValue={location.name}
         required
@@ -79,7 +79,7 @@ export const LocationBibleForm: React.FC<{
             htmlFor="location-type"
             className="text-xs font-medium uppercase tracking-wider text-muted-foreground"
           >
-            Type
+            类型
           </Label>
           <Select
             name="type"
@@ -89,63 +89,63 @@ export const LocationBibleForm: React.FC<{
                 : 'interior'
             }
             items={{
-              interior: 'Interior',
-              exterior: 'Exterior',
-              both: 'Interior/Exterior',
+              interior: '室内',
+              exterior: '室外',
+              both: '室内/室外',
             }}
           >
             <SelectTrigger id="location-type">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="interior">Interior</SelectItem>
-              <SelectItem value="exterior">Exterior</SelectItem>
-              <SelectItem value="both">Interior/Exterior</SelectItem>
+              <SelectItem value="interior">室内</SelectItem>
+              <SelectItem value="exterior">室外</SelectItem>
+              <SelectItem value="both">室内/室外</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <BibleField
           idPrefix="location"
-          label="Time of Day"
+          label="时段"
           name="timeOfDay"
           defaultValue={location.timeOfDay}
         />
       </div>
       <BibleField
         idPrefix="location"
-        label="Description"
+        label="描述"
         name="description"
         defaultValue={location.description}
         textarea
       />
       <BibleField
         idPrefix="location"
-        label="Architectural Style"
+        label="建筑风格"
         name="architecturalStyle"
         defaultValue={location.architecturalStyle}
       />
       <BibleField
         idPrefix="location"
-        label="Key Features"
+        label="主要特征"
         name="keyFeatures"
         defaultValue={location.keyFeatures}
         textarea
       />
       <BibleField
         idPrefix="location"
-        label="Color Palette"
+        label="色彩方案"
         name="colorPalette"
         defaultValue={location.colorPalette}
       />
       <BibleField
         idPrefix="location"
-        label="Lighting Setup"
+        label="灯光布置"
         name="lightingSetup"
         defaultValue={location.lightingSetup}
       />
       <BibleField
         idPrefix="location"
-        label="Ambiance"
+        label="氛围"
         name="ambiance"
         defaultValue={location.ambiance}
       />
@@ -154,7 +154,7 @@ export const LocationBibleForm: React.FC<{
           {updateLocation.isPending && (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           )}
-          {updateLocation.isPending ? 'Saving…' : 'Save'}
+          {updateLocation.isPending ? '正在保存…' : '保存'}
         </Button>
       </div>
     </form>

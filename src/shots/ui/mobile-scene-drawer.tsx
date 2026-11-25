@@ -59,7 +59,7 @@ export const MobileSceneDrawer: React.FC<SceneListProps> = (listProps) => {
   const isSequence = !selectedShotId && selectedSceneIds.length === 0;
 
   const label = isSequence
-    ? 'All scenes'
+    ? '全部场景'
     : sceneShots.length > 1 && shotOrdinal > 0
       ? `${sceneTitle} · Shot ${shotOrdinal} of ${sceneShots.length}`
       : sceneTitle;
@@ -77,7 +77,7 @@ export const MobileSceneDrawer: React.FC<SceneListProps> = (listProps) => {
         className="fixed inset-x-0 bottom-0 z-40 flex min-h-11 items-center gap-3 border-t bg-background px-4 py-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
         aria-haspopup="dialog"
         aria-expanded={jumpOpen}
-        aria-label={`${label}. Open scene list`}
+        aria-label={`${label}。打开场景列表`}
         onClick={() => setOpenFor(selection)}
       >
         <SceneThumbnail
@@ -92,7 +92,7 @@ export const MobileSceneDrawer: React.FC<SceneListProps> = (listProps) => {
           gridSheetUrl={previewShot?.gridSheet?.url}
           pendingUpscaleIndex={previewShot?.pendingUpscaleIndex}
           pendingUpscaleUrl={previewShot?.pendingUpscaleUrl}
-          alt={isSequence ? 'Sequence' : sceneTitle}
+          alt={isSequence ? '序列' : sceneTitle}
           aspectRatio={aspectRatio}
           className="aspect-square h-10 w-10 shrink-0 rounded"
         />
@@ -110,7 +110,7 @@ export const MobileSceneDrawer: React.FC<SceneListProps> = (listProps) => {
           side="bottom"
           className="flex min-h-0 flex-col gap-0 overflow-hidden pb-[env(safe-area-inset-bottom)] data-[side=bottom]:h-[70dvh]"
         >
-          <SheetTitle className="sr-only">Scenes</SheetTitle>
+          <SheetTitle className="sr-only">场景</SheetTitle>
           <SceneList
             {...listProps}
             scrollToSelection

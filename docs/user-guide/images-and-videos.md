@@ -1,50 +1,50 @@
 ---
-title: Images and Videos
-description: Generate a single still or clip from a prompt, without a sequence
+title: 图像与视频
+description: 无需创建序列，直接根据提示词生成单张静态图或视频片段
 section: User Guide
 order: 13
 ---
 
-**Images** and **Videos** are for one-off stills and clips. You type a prompt, pick the same models used in sequences, and the results land in a library you can sort and favorite.
+**图像**和**视频**用于单次生成静态图和片段。输入提示词并选择与序列相同的模型后，结果会进入可排序和收藏的素材库。
 
-They are not a sequence: there is no script, scene list, or Theatre cut. Use **Sequences** when you want a full film.
+这些内容并非序列：没有剧本、场景列表或影院成片。如果要制作完整影片，请使用**序列**。
 
-## Open a library
+## 打开素材库
 
-- **Images** in the sidebar, or `/images`
-- **Videos** in the sidebar, or `/videos`
+- 侧边栏中的**图像**，或 `/images`
+- 侧边栏中的**视频**，或 `/videos`
 
-The gallery is the library. The prompt bar stays at the bottom so you can generate without losing the grid.
+图库就是素材库。提示词栏始终位于底部，因此你可以在保留网格视图的同时继续生成。
 
-## Generate an image
+## 生成图像
 
-1. Open **Images**
-2. Write a prompt, or click **Shuffle** for a sample still
-3. On models with an edit endpoint (Flux 2, Nano Banana, GPT Image, Grok Imagine, Seedream…) attach reference stills with the dashed tile — they become `@Image1`… in the prompt
-4. Open the settings chip to pick an image model, aspect ratio, and count (1, 2, or 4)
-5. Press the arrow (or Ctrl/Cmd+Enter)
+1. 打开**图像**
+2. 编写提示词，或点击**随机推荐**获取静态图示例
+3. 对于提供编辑端点的模型（Flux 2、Nano Banana、GPT Image、Grok Imagine、Seedream 等），通过虚线图块附加静态参考图——它们会在提示词中显示为 `@Image1` 等
+4. 打开设置选项，选择图像模型、宽高比和数量（1、2 或 4）
+5. 点击箭头（或按 Ctrl/Cmd+Enter）
 
-Each still is stored as its own item. Sign in first — generate is gated behind login, same as sequences.
+每张静态图都会单独存储为一个项目。请先登录——与序列相同，登录后才能使用生成功能。
 
-## Generate a video
+## 生成视频
 
-1. Open **Videos**
-2. Pick a mode from the dropdown on the left (**Reference to video** is the default):
-   - **Text to video** — prompt only
-   - **Reference to video** — attach stills (Seedance 9 + 3 clips + 3 audio, Grok Imagine 7, Kling 4). Each becomes `@Image1`… / `@Video1`… / `@Audio1`… Type `@` in the prompt to point at one, or at anything in your library — a cast headshot, a location, a generation — and it is attached for you.
-   - **Image to video** — a start frame, plus an optional end frame on models that take one (Kling, Seedance)
-3. Add references with the dashed tile. The picker lists your **Generations** (stills and clips), **Sequences** — open one to pick its shots, elements, cast, or locations — **Talent**, **Locations**, and **Audio** uploads. Or drag images onto the prompt bar.
-4. Write the prompt, **Shuffle** a sample, or **Draft prompt** — which looks at what you attached and writes a prompt that uses the tokens. Open the settings chip for model, aspect ratio, every duration the model accepts, and native audio.
-5. Press the arrow
+1. 打开**视频**
+2. 从左侧下拉菜单中选择模式（默认为**参考生成视频**）：
+   - **文本生成视频** — 仅使用提示词
+   - **参考生成视频** — 附加静态图（Seedance 支持 9 张图像 + 3 个片段 + 3 段音频，Grok Imagine 支持 7 个参考，Kling 支持 4 个参考）。每个参考会显示为 `@Image1` 等、`@Video1` 等或 `@Audio1` 等。在提示词中输入 `@`，即可指向某个参考，或素材库中的任意内容——演员头像、地点或生成结果——系统会自动将其附加。
+   - **图像生成视频** — 使用起始帧；对于支持结束帧的模型（Kling、Seedance），还可提供结束帧
+3. 使用虚线图块添加参考。选择器会列出你的**生成结果**（静态图和片段）、**序列**（打开序列可选择其中的镜头、元素、演员或地点）、**演员**、**地点**和上传的**音频**。你也可以将图像拖到提示词栏上。
+4. 编写提示词、点击**随机推荐**获取示例，或点击**起草提示词**——此功能会分析附加内容，并编写使用对应标记的提示词。打开设置选项可选择模型、宽高比、该模型支持的所有时长，以及是否生成原生音频。
+5. 点击箭头
 
-The library card plays the clip.
+素材库卡片会直接播放片段。
 
-## Paste a scene's request
+## 粘贴场景请求
 
-Open a scene's **Optimised prompt** panel in a sequence, switch to **JSON**, copy, and paste into the Videos prompt bar. The composer rebuilds the references (stills, clips, audio, or start/end frame) and the prompt instead of pasting JSON.
+在序列中打开某个场景的**优化提示词**面板，切换到 **JSON**，复制内容并粘贴到视频提示词栏中。编辑器不会直接粘贴 JSON，而是重新构建参考（静态图、片段、音频或起始帧/结束帧）和提示词。
 
-## Sort and keep
+## 排序与收藏
 
-- **Newest** and **Oldest** change recency order
-- **Favorites** pins items you star on a card
-- Open a card to see it full-size, **Download** it, or delete it
+- **最新**和**最早**用于切换时间排序
+- **收藏**会固定你在卡片上标星的项目
+- 打开卡片可查看完整尺寸、**下载**或删除内容

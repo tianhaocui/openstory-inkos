@@ -57,18 +57,18 @@ function summarise(usability: ReferenceUsability, kind: string): string {
     const { problem } = usability;
     switch (problem.reason) {
       case 'format':
-        return `This ${kind} is ${problem.ext.toUpperCase()} — models take ${problem.accepts}. Replace it with an ${problem.accepts} file.`;
+        return `此${kind === 'video' ? '视频' : '音频'}的格式为 ${problem.ext.toUpperCase()}，模型仅支持 ${problem.accepts}。请替换为 ${problem.accepts} 文件。`;
       case 'too-short':
-        return `This ${kind} is too short to use as a reference — every model needs at least ${problem.minSeconds}s.`;
+        return `此${kind === 'video' ? '视频' : '音频'}太短，无法用作参考素材。所有模型都要求至少 ${problem.minSeconds} 秒。`;
       case 'too-long':
-        return `This ${kind} is too long to use as a reference — no model accepts more than ${problem.maxSeconds}s. Trim it to attach it to a shot.`;
+        return `此${kind === 'video' ? '视频' : '音频'}太长，无法用作参考素材。没有模型支持超过 ${problem.maxSeconds} 秒的文件，请截短后再添加到镜头。`;
     }
   }
   if (usability.level === 'limited') {
-    const parts = [`Works with ${listModelNames(usability.models)}.`];
+    const parts = [`可用于 ${listModelNames(usability.models)}。`];
     if (usability.tooLong.length > 0) {
       parts.push(
-        `Too long for ${byLimit(
+        `对以下模型来说太长：${byLimit(
           usability.tooLong.map((t) => ({
             model: t.model,
             seconds: t.maxSeconds,
@@ -79,7 +79,7 @@ function summarise(usability: ReferenceUsability, kind: string): string {
     }
     if (usability.tooShort.length > 0) {
       parts.push(
-        `Too short for ${byLimit(
+        `对以下模型来说太短：${byLimit(
           usability.tooShort.map((t) => ({
             model: t.model,
             seconds: t.minSeconds,
@@ -105,7 +105,8 @@ function byLimit(
   return [...grouped]
     .sort(([a], [b]) => a - b)
     .map(
-      ([seconds, models]) => `${listModelNames(models)} (${seconds}s ${bound})`
+      ([seconds, models]) =>
+        `${listModelNames(models)} (${bound === 'max' ? '最长' : '最短'} ${seconds} 秒)`
     )
     .join('; ');
 }

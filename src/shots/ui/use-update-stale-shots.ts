@@ -62,9 +62,8 @@ export function useUpdateStaleShots(args: { sequenceId: string }) {
             setRunId(workflowRunId);
           },
           onError: (error) => {
-            toast.error('Update failed to start', {
-              description:
-                error instanceof Error ? error.message : 'Unknown error',
+            toast.error('无法开始更新', {
+              description: error instanceof Error ? error.message : '未知错误',
             });
           },
         }
@@ -110,7 +109,7 @@ export function useUpdateStaleShots(args: { sequenceId: string }) {
 
     if (outcome.state === 'failed') {
       setRunId(null);
-      toast.error('Update failed', { description: outcome.error });
+      toast.error('更新失败', { description: outcome.error });
       return;
     }
 
@@ -120,7 +119,7 @@ export function useUpdateStaleShots(args: { sequenceId: string }) {
       if (Date.now() > deadlineRef.current) {
         setRunId(null);
         toast.warning("Couldn't confirm the update finished", {
-          description: 'Check the indicators to see what is still out of date.',
+          description: '请查看指示器以确认仍有哪些内容已过期。',
         });
       }
       return;
@@ -158,10 +157,9 @@ export function useUpdateStaleShots(args: { sequenceId: string }) {
       toast.info(
         regenerated > 0
           ? `Updated ${regenerated} item${regenerated === 1 ? '' : 's'} — the rest are already being updated`
-          : 'These shots are already being updated',
+          : '这些镜头已在更新中',
         {
-          description:
-            'Another update run is regenerating the remaining artifacts.',
+          description: '另一个更新任务正在重新生成其余内容。',
         }
       );
       return;
@@ -174,22 +172,20 @@ export function useUpdateStaleShots(args: { sequenceId: string }) {
           ? `Updated ${regenerated} item${regenerated === 1 ? '' : 's'}, ${problems} could not be updated`
           : `Could not update ${problems} item${problems === 1 ? '' : 's'}`,
         {
-          description:
-            failures[0]?.error ??
-            'Some shots were skipped because their state could not be determined.',
+          description: failures[0]?.error ?? '部分镜头因状态无法确定而被跳过。',
         }
       );
       return;
     }
 
     if (regenerated === 0) {
-      toast.success('Everything is already up to date');
+      toast.success('所有内容已是最新');
       return;
     }
     toast.success(
       totalShots > 0
         ? `Updated ${regenerated} item${regenerated === 1 ? '' : 's'} across ${totalShots} shot${totalShots === 1 ? '' : 's'}${touchedMusic ? ' + music' : ''}`
-        : 'Updated the sequence music'
+        : '已更新序列音乐'
     );
   }, [outcome, runId]);
 

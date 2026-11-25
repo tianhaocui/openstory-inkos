@@ -71,11 +71,7 @@ export const SceneScriptTab: React.FC<SceneScriptTabProps> = ({
             <span className="text-xs text-muted-foreground">
               {currentScript.length} characters
             </span>
-            <VoiceInputButton
-              label="scene script"
-              disabled={isSaving}
-              {...voice}
-            />
+            <VoiceInputButton label="场景剧本" disabled={isSaving} {...voice} />
           </div>
         </div>
         <div className="relative">
@@ -84,7 +80,7 @@ export const SceneScriptTab: React.FC<SceneScriptTabProps> = ({
             ref={editorRef}
             value={currentScript}
             onValueChange={(value) => onEditedScriptChange(value)}
-            placeholder="Enter the script text for this scene… (type @ to insert elements, cast, locations)"
+            placeholder="输入此场景的剧本文本…（输入 @ 可插入元素、演员和场景）"
             className="min-h-[180px] pr-10"
             disabled={!sceneId || isSaving}
             mentionItems={mentionItems}
@@ -95,7 +91,7 @@ export const SceneScriptTab: React.FC<SceneScriptTabProps> = ({
             variant="ghost"
             onClick={() => onCopy(currentScript)}
             disabled={!currentScript}
-            aria-label="Copy scene script"
+            aria-label="复制场景剧本"
             className="absolute right-1 top-1 h-8 w-8"
           >
             {isCopied ? (
@@ -122,7 +118,7 @@ export const SceneScriptTab: React.FC<SceneScriptTabProps> = ({
           disabled={!canSave}
         >
           {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {isSaving ? 'Saving…' : 'Save'}
+          {isSaving ? '保存中…' : '保存'}
         </Button>
       </div>
 

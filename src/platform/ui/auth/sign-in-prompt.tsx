@@ -16,7 +16,7 @@ import type { ReactNode } from 'react';
 
 export function SignInPrompt({
   icon = <LogIn className="h-12 w-12" />,
-  title = 'Sign in to continue',
+  title = '登录以继续',
   description,
 }: {
   icon?: ReactNode;
@@ -30,7 +30,7 @@ export function SignInPrompt({
       icon={icon}
       title={title}
       description={description}
-      action={<Button onClick={openLogin}>Sign in</Button>}
+      action={<Button onClick={openLogin}>登录</Button>}
     />
   );
 }

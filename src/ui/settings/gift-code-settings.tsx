@@ -69,22 +69,22 @@ function RedeemSection() {
       const returnTo = localStorage.getItem(RETURN_KEY);
       if (returnTo) {
         localStorage.removeItem(RETURN_KEY);
-        toast.success(`$${result.amountUsd.toFixed(2)} added to your balance`, {
-          description: `New balance: $${result.newBalance.toFixed(2)}`,
+        toast.success(`已向余额添加 $${result.amountUsd.toFixed(2)}`, {
+          description: `新余额：$${result.newBalance.toFixed(2)}`,
           action: {
-            label: 'Continue creating',
+            label: '继续创作',
             onClick: () => void navigate({ to: returnTo }),
           },
           duration: 15_000,
         });
       } else {
-        toast.success(`$${result.amountUsd.toFixed(2)} added to your balance`, {
-          description: `New balance: $${result.newBalance.toFixed(2)}`,
+        toast.success(`已向余额添加 $${result.amountUsd.toFixed(2)}`, {
+          description: `新余额：$${result.newBalance.toFixed(2)}`,
         });
       }
     },
     onError: (err) => {
-      toast.error(err instanceof Error ? err.message : 'Failed to redeem code');
+      toast.error(err instanceof Error ? err.message : '兑换礼品码失败');
     },
   });
 
@@ -103,10 +103,8 @@ function RedeemSection() {
             <Gift className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <CardTitle>Redeem Gift Code</CardTitle>
-            <CardDescription>
-              Enter a gift code to add credits to your team
-            </CardDescription>
+            <CardTitle>兑换礼品码</CardTitle>
+            <CardDescription>输入礼品码，为您的团队充值点数</CardDescription>
           </div>
         </div>
       </CardHeader>
@@ -114,7 +112,7 @@ function RedeemSection() {
         <form onSubmit={handleSubmit} className="flex gap-3">
           <Input
             name="code"
-            placeholder="Enter code…"
+            placeholder="输入礼品码…"
             value={code}
             onChange={(e) => setCode(e.target.value.toUpperCase())}
             className="font-mono uppercase tracking-wider"
@@ -127,7 +125,7 @@ function RedeemSection() {
             type="submit"
             disabled={!code.trim() || redeemMutation.isPending}
           >
-            {redeemMutation.isPending ? 'Redeeming…' : 'Redeem'}
+            {redeemMutation.isPending ? '兑换中…' : '兑换'}
           </Button>
         </form>
       </CardContent>
@@ -171,12 +169,10 @@ function BatchCreateCard() {
       setCreatedCodes(result.codes);
       setForm(INITIAL_BATCH_FORM);
       void queryClient.invalidateQueries({ queryKey: ['gift-tokens'] });
-      toast.success(`${result.codes.length} gift codes created`);
+      toast.success(`已创建 ${result.codes.length} 个礼品码`);
     },
     onError: (err) => {
-      toast.error(
-        err instanceof Error ? err.message : 'Failed to create batch'
-      );
+      toast.error(err instanceof Error ? err.message : '批量创建失败');
     },
   });
 
@@ -199,9 +195,8 @@ function BatchCreateCard() {
   const handleCopyAll = async () => {
     if (!createdCodes) return;
     if (!(await copyTextToClipboard(createdCodes.join('\n')))) {
-      toast.error('Failed to copy the codes', {
-        description:
-          'Your browser blocked clipboard access. Select the codes to copy them manually.',
+      toast.error('复制礼品码失败', {
+        description: '浏览器阻止了剪贴板访问。请选择礼品码并手动复制。',
       });
       return;
     }
@@ -217,9 +212,9 @@ function BatchCreateCard() {
             <Layers className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <CardTitle>Batch Create Gift Codes</CardTitle>
+            <CardTitle>批量创建礼品码</CardTitle>
             <CardDescription>
-              Generate multiple single-use codes (e.g. for promotions)
+              生成多个一次性礼品码（例如用于推广活动）
             </CardDescription>
           </div>
         </div>
@@ -228,7 +223,7 @@ function BatchCreateCard() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <div className="space-y-2">
-              <Label htmlFor="batch-count">Count</Label>
+              <Label htmlFor="batch-count">数量</Label>
               <Input
                 id="batch-count"
                 type="number"
@@ -244,7 +239,7 @@ function BatchCreateCard() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="batch-amount">Amount (USD)</Label>
+              <Label htmlFor="batch-amount">金额（USD）</Label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                   $
@@ -264,23 +259,23 @@ function BatchCreateCard() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="batch-expires">Expires in (days)</Label>
+              <Label htmlFor="batch-expires">有效期（天）</Label>
               <Input
                 id="batch-expires"
                 type="number"
                 min="1"
                 step="1"
-                placeholder="No expiry"
+                placeholder="永不过期"
                 value={form.expiresInDays}
                 onChange={(e) => updateField('expiresInDays', e.target.value)}
                 autoComplete="off"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="batch-note">Note</Label>
+              <Label htmlFor="batch-note">备注</Label>
               <Input
                 id="batch-note"
-                placeholder="e.g. Promo batch…"
+                placeholder="例如：推广活动批次…"
                 value={form.note}
                 onChange={(e) => updateField('note', e.target.value)}
                 autoComplete="off"
@@ -292,15 +287,15 @@ function BatchCreateCard() {
             disabled={!form.count || !form.amount || batchMutation.isPending}
           >
             {batchMutation.isPending
-              ? `Creating ${form.count} codes…`
-              : `Create ${form.count} Codes`}
+              ? `正在创建 ${form.count} 个礼品码…`
+              : `创建 ${form.count} 个礼品码`}
           </Button>
         </form>
 
         {createdCodes && (
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label>{createdCodes.length} codes generated</Label>
+              <Label>已生成 {createdCodes.length} 个礼品码</Label>
               <Button
                 variant="outline"
                 size="sm"
@@ -312,7 +307,7 @@ function BatchCreateCard() {
                 ) : (
                   <Copy className="h-3.5 w-3.5" />
                 )}
-                {copied ? 'Copied' : 'Copy All'}
+                {copied ? '已复制' : '全部复制'}
               </Button>
             </div>
             <textarea
@@ -359,9 +354,7 @@ function CreateGiftCodeCard() {
       void queryClient.invalidateQueries({ queryKey: ['gift-tokens'] });
     },
     onError: (err) => {
-      toast.error(
-        err instanceof Error ? err.message : 'Failed to create gift code'
-      );
+      toast.error(err instanceof Error ? err.message : '创建礼品码失败');
     },
   });
 
@@ -388,10 +381,8 @@ function CreateGiftCodeCard() {
             <ShieldCheck className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <CardTitle>Create Gift Code</CardTitle>
-            <CardDescription>
-              Generate a new gift code (admin only)
-            </CardDescription>
+            <CardTitle>创建礼品码</CardTitle>
+            <CardDescription>生成新的礼品码（仅限管理员）</CardDescription>
           </div>
         </div>
       </CardHeader>
@@ -399,7 +390,7 @@ function CreateGiftCodeCard() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="gift-amount">Amount (USD)</Label>
+              <Label htmlFor="gift-amount">金额（USD）</Label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                   $
@@ -419,7 +410,7 @@ function CreateGiftCodeCard() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="gift-max-redemptions">Max redemptions</Label>
+              <Label htmlFor="gift-max-redemptions">最多兑换次数</Label>
               <Input
                 id="gift-max-redemptions"
                 type="number"
@@ -433,13 +424,13 @@ function CreateGiftCodeCard() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="gift-expires">Expires in (days)</Label>
+              <Label htmlFor="gift-expires">有效期（天）</Label>
               <Input
                 id="gift-expires"
                 type="number"
                 min="1"
                 step="1"
-                placeholder="No expiry"
+                placeholder="永不过期"
                 value={form.expiresInDays}
                 onChange={(e) => updateField('expiresInDays', e.target.value)}
                 autoComplete="off"
@@ -447,10 +438,10 @@ function CreateGiftCodeCard() {
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="gift-note">Note (optional)</Label>
+            <Label htmlFor="gift-note">备注（可选）</Label>
             <Input
               id="gift-note"
-              placeholder="e.g. Beta tester reward…"
+              placeholder="例如：Beta 测试者奖励…"
               value={form.note}
               onChange={(e) => updateField('note', e.target.value)}
               autoComplete="off"
@@ -460,7 +451,7 @@ function CreateGiftCodeCard() {
             type="submit"
             disabled={!form.amount || createMutation.isPending}
           >
-            {createMutation.isPending ? 'Creating…' : 'Create Gift Code'}
+            {createMutation.isPending ? '创建中…' : '创建礼品码'}
           </Button>
         </form>
 
@@ -468,7 +459,7 @@ function CreateGiftCodeCard() {
           <Alert>
             <AlertDescription className="flex items-center justify-between">
               <span>
-                Gift code created:{' '}
+                礼品码已创建：{' '}
                 <span className="font-mono font-bold tracking-wider">
                   {createdCode}
                 </span>
@@ -495,8 +486,8 @@ function GiftCodeListCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Gift Codes</CardTitle>
-        <CardDescription>All gift codes created by admins</CardDescription>
+        <CardTitle>礼品码</CardTitle>
+        <CardDescription>管理员创建的所有礼品码</CardDescription>
       </CardHeader>
       <CardContent>
         {isLoading ? (
@@ -506,9 +497,7 @@ function GiftCodeListCard() {
             <Skeleton className="h-12 w-full" />
           </div>
         ) : !tokens?.length ? (
-          <p className="text-center text-muted-foreground py-4">
-            No gift codes yet
-          </p>
+          <p className="text-center text-muted-foreground py-4">暂无礼品码</p>
         ) : (
           <div className="space-y-2">
             {tokens.map((token) => (
@@ -553,7 +542,7 @@ function GiftTokenRow({ token }: GiftTokenRowProps) {
             token.note,
             new Date(token.createdAt).toLocaleDateString(),
             token.expiresAt &&
-              `Expires ${new Date(token.expiresAt).toLocaleDateString()}`,
+              `到期日期 ${new Date(token.expiresAt).toLocaleDateString()}`,
           ]
             .filter(Boolean)
             .join(' · ')}
@@ -588,7 +577,10 @@ function getStatusVariant(
 }
 
 function getStatusLabel(status: string): string {
-  if (status === 'fully_redeemed') return 'fully redeemed';
+  if (status === 'fully_redeemed') return '已全部兑换';
+  if (status === 'available') return '可用';
+  if (status === 'expired') return '已过期';
+  if (status === 'disabled') return '已停用';
   return status;
 }
 
@@ -604,7 +596,7 @@ function CopyLinkButton({ code }: { code: string }) {
   const handleCopy = async () => {
     const url = `${window.location.origin}/gift/${code}`;
     if (!(await copyTextToClipboard(url))) {
-      toast.error('Failed to copy the gift link');
+      toast.error('复制礼品链接失败');
       return;
     }
     setCopied(true);
@@ -617,7 +609,7 @@ function CopyLinkButton({ code }: { code: string }) {
       size="icon"
       className="h-8 w-8"
       onClick={() => void handleCopy()}
-      aria-label="Copy gift link"
+      aria-label="复制礼品链接"
     >
       {copied ? (
         <Check className="h-4 w-4 text-green-600" />
@@ -633,7 +625,7 @@ function CopyButton({ text }: { text: string }) {
 
   const handleCopy = async () => {
     if (!(await copyTextToClipboard(text))) {
-      toast.error('Failed to copy the code');
+      toast.error('复制礼品码失败');
       return;
     }
     setCopied(true);
@@ -646,7 +638,7 @@ function CopyButton({ text }: { text: string }) {
       size="icon"
       className="h-8 w-8"
       onClick={() => void handleCopy()}
-      aria-label="Copy code"
+      aria-label="复制礼品码"
     >
       {copied ? (
         <Check className="h-4 w-4 text-green-600" />

@@ -77,7 +77,7 @@ const TalentPickerCard: React.FC<TalentPickerCardProps> = ({
       <span className="text-sm font-medium truncate w-full">{talent.name}</span>
       {talent.isPublic && (
         <div className="absolute left-2 top-2 rounded bg-background/80 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground backdrop-blur-sm">
-          System
+          系统
         </div>
       )}
       {isSelected && (
@@ -179,7 +179,7 @@ export const TalentSuggestionSelector: React.FC<
           className="gap-2 text-muted-foreground"
         >
           <Users className="h-4 w-4" />
-          <span>Talent</span>
+          <span>演员</span>
         </Button>
 
         {/* Selected talent avatars */}
@@ -213,11 +213,10 @@ export const TalentSuggestionSelector: React.FC<
             className="flex flex-col gap-4"
           >
             <DialogHeader>
-              <DialogTitle>Select Talent for Casting</DialogTitle>
+              <DialogTitle>选择演员</DialogTitle>
               <DialogDescription>
-                Pick talent here only when you want a specific person cast in a
-                role. Any characters you don't pre-cast are auto-extracted from
-                your script and given AI-generated portraits.
+                仅在需要指定演员饰演某个角色时在此选择。未预先选角的角色将从剧本中自动提取，并生成
+                AI 肖像。
               </DialogDescription>
             </DialogHeader>
 
@@ -226,7 +225,7 @@ export const TalentSuggestionSelector: React.FC<
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Search talent…"
+                placeholder="搜索演员…"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-9"
@@ -251,9 +250,7 @@ export const TalentSuggestionSelector: React.FC<
                 <div className="flex h-full flex-col items-center justify-center py-12 text-center">
                   <User className="h-12 w-12 text-muted-foreground/30" />
                   <p className="mt-4 text-sm text-muted-foreground">
-                    {searchQuery
-                      ? 'No talent matching your search'
-                      : 'Your talent library is empty'}
+                    {searchQuery ? '没有匹配搜索条件的演员' : '你的演员库为空'}
                   </p>
                   {!searchQuery && (
                     <AddTalentDialog
@@ -261,7 +258,7 @@ export const TalentSuggestionSelector: React.FC<
                       trigger={
                         <Button variant="outline" size="sm" className="mt-3">
                           <Plus className="mr-2 h-4 w-4" />
-                          Add Talent
+                          添加演员
                         </Button>
                       }
                     />
@@ -288,15 +285,15 @@ export const TalentSuggestionSelector: React.FC<
                 trigger={
                   <Button variant="outline" size="sm">
                     <Plus className="mr-2 h-4 w-4" />
-                    Add Talent
+                    添加演员
                   </Button>
                 }
               />
               <div className="flex flex-col items-center gap-1">
                 <Button type="submit">
                   {selectedTalentIds.length > 0
-                    ? `Cast ${selectedTalentIds.length} role${selectedTalentIds.length === 1 ? '' : 's'}`
-                    : 'Continue'}
+                    ? `为 ${selectedTalentIds.length} 个角色选角`
+                    : '继续'}
                 </Button>
                 <span
                   className={cn(
@@ -304,7 +301,7 @@ export const TalentSuggestionSelector: React.FC<
                     selectedTalentIds.length > 0 && 'invisible'
                   )}
                 >
-                  without casting
+                  不预先选角
                 </span>
               </div>
             </div>

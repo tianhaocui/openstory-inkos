@@ -9,7 +9,7 @@ import { Clapperboard } from 'lucide-react';
 
 export const Route = createFileRoute('/_app/gallery/')({
   component: GalleryPage,
-  staticData: { breadcrumb: 'Gallery' },
+  staticData: { breadcrumb: '作品集' },
 });
 
 function GalleryPage() {
@@ -19,7 +19,7 @@ function GalleryPage() {
   return (
     <div className="h-full overflow-auto">
       <PageContainer>
-        <h1 className="sr-only">Gallery</h1>
+        <h1 className="sr-only">作品集</h1>
 
         {isPending ? (
           // Masonry columns mirror the final layout's mixed aspect ratios.
@@ -34,8 +34,8 @@ function GalleryPage() {
         ) : entries.length === 0 ? (
           <EmptyState
             icon={<Clapperboard className="h-12 w-12" />}
-            title="No sample videos yet"
-            description="Style samples will appear here once they've been generated."
+            title="暂无示例视频"
+            description="生成风格示例后将显示在这里。"
           />
         ) : (
           <div className="columns-2 gap-4 md:columns-3 lg:columns-4">

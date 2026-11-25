@@ -69,8 +69,8 @@ function useImageModels({
           recommendedFor:
             recommendedImageModel && key === recommendedImageModel
               ? styleName
-                ? `Recommended for ${styleName}`
-                : 'Recommended for this style'
+                ? `${styleName} 推荐`
+                : '当前风格推荐'
               : undefined,
         })),
     [recommendedImageModel, styleName]
@@ -85,18 +85,18 @@ function RecommendationHint({
   styleName: string | undefined;
 }) {
   if (status.kind === 'matched' || status.kind === 'none') return null;
-  const prefix = styleName ? `${styleName} recommends` : 'Recommended';
+  const prefix = styleName ? `${styleName} 推荐` : '推荐的';
   if (status.kind === 'unknown') {
     return (
       <p className="text-[10px] text-muted-foreground">
-        {prefix} a model that's no longer available.
+        {prefix}模型已不可用。
       </p>
     );
   }
   return (
     <p className="text-[10px] text-muted-foreground">
-      {prefix} <span className="font-medium">{status.modelName}</span>, but it's
-      not available in this selector.
+      {prefix} <span className="font-medium">{status.modelName}</span>
+      ，但它不在当前选择器中。
     </p>
   );
 }
@@ -140,7 +140,7 @@ export const ImageModelSelector: React.FC<ImageModelSelectorProps> = ({
   return (
     <div className="flex flex-col gap-1">
       <BaseModelSelector
-        label="Image Model"
+        label="图像模型"
         models={models}
         groupOrder={SELECTOR_GROUP_ORDER}
         selectedIds={[selectedModel]}
@@ -193,7 +193,7 @@ export const ImageModelMultiSelector: React.FC<
   return (
     <div className="flex flex-col gap-1">
       <BaseModelSelector
-        label="Image Models"
+        label="图像模型"
         models={models}
         groupOrder={SELECTOR_GROUP_ORDER}
         selectedIds={selectedModels}

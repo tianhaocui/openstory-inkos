@@ -41,6 +41,8 @@ import { extractFalErrorMessage } from './fal-error';
  */
 export const CONTENT_REJECTION_PATTERNS: readonly RegExp[] = [
   /content checker/i,
+  /内容审核未通过/,
+  /内容审核拒绝/,
   /flagged by a content/i,
   /did not generate the expected output/i,
   /could not generate images?/i,
@@ -130,7 +132,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 /** Overlay / list title — not "Generation failed". */
-export const CONTENT_REJECTION_USER_TITLE = 'Blocked by the content checker';
+export const CONTENT_REJECTION_USER_TITLE = '内容审核未通过';
 
 /**
  * Message for an LLM call the provider stopped on a content filter.
@@ -146,12 +148,11 @@ export const CONTENT_REJECTION_USER_TITLE = 'Blocked by the content checker';
  * neither of which tells the user their script tripped a safety classifier.
  */
 export function contentFilterLlmMessage(subject: string): string {
-  return `${CONTENT_REJECTION_USER_TITLE}: ${subject} (stopped by the provider's content filter)`;
+  return `${CONTENT_REJECTION_USER_TITLE}：${subject}（服务商内容过滤器已拦截）`;
 }
 
 /** What the user can do next. */
-export const CONTENT_REJECTION_USER_HINT =
-  'Edit the script or the visual prompt, or retry.';
+export const CONTENT_REJECTION_USER_HINT = '请修改剧本或视觉提示词，然后重试。';
 
 /**
  * Bible-level failure message when EVERY child failed a content check:
@@ -234,10 +235,24 @@ export function clipContentRejectionMessage(args: {
   };
 }): string {
   const flags = flaggedInputs(args.rejections.join('; '));
-  const still = args.inputs
-    ? args.inputs.still
-    : { name: 'the still', fix: 'Regenerate the still' };
-  const promptName = args.inputs?.prompt ?? 'the motion prompt';
+  const phraseMap: Record<string, string> = {
+    'the still': '参考静态画面',
+    'the motion prompt': '动态提示词',
+    'a reference image': '参考图像',
+    'the prompt': '提示词',
+    'Regenerate the still': '重新生成静态画面',
+    'Swap the reference image': '替换参考图像',
+    'Rewrite the motion prompt': '重写动态提示词',
+    'Rewrite the prompt': '重写提示词',
+  };
+  const translate = (value: string) => phraseMap[value] ?? value;
+  const still = args.inputs?.still
+    ? {
+        name: translate(args.inputs.still.name),
+        fix: translate(args.inputs.still.fix),
+      }
+    : { name: '参考静态画面', fix: '重新生成静态画面' };
+  const promptName = translate(args.inputs?.prompt ?? 'the motion prompt');
   const stillFlagged = flags.image && still !== undefined;
   const what =
     stillFlagged && flags.prompt
@@ -251,15 +266,21 @@ export function clipContentRejectionMessage(args: {
             : 'the clip';
   const lower = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
   const hint = stillFlagged
-    ? `${still.fix}${flags.prompt ? ` or rewrite ${promptName}` : ''}.`
+    ? `${still.fix}${flags.prompt ? `，或重写${promptName}` : ''}。`
     : flags.prompt
-      ? `Rewrite ${promptName}.`
-      : `Rewrite ${promptName}${still ? ` or ${lower(still.fix)}` : ''}. (${args.rejections.at(-1) ?? ''})`;
+      ? `请重写${promptName}。`
+      : `请重写${promptName}${still ? `，或${lower(still.fix)}` : ''}。`;
   const tried = [
     args.models.join(', then '),
-    args.softened ? 'softened prompt also rejected' : null,
+    args.softened ? '提示词软化版本也被拒绝' : null,
   ]
     .filter(Boolean)
     .join('; ');
-  return `Content checker rejected ${what} (${tried}). ${hint}`;
+  const localizedWhat = what
+    .replace('the still', '参考静态画面')
+    .replace('the prompt', '提示词')
+    .replace('the audio', '音频')
+    .replace('the clip', '视频片段')
+    .replace(' and ', '和');
+  return `内容审核拒绝了${localizedWhat}（${tried}）。${hint}`;
 }

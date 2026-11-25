@@ -1,4 +1,4 @@
-import { OpenStoryLogo } from '@/ui/icons/openstory-logo';
+import { BigKalamiLogo } from '@/ui/icons/big-kalami-logo';
 import { Alert, AlertDescription } from '@/ui/shadcn/alert';
 import { Button } from '@/ui/shadcn/button';
 import {
@@ -67,10 +67,10 @@ const CenteredLayout: React.FC<{ children: React.ReactNode }> = ({
     <div className="w-full max-w-sm space-y-8">
       <div className="flex flex-col items-center gap-4 text-center">
         <Link to="/">
-          <OpenStoryLogo size="lg" />
+          <BigKalamiLogo className="text-2xl" />
         </Link>
         <p className="text-muted-foreground">
-          AI video production, from script to screen.
+          从剧本到成片的 AI 视频创作平台。
         </p>
       </div>
       <Card className="text-center">{children}</Card>
@@ -129,8 +129,8 @@ function AutoRedeemView({ code }: GiftCodeViewProps) {
         new_balance: result.newBalance,
       });
 
-      toast.success(`$${result.amountUsd.toFixed(2)} added to your balance`, {
-        description: `New balance: $${result.newBalance.toFixed(2)}`,
+      toast.success(`已向余额充值 $${result.amountUsd.toFixed(2)}`, {
+        description: `当前余额：$${result.newBalance.toFixed(2)}`,
       });
 
       const returnTo = localStorage.getItem(RETURN_KEY);
@@ -152,7 +152,7 @@ function AutoRedeemView({ code }: GiftCodeViewProps) {
 
   if (isError) {
     const errorMessage =
-      error instanceof Error ? error.message : 'Failed to redeem code';
+      error instanceof Error ? error.message : '礼品码兑换失败';
 
     return (
       <CenteredLayout>
@@ -160,7 +160,7 @@ function AutoRedeemView({ code }: GiftCodeViewProps) {
           <IconBadge variant="destructive">
             <Gift className="h-7 w-7 text-destructive" />
           </IconBadge>
-          <CardTitle className="text-2xl">Redemption failed</CardTitle>
+          <CardTitle className="text-2xl">兑换失败</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <Alert variant="destructive">
@@ -174,11 +174,11 @@ function AutoRedeemView({ code }: GiftCodeViewProps) {
               }}
               disabled={isPending}
             >
-              Try again
+              重试
             </Button>
             <Button variant="ghost" asChild>
               <Link to="/credits" search={{ tab: 'gift-codes' }}>
-                Enter code manually
+                手动输入礼品码
               </Link>
             </Button>
           </div>
@@ -193,8 +193,8 @@ function AutoRedeemView({ code }: GiftCodeViewProps) {
         <IconBadge variant="primary">
           <Loader2 className="h-7 w-7 animate-spin text-primary" />
         </IconBadge>
-        <CardTitle className="text-2xl">Redeeming your gift…</CardTitle>
-        <CardDescription>Adding credits to your account</CardDescription>
+        <CardTitle className="text-2xl">正在兑换礼品…</CardTitle>
+        <CardDescription>正在向您的账户充值点数</CardDescription>
       </CardHeader>
       <CardContent>
         <CodeDisplay code={code} />
@@ -214,16 +214,14 @@ function GiftLandingPage({ code }: GiftCodeViewProps) {
         <IconBadge variant="primary">
           <Gift className="h-7 w-7 text-primary" />
         </IconBadge>
-        <CardTitle className="text-2xl">Credits incoming!</CardTitle>
-        <CardDescription>
-          Sign in to redeem your gift and start creating.
-        </CardDescription>
+        <CardTitle className="text-2xl">点数即将到账！</CardTitle>
+        <CardDescription>登录后即可兑换礼品并开始创作。</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <CodeDisplay code={code} />
         <Button asChild size="lg">
           <Link to="/login" search={{ redirectTo: `/gift/${code}` }}>
-            Sign in to redeem
+            登录并兑换
           </Link>
         </Button>
       </CardContent>

@@ -82,7 +82,7 @@ describe('batch aggregation', () => {
       { name: 'Scene 2', reason: contentFilterLlmMessage('Scene 2') },
     ];
     const summary = contentRejectionSummary(failures);
-    expect(summary).toBe('Blocked by the content checker: Scene 3, Scene 2');
+    expect(summary).toBe('内容审核未通过: Scene 3, Scene 2');
   });
 
   it('keeps the diagnostic message when any failure was NOT a content filter', () => {
