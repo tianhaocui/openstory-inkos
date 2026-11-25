@@ -1,5 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ShotActionButton } from './shot-action-button';
+import { useState } from 'react';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import {
+  ShotActionButton,
+  type ShotActionButtonProps,
+} from './shot-action-button';
 
 const meta: Meta<typeof ShotActionButton> = {
   title: 'Shared/ShotActionButton',
@@ -59,5 +64,41 @@ export const Playable: Story = {
       },
     ],
     busy: false,
+  },
+};
+
+/** Drives a real busy → idle cycle so the wrapper's focus restore is exercised. */
+function KeyboardHarness(args: ShotActionButtonProps) {
+  const [busy, setBusy] = useState(false);
+  return (
+    <ShotActionButton
+      {...args}
+      busy={busy}
+      onGenerateVideo={async (keyframeId) => {
+        await args.onGenerateVideo(keyframeId);
+        setBusy(true);
+        window.setTimeout(() => setBusy(false), 80);
+      }}
+    />
+  );
+}
+
+export const KeyboardEnterAndFocusRestored: Story = {
+  name: '键盘 Enter 触发 + 按钮恢复后焦点回位',
+  args: {
+    keyframe: readyKeyframe,
+    clips: [],
+    busy: false,
+    onGenerateVideo: fn(async () => undefined),
+  },
+  render: (args) => <KeyboardHarness {...args} />,
+  play: async ({ args, canvasElement }) => {
+    const button = await within(canvasElement).findByRole('button');
+    await userEvent.tab();
+    await expect(button).toHaveFocus();
+    await userEvent.keyboard('{Enter}');
+    await expect(args.onGenerateVideo).toHaveBeenCalledWith('kf-3');
+    await waitFor(() => expect(button).not.toBeDisabled());
+    await waitFor(() => expect(button).toHaveFocus());
   },
 };

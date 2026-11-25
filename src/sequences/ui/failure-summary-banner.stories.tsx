@@ -8,6 +8,8 @@ const meta: Meta<typeof FailureSummaryBanner> = {
   component: FailureSummaryBanner,
   parameters: {
     layout: 'padded',
+    // P5 todo: historical color-contrast violation — retire, do not grow.
+    a11y: { test: 'todo' },
   },
   args: {
     onRetry: () => undefined,

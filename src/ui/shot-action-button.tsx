@@ -108,6 +108,11 @@ export function ShotActionButton({
         hadFocusRef.current = true;
       }}
       onBlurCapture={(event) => {
+        const button = wrapperRef.current?.querySelector('button');
+        // Disabling the button blurs it to <body>; that is exactly the case
+        // the restore effect must remember, so keep the flag until the
+        // button becomes usable again.
+        if (button?.disabled) return;
         if (!wrapperRef.current?.contains(event.relatedTarget)) {
           hadFocusRef.current = false;
         }

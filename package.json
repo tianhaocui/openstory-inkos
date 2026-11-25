@@ -66,6 +66,7 @@
     "format:check": "oxfmt --check",
     "typecheck": "tsgo --noEmit",
     "test": "vitest run",
+    "test:a11y": "bun run build-storybook && (python3 -m http.server 6006 --directory storybook-static --bind 127.0.0.1 >/dev/null 2>&1 & server=$!; trap 'kill $server' EXIT; curl --retry 20 --retry-delay 1 --retry-connrefused -fsS http://127.0.0.1:6006/index.json >/dev/null; test-storybook --url http://127.0.0.1:6006 --maxWorkers 2 --disable-telemetry)",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "test:e2e": "bun playwright test",
@@ -183,6 +184,7 @@
     "zod": "^4.5.4"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.1",
     "@clack/prompts": "^1.7.0",
     "@cloudflare/vite-plugin": "^1.54.4",
     "@copilotkit/aimock": "^1.39.0",
@@ -194,6 +196,7 @@
     "@storybook/addon-docs": "^10.6.0",
     "@storybook/addon-themes": "^10.6.0",
     "@storybook/react-vite": "^10.6.0",
+    "@storybook/test-runner": "^0.26.1",
     "@tailwindcss/vite": "^4.3.3",
     "@tanstack/devtools-vite": "^0.8.5",
     "@tanstack/react-ai-devtools": "^0.2.71",

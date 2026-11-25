@@ -6,6 +6,8 @@ const meta: Meta<typeof VideoPlayer> = {
   component: VideoPlayer,
   parameters: {
     layout: 'padded',
+    // P5 todo: historical label-content-name-mismatch violation.
+    a11y: { test: 'todo' },
   },
 };
 

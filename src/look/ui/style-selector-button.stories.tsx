@@ -8,6 +8,8 @@ import { StyleSelectorButton } from './style-selector-button';
 const meta: Meta<typeof StyleSelectorButton> = {
   title: 'Style/StyleSelectorButton',
   component: StyleSelectorButton,
+  // P5 todo: historical image-redundant-alt violation — retire, do not grow.
+  parameters: { a11y: { test: 'todo' } },
   argTypes: {
     selectedStyle: {
       description: 'The currently selected style object',

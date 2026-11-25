@@ -7,6 +7,8 @@ const meta: Meta<typeof ScriptEditor> = {
   component: ScriptEditor,
   parameters: {
     layout: 'padded',
+    // P5 todo: historical color-contrast violation — retire, do not grow.
+    a11y: { test: 'todo' },
     docs: {
       description: {
         component:

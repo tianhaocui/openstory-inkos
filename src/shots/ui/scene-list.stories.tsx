@@ -243,6 +243,8 @@ const meta: Meta<typeof SceneList> = {
   ],
   parameters: {
     layout: 'fullscreen',
+    // P5 todo: historical aria-prohibited-attr violations — retire, do not grow.
+    a11y: { test: 'todo' },
   },
   args: defaultArgs,
 };

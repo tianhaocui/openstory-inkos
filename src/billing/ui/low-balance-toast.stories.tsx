@@ -47,7 +47,11 @@ function ToastHarness({
 const meta: Meta<typeof ToastHarness> = {
   title: 'Billing/LowBalanceToast',
   component: ToastHarness,
-  parameters: { layout: 'fullscreen' },
+  parameters: {
+    layout: 'fullscreen',
+    // P5 todo: historical color-contrast violation — retire, do not grow.
+    a11y: { test: 'todo' },
+  },
 };
 
 export default meta;

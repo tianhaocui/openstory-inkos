@@ -9,6 +9,8 @@ const meta: Meta<typeof AspectRatioSelect> = {
   component: AspectRatioSelect,
   parameters: {
     layout: 'centered',
+    // P5 todo: historical label-content-name-mismatch violation.
+    a11y: { test: 'todo' },
   },
 };
 

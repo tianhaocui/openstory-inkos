@@ -76,10 +76,10 @@ const preview: Preview = {
     },
 
     a11y: {
-      // 'todo' - show a11y violations in the test UI only
-      // 'error' - fail CI on a11y violations
+      // 'error' - fail CI on a11y violations (P5 gate)
+      // 'todo' - legacy violations: report only, retire one by one
       // 'off' - skip a11y checks entirely
-      test: 'todo',
+      test: 'error',
     },
   },
 

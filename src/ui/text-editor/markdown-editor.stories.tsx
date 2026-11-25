@@ -7,6 +7,8 @@ const meta: Meta<typeof MarkdownEditor> = {
   component: MarkdownEditor,
   parameters: {
     layout: 'padded',
+    // P5 todo: historical scrollable-region-focusable violation.
+    a11y: { test: 'todo' },
     docs: {
       description: {
         component:

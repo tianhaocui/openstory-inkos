@@ -92,6 +92,8 @@ const meta: Meta<typeof ScriptView> = {
   component: ScriptView,
   parameters: {
     layout: 'fullscreen',
+    // P5 todo: historical label / label-content-name-mismatch violations.
+    a11y: { test: 'todo' },
     docs: {
       description: {
         component:

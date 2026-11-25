@@ -43,7 +43,10 @@ export function GenerationStateBanner({
       variant={isError ? 'destructive' : 'default'}
       className={cn(
         'border-primary/50 bg-primary/5',
-        isError && 'border-destructive/50 bg-destructive/5',
+        // Error stays identifiable via the icon + text; override the
+        // destructive *text* token so it clears 4.5:1 on the dark surface.
+        isError &&
+          'border-destructive/50 bg-destructive/5 text-foreground *:data-[slot=alert-description]:text-muted-foreground',
         className
       )}
       data-phase={phase}

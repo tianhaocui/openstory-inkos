@@ -588,7 +588,7 @@ export function FilmmakingPanel({
                                   {shotKeyframe?.imageUrl ? (
                                     <MediaThumbnail
                                       src={shotKeyframe.imageUrl}
-                                      alt="关键帧"
+                                      alt="已生成的关键帧静帧"
                                       shotNumber={shot.shotNumber}
                                       className="h-16 w-24"
                                     />
@@ -720,7 +720,7 @@ export function FilmmakingPanel({
                         <>
                           <MediaThumbnail
                             src={keyframe?.imageUrl}
-                            alt="视频缩略图"
+                            alt="视频成片的封面关键帧"
                             shotNumber={clipShotNumber}
                             className="h-full w-full"
                           />

@@ -11,6 +11,8 @@ const meta = {
   component: StyleSelector,
   parameters: {
     layout: 'padded',
+    // P5 todo: historical aria-required-children violation — retire, do not grow.
+    a11y: { test: 'todo' },
   },
 } satisfies Meta<typeof StyleSelector>;
 

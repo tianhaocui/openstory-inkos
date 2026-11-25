@@ -87,6 +87,8 @@ const meta: Meta<typeof SceneScriptPrompts> = {
   component: SceneScriptPrompts,
   parameters: {
     layout: 'centered',
+    // P5 todo: historical label-content-name-mismatch violations.
+    a11y: { test: 'todo' },
   },
   args: {
     sequenceId: 'seq-1',

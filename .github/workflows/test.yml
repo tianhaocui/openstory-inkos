@@ -82,6 +82,13 @@ jobs:
       - name: Run tests
         run: bun run test
 
+      - name: Run Storybook a11y gate (critical/serious)
+        # test-storybook drives a headless Chromium against the built
+        # Storybook; the severity policy lives in .storybook/a11y-setup.ts.
+        run: |
+          bunx playwright install --with-deps chromium
+          bun run test:a11y
+
   build-e2e:
     runs-on: ubuntu-latest
     environment: staging

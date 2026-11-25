@@ -20,7 +20,11 @@ function OpenAlert() {
 const meta: Meta<typeof GenerationStopAlert> = {
   title: 'Generation/GenerationStopAlert',
   component: GenerationStopAlert,
-  parameters: { layout: 'fullscreen' },
+  parameters: {
+    layout: 'fullscreen',
+    // P5 todo: historical aria-input-field-name violation — retire, do not grow.
+    a11y: { test: 'todo' },
+  },
 };
 
 export default meta;
