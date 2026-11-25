@@ -9,6 +9,7 @@
 import { test, expect } from 'playwright/test';
 import {
   fillScriptEditor,
+  waitForHydration,
   waitForScriptEditor,
   waitForSequenceDraftScript,
 } from '../fixtures/test-utils';
@@ -39,15 +40,20 @@ test.describe('Sequences', () => {
       );
     });
     await page.goto('/sequences');
+    await waitForHydration(page);
 
     await expect
-      .poll(() => new URL(page.url()).searchParams.get('q'))
+      .poll(() => new URL(page.url()).searchParams.get('q'), {
+        timeout: 15_000,
+      })
       .toBe('night diner');
     await expect
-      .poll(() => new URL(page.url()).searchParams.get('aspectRatio'))
+      .poll(() => new URL(page.url()).searchParams.get('aspectRatio'), {
+        timeout: 15_000,
+      })
       .toBe('9:16');
     await expect(
-      page.getByRole('textbox', { name: 'Search by title…' })
+      page.getByRole('textbox', { name: '按标题搜索…' })
     ).toHaveValue('night diner');
   });
 
@@ -72,9 +78,9 @@ test.describe('Sequences', () => {
     await page.goto('/sequences');
 
     await expect(
-      page.getByRole('textbox', { name: 'Search by title…' })
+      page.getByRole('textbox', { name: '按标题搜索…' })
     ).toBeVisible();
-    await expect(page.getByText('Failed to load sequences')).toHaveCount(0);
+    await expect(page.getByText('加载失败 sequences')).toHaveCount(0);
   });
 
   test('home page has script input', async ({ page }) => {
@@ -135,7 +141,7 @@ test.describe('Sequences', () => {
     await page.reload();
     await waitForScriptEditor(page);
     await expect(
-      page.getByRole('button', { name: 'Style category: Film & Cinematic' })
+      page.getByRole('button', { name: '风格分类：电影感' })
     ).toBeVisible({ timeout: 15_000 });
     // Hydrated empty state — not just first-paint placeholder (the old
     // sample seed ran after styles/draft settled).
@@ -144,25 +150,23 @@ test.describe('Sequences', () => {
       ''
     );
     await expect(
-      page.getByText(
-        'Paste a screenplay, or a one-liner we can expand - not a prompt.'
-      )
+      page.getByText('粘贴一个剧本，或者一句话让我们为你展开——不是提示词。')
     ).toBeVisible();
     const automatic = page.getByRole('button', {
-      name: 'Match script: derive a style from the script',
+      name: '匹配剧本：根据剧本生成风格',
     });
     await expect(automatic).toHaveAttribute('aria-pressed', 'true');
     await expect(
-      page.getByRole('button', { name: 'View Action details' })
+      page.getByRole('button', { name: '查看 Action 详情' })
     ).toBeVisible();
     const generate = page.getByRole('button', {
-      name: 'Generate',
+      name: '生成',
       exact: true,
     });
     // Generate stays live on an empty script (#1393), and so does Enhance —
     // which writes the script from nothing rather than expanding one.
     await expect(generate).toBeEnabled();
-    const draftScript = page.getByRole('button', { name: 'Invent script' });
+    const draftScript = page.getByRole('button', { name: '创作剧本' });
     await expect(draftScript).toBeEnabled();
 
     // Generating with nothing written hands over to Enhance: its popover
@@ -170,14 +174,14 @@ test.describe('Sequences', () => {
     // requestSubmit()s, the same path as clicking Generate.)
     await page.locator('[data-slot="markdown-editor"] .ProseMirror').click();
     await page.keyboard.press('ControlOrMeta+Enter');
-    await expect(page.getByText('Target video duration')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Draft it' })).toBeVisible();
+    await expect(page.getByText('目标视频时长')).toBeVisible();
+    await expect(page.getByRole('button', { name: '起草' })).toBeVisible();
     await page.keyboard.press('Escape');
 
     await fillScriptEditor(page, 'A cat walks into a diner at dawn.');
     await expect(automatic).toHaveAttribute('aria-pressed', 'true');
     await expect(
-      page.getByRole('button', { name: 'View Action details' })
+      page.getByRole('button', { name: '查看 Action 详情' })
     ).toBeVisible();
     await expect(generate).toBeEnabled();
   });
@@ -217,7 +221,7 @@ test.describe('Sequences', () => {
     await page.goto('/');
     await fillScriptEditor(page, 'A cat walks into a diner at dawn.');
     await expect(
-      page.getByRole('button', { name: 'Generate', exact: true })
+      page.getByRole('button', { name: '生成', exact: true })
     ).toBeEnabled();
   });
 
@@ -250,9 +254,9 @@ test.describe('Sequences', () => {
     // Signed-in `/` hydrates the team style list after the public prefetch;
     // Action tiles are the proof that Surprise me has a sample to pick (#1384).
     await expect(
-      page.getByRole('button', { name: 'View Action details' })
+      page.getByRole('button', { name: '查看 Action 详情' })
     ).toBeVisible({ timeout: 15_000 });
-    const shuffle = page.getByRole('button', { name: 'Surprise me' });
+    const shuffle = page.getByRole('button', { name: '随机风格' });
     await expect(shuffle).toBeEnabled({ timeout: 15_000 });
     await shuffle.click();
     const editor = page.locator('[data-slot="markdown-editor"]');
@@ -261,7 +265,7 @@ test.describe('Sequences', () => {
     });
     const shuffled = await editor.getAttribute('data-markdown');
     if (!shuffled) {
-      throw new Error('Surprise me left the composer empty');
+      throw new Error('随机风格 left the composer empty');
     }
     await waitForSequenceDraftScript(page, shuffled);
     await page.reload();
@@ -279,11 +283,11 @@ test.describe('Sequences', () => {
     await page.goto('/?style=product-ad');
     await waitForScriptEditor(page);
     await expect(
-      page.getByRole('button', { name: 'View Product Ad details' })
+      page.getByRole('button', { name: '查看 Product Ad 详情' })
     ).toBeVisible({ timeout: 15_000 });
     await expect(
       page.getByRole('button', {
-        name: 'Match script: derive a style from the script',
+        name: '匹配剧本：根据剧本生成风格',
       })
     ).toHaveAttribute('aria-pressed', 'false');
     await expect(
@@ -296,17 +300,17 @@ test.describe('Sequences', () => {
   }) => {
     await page.goto('/');
     await expect(
-      page.getByRole('button', { name: 'Style category: Film & Cinematic' })
+      page.getByRole('button', { name: '风格分类：电影感' })
     ).toBeVisible({ timeout: 15_000 });
     // Switching family still auto-selects that family's first style.
-    await page.getByRole('button', { name: /^Style category:/ }).click();
-    await page.getByRole('menuitemradio', { name: 'E-commerce' }).click();
+    await page.getByRole('button', { name: /^风格分类：/ }).click();
+    await page.getByRole('menuitemradio', { name: '电商' }).click();
     await expect(
-      page.getByRole('button', { name: 'View Product Ad details' })
+      page.getByRole('button', { name: '查看 Product Ad 详情' })
     ).toBeVisible();
     await expect(
       page.getByRole('button', {
-        name: 'Match script: derive a style from the script',
+        name: '匹配剧本：根据剧本生成风格',
       })
     ).toHaveAttribute('aria-pressed', 'false');
   });

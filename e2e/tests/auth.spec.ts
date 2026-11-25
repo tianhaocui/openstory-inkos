@@ -5,7 +5,11 @@
 
 import { test as baseTest } from 'playwright/test';
 import { expect, test } from '../fixtures/auth.fixture';
-import { fillScriptEditor, waitForScriptEditor } from '../fixtures/test-utils';
+import {
+  fillScriptEditor,
+  waitForHydration,
+  waitForScriptEditor,
+} from '../fixtures/test-utils';
 
 // Route Protection Tests (no auth fixture needed)
 baseTest.describe('Route Protection', () => {
@@ -18,11 +22,11 @@ baseTest.describe('Route Protection', () => {
       // the composer rather than a marketing landing page or /sequences/new.
       await expect(page).toHaveURL('/');
       await expect(
-        page.getByRole('heading', { name: 'Tell your whole story' })
+        page.getByRole('heading', { name: '讲完整你的故事' })
       ).toBeVisible();
       await expect(
         page.getByText(
-          'Create 5-minute AI films with consistent characters. Iterate until you nail it.'
+          '创作长达 5 分钟、角色连贯一致的 AI 影片，反复打磨直到满意为止。'
         )
       ).toBeVisible();
     }
@@ -36,9 +40,7 @@ baseTest.describe('Route Protection', () => {
       await waitForScriptEditor(page);
       const editor = page.locator('[data-slot="markdown-editor"]');
       await expect(
-        page.getByText(
-          'Paste a screenplay, or a one-liner we can expand - not a prompt.'
-        )
+        page.getByText('粘贴一个剧本，或者一句话让我们为你展开——不是提示词。')
       ).toBeVisible();
       const height = await editor.evaluate(
         (el) => el.getBoundingClientRect().height
@@ -56,7 +58,7 @@ baseTest.describe('Route Protection', () => {
 
       await expect(page).toHaveURL(/\/sequences/);
       await expect(page).not.toHaveURL(/\/login/);
-      await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible();
+      await expect(page.getByRole('button', { name: '登录' })).toBeVisible();
     }
   );
 
@@ -77,8 +79,8 @@ baseTest.describe('Route Protection', () => {
     async ({ page }) => {
       await page.goto('/images');
       await fillScriptEditor(page, 'A red fox in fog at dawn');
-      await page.getByRole('button', { name: 'Generate image' }).click();
-      const dialog = page.getByRole('dialog', { name: 'Sign in to continue' });
+      await page.getByRole('button', { name: '生成图片' }).click();
+      const dialog = page.getByRole('dialog', { name: '登录以继续' });
       await expect(dialog).toBeVisible();
       await expect(page).toHaveURL(/\/images/);
     }
@@ -89,11 +91,11 @@ baseTest.describe('Route Protection', () => {
     async ({ page }) => {
       await page.goto('/images');
       await waitForScriptEditor(page);
-      const generate = page.getByRole('button', { name: 'Generate image' });
+      const generate = page.getByRole('button', { name: '生成图片' });
       await expect(generate).toBeEnabled();
       await generate.click();
       await expect(
-        page.getByRole('dialog', { name: 'Sign in to continue' })
+        page.getByRole('dialog', { name: '登录以继续' })
       ).toBeVisible();
     }
   );
@@ -104,13 +106,13 @@ baseTest.describe('Route Protection', () => {
       await page.goto('/');
       await waitForScriptEditor(page);
       const generate = page.getByRole('button', {
-        name: 'Generate',
+        name: '生成',
         exact: true,
       });
       await expect(generate).toBeEnabled();
       await generate.click();
       await expect(
-        page.getByRole('dialog', { name: 'Sign in to continue' })
+        page.getByRole('dialog', { name: '登录以继续' })
       ).toBeVisible();
       await expect(page).toHaveURL('/');
     }
@@ -129,7 +131,7 @@ baseTest.describe('Route Protection', () => {
       );
 
       const generate = page.getByRole('button', {
-        name: 'Generate',
+        name: '生成',
         exact: true,
       });
       await expect(generate).toBeEnabled();
@@ -137,9 +139,9 @@ baseTest.describe('Route Protection', () => {
 
       // …but the action itself is gated: the auth gate opens the login dialog
       // in place and bails — no sequence is created, we stay on the home composer.
-      const dialog = page.getByRole('dialog', { name: 'Sign in to continue' });
+      const dialog = page.getByRole('dialog', { name: '登录以继续' });
       await expect(dialog).toBeVisible();
-      await expect(dialog.getByLabel('Email')).toBeVisible();
+      await expect(dialog.getByLabel('邮箱')).toBeVisible();
       await expect(page).toHaveURL('/');
     }
   );
@@ -153,11 +155,11 @@ baseTest.describe('Route Protection', () => {
         'INT. KITCHEN - DAY\n\nA cat knocks a glass off the counter.'
       );
 
-      await page.getByRole('button', { name: /Enhance Script/i }).click();
-      await expect(page.getByText('Target video duration')).toBeVisible();
-      await page.getByRole('button', { name: 'Enhance', exact: true }).click();
+      await page.getByRole('button', { name: /增强剧本/i }).click();
+      await expect(page.getByText('目标视频时长')).toBeVisible();
+      await page.getByRole('button', { name: '增强', exact: true }).click();
 
-      const dialog = page.getByRole('dialog', { name: 'Sign in to continue' });
+      const dialog = page.getByRole('dialog', { name: '登录以继续' });
       await expect(dialog).toBeVisible();
       await expect(page).toHaveURL('/');
       const pending = await page.evaluate(() =>
@@ -174,7 +176,7 @@ baseTest.describe('Route Protection', () => {
       await page.goto('/settings');
 
       await expect(page).toHaveURL(/\/login/);
-      await expect(page.getByLabel('Email')).toBeVisible();
+      await expect(page.getByLabel('邮箱')).toBeVisible();
     }
   );
 
@@ -183,7 +185,7 @@ baseTest.describe('Route Protection', () => {
     await page.goto('/sequences/new');
 
     await expect(page).toHaveURL(/\/login/);
-    await expect(page.getByLabel('Email')).toBeVisible();
+    await expect(page.getByLabel('邮箱')).toBeVisible();
     // Post-login must return to the alias (path + any search preserved).
     const redirectTo = new URL(page.url()).searchParams.get('redirectTo');
     expect(redirectTo).toMatch(/\/sequences\/new/);
@@ -206,28 +208,33 @@ baseTest.describe('Route Protection', () => {
     await page.goto('/login');
 
     await expect(page).toHaveURL('/login');
-    await expect(page.getByLabel('Email')).toBeVisible({ timeout: 15000 });
+    await expect(page.getByLabel('邮箱')).toBeVisible({ timeout: 15000 });
   });
 
   baseTest(
     'login page reveals the submit button once an email is entered',
     async ({ page }) => {
       await page.goto('/login');
+      await waitForHydration(page);
 
-      const emailInput = page.getByLabel('Email');
+      const emailInput = page.getByLabel('邮箱');
       const submitButton = page.getByRole('button', {
-        name: 'Continue with email',
+        name: '登录',
+        exact: true,
       });
 
       await expect(emailInput).toBeVisible({ timeout: 15000 });
       await expect(emailInput).toBeEnabled();
 
-      // The submit button stays hidden until an email is entered.
-      await expect(submitButton).toBeHidden();
+      // The current form shows the submit button from first paint but keeps it
+      // disabled until both credentials are present (password >= 8 chars).
+      await expect(submitButton).toBeVisible();
+      await expect(submitButton).toBeDisabled();
 
       await emailInput.fill('test@example.com');
       await expect(emailInput).toHaveValue('test@example.com');
-      await expect(submitButton).toBeVisible();
+      await expect(submitButton).toBeDisabled();
+      await page.getByLabel('密码').fill('password123');
       await expect(submitButton).toBeEnabled();
     }
   );
@@ -277,15 +284,18 @@ test.describe('Authenticated User', () => {
 baseTest.describe('Email OTP Flow', () => {
   baseTest('email input validates email format', async ({ page }) => {
     await page.goto('/login');
+    await waitForHydration(page);
 
-    const emailInput = page.getByLabel('Email');
+    const emailInput = page.getByLabel('邮箱');
     const submitButton = page.getByRole('button', {
-      name: 'Continue with email',
+      name: '登录',
+      exact: true,
     });
 
-    // Enter invalid email — the submit button only appears once the field is
-    // non-empty, so wait for it before clicking.
+    // Enter an invalid email with an otherwise valid password; HTML5 email
+    // validation must still block the submit and keep us on /login.
     await emailInput.fill('invalid-email');
+    await page.getByLabel('密码').fill('password123');
     await expect(submitButton).toBeVisible();
     await submitButton.click();
 

@@ -177,10 +177,10 @@ testWithUser.describe('Full Sequence Pipeline', () => {
         if (msg.type() !== 'error' && msg.type() !== 'warning') return;
         const text = msg.text();
         if (text.startsWith('%cLOG%c')) return;
-        // Chrome auto-emits "Failed to load resource: <errorText>" alongside
+        // Chrome auto-emits "加载失败 resource: <errorText>" alongside
         // every `requestfailed` event — same incident, second copy. The
         // requestfailed handler below already records non-aborted failures.
-        if (text.startsWith('Failed to load resource:')) return;
+        if (text.startsWith('加载失败 resource:')) return;
         browserErrors.push(`console.${msg.type()}: ${text}`);
       });
       page.on('requestfailed', (req) => {
@@ -207,7 +207,7 @@ testWithUser.describe('Full Sequence Pipeline', () => {
       // The composer now defaults to Film & Cinematic (#1180), so switch
       // the row and pick that style by name — clicking `.first()` would
       // land on Action and miss every fal fixture.
-      await selectComposerStyle(page, 'Product Ad', 'E-commerce');
+      await selectComposerStyle(page, 'Product Ad', '电商');
 
       // 3. Type a short script — a 30-second makeup ad. City, not beach:
       // Grok Imagine Quality's checker rejects swimwear, so a Bondi/surf
@@ -245,16 +245,16 @@ SUPER:  CORAL.  OUT NOW.
       await fillScriptEditor(page, script);
 
       // 4. Enhance script (LLM streaming via aimock OpenRouter passthrough).
-      await expect(
-        page.getByRole('button', { name: /Enhance Script/i })
-      ).toBeEnabled({ timeout: 10_000 });
-      await page.getByRole('button', { name: /Enhance Script/i }).click();
-      await expect(page.getByText('Target video duration')).toBeVisible();
+      await expect(page.getByRole('button', { name: /增强剧本/i })).toBeEnabled(
+        { timeout: 10_000 }
+      );
+      await page.getByRole('button', { name: /增强剧本/i }).click();
+      await expect(page.getByText('目标视频时长')).toBeVisible();
       // Pick 1m so the enhancer generates more scenes (default is 30s). The
       // duration toggle is a Radix ToggleGroup type="single"; its items render
       // with role="radio".
       await page.getByRole('radio', { name: '1m' }).click();
-      await page.getByRole('button', { name: 'Enhance' }).last().click();
+      await page.getByRole('button', { name: '增强' }).last().click();
       await expect(page.getByRole('button', { name: /Stop/i })).toBeVisible({
         timeout: t(15_000),
       });
@@ -263,7 +263,7 @@ SUPER:  CORAL.  OUT NOW.
       );
 
       // 5. Pick talent.
-      await openComposerReference(page, 'Talent');
+      await openComposerReference(page, '演员');
       const talentDialog = page.getByRole('dialog');
       await expect(talentDialog).toBeVisible({ timeout: 10_000 });
       const firstTalent = testTalents[0];
@@ -271,16 +271,16 @@ SUPER:  CORAL.  OUT NOW.
         throw new Error('test setup: expected at least one test talent');
       }
       await page.getByText(firstTalent.name).click();
-      await page.getByRole('button', { name: 'Cast 1 role' }).click();
+      await page.getByRole('button', { name: '演员 1 role' }).click();
       await expect(talentDialog).not.toBeVisible();
 
       // 6. Pick location.
-      await openComposerReference(page, 'Locations');
+      await openComposerReference(page, '场景');
       const locationDialog = page.getByRole('dialog');
       await expect(locationDialog).toBeVisible({ timeout: 10_000 });
       if (!testLocation) throw new Error('testLocation not initialised');
       await page.getByText(testLocation.name).click();
-      await page.getByRole('button', { name: 'Use 1 location' }).click();
+      await page.getByRole('button', { name: '使用 1 个场景' }).click();
       await expect(locationDialog).not.toBeVisible();
 
       // 7. Upload an element image directly to the file input on the page.
@@ -308,11 +308,11 @@ SUPER:  CORAL.  OUT NOW.
       // Generate opens the stop-at alert (#1408) rather than starting the run.
       // Its default is the full pipeline ("Motion & Music"), which is what this
       // spec asserts, so confirm without touching the slider. Scoped to the
-      // dialog because the confirm button is also called "Generate".
+      // dialog because the confirm button is also called "生成".
       const stopAtAlert = page.getByRole('alertdialog');
-      await expect(
-        stopAtAlert.getByText('Generate the whole sequence?')
-      ).toBeVisible({ timeout: t(10_000) });
+      await expect(stopAtAlert.getByText('生成完整序列？')).toBeVisible({
+        timeout: t(10_000),
+      });
       await stopAtAlert.getByRole('button', { name: /^Generate$/i }).click();
 
       // Generate kicks off the scene-split workflow before the redirect lands.
@@ -334,7 +334,7 @@ SUPER:  CORAL.  OUT NOW.
       // preview can land before this page hydrates, so don't assert the
       // script state — just wait for the reveal.
       await expect(
-        page.getByRole('radio', { name: 'Show the canvas' })
+        page.getByRole('radio', { name: '显示画布' })
       ).toHaveAttribute('data-state', 'on', { timeout: t(60_000) });
 
       // 9. Wait for storyboard + shot images to land in the DB.
@@ -364,7 +364,7 @@ SUPER:  CORAL.  OUT NOW.
       // 10. Wait for auto motion + music to finish. Product defaults (#1140)
       //     turn autoGenerateMotion + autoGenerateMusic ON, so Generate
       //     already chains storyboard → motion batch → music — there is no
-      //     "Generate N / M shots" footer when every shot is already
+      //     "生成 N / M shots" footer when every shot is already
       //     generating or complete. Poll the DB only; the batch button is
       //     for the manual (motion-off) path, not this aha flow.
       await expect
@@ -400,7 +400,7 @@ SUPER:  CORAL.  OUT NOW.
       // (no explicit view in the URL), so by now the toggle is enabled AND the
       // canvas is the active view — the playback checks below depend on it.
       const canvasToggle = page.getByRole('radio', {
-        name: 'Show the canvas',
+        name: '显示画布',
       });
       await expect(canvasToggle).toBeEnabled();
       await expect(canvasToggle).toHaveAttribute('data-state', 'on');
@@ -415,7 +415,7 @@ SUPER:  CORAL.  OUT NOW.
         throw new Error('sequence has no rendered clip');
       }
       await page.locator(`[data-shot-id="${firstClip.id}"]`).click();
-      await page.getByRole('tab', { name: 'Video' }).click();
+      await page.getByRole('tab', { name: '视频' }).click();
       // Scope to visible videos: the hidden next-scene prefetch is a <video>
       // too, and while the player swaps scenes its own element can drop out of
       // the DOM, so a bare `video` locator resolves to the prefetch.

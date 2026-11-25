@@ -3,6 +3,7 @@
  * Contains common patterns for page loading and cleanup operations
  */
 
+import { TEST_BASE_URL } from '../config';
 import type { Locator, Page } from 'playwright/test';
 import { expect } from 'playwright/test';
 
@@ -12,7 +13,7 @@ import { expect } from 'playwright/test';
  * SSR markup; under `vite dev` with parallel workers, first-hit hydration of a
  * heavy client chunk routinely takes longer than that.
  */
-const HYDRATION_TIMEOUT = 15_000;
+const HYDRATION_TIMEOUT = 30_000;
 const SEQUENCE_DRAFT_KEY = 'openstory:sequence-draft:v1';
 /** Mirrors `STORAGE_KEY` in src/sequences/ui/use-generation-settings.ts — bump both
  *  together, or the pin lands under a key the app never reads and the recorded
@@ -76,6 +77,27 @@ export async function waitForSequenceDraftScript(
 }
 
 /**
+ * Wait for React to attach to a server-rendered input. `fill()` on an
+ * unhydrated input changes the DOM value but never reaches component state, so
+ * the submit button stays disabled with no visible error — gate on React's own
+ * props fiber rather than on a fixed sleep.
+ */
+export async function waitForHydration(page: Page): Promise<void> {
+  await page.waitForFunction(
+    () => {
+      const el =
+        document.querySelector('input#email') ??
+        document.querySelector('[data-slot]');
+      return (
+        !!el && Object.keys(el).some((key) => key.startsWith('__reactProps$'))
+      );
+    },
+    undefined,
+    { timeout: 30_000 }
+  );
+}
+
+/**
  * Resolve the composer's script input once it is actually usable.
  *
  * The wrapper is server-rendered but the TipTap editor sets
@@ -120,7 +142,7 @@ export async function fillScriptEditor(
   // composer's cost estimate (#1354) replaces the tree instead of failing
   // the test. The heading is the error-boundary copy in __root.tsx.
   await expect(
-    page.getByRole('heading', { name: 'Something went wrong' })
+    page.getByRole('heading', { name: '出现了一些问题' })
   ).toHaveCount(0);
   return editor;
 }
@@ -130,7 +152,7 @@ export async function fillScriptEditor(
  *
  * The row defaults to Film & Cinematic (#1180). Styles in another family
  * need the category dropdown first — `family` is the radio label
- * (e.g. "E-commerce").
+ * (e.g. "电商").
  */
 export async function selectComposerStyle(
   page: Page,
@@ -143,16 +165,14 @@ export async function selectComposerStyle(
   }
   // Clicking a tile opens the detail dialog; "Use this style" applies it
   // (#1526). Category switches still auto-select that family's first style.
-  const grid = page.getByRole('grid', { name: 'Style selection' });
+  const grid = page.getByRole('grid', { name: '风格选择' });
   const tile = grid.getByRole('button', {
-    name: `View ${styleName} details`,
+    name: `查看 ${styleName} 详情`,
   });
   await expect(tile).toBeVisible({ timeout: HYDRATION_TIMEOUT });
   if ((await tile.getAttribute('aria-pressed')) === 'true') return;
   await tile.click();
-  await page
-    .getByRole('button', { name: `Use the ${styleName} style` })
-    .click();
+  await page.getByRole('button', { name: `使用 ${styleName} 风格` }).click();
   await expect(tile).toHaveAttribute('aria-pressed', 'true');
 }
 
@@ -162,11 +182,11 @@ export async function selectComposerStyle(
  */
 export async function openComposerReference(
   page: Page,
-  name: 'Talent' | 'Locations'
+  name: '演员' | '场景'
 ): Promise<void> {
   const inner = page.getByRole('button', { name, exact: true });
   if (!(await inner.isVisible())) {
-    await page.getByRole('button', { name: 'References' }).click();
+    await page.getByRole('button', { name: '参考素材' }).click();
   }
   await expect(inner).toBeVisible({ timeout: HYDRATION_TIMEOUT });
   await inner.click();
@@ -177,13 +197,13 @@ export async function openComposerReference(
  * after the style tile, before Generate.
  */
 export async function selectRecordedPipelineModels(page: Page): Promise<void> {
-  await page.getByRole('button', { name: 'Generation settings' }).click();
+  await page.getByRole('button', { name: '生成设置' }).click();
 
   await selectSingleCatalogModel(
     page,
     /^Image Models?:/,
     'Grok Imagine Image 2.0',
-    'Image Models: Grok Imagine Image 2.0'
+    'Image 模型: Grok Imagine Image 2.0'
   );
   await selectSingleCatalogModel(
     page,
@@ -232,14 +252,14 @@ async function selectSingleCatalogModel(
  */
 export async function waitForUploadComplete(
   page: Page,
-  submitName = 'Add Talent'
+  submitName = '添加演员'
 ): Promise<void> {
   const dialog = page.getByRole('dialog', { name: submitName });
   await expect(
     dialog.locator('[data-slot="file-upload-item"]').first()
   ).toBeVisible();
   // Scope to the open dialog: the page header still has an enabled
-  // "Add Talent" trigger, and during the PUT the dialog submit is
+  // "添加演员" trigger, and during the PUT the dialog submit is
   // relabeled "Uploading…". Waiting for the dialog's own submit name
   // is what actually means the file landed.
   await expect(dialog.getByRole('button', { name: submitName })).toBeEnabled({
@@ -300,7 +320,7 @@ export async function cleanupLocationByName(
   teamId: string,
   name: string
 ): Promise<void> {
-  await fetch('http://localhost:3001/api/test/location', {
+  await fetch(`${TEST_BASE_URL}/api/test/location`, {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ teamId, name }),
@@ -315,7 +335,7 @@ export async function cleanupTalentByName(
   teamId: string,
   name: string
 ): Promise<void> {
-  await fetch('http://localhost:3001/api/test/talent', {
+  await fetch(`${TEST_BASE_URL}/api/test/talent`, {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ teamId, name }),

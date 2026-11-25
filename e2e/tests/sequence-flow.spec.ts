@@ -7,12 +7,14 @@
  * 3. Recast character with different talent
  */
 
+import { TEST_BASE_URL } from '../config';
 import { expect } from 'playwright/test';
 import { test as testWithUser } from '../fixtures/auth.fixture';
 import { setupMockRoutes } from '../mocks/handlers';
 import {
   fillScriptEditor,
   openComposerReference,
+  waitForHydration,
 } from '../fixtures/test-utils';
 import {
   createTestTalentSet,
@@ -63,9 +65,9 @@ testWithUser.describe('Sequence Creation Flow', () => {
 
       // Wait for React hydration + data loading by checking the style grid is populated
       // The style grid requires useStyles() query data, which only loads after hydration
-      await expect(
-        page.getByRole('grid', { name: 'Style selection' })
-      ).toBeVisible({ timeout: 15000 });
+      await expect(page.getByRole('grid', { name: '风格选择' })).toBeVisible({
+        timeout: 15000,
+      });
 
       await expect(page).toHaveURL('/sequences/new');
 
@@ -88,32 +90,30 @@ Here's your caffeine fix. How's it going?
       // The style grid may be SSR-rendered before React hydrates. Target style
       // tiles by aria-label so the trailing "View all" tile is never picked.
       const firstStyle = page
-        .getByRole('grid', { name: 'Style selection' })
-        .getByRole('button', { name: /^View .+ details$/ })
+        .getByRole('grid', { name: '风格选择' })
+        .getByRole('button', { name: /^查看 .+ 详情$/ })
         .first();
       await firstStyle.click();
-      await page.getByRole('button', { name: /^Use the .+ style$/ }).click();
+      await page.getByRole('button', { name: /^使用 .+ 风格$/ }).click();
 
       // Now fill the editor - React is hydrated since style click worked
       await fillScriptEditor(page, testScript);
 
-      // Wait for "Generate" button to become enabled - this proves:
+      // Wait for "生成" button to become enabled - this proves:
       // 1. React hydration is complete (event handlers attached)
       // 2. Textarea fill was picked up by React state (script is set)
       // 3. Style was selected (from our click above)
-      await expect(page.getByRole('button', { name: /Generate/i })).toBeEnabled(
-        { timeout: 10000 }
-      );
+      await expect(
+        page.getByRole('button', { name: '生成', exact: true })
+      ).toBeEnabled({ timeout: 10000 });
 
-      await openComposerReference(page, 'Talent');
+      await openComposerReference(page, '演员');
 
       // Wait for talent dialog to open - the dialog is rendered via a portal
       // Use a longer timeout as it may need to fetch talent data
       const talentDialog = page.getByRole('dialog');
       await expect(talentDialog).toBeVisible({ timeout: 10000 });
-      await expect(
-        talentDialog.getByText('Select Talent for Casting')
-      ).toBeVisible();
+      await expect(talentDialog.getByText('选择演员')).toBeVisible();
 
       // Verify our test talents appear in the dialog (use variable names)
       const firstTalent = testTalents[0];
@@ -129,13 +129,13 @@ Here's your caffeine fix. How's it going?
 
       // Submit dialog (button text reflects selection count)
       await talentDialog
-        .getByRole('button', { name: /^Cast \d+ roles?$/i })
+        .getByRole('button', { name: /^为 \d+ 个角色选角$/ })
         .click();
       await expect(talentDialog).not.toBeVisible();
 
       // Verify submit button is ready (may have different text based on state)
       const submitButton = page.getByRole('button', {
-        name: /Generate/i,
+        name: /生成/i,
       });
       await expect(submitButton).toBeVisible();
     }
@@ -146,8 +146,7 @@ Here's your caffeine fix. How's it going?
 testWithUser.describe('Variant Selection', () => {
   let testSequence: TestSequence;
   let testShot: TestShot;
-  const originalThumbnailUrl =
-    'http://localhost:3001/api/test/image?w=1024&h=576&label=thumb';
+  const originalThumbnailUrl = `${TEST_BASE_URL}/api/test/image?w=1024&h=576&label=thumb`;
 
   testWithUser.beforeEach(async ({ page, testUser }) => {
     await setupMockRoutes(page);
@@ -161,8 +160,7 @@ testWithUser.describe('Variant Selection', () => {
     testShot = await createTestShot(testSequence.id, 0, {
       // Use real placeholder images
       thumbnailUrl: originalThumbnailUrl,
-      variantImageUrl:
-        'http://localhost:3001/api/test/image?w=3072&h=3072&label=variants',
+      variantImageUrl: `${TEST_BASE_URL}/api/test/image?w=3072&h=3072&label=variants`,
       variantImageStatus: 'completed',
     });
   });
@@ -203,11 +201,11 @@ testWithUser.describe('Variant Selection', () => {
     });
     // Video leads the shot tabs, so the canvas opens on the clip; the still
     // (and its variants button) is on the Start Frame tab.
-    await page.getByRole('tab', { name: 'Start Frame' }).click();
+    await page.getByRole('tab', { name: '起始帧' }).click();
     // `exact` so this never also matches the dialog's own "Regenerate frame
     // variants" button.
     const variantsButton = page.getByRole('button', {
-      name: 'Frame variants',
+      name: '起始帧变体',
       exact: true,
     });
     await expect(variantsButton).toBeVisible({ timeout: 10000 });
@@ -215,13 +213,13 @@ testWithUser.describe('Variant Selection', () => {
     // renders server-side and stays inert until React hydrates it — a single
     // click lands on nothing. Click until the dialog is actually up (the open
     // dialog aria-hides the button, so ask the dialog, not the button).
-    const variantsDialog = page.getByRole('dialog', { name: 'Frame variants' });
+    const variantsDialog = page.getByRole('dialog');
     await expect(async () => {
       if (!(await variantsDialog.isVisible())) await variantsButton.click();
       await expect(variantsDialog).toBeVisible({ timeout: 2000 });
     }).toPass({ timeout: 20_000 });
 
-    const variantGrid = page.getByRole('grid', { name: 'Variant selection' });
+    const variantGrid = page.getByRole('grid', { name: '变体选择' });
 
     // Wait for variant grid to be visible
     await expect(variantGrid).toBeVisible({ timeout: 10000 });
@@ -232,7 +230,7 @@ testWithUser.describe('Variant Selection', () => {
     await variant5.click();
 
     // Confirmation dialog should appear
-    await expect(page.getByText('Select this variant?')).toBeVisible();
+    await expect(page.getByText('选择此变体？')).toBeVisible();
 
     // Selecting a tile no longer writes the thumbnail synchronously (#989).
     // `selectShotVariantFn` runs the full synchronous path — reads the latest
@@ -253,12 +251,12 @@ testWithUser.describe('Variant Selection', () => {
     );
 
     // Confirm selection
-    await page.getByRole('button', { name: 'Confirm' }).click();
+    await page.getByRole('button', { name: '确认' }).click();
     await selectResponse;
 
     // Dialog should close and no failure toast should surface.
-    await expect(page.getByText('Select this variant?')).not.toBeVisible();
-    await expect(page.getByText('Failed to select variant')).not.toBeVisible();
+    await expect(page.getByText('选择此变体？')).not.toBeVisible();
+    await expect(page.getByText('选择变体失败')).not.toBeVisible();
   });
 });
 
@@ -293,13 +291,12 @@ testWithUser.describe('Character Recast', () => {
     // Create a character linked to the first talent
     testCharacter = await createTestCharacter(
       testSequence.id,
-      'char_001',
+      'John',
       'John',
       firstTalent.id,
       {
         // Use real placeholder image
-        sheetImageUrl:
-          'http://localhost:3001/api/test/image?w=1920&h=1080&label=character',
+        sheetImageUrl: `${TEST_BASE_URL}/api/test/image?w=1920&h=1080&label=character`,
         sheetStatus: 'completed',
       }
     );
@@ -329,6 +326,7 @@ testWithUser.describe('Character Recast', () => {
 
       // Navigate to the character detail page
       await page.goto(`/sequences/${testSequence.id}/cast/${testCharacter.id}`);
+      await waitForHydration(page);
 
       // Wait for character detail to load
       await page.waitForLoadState('domcontentloaded');
@@ -337,10 +335,10 @@ testWithUser.describe('Character Recast', () => {
       });
 
       // Click Recast button. `exact` so the rename-sequence control
-      // (aria-label includes the sequence title, which contains "Recast")
+      // (aria-label includes the sequence title, which contains "替换演员")
       // is not a strict-mode match.
       const recastButton = page.getByRole('button', {
-        name: 'Recast',
+        name: '替换演员',
         exact: true,
       });
       await expect(recastButton).toBeVisible();
@@ -349,23 +347,27 @@ testWithUser.describe('Character Recast', () => {
       // Talent picker dialog should open
       const talentDialog = page.getByRole('dialog');
       await expect(talentDialog).toBeVisible();
-      await expect(talentDialog.getByText('Select Talent')).toBeVisible();
+      await expect(talentDialog.getByText('选择演员')).toBeVisible();
 
       // Select the second talent (use variable name)
       await page.getByText(secondTalent.name).click();
 
       // Recast confirmation dialog should appear (use regex with variable)
       await expect(
-        page.getByText(new RegExp(`Recast ${secondTalent.name} as John`, 'i'))
+        page.getByText(
+          new RegExp(`替换演员：由 ${secondTalent.name} 饰演 John`)
+        )
       ).toBeVisible();
 
       // Confirm the recast
-      await page.getByRole('button', { name: 'Recast', exact: true }).click();
+      await page.getByRole('button', { name: '替换演员', exact: true }).click();
 
       // The confirmation dialog should close (loading state may briefly appear)
       // With mocks, the mutation should complete quickly
       await expect(
-        page.getByText(new RegExp(`Recast ${secondTalent.name} as John`, 'i'))
+        page.getByText(
+          new RegExp(`替换演员：由 ${secondTalent.name} 饰演 John`)
+        )
       ).not.toBeVisible({ timeout: 10000 });
 
       // Verify the database was updated - character now linked to second talent
@@ -394,18 +396,18 @@ testWithUser.describe.skip('Empty States', () => {
       await page.goto('/sequences/new');
 
       // Wait for React hydration + data loading
-      await expect(
-        page.getByRole('grid', { name: 'Style selection' })
-      ).toBeVisible({ timeout: 15000 });
+      await expect(page.getByRole('grid', { name: '风格选择' })).toBeVisible({
+        timeout: 15000,
+      });
 
-      await openComposerReference(page, 'Talent');
+      await openComposerReference(page, '演员');
 
       // Wait for dialog to open
       const dialog = page.getByRole('dialog');
       await expect(dialog).toBeVisible({ timeout: 10000 });
 
       // Verify empty state
-      await expect(page.getByText('No talent in library')).toBeVisible();
+      await expect(page.getByText('演员库中暂无演员')).toBeVisible();
     }
   );
 });

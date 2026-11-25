@@ -5,6 +5,7 @@
  * and reads are served by the worker's /r2/$ route (see src/routes/r2.$.ts).
  */
 
+import { TEST_BASE_URL } from '../config';
 import type { Page, Route } from 'playwright/test';
 
 /**
@@ -107,7 +108,7 @@ export async function setupMockRoutes(page: Page): Promise<void> {
     await route.fulfill({
       status: 302,
       headers: {
-        Location: 'http://localhost:3001/api/test/image?w=9&h=9',
+        Location: `${TEST_BASE_URL}/api/test/image?w=9&h=9`,
       },
     });
   });

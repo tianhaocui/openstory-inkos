@@ -33,7 +33,7 @@ import {
 import path from 'node:path';
 
 function waitForTalentPageLoad(page: import('playwright/test').Page) {
-  return waitForLibraryPageLoad(page, 'Add Talent');
+  return waitForLibraryPageLoad(page, '添加演员');
 }
 
 test.describe('Talent Library', () => {
@@ -42,9 +42,7 @@ test.describe('Talent Library', () => {
     await waitForTalentPageLoad(page);
 
     await expect(page).toHaveURL(/\/talent/);
-    await expect(
-      page.getByRole('heading', { name: 'Talent Library' })
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: '角色库' })).toBeVisible();
   });
 
   test('has Add Talent button', async ({ page }) => {
@@ -52,7 +50,7 @@ test.describe('Talent Library', () => {
     await waitForTalentPageLoad(page);
 
     const addButton = page.getByRole('button', {
-      name: 'Add Talent',
+      name: '添加演员',
     });
     await expect(addButton.first()).toBeVisible();
     await expect(addButton.first()).toBeEnabled();
@@ -71,18 +69,16 @@ testWithUser.describe('Add Talent with Reference Media', () => {
     await waitForTalentPageLoad(page);
 
     // Click Add Talent button
-    const button = page.getByRole('button', { name: 'Add Talent' }).first();
+    const button = page.getByRole('button', { name: '添加演员' }).first();
     await button.click();
 
     // Dialog should open
-    await expect(
-      page.getByRole('dialog', { name: 'Add Talent' })
-    ).toBeVisible();
+    await expect(page.getByRole('dialog', { name: '添加演员' })).toBeVisible();
 
     // Check for form fields
-    await expect(page.getByLabel('Name')).toBeVisible();
-    await expect(page.getByLabel('Description')).toBeVisible();
-    await expect(page.getByText('Reference Media')).toBeVisible();
+    await expect(page.getByLabel('名称')).toBeVisible();
+    await expect(page.getByLabel('描述')).toBeVisible();
+    await expect(page.getByText('参考素材')).toBeVisible();
   });
 
   testWithUser(
@@ -94,18 +90,18 @@ testWithUser.describe('Add Talent with Reference Media', () => {
       await waitForTalentPageLoad(page);
 
       // Click Add Talent button
-      await page.getByRole('button', { name: 'Add Talent' }).first().click();
+      await page.getByRole('button', { name: '添加演员' }).first().click();
 
       // Fill in the form with unique name
-      await page.getByLabel('Name').fill(uniqueName);
-      await page.getByLabel('Description').fill('Test description for E2E');
+      await page.getByLabel('名称').fill(uniqueName);
+      await page.getByLabel('描述').fill('Test description for E2E');
 
       // Submit the form
-      await page.getByRole('button', { name: 'Add Talent' }).click();
+      await page.getByRole('button', { name: '添加演员' }).click();
 
       // Wait for dialog to close and talent to appear in list
       await expect(
-        page.getByRole('dialog', { name: 'Add Talent' })
+        page.getByRole('dialog', { name: '添加演员' })
       ).not.toBeVisible({ timeout: 10000 });
 
       // Talent should appear in the list
@@ -123,19 +119,19 @@ testWithUser.describe('Add Talent with Reference Media', () => {
       const uniqueName = uniqueTalentName('Photo');
       const dialog = await openAddTalentFromLibrary(page);
 
-      await dialog.getByLabel('Name').fill(uniqueName);
+      await dialog.getByLabel('名称').fill(uniqueName);
       await uploadNamedTalentImage(page, 'test-image.jpg');
-      await waitForSubjectKind(page, 'Human');
+      await waitForSubjectKind(page, '真人');
       await attestPortraitRights(page);
       await submitAddTalent(page);
 
-      await expect(page.getByText('Generating talent sheet')).toBeVisible({
+      await expect(page.getByText('正在生成演员设定图…')).toBeVisible({
         timeout: 10_000,
       });
       await expect(page.getByText(uniqueName)).toBeVisible({ timeout: 10_000 });
       const card = page.getByRole('link', { name: uniqueName });
-      await expect(card.getByText('Human')).toBeVisible();
-      await expect(card.getByText('Generating sheet…')).toBeVisible();
+      await expect(card.getByText('真人')).toBeVisible();
+      await expect(card.getByText('正在生成设定图…')).toBeVisible();
 
       await cleanupTalentByName(testUser.teamId, uniqueName);
     }
@@ -144,25 +140,25 @@ testWithUser.describe('Add Talent with Reference Media', () => {
   testWithUser(
     'detects an uploaded character sheet and shows creating-portrait progress',
     async ({ page, testUser }) => {
-      const uniqueName = uniqueTalentName('Sheet');
+      const uniqueName = uniqueTalentName('设定图');
       const dialog = await openAddTalentFromLibrary(page);
 
-      await dialog.getByLabel('Name').fill(uniqueName);
+      await dialog.getByLabel('名称').fill(uniqueName);
       await uploadNamedTalentImage(page, 'character-sheet.jpg');
-      await expect(dialog.getByText('Sheet', { exact: true })).toBeVisible({
+      await expect(dialog.getByText('设定图', { exact: true })).toBeVisible({
         timeout: 15_000,
       });
-      await waitForSubjectKind(page, 'Animated');
-      await expect(dialog.getByLabel('Basis for authorization')).toHaveCount(0);
+      await waitForSubjectKind(page, '动画角色');
+      await expect(dialog.getByLabel('授权依据')).toHaveCount(0);
       await submitAddTalent(page);
 
-      await expect(
-        page.getByText('Creating portrait from the uploaded sheet')
-      ).toBeVisible({ timeout: 10_000 });
+      await expect(page.getByText('正在根据上传的设定图创建肖像…')).toBeVisible(
+        { timeout: 10_000 }
+      );
       const card = page.getByRole('link', { name: uniqueName });
       await expect(card).toBeVisible({ timeout: 10_000 });
       await expect(card.getByText('AI', { exact: true })).toBeVisible();
-      await expect(card.getByText('Creating portrait…')).toBeVisible();
+      await expect(card.getByText('正在创建肖像…')).toBeVisible();
 
       await cleanupTalentByName(testUser.teamId, uniqueName);
     }
@@ -174,15 +170,15 @@ testWithUser.describe('Add Talent with Reference Media', () => {
       const uniqueName = uniqueTalentName('Creature');
       const dialog = await openAddTalentFromLibrary(page);
 
-      await dialog.getByLabel('Name').fill(uniqueName);
+      await dialog.getByLabel('名称').fill(uniqueName);
       await uploadNamedTalentImage(page, 'creature.jpg');
-      await waitForSubjectKind(page, 'Other');
+      await waitForSubjectKind(page, '其他');
       await submitAddTalent(page);
 
       const card = page.getByRole('link', { name: uniqueName });
       await expect(card).toBeVisible({ timeout: 10_000 });
       await expect(card.getByText('AI', { exact: true })).toBeVisible();
-      await expect(card.getByText('Human')).toHaveCount(0);
+      await expect(card.getByText('真人')).toHaveCount(0);
 
       await cleanupTalentByName(testUser.teamId, uniqueName);
     }
@@ -191,22 +187,18 @@ testWithUser.describe('Add Talent with Reference Media', () => {
   testWithUser(
     'Generate from photos fills description from vision',
     async ({ page, testUser }) => {
-      const uniqueName = uniqueTalentName('Generate');
+      const uniqueName = uniqueTalentName('生成');
       const dialog = await openAddTalentFromLibrary(page);
 
-      await dialog.getByLabel('Name').fill(uniqueName);
+      await dialog.getByLabel('名称').fill(uniqueName);
       await uploadNamedTalentImage(page, 'character-sheet.jpg');
-      await waitForSubjectKind(page, 'Animated');
+      await waitForSubjectKind(page, '动画角色');
 
-      await dialog
-        .getByRole('button', { name: 'Generate from photos' })
-        .click();
-      await expect(dialog.getByLabel('Description')).toHaveValue(/robot/i, {
+      await dialog.getByRole('button', { name: '根据照片生成' }).click();
+      await expect(dialog.getByLabel('描述')).toHaveValue(/robot/i, {
         timeout: 15_000,
       });
-      await expect(
-        page.getByText('Description generated from photos')
-      ).toBeVisible();
+      await expect(page.getByText('已根据照片生成描述')).toBeVisible();
 
       await submitAddTalent(page);
       await expect(page.getByText(uniqueName)).toBeVisible({ timeout: 10_000 });
@@ -221,11 +213,11 @@ testWithUser.describe('Add Talent with Reference Media', () => {
       const uniqueName = uniqueTalentName('No Attest');
       const dialog = await openAddTalentFromLibrary(page);
 
-      await dialog.getByLabel('Name').fill(uniqueName);
+      await dialog.getByLabel('名称').fill(uniqueName);
       await uploadNamedTalentImage(page, 'test-image.jpg');
-      await waitForSubjectKind(page, 'Human');
+      await waitForSubjectKind(page, '真人');
 
-      await dialog.getByRole('button', { name: 'Add Talent' }).click();
+      await dialog.getByRole('button', { name: '添加演员' }).click();
       await expect(dialog).toBeVisible();
       await expect(
         page.getByText(
@@ -241,20 +233,18 @@ testWithUser.describe('Add Talent with Reference Media', () => {
       const uniqueName = uniqueTalentName('No Basis');
       const dialog = await openAddTalentFromLibrary(page);
 
-      await dialog.getByLabel('Name').fill(uniqueName);
+      await dialog.getByLabel('名称').fill(uniqueName);
       await uploadNamedTalentImage(page, 'test-image.jpg');
-      await waitForSubjectKind(page, 'Human');
+      await waitForSubjectKind(page, '真人');
       await dialog
         .getByRole('checkbox', { name: /authorization to use this person/i })
         .check();
 
-      await dialog.getByRole('button', { name: 'Add Talent' }).click();
+      await dialog.getByRole('button', { name: '添加演员' }).click();
       await expect(dialog).toBeVisible();
-      await expect(page.getByText('Add a basis for authorization')).toBeVisible(
-        {
-          timeout: 10_000,
-        }
-      );
+      await expect(page.getByText('请填写授权依据')).toBeVisible({
+        timeout: 10_000,
+      });
     }
   );
 
@@ -265,13 +255,13 @@ testWithUser.describe('Add Talent with Reference Media', () => {
     await waitForTalentPageLoad(page);
 
     // Click Add Talent button
-    await page.getByRole('button', { name: 'Add Talent' }).first().click();
+    await page.getByRole('button', { name: '添加演员' }).first().click();
 
-    await page.getByLabel('Name').fill(uniqueName);
+    await page.getByLabel('名称').fill(uniqueName);
 
     // Start file upload
     const fileChooserPromise = page.waitForEvent('filechooser');
-    await page.getByRole('button', { name: 'Browse files' }).click();
+    await page.getByRole('button', { name: '浏览文件' }).click();
     const fileChooser = await fileChooserPromise;
 
     const testImagePath = path.join(
@@ -294,19 +284,17 @@ testWithUser.describe('Add Talent with Reference Media', () => {
     await waitForTalentPageLoad(page);
 
     // Click Add Talent button
-    await page.getByRole('button', { name: 'Add Talent' }).first().click();
+    await page.getByRole('button', { name: '添加演员' }).first().click();
 
     // Dialog should be visible
-    await expect(
-      page.getByRole('dialog', { name: 'Add Talent' })
-    ).toBeVisible();
+    await expect(page.getByRole('dialog', { name: '添加演员' })).toBeVisible();
 
     // Click Cancel
-    await page.getByRole('button', { name: 'Cancel' }).click();
+    await page.getByRole('button', { name: '取消' }).click();
 
     // Dialog should close
     await expect(
-      page.getByRole('dialog', { name: 'Add Talent' })
+      page.getByRole('dialog', { name: '添加演员' })
     ).not.toBeVisible();
   });
 });
@@ -321,10 +309,10 @@ testWithUser.describe('Add Talent from new sequence page', () => {
   testWithUser(
     'name-only create auto-selects the talent on the composer',
     async ({ page, testUser }) => {
-      const uniqueName = uniqueTalentName('Seq Name');
+      const uniqueName = uniqueTalentName('Seq 名称');
       const { picker } = await openAddTalentFromSequence(page);
 
-      await addTalentDialog(page).getByLabel('Name').fill(uniqueName);
+      await addTalentDialog(page).getByLabel('名称').fill(uniqueName);
       await submitAddTalent(page);
 
       await expect(page).toHaveURL(/\/sequences\/new/);
@@ -333,7 +321,7 @@ testWithUser.describe('Add Talent from new sequence page', () => {
         timeout: 10_000,
       });
       await expect(
-        picker.getByRole('button', { name: /^Cast 1 role$/i })
+        picker.getByRole('button', { name: /^为 1 个角色选角$/ })
       ).toBeVisible();
 
       await cleanupTalentByName(testUser.teamId, uniqueName);
@@ -346,12 +334,12 @@ testWithUser.describe('Add Talent from new sequence page', () => {
       const uniqueName = uniqueTalentName('Seq Photo');
       const { picker } = await openAddTalentFromSequence(page);
 
-      await addTalentDialog(page).getByLabel('Name').fill(uniqueName);
+      await addTalentDialog(page).getByLabel('名称').fill(uniqueName);
       // Drop (not browse) so the same image cannot also land in the composer's
       // Elements dropzone underneath the dialog (#1269).
       await dropNamedTalentImage(page, 'test-image.jpg');
-      await expect(page.getByText('Upload reference elements')).toHaveCount(0);
-      await waitForSubjectKind(page, 'Human');
+      await expect(page.getByText('上传参考素材')).toHaveCount(0);
+      await waitForSubjectKind(page, '真人');
       await attestPortraitRights(page);
       await submitAddTalent(page);
 
@@ -361,7 +349,7 @@ testWithUser.describe('Add Talent from new sequence page', () => {
         timeout: 10_000,
       });
       await expect(
-        picker.getByRole('button', { name: /^Cast 1 role$/i })
+        picker.getByRole('button', { name: /^为 1 个角色选角$/ })
       ).toBeVisible();
       await expect(page.getByRole('link', { name: uniqueName })).toHaveCount(0);
       await expect(
@@ -408,7 +396,7 @@ testWithUser.describe('Edit Talent with Reference Media', () => {
     ).toBeVisible();
 
     // Should show reference media section
-    await expect(page.getByText('Reference Media')).toBeVisible();
+    await expect(page.getByText('参考素材')).toBeVisible();
   });
 
   testWithUser(
@@ -427,11 +415,11 @@ testWithUser.describe('Edit Talent with Reference Media', () => {
 
       // Edit dialog should open
       await expect(
-        page.getByRole('dialog', { name: 'Edit Talent' })
+        page.getByRole('dialog', { name: '编辑演员' })
       ).toBeVisible();
 
       // Form should be pre-filled
-      await expect(page.getByLabel('Name')).toHaveValue(testTalent.name);
+      await expect(page.getByLabel('名称')).toHaveValue(testTalent.name);
     }
   );
 
@@ -447,21 +435,19 @@ testWithUser.describe('Edit Talent with Reference Media', () => {
     // Open edit dialog
     await page.locator('button:has(svg.lucide-pencil)').first().click();
 
-    await expect(
-      page.getByRole('dialog', { name: 'Edit Talent' })
-    ).toBeVisible();
+    await expect(page.getByRole('dialog', { name: '编辑演员' })).toBeVisible();
 
     // Update name
     const updatedName = `E2E Updated Talent ${crypto.randomUUID().slice(0, 8)}`;
-    await page.getByLabel('Name').fill(updatedName);
-    await page.getByLabel('Description').fill('Updated description');
+    await page.getByLabel('名称').fill(updatedName);
+    await page.getByLabel('描述').fill('Updated description');
 
     // Save changes
-    await page.getByRole('button', { name: 'Save Changes' }).click();
+    await page.getByRole('button', { name: '保存更改' }).click();
 
     // Wait for the save to complete and dialog to close
     await expect(
-      page.getByRole('dialog', { name: 'Edit Talent' })
+      page.getByRole('dialog', { name: '编辑演员' })
     ).not.toBeVisible({ timeout: 15000 });
 
     // Updated name should appear on the detail page
@@ -480,16 +466,14 @@ testWithUser.describe('Edit Talent with Reference Media', () => {
     // Open edit dialog
     await page.locator('button:has(svg.lucide-pencil)').first().click();
 
-    await expect(
-      page.getByRole('dialog', { name: 'Edit Talent' })
-    ).toBeVisible();
+    await expect(page.getByRole('dialog', { name: '编辑演员' })).toBeVisible();
 
     // Click Add Media button
-    await page.getByRole('button', { name: 'Add Media' }).click();
+    await page.getByRole('button', { name: '添加素材' }).click();
 
     // Add Media dialog should open
     await expect(
-      page.getByRole('dialog', { name: 'Add Reference Media' })
+      page.getByRole('dialog', { name: '添加参考素材' })
     ).toBeVisible();
   });
 
@@ -501,19 +485,15 @@ testWithUser.describe('Edit Talent with Reference Media', () => {
     // Open edit dialog
     await page.locator('button:has(svg.lucide-pencil)').first().click();
 
-    await expect(
-      page.getByRole('dialog', { name: 'Edit Talent' })
-    ).toBeVisible();
+    await expect(page.getByRole('dialog', { name: '编辑演员' })).toBeVisible();
 
     // Should display reference media section with existing images
-    await expect(
-      page.getByText('Reference Media', { exact: true })
-    ).toBeVisible();
+    await expect(page.getByText('参考素材', { exact: true })).toBeVisible();
 
     // Should have image previews (from the 2 media items we created)
     const mediaImages = page
-      .getByRole('dialog', { name: 'Edit Talent' })
-      .locator('img[alt="Reference"]');
+      .getByRole('dialog', { name: '编辑演员' })
+      .locator('img[alt="参考素材"]');
     await expect(mediaImages).toHaveCount(2);
   });
 
@@ -526,14 +506,14 @@ testWithUser.describe('Edit Talent with Reference Media', () => {
     await page.locator('button:has(svg.lucide-pencil)').first().click();
 
     // Change the name
-    await page.getByLabel('Name').fill('Should Not Be Saved');
+    await page.getByLabel('名称').fill('Should Not Be 保存d');
 
     // Cancel
-    await page.getByRole('button', { name: 'Cancel' }).click();
+    await page.getByRole('button', { name: '取消' }).click();
 
     // Dialog should close
     await expect(
-      page.getByRole('dialog', { name: 'Edit Talent' })
+      page.getByRole('dialog', { name: '编辑演员' })
     ).not.toBeVisible();
 
     // Original name should still be visible
@@ -587,7 +567,7 @@ testWithUser.describe('Talent with Media - List View', () => {
     ).toBeVisible();
 
     // Go back to list
-    await returnToLibraryList(page, 'Back to Talent', /\/talent(\?|$)/);
+    await returnToLibraryList(page, '返回演员库', /\/talent(\?|$)/);
 
     // Click second talent
     await openLibraryCard(page, testTalentBeta.name, TALENT_DETAIL_URL);

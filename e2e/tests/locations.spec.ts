@@ -19,7 +19,7 @@ import {
   LOCATION_DETAIL_URL,
 } from '../fixtures/test-utils';
 function waitForLocationsPageLoad(page: import('playwright/test').Page) {
-  return waitForLibraryPageLoad(page, 'Add Location');
+  return waitForLibraryPageLoad(page, '添加场景');
 }
 
 test.describe('Location Library', () => {
@@ -28,9 +28,7 @@ test.describe('Location Library', () => {
     await waitForLocationsPageLoad(page);
 
     await expect(page).toHaveURL(/\/locations/);
-    await expect(
-      page.getByRole('heading', { name: 'Location Library' })
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: '场景库' })).toBeVisible();
   });
 
   test('has Add Location button', async ({ page }) => {
@@ -38,7 +36,7 @@ test.describe('Location Library', () => {
     await waitForLocationsPageLoad(page);
 
     const addButton = page.getByRole('button', {
-      name: 'Add Location',
+      name: '添加场景',
     });
     await expect(addButton.first()).toBeVisible();
     await expect(addButton.first()).toBeEnabled();
@@ -56,21 +54,17 @@ testWithUser.describe('Add Location with Reference Media', () => {
     await waitForLocationsPageLoad(page);
 
     // Click the Add Location button
-    const addButton = page
-      .getByRole('button', { name: 'Add Location' })
-      .first();
+    const addButton = page.getByRole('button', { name: '添加场景' }).first();
     await addButton.click();
 
-    await expect(
-      page.getByRole('dialog', { name: 'Add Location' })
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('dialog', { name: '添加场景' })).toBeVisible({
+      timeout: 10000,
+    });
 
-    await expect(page.getByLabel('Name')).toBeVisible();
-    await expect(page.getByLabel('Description')).toBeVisible();
+    await expect(page.getByLabel('名称')).toBeVisible();
+    await expect(page.getByLabel('描述')).toBeVisible();
     // Reference Images label and Browse files button should be present
-    await expect(
-      page.getByRole('button', { name: 'Browse files' })
-    ).toBeVisible();
+    await expect(page.getByRole('button', { name: '浏览文件' })).toBeVisible();
   });
 
   testWithUser(
@@ -82,26 +76,24 @@ testWithUser.describe('Add Location with Reference Media', () => {
       await waitForLocationsPageLoad(page);
 
       // Click Add Location button (header or empty state - use first available)
-      const addButton = page
-        .getByRole('button', { name: 'Add Location' })
-        .first();
+      const addButton = page.getByRole('button', { name: '添加场景' }).first();
       await expect(addButton).toBeVisible({ timeout: 10000 });
       await expect(addButton).toBeEnabled();
       await addButton.click();
 
       // Wait for dialog to open
-      await page.getByLabel('Name').waitFor({ timeout: 10000 });
-      await page.getByLabel('Name').fill(uniqueName);
-      await page.getByLabel('Description').fill('Test description for E2E');
+      await page.getByLabel('名称').waitFor({ timeout: 10000 });
+      await page.getByLabel('名称').fill(uniqueName);
+      await page.getByLabel('描述').fill('Test description for E2E');
 
       // Click the submit button inside the dialog
       await page
         .getByRole('dialog')
-        .getByRole('button', { name: 'Add Location' })
+        .getByRole('button', { name: '添加场景' })
         .click();
 
       await expect(
-        page.getByRole('dialog', { name: 'Add Location' })
+        page.getByRole('dialog', { name: '添加场景' })
       ).not.toBeVisible({ timeout: 10000 });
 
       await expect(page.getByText(uniqueName)).toBeVisible({
@@ -116,21 +108,19 @@ testWithUser.describe('Add Location with Reference Media', () => {
     await page.goto('/locations');
     await waitForLocationsPageLoad(page);
 
-    const addButton = page
-      .getByRole('button', { name: 'Add Location' })
-      .first();
+    const addButton = page.getByRole('button', { name: '添加场景' }).first();
     await expect(addButton).toBeVisible({ timeout: 10000 });
     await expect(addButton).toBeEnabled();
     await addButton.click();
 
-    await expect(
-      page.getByRole('dialog', { name: 'Add Location' })
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('dialog', { name: '添加场景' })).toBeVisible({
+      timeout: 10000,
+    });
 
-    await page.getByRole('button', { name: 'Cancel' }).click();
+    await page.getByRole('button', { name: '取消' }).click();
 
     await expect(
-      page.getByRole('dialog', { name: 'Add Location' })
+      page.getByRole('dialog', { name: '添加场景' })
     ).not.toBeVisible();
   });
 });
@@ -162,9 +152,7 @@ testWithUser.describe('Edit Location', () => {
       page.getByRole('heading', { name: testLocation.name })
     ).toBeVisible();
 
-    await expect(
-      page.getByRole('heading', { name: 'Reference Images' })
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: '参考图片' })).toBeVisible();
   });
 
   testWithUser(
@@ -178,10 +166,10 @@ testWithUser.describe('Edit Location', () => {
       await page.locator('button:has(svg.lucide-pencil)').first().click();
 
       await expect(
-        page.getByRole('dialog', { name: 'Edit Location' })
+        page.getByRole('dialog', { name: '编辑场景' })
       ).toBeVisible();
 
-      await expect(page.getByLabel('Name')).toHaveValue(testLocation.name);
+      await expect(page.getByLabel('名称')).toHaveValue(testLocation.name);
     }
   );
 
@@ -192,12 +180,12 @@ testWithUser.describe('Edit Location', () => {
 
     await page.locator('button:has(svg.lucide-pencil)').first().click();
 
-    await page.getByLabel('Name').fill('Should Not Be Saved');
+    await page.getByLabel('名称').fill('Should Not Be 保存d');
 
-    await page.getByRole('button', { name: 'Cancel' }).click();
+    await page.getByRole('button', { name: '取消' }).click();
 
     await expect(
-      page.getByRole('dialog', { name: 'Edit Location' })
+      page.getByRole('dialog', { name: '编辑场景' })
     ).not.toBeVisible();
 
     await expect(
@@ -252,7 +240,7 @@ testWithUser.describe('Location Library - List View', () => {
         page.getByRole('heading', { name: testLocationAlpha.name })
       ).toBeVisible();
 
-      await returnToLibraryList(page, 'Back to Locations', /\/locations(\?|$)/);
+      await returnToLibraryList(page, '返回场景库', /\/locations(\?|$)/);
 
       await openLibraryCard(page, testLocationBeta.name, LOCATION_DETAIL_URL);
       await expect(

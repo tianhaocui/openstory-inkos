@@ -1,5 +1,12 @@
 import { defineConfig, devices } from 'playwright/test';
+import { E2E_PORT } from './e2e/config';
 import { E2E_RECORDING } from './e2e/recording-mode';
+
+// Isolated port for this run. Default 3001 keeps CI unchanged; set
+// E2E_PORT=3002 locally when a stale `vite preview` owns :3001 and respawns
+// faster than it can be killed (that preview lacks E2E_TEST, so its
+// /api/test/* routes 404 and the setup project fails).
+const e2ePort = E2E_PORT;
 
 /**
  * Playwright E2E Test Configuration
@@ -12,7 +19,9 @@ export default defineConfig({
   outputDir: './e2e/results',
 
   fullyParallel: true,
-  workers: process.env.CI ? 2 : 4,
+  // Keep local parity with CI: a dev-mode app with live SSE streams saturates
+  // this box at 4 workers (context teardown alone blew the 30s budget).
+  workers: 2,
 
   // Fail fast on CI
   forbidOnly: !!process.env.CI,
@@ -25,7 +34,7 @@ export default defineConfig({
 
   // Global test timeout. Recording mode hits live OpenRouter / fal so it needs
   // headroom; CI is slower than local; replay-only local is the fast path.
-  timeout: E2E_RECORDING ? 600_000 : process.env.CI ? 60_000 : 30_000,
+  timeout: E2E_RECORDING ? 600_000 : 60_000,
 
   // Default expect() timeout. Recording lets streaming/vision calls take their
   // time; replay keeps the snappy 5s default so flakes surface fast.
@@ -33,7 +42,7 @@ export default defineConfig({
 
   // Shared settings for all projects
   use: {
-    baseURL: 'http://localhost:3001',
+    baseURL: `http://localhost:${e2ePort}`,
     viewport: { width: 1920, height: 1080 },
     trace: process.env.CI ? 'on-first-retry' : 'retain-on-failure',
     screenshot: 'only-on-failure',
@@ -113,8 +122,8 @@ export default defineConfig({
             `BYTEPLUS_OPENAPI_HOST=${process.env.BYTEPLUS_OPENAPI_HOST ?? 'ark.ap-southeast-1.byteplusapi.com'}`,
           ]
         : []),
-      'PORT=3001',
-      'VITE_APP_URL=http://localhost:3001',
+      `PORT=${e2ePort}`,
+      `VITE_APP_URL=http://localhost:${e2ePort}`,
       'OPENROUTER_BASE_URL=http://localhost:4010',
       // Native xAI (Grok chat / Imagine stills / video) goes to a second
       // aimock instance — see aimock-server.ts. The Grok adapter's default
@@ -157,11 +166,11 @@ export default defineConfig({
     // built-server testing.
     return {
       command: useBuiltServer
-        ? `${envPrefix} bun e2e/start-webserver.ts preview --port=3001`
-        : `${envPrefix} bun e2e/start-webserver.ts dev --port=3001`,
+        ? `${envPrefix} bun e2e/start-webserver.ts preview --port=${e2ePort}`
+        : `${envPrefix} bun e2e/start-webserver.ts dev --port=${e2ePort}`,
       // Wait for the TCP port, not an HTTP 2xx — SSR errors should surface to
       // the individual specs via `page.goto()` rather than fail server boot.
-      port: 3001,
+      port: Number(e2ePort),
       reuseExistingServer: !useBuiltServer,
       timeout: 300_000,
       stdout: 'pipe',

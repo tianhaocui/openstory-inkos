@@ -86,73 +86,84 @@
 | `src/stories/ui/filmmaking-panel.tsx`      | `56eaabbae3ef64e692551b11d11929ba74bb6a0b0fd8fd8b38fadcf4909e8f28` |
 | `src/stories/ai-filmmaking.fn.ts`          | `9bcb598d68e7d46f3139ac58500c0995a798dd9850a87e2e9e3be21a4e9248ec` |
 
-## 4. e2e 基线（❌ 重跑后仍阻塞，未伪造通过）
+## 4. e2e 基线（❌ spec 漂移已修复，仍有 11 failed + full 超时，未伪造通过）
 
-### 4.1 端口进程判定与重跑结果
+### 4.1 端口重生源判定与隔离方案
 
-按红线先判定归属：`ps -p 981854 -o pid,ppid,etimes,cmd` →
-`981854 1 4979 /home/ubuntu/.hermes/node/bin/node /home/ubuntu/openstory/node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 3001`；
-`/proc/981854/cwd -> /home/ubuntu/openstory`，启动于 05:53:03，PPID=1（孤儿）。
-**结论：确属本项目残留 preview**（cmd/cwd 均指向 openstory，非用户其他服务），已 `kill 981854`，`ss` 确认 :3001 释放。
+只读排查：`crontab -l` → `no crontab for ubuntu`；`systemctl --user list-timers` 只有
+`launchpadlib-cache-clean.timer`；`systemctl cat openstory.service` 命中重生源：
 
-| 命令                                                                 | 退出码 | 实测结果                                                                                   |
-| -------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------ |
-| `bun run test:e2e:setup`                                             | **0**  | 测试 D1 迁移 + seed 成功（`System templates up to date`，`Database seeded successfully!`） |
-| `bun run test:e2e`（重跑 A：kill 981854 后）                         | **1**  | 79 tests / 4 workers：**2 passed、18 failed、59 did not run（3.0m）**                      |
-| `bun run test:e2e`（重跑 B：kill 1097840、确认端口 FREE 后立刻重跑） | **1**  | 79 tests / 4 workers：**2 passed、18 failed、59 did not run（4.3m）**                      |
-| `bun run test:e2e:full`                                              | **1**  | 2 tests：**1 failed（setup）、1 did not run**                                              |
+- `/etc/systemd/system/openstory.service`：`ExecStart=.../vite.js preview --host 127.0.0.1 --port 3001`，
+  `Restart=always`、`RestartSec=5`、`enabled`，即 kill 后约 1 秒重生的来源（PID 1120342，
+  `Main PID` 由 systemd 托管，PPID=1 是 reparent 结果）。它是有意安装的本项目预览服务，
+  **不是可确认的残留脚本，故未 stop / disable**。
+- 替代方案（已落盘）：新增 `e2e/config.ts` 导出 `E2E_PORT`（默认 3001，CI 不变）、`TEST_BASE_URL`；
+  `playwright.config.ts` 的 `baseURL` / webServer `port` / `PORT` / `VITE_APP_URL` 全部走该变量，
+  所有 Node 侧 fixture 的 `/api/test/*` URL 同步改走 `TEST_BASE_URL`；本地显式 `E2E_PORT=3002`
+  启动带 `E2E_TEST=true` 的独立 dev server。另清掉了卡死会话遗留在 :3002 上的旧 server
+  （其 env 带 `E2E_FULL_PIPELINE=true`，会被 `reuseExistingServer` 误复用）。
+- 前一位 agent 的 spec 漂移修复已核实：`e2e/tests/*.spec.ts` 等 16 个 e2e 文件中，英文旧选择器
+  （`getByLabel('Email')`、`Tell your whole story`、`Paste a screenplay`、`Sign in` 等）
+  grep 无残留，中文选择器（`邮箱`、`讲完整你的故事`、`生成图片`、`登录以继续` 等）已就位。
 
-- 首轮曾因 `chromium_headless_shell-1243` 缺失导致 20 failed / 59 did not run；已 `bunx playwright install chromium`
-  安装到 `~/.cache/ms-playwright`（仓库外），本轮浏览器可用，失败原因已变为下述两项。
-- 重跑 B 的 `[WebServer]` 日志显示 Playwright 自己的 `start-webserver.ts dev --port=3001` 已执行 migrate+seed 并成功，
-  但错误结果与重跑 A 完全一致 → **不是单纯"复用了旧服务"**。
+### 4.2 本轮重跑结果（E2E_PORT=3002，node 24 / bun 1.4.2）
 
-### 4.2 根因（两条独立问题，均未在 P0 内改动）
+| 命令                     | 退出码     | 实测结果                                                                                                  |
+| ------------------------ | ---------- | --------------------------------------------------------------------------------------------------------- |
+| `bun run test:e2e:setup` | **0**      | 测试 D1 迁移 + seed 成功（`✅ migrations applied`、`🎉 Database seeded successfully!`）                   |
+| `bun run test:e2e`       | **1**      | 79 tests / 2 workers：**66 passed、11 failed、2 skipped（29.4m）**                                        |
+| `bun run test:e2e:full`  | **未验证** | 2 tests：setup passed；full-sequence 触发 30 分钟用例上限，runner 卡在收尾、无最终汇总，38 分钟后终止进程 |
 
-1. **:3001 被自动重生（auto-respawn）的孤儿 preview 长期占用**：除 `981854` 外，kill 后又在
-   07:17:12 出现 `1097840`，随后 `1105008`、`1111866`、`1112026`（均为 PPID=1、
-   cwd `/home/ubuntu/openstory`、cmd 同为 `vite preview --host 127.0.0.1 --port 3001`），
-   每次 kill 后约 1 秒内即有新的同款 preview 抢占端口。`playwright.config.ts` 的
-   `reuseExistingServer: !useBuiltServer` 在本地为 `true`，会复用它；该 preview **未带 `E2E_TEST=true`**，
-   故 `testOnlyGuard`（`src/routes/api/test/route.ts:26`）按设计返回 404：
-   `POST /api/test/user` → `Failed to create test user via API: 404`，`curl` 实测 `http=404 / Not Found`。
-   继续 kill 只会触发重生，已停止 kill 循环，未改 `playwright.config.ts`、未换端口绕过。
-2. **e2e spec 与当前应用代码已漂移（stale）**：auth.spec 期望的英文文案
-   `Tell your whole story`、`Paste a screenplay, or a one-liner we can expand - not a prompt.`、`Sign in`、
-   `Generate`、`getByLabel('Email')` 在 `src/` 中已**全部搜不到**；当前应用为 zh-CN / local story mode
-   （`228df1332 feat: local story mode, zh i18n, InkOS integration and deploy config`）。
-   e2e 目录最后一次提交为 `537281036`，早于 UI 改写 → 这些断言按当前代码必然失败。
-   规范更新属测试/产品决策，超出 P0「只记录不改码」边界，本轮未改任何 spec。
+主跑 8 个 spec 明细（来源 `playwright-report/index.html` 内嵌 report 的 `outcome` 字段）：
 
-### 4.3 逐条失败清单（重跑 B，18 failed）
+| spec                      | passed | failed | skipped |
+| ------------------------- | ------ | ------ | ------- |
+| `auth.setup.ts`           | 1      | 0      | 0       |
+| `auth.spec.ts`            | 18     | 1      | 0       |
+| `full-sequence.spec.ts`   | 0      | 0      | 1       |
+| `locations.spec.ts`       | 10     | 0      | 0       |
+| `manual-pipeline.spec.ts` | 0      | 1      | 0       |
+| `sequence-flow.spec.ts`   | 1      | 2      | 1       |
+| `sequences.spec.ts`       | 12     | 0      | 0       |
+| `studio.spec.ts`          | 9      | 0      | 0       |
+| `talent.spec.ts`          | 15     | 7      | 0       |
+| **合计**                  | **66** | **11** | **2**   |
 
-| #   | spec / 用例                                                                              | 错误摘要                                                                                       |
-| --- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| 1   | `auth.setup.ts:15` authenticate                                                          | `Failed to create test user via API: 404` → 后续 `chromium` project 59 用例未运行              |
-| 2   | `auth.spec.ts:50` anonymous visitor can browse the shell without being redirected        | `getByRole('heading', {name:'Tell your whole story'})` element(s) not found（5s）              |
-| 3   | `auth.spec.ts:12` anonymous visitor lands in the app, not a marketing page               | 同上英文营销标题未找到                                                                         |
-| 4   | `auth.spec.ts:31` logged-out composer keeps a script box at 1280×720                     | `getByText('Paste a screenplay, or a one-liner we can expand - not a prompt.')` 未找到         |
-| 5   | `auth.spec.ts:87` anonymous empty-prompt generate opens the login dialog (#1393)         | `getByRole('button',{name:'Generate',exact:true})` toBeEnabled 失败，元素未找到                |
-| 6   | `auth.spec.ts:101` anonymous empty-script generate opens the login dialog (#1393)        | 同上 `Generate` 按钮未找到                                                                     |
-| 7   | `auth.spec.ts:119` anonymous generate is intercepted by the login dialog                 | 同上 `Generate` 按钮未找到                                                                     |
-| 8   | `auth.spec.ts:75` anonymous image generate is intercepted by the login dialog            | `locator.click` 30s 超时：等待 `getByRole('button',{name:'Generate image'})`                   |
-| 9   | `auth.spec.ts:170` account-bound routes redirect anonymous users to login                | `getByLabel('Email')` 未找到（5s）                                                             |
-| 10  | `auth.spec.ts:181` anonymous /sequences/new redirects to login                           | 登录表单元素未找到                                                                             |
-| 11  | `auth.spec.ts:238` Authenticated User › can access sequences page                        | `Failed to create test user via API: 404`                                                      |
-| 12  | `auth.spec.ts:147` anonymous enhance is intercepted by the login dialog and keeps intent | `getByRole('button',{name:/Enhance Script/i})` click 30s 超时；`browserContext.close` 30s 超时 |
-| 13  | `auth.spec.ts:246` Authenticated User › can access create new sequence page              | `Failed to create test user via API: 404`                                                      |
-| 14  | `auth.spec.ts:258` Authenticated User › session persists across navigation               | `Failed to create test user via API: 404`                                                      |
-| 15  | `auth.spec.ts:252` Authenticated User › can access talent page                           | `Failed to create test user via API: 404`                                                      |
-| 16  | `auth.spec.ts:205` login page is accessible                                              | `getByRole('button',{name:'Sign in'})` 未找到（5s）                                            |
-| 17  | `auth.spec.ts:212` login page reveals the submit button once an email is entered         | `getByLabel('Email')` 未找到（5s / 15s）                                                       |
-| 18  | `auth.spec.ts:278` Email OTP Flow › email input validates email format                   | `locator.fill` 30s 超时：等待 `getByLabel('Email')`                                            |
+`full-sequence.spec.ts` 在主跑中因 `!fullPipeline` 被 skip，由 `test:e2e:full` 单独覆盖；
+`sequence-flow.spec.ts` 的 skip 为 `testWithUser.describe.skip('Empty States')`。
+日志留档：`/tmp/opencode/e2e-setup-3002.log`、`/tmp/opencode/e2e-main-3002.log`、
+`/tmp/opencode/e2e-full-3002.log`。
 
-> 另有 59 did not run（全部为依赖 `setup` 的 `chromium` project：`full-sequence`、`locations`、
-> `manual-pipeline`、`sequence-flow`、`sequences`、`studio`、`talent`）。未伪造通过，未改
-> `playwright.config.ts`。日志留档：`/tmp/opencode/e2e-main.log`、`/tmp/opencode/e2e-main-2.log`、
-> `/tmp/opencode/e2e-full.log`。
->
-> 登记待改（P2）：`playwright.config.ts:45` 的 `colorScheme: 'dark'` 本阶段不动。
+### 4.3 逐条失败清单（本轮 11 failed）
+
+| #   | spec / 用例                                                                        | 错误摘要                                                                                          |
+| --- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| 1   | `auth.spec.ts:16` anonymous visitor lands in the app, not a marketing page         | `Test timeout of 60000ms exceeded` + `Tearing down "context" exceeded`；页面快照已渲染中文 shell  |
+| 2   | `manual-pipeline.spec.ts:82` full manual CRUD path                                 | `waitForHydration()` 的 `page.waitForFunction` 30s 超时（test-utils.ts:86）                       |
+| 3   | `sequence-flow.spec.ts:60` can create sequence with suggested talent               | `getByRole('button',{name:/生成/i})` strict mode 命中 4 个元素（生成设置 / 匹配剧本等）           |
+| 4   | `sequence-flow.spec.ts:176` can select variant from grid                           | `getByRole('dialog')` 2s 未出现；`toPass` 20s 超时，变体弹窗始终未打开                            |
+| 5   | `talent.spec.ts:120` can create talent from a photo                                | `[data-testid=subject-kind]` 15s 未找到；快照显示上传项 `失败 / R2 upload failed with status 404` |
+| 6   | `talent.spec.ts:144` detects an uploaded character sheet                           | `设定图` 文案 15s 未找到；同样是 `R2 upload failed with status 404`                               |
+| 7   | `talent.spec.ts:171` classifies a creature as Other                                | `[data-testid=subject-kind]` 期望 `其他`，元素未找到（上传未成功）                                |
+| 8   | `talent.spec.ts:191` Generate from photos fills description from vision            | `[data-testid=subject-kind]` 期望 `动画角色`，元素未找到（上传未成功）                            |
+| 9   | `talent.spec.ts:218` blocks create until portrait rights are attested              | `[data-testid=subject-kind]` 期望 `真人`，元素未找到（上传未成功）                                |
+| 10  | `talent.spec.ts:238` blocks a human photo without an authorization basis           | `[data-testid=subject-kind]` 期望 `真人`，元素未找到（上传未成功）                                |
+| 11  | `talent.spec.ts:343` photo create uses the same dialog and auto-selects the talent | `[data-testid=subject-kind]` 期望 `真人`，元素未找到（上传未成功）                                |
+
+`test:e2e:full` 单独说明：setup 用例通过；full-sequence 用例 11:00:02 开始，11:29:58 生成失败截图，
+但 runner 未输出最终用例错误/汇总（卡在收尾），11:36 终止进程。按红线记为**超时未验证通过**，
+不计为 green。未伪造通过。
+
+### 4.4 剩余根因归类
+
+1. **已解除**：原两条硬阻塞（:3001 preview 复用导致 `/api/test/*` 404；spec 英文文案漂移）
+   均已由端口隔离 + 中文选择器修复消除——setup 通过，59 did not run 降为 2 条主动 skip。
+2. **图片上传链路（7 条 talent 失败）**：页面快照显示 `R2 upload failed with status 404`，
+   上传成功后才出现的 `subject-kind` / `设定图` 断言因此全部超时。属应用/R2 测试路由问题，
+   不是英文选择器残留；本轮边界不改 `src/` 与 mock 之外的代码，未处理。
+3. **定位器与时序（4 条）**：`/生成/i` 在中文 UI 下命中多个按钮需收紧；变体弹窗 20s 未打开；
+   `waitForHydration` 的 React props fiber 探测在 manual-pipeline 页面上超时；auth 首例 60s
+   用例超时（含 context teardown）。均需逐条调 spec/调试，未伪造通过。
 
 ## 5. Storybook / Chromatic
 
@@ -204,41 +215,43 @@ src/ui/text-editor/markdown-editor.stories.tsx
 
 ## 6. 阻塞项清单（本轮复核）
 
-| #   | 阻塞                                    | 本轮状态                                                                                                                                                                                              |
-| --- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | 文档未纳入版本管理 / `format:check` = 1 | ✅ **已解除**：commit `13ccea641…`，`format:check` = 0                                                                                                                                                |
-| 2   | e2e 因 :3001 陈旧 preview 失败          | ❌ **升级为硬阻塞**：kill 后 preview 自动重生（981854→1097840→1105008→1111866→1112026），且 spec 断言与 zh-CN 应用已漂移；重跑仍 18 failed / 59 did not run，`test:e2e:full` 1 failed / 1 did not run |
-| 3   | Chromatic 无本地 token / 无 CI 工作流   | ⏸ **已知外部依赖**：标为 P1 条件性依赖，验收放到有 Chromatic 的 CI；本轮不解决                                                                                                                        |
-| 4   | 环境偏差                                | ℹ️ 本地 bun 1.4.2 / node 24.22.3 vs CI bun 1.3.14；本机默认 node 18 会挂，已按要求切 PATH                                                                                                             |
+| #   | 阻塞                                    | 本轮状态                                                                                                                                                                                                                  |
+| --- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | 文档未纳入版本管理 / `format:check` = 1 | ✅ **已解除**：commit `13ccea641…`，`format:check` = 0                                                                                                                                                                    |
+| 2   | e2e 因 :3001 陈旧 preview 失败          | ⚠️ **阻塞降级但未解除**：重生源为 enabled 的 `openstory.service`（`Restart=always`），未 stop；改用 `E2E_PORT=3002` 后 404 与英文 spec 漂移已消除，重跑 66 passed / 11 failed / 2 skipped；`test:e2e:full` 超时未验证通过 |
+| 3   | Chromatic 无本地 token / 无 CI 工作流   | ⏸ **已知外部依赖**：标为 P1 条件性依赖，验收放到有 Chromatic 的 CI；本轮不解决                                                                                                                                            |
+| 4   | 环境偏差                                | ℹ️ 本地 bun 1.4.2 / node 24.22.3 vs CI bun 1.3.14；本机默认 node 18 会挂，已按要求切 PATH                                                                                                                                 |
 
 ## 7. 「基线已锁定」判定（逐条对照方案 §9，本轮复核）
 
-| §9 条目                                                                                           | 判定             | 依据                                                                                         |
-| ------------------------------------------------------------------------------------------------- | ---------------- | -------------------------------------------------------------------------------------------- |
-| 1. 源码树 SHA / 工作树态 / 冻结路径 diff=0                                                        | ✅               | 源码基线 `d5eec391…`；冻结路径 diff 退出码 0；工作树干净；文档提交 `13ccea641…`              |
-| 2. 暗色 Chromatic 基线（全量比对零差异、build accepted）                                          | ⏸ **条件性依赖** | 本地无 token、无 CI 工作流；暗色零差异验收由 CI 提供，不阻塞 P1 代码改动，但阻塞 P1 最终验收 |
-| 3. 单测基线 4708 通过、0 failed；视频按钮 7/7                                                     | ✅               | 实测 4708/4708 passed；契约 1 文件 7/7 passed                                                |
-| 4. e2e 8 spec 全绿 + `test:e2e:full`                                                              | ❌               | 重跑 A/B 均 18 failed / 59 did not run（2 passed）；`test:e2e:full` 1 failed / 1 did not run |
-| 5. 视频按钮契约 + 三文件 sha256 存档                                                              | ✅               | 7/7 + sha256 已记录于本文 §3                                                                 |
-| 6. 亮色基线预留（登记 `globals.theme='light'`）                                                   | ✅               | 已登记，本阶段不出截图，P1 生成                                                              |
-| 7. 静态门禁（db:check / db:generate 无 drift / typecheck / lint / format:check / dead-code 全 0） | ✅               | 六项全 0；`format:check` 本轮由 1 修到 0                                                     |
-| 归档（SHA / build ID / 测试总数 / sha256）                                                        | ⚠️ 部分          | SHA、4708、sha256、story 清单、文档提交 SHA 已归档；Chromatic build ID 因外部依赖缺失        |
-| `ui-unification.md` 纳入版本管理                                                                  | ✅               | commit `13ccea641…` 已纳入，4 份文档全部 tracked                                             |
+| §9 条目                                                                                           | 判定             | 依据                                                                                                         |
+| ------------------------------------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------ |
+| 1. 源码树 SHA / 工作树态 / 冻结路径 diff=0                                                        | ✅               | 源码基线 `d5eec391…`；冻结路径 diff 退出码 0；工作树干净；文档提交 `13ccea641…`                              |
+| 2. 暗色 Chromatic 基线（全量比对零差异、build accepted）                                          | ⏸ **条件性依赖** | 本地无 token、无 CI 工作流；暗色零差异验收由 CI 提供，不阻塞 P1 代码改动，但阻塞 P1 最终验收                 |
+| 3. 单测基线 4708 通过、0 failed；视频按钮 7/7                                                     | ✅               | 实测 4708/4708 passed；契约 1 文件 7/7 passed                                                                |
+| 4. e2e 8 spec 全绿 + `test:e2e:full`                                                              | ❌               | 本轮 66 passed / 11 failed / 2 skipped（29.4m）；`test:e2e:full` 30 分钟上限触发、无最终汇总，超时未验证通过 |
+| 5. 视频按钮契约 + 三文件 sha256 存档                                                              | ✅               | 7/7 + sha256 已记录于本文 §3                                                                                 |
+| 6. 亮色基线预留（登记 `globals.theme='light'`）                                                   | ✅               | 已登记，本阶段不出截图，P1 生成                                                                              |
+| 7. 静态门禁（db:check / db:generate 无 drift / typecheck / lint / format:check / dead-code 全 0） | ✅               | 六项全 0；`format:check` 本轮由 1 修到 0                                                                     |
+| 归档（SHA / build ID / 测试总数 / sha256）                                                        | ⚠️ 部分          | SHA、4708、sha256、story 清单、文档提交 SHA 已归档；Chromatic build ID 因外部依赖缺失                        |
+| `ui-unification.md` 纳入版本管理                                                                  | ✅               | commit `13ccea641…` 已纳入，4 份文档全部 tracked                                                             |
 
 **结论：基线仍未锁定 → 不满足 P1 开工条件。** §9 明确「任何一项不满足，禁止 P1 开工」。
-本轮已解除文档纳入版本管理与 `format:check` 两项，但 **§9 第 4 项（e2e 全绿）仍不满足**，
-第 2 项为条件性依赖、尚未在 CI 兑现。
+本轮已解除文档纳入版本管理、`format:check`、以及 e2e 的原两条硬阻塞（端口 404 / 英文 spec 漂移），
+但 **§9 第 4 项（e2e 全绿）仍不满足**：11 failed + full 超时未验证通过。第 2 项为条件性依赖、尚未在 CI 兑现。
 
 还差什么（按优先级）：
 
-1. **e2e 基线转绿（硬阻塞）**：需 PM/QA 决策并处理 :3001 上自动重生的 preview（提供不带该服务的
-   CI/干净环境，或由环境负责人停止重生源），并让 e2e spec 与 zh-CN / local story mode 当前 UI 对齐
-   （更新或重录断言）。本 agent 在 P0 边界内不改 `playwright.config.ts`、不改 spec、不换端口绕过，
-   也不继续 kill 进程（会被立即重生）。
-2. **Chromatic CI 集成（条件性依赖）**：接入 CI 工作流并做一次暗色全量比对（绕过 `onlyChanged:true`），
+1. **e2e 11 failed 逐条清零（硬阻塞）**：7 条 talent 失败源于 `R2 upload failed with status 404`
+   （需 QA/开发修复测试环境的 R2 上传链路）；4 条为定位器/时序问题（`/生成/i` 歧义、变体弹窗未打开、
+   hydration 探测超时、auth 首例 60s 超时）。修复后需在 `E2E_PORT=3002` 下全量重跑。
+2. **`test:e2e:full` 取得最终结果（硬阻塞）**：本轮 30 分钟用例上限触发且 runner 卡在收尾；
+   需排查长 workflow 是否因 aimock 未命中而挂起，并在有超时保护的环境中重跑，拿到明确 pass/fail。
+3. **Chromatic CI 集成（条件性依赖）**：接入 CI 工作流并做一次暗色全量比对（绕过 `onlyChanged:true`），
    取得 accepted build；P1 代码改动可先做，但 P1 验收必须在该 CI 环境完成。
-3. **版本偏差**：如 PM 要求与 CI 完全等价，需在 bun 1.3.14 环境复跑门禁（当前为 1.4.2 / node 24.22.3）。
+4. **版本偏差**：如 PM 要求与 CI 完全等价，需在 bun 1.3.14 环境复跑门禁（当前为 1.4.2 / node 24.22.3）。
 
-> 红线遵守情况：未修改 `src/`、`.storybook/`、`package.json`、`chromatic.config.json`、
-> `vite.config.ts`；未读取/输出任何 token 或 `.env.local` 内容；仅 kill 了经归属确认的本项目残留
-> preview；未 push、未 force push、未 reset --hard；未改 `playwright.config.ts` 或任何 e2e spec。
+> 红线遵守情况：未修改 `src/`、`.storybook/`、`package.json`、`wrangler.jsonc`、
+> `chromatic.config.json`、`vite.config.ts`；未读取/输出任何 token 或 `.env.local` 内容；
+> 未 stop 系统服务 `openstory.service`，仅清理卡死会话遗留在 :3002 的 test server 与挂起的 runner；
+> 未 push、未 force push、未 reset --hard；按本轮授权范围改了 `e2e/*` 与 `playwright.config.ts`。

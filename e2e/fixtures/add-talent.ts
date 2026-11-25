@@ -8,6 +8,7 @@ import path from 'node:path';
 import {
   fillScriptEditor,
   openComposerReference,
+  waitForHydration,
   waitForLibraryPageLoad,
   waitForUploadComplete,
 } from './test-utils';
@@ -25,13 +26,13 @@ export function uniqueTalentName(label: string): string {
 }
 
 export function addTalentDialog(page: Page): Locator {
-  return page.getByRole('dialog', { name: 'Add Talent' });
+  return page.getByRole('dialog', { name: '添加演员' });
 }
 
 export async function openAddTalentFromLibrary(page: Page): Promise<Locator> {
   await page.goto('/talent');
-  await waitForLibraryPageLoad(page, 'Add Talent');
-  await page.getByRole('button', { name: 'Add Talent' }).first().click();
+  await waitForLibraryPageLoad(page, '添加演员');
+  await page.getByRole('button', { name: '添加演员' }).first().click();
   const dialog = addTalentDialog(page);
   await expect(dialog).toBeVisible();
   return dialog;
@@ -51,13 +52,11 @@ export async function openAddTalentFromSequence(page: Page): Promise<{
     page,
     'INT. STUDIO - DAY\n\nA person looks at the camera.'
   );
-  await openComposerReference(page, 'Talent');
+  await openComposerReference(page, '演员');
   // DialogTitle is not always the accessible name; match on the heading copy.
-  const picker = page
-    .getByRole('dialog')
-    .filter({ hasText: 'Select Talent for Casting' });
+  const picker = page.getByRole('dialog').filter({ hasText: '选择演员' });
   await expect(picker).toBeVisible({ timeout: 10_000 });
-  await picker.getByRole('button', { name: 'Add Talent' }).last().click();
+  await picker.getByRole('button', { name: '添加演员' }).last().click();
   const dialog = addTalentDialog(page);
   await expect(dialog).toBeVisible();
   return { picker, dialog };
@@ -68,8 +67,9 @@ export async function uploadNamedTalentImage(
   filename: string
 ): Promise<void> {
   const dialog = addTalentDialog(page);
+  await waitForHydration(page);
   const fileChooserPromise = page.waitForEvent('filechooser');
-  await dialog.getByRole('button', { name: 'Browse files' }).click();
+  await dialog.getByRole('button', { name: '浏览文件' }).click();
   const fileChooser = await fileChooserPromise;
   await fileChooser.setFiles({
     name: filename,
@@ -95,7 +95,7 @@ export async function dropNamedTalentImage(
     { b64: fixtureImage(filename).toString('base64'), name: filename }
   );
   await addTalentDialog(page)
-    .getByText('Drag & drop or paste')
+    .getByText('拖放或粘贴')
     .dispatchEvent('drop', { dataTransfer });
   await waitForUploadComplete(page);
 }
@@ -104,7 +104,7 @@ export async function dropNamedTalentImage(
 // isHuman from the likeness ledger, so there is nothing to toggle.
 export async function waitForSubjectKind(
   page: Page,
-  kind: 'Human' | 'Animated' | 'Other'
+  kind: '真人' | '动画角色' | '其他'
 ): Promise<Locator> {
   const badge = addTalentDialog(page).getByTestId('subject-kind');
   await expect(badge).toHaveText(kind, { timeout: 15_000 });
@@ -117,12 +117,12 @@ export async function attestPortraitRights(page: Page): Promise<void> {
     .getByRole('checkbox', { name: /authorization to use this person/i })
     .check();
   await dialog
-    .getByLabel('Basis for authorization')
+    .getByLabel('授权依据')
     .fill('E2E fixture image — synthetic, depicts no real person');
 }
 
 export async function submitAddTalent(page: Page): Promise<void> {
   const dialog = addTalentDialog(page);
-  await dialog.getByRole('button', { name: 'Add Talent' }).click();
+  await dialog.getByRole('button', { name: '添加演员' }).click();
   await expect(dialog).not.toBeVisible({ timeout: 15_000 });
 }

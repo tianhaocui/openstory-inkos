@@ -13,6 +13,9 @@ const authFile = path.join(authDir, 'user.json');
 const userInfoFile = path.join(authDir, 'user-info.json');
 
 setup('authenticate', async ({ page }) => {
+  // Cold `vite dev` transforms the whole route tree on the first page load;
+  // on a fresh machine the /verify hydration can outlast the 30s local default.
+  setup.setTimeout(120_000);
   if (!fs.existsSync(authDir)) {
     fs.mkdirSync(authDir, { recursive: true });
   }
