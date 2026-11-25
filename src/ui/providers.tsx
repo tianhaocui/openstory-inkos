@@ -6,6 +6,7 @@ import { installChunkReload } from './chunk-reload';
 import { configureLogging } from '@/platform/logger';
 import { flushReactErrors } from './react-errors';
 import { PostHogProvider } from '@posthog/react';
+import { ThemeProvider } from 'next-themes';
 import posthog, { type BeforeSendFn } from 'posthog-js';
 import type { QueryClient } from '@tanstack/react-query';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -162,29 +163,37 @@ function useRealtimeEnabled(): boolean {
 export function Providers({ children, queryClient }: ProvidersProps) {
   const realtimeEnabled = useRealtimeEnabled();
   return (
-    <ObservabilityProvider queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <PostHogIdentify />
-          {realtimeEnabled ? (
-            <RealtimeProvider>{children}</RealtimeProvider>
-          ) : (
-            // Stub context so consumers (useRealtime) don't throw; nothing ever
-            // registers a channel, so no EventSource is ever opened.
-            <RealtimeContext.Provider
-              value={{
-                status: 'disconnected',
-                register: () => {},
-                unregister: () => {},
-              }}
-            >
-              {children}
-            </RealtimeContext.Provider>
-          )}
-          <TanStackDevtoolsLazy />
-          <Toaster />
-        </TooltipProvider>
-      </QueryClientProvider>
-    </ObservabilityProvider>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="dark"
+      enableSystem={false}
+      storageKey="os:theme"
+      disableTransitionOnChange
+    >
+      <ObservabilityProvider queryClient={queryClient}>
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <PostHogIdentify />
+            {realtimeEnabled ? (
+              <RealtimeProvider>{children}</RealtimeProvider>
+            ) : (
+              // Stub context so consumers (useRealtime) don't throw; nothing ever
+              // registers a channel, so no EventSource is ever opened.
+              <RealtimeContext.Provider
+                value={{
+                  status: 'disconnected',
+                  register: () => {},
+                  unregister: () => {},
+                }}
+              >
+                {children}
+              </RealtimeContext.Provider>
+            )}
+            <TanStackDevtoolsLazy />
+            <Toaster />
+          </TooltipProvider>
+        </QueryClientProvider>
+      </ObservabilityProvider>
+    </ThemeProvider>
   );
 }

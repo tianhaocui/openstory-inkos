@@ -149,7 +149,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 function RootLayout() {
   const { queryClient } = Route.useRouteContext();
   return (
-    <html lang="zh-CN" className="dark">
+    <html lang="zh-CN">
       <head>
         <HeadContent />
       </head>

@@ -24,9 +24,7 @@
 @import 'shadcn/tailwind.css';
 @import '@fontsource-variable/geist';
 
-@custom-variant dark {
-  @slot;
-}
+@custom-variant dark (&:is(.dark *));
 
 /* Laptop / 720p: width is "desktop" (md+) but height is phone-like. */
 @custom-variant short-h {
@@ -35,7 +33,100 @@
   }
 }
 
+/* Light is the base theme. `.dark` is injected on <html> by next-themes (and
+   by Storybook's theme decorator), so every token below is overridden there.
+   Light only adds values — token names stay identical across both themes. */
 :root {
+  color-scheme: light;
+  --background: oklch(0.985 0.002 80);
+  --foreground: oklch(0.18 0.01 60);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.01 60);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.01 60);
+  --primary: oklch(0.21 0.015 250);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.96 0.003 80);
+  --secondary-foreground: oklch(0.25 0.01 60);
+  --muted: oklch(0.965 0.003 80);
+  --muted-foreground: oklch(0.42 0.02 60);
+  --accent: oklch(0.95 0.005 80);
+  --accent-foreground: oklch(0.25 0.01 60);
+  --destructive: oklch(0.55 0.18 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --success: oklch(0.52 0.13 155);
+  --success-foreground: oklch(0.98 0 0);
+  --info: oklch(0.5 0.13 250);
+  --warning: oklch(0.52 0.13 65);
+  --warning-foreground: oklch(0.98 0 0);
+  --border: oklch(0.9 0.005 80);
+  --input: oklch(0.9 0.005 80);
+  --ring: oklch(0.45 0.12 250);
+  --chart-1: oklch(0.55 0.22 264.376);
+  --chart-2: oklch(0.55 0.14 162.48);
+  --chart-3: oklch(0.6 0.14 70.08);
+  --chart-4: oklch(0.55 0.2 303.9);
+  --chart-5: oklch(0.58 0.2 16.439);
+  --sidebar: oklch(0.97 0.003 80);
+  --sidebar-foreground: oklch(0.18 0.01 60);
+  --sidebar-primary: oklch(0.21 0.015 250);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.94 0.005 80);
+  --sidebar-accent-foreground: oklch(0.25 0.01 60);
+  --sidebar-border: oklch(0.9 0.005 80);
+  --sidebar-ring: oklch(0.45 0.12 250);
+  --card-gradient-from: oklch(1 0 0);
+  --card-gradient-via: oklch(0.975 0.003 80);
+  --card-gradient-to: oklch(1 0 0);
+  --card-accent: oklch(0.21 0.015 250 / 0.08);
+  --shadow-2xs: 0px 2px 8px -4px hsl(0 0% 20% / 0.12);
+  --shadow-xs: 0px 4px 12px -6px hsl(0 0% 20% / 0.16);
+  --shadow-sm:
+    0px 6px 16px -8px hsl(0 0% 20% / 0.2), 0px 2px 4px -2px hsl(0 0% 20% / 0.1);
+  --shadow:
+    0px 8px 20px -10px hsl(0 0% 20% / 0.24),
+    0px 3px 6px -3px hsl(0 0% 20% / 0.12);
+  --shadow-md:
+    0px 10px 24px -12px hsl(0 0% 20% / 0.28),
+    0px 4px 8px -4px hsl(0 0% 20% / 0.16);
+  --shadow-lg:
+    0px 16px 32px -14px hsl(0 0% 20% / 0.32),
+    0px 6px 12px -6px hsl(0 0% 20% / 0.2);
+  --shadow-xl:
+    0px 24px 48px -16px hsl(0 0% 20% / 0.36),
+    0px 8px 16px -8px hsl(0 0% 20% / 0.24);
+  --shadow-2xl: 0px 32px 64px -20px hsl(0 0% 20% / 0.4);
+
+  /* Shared across themes: typography (incl. CJK fallbacks), geometry, timing. */
+  --font-sans:
+    'Geist Variable', Geist, ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    'Noto Sans CJK SC', sans-serif;
+  --font-serif: Georgia, 'Songti SC', 'Noto Serif CJK SC', serif;
+  --font-mono:
+    'Geist Mono', ui-monospace, 'SFMono-Regular', 'PingFang SC',
+    'Microsoft YaHei', monospace;
+  --radius: 0.75rem;
+  --shadow-x: 0px;
+  --shadow-y: 8px;
+  --shadow-blur: 24px;
+  --shadow-spread: -12px;
+  --shadow-opacity: 0.5;
+  --color-violet: #a770ef;
+  --color-coral: #fb7185;
+  --color-peach: #fdb99b;
+  --shadow-color: #0a0a0a;
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+  --tracking-normal: -0.025em;
+  --spacing: 0.25rem;
+}
+
+/* Default theme in the app and in Chromatic. Existing dark values are kept
+   verbatim except the three deliberate contrast fixes below (--ring,
+   --destructive, --destructive-foreground). */
+.dark {
   color-scheme: dark;
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
@@ -51,15 +142,17 @@
   --muted-foreground: oklch(0.708 0 0);
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  /* Something the user should act on that is not yet an error — e.g. an
-     element the selected model cannot use (#1559). Amber, legible on the
-     dark surface. */
+  --destructive: oklch(0.62 0.2 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --success: oklch(0.62 0.15 155);
+  --success-foreground: oklch(0.98 0 0);
+  --info: oklch(0.62 0.12 250);
+  /* Amber, legible on the dark surface; status also carries text/icon. */
   --warning: oklch(0.795 0.184 86.047);
+  --warning-foreground: oklch(0.145 0 0);
   --border: oklch(0.269 0 0);
   --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
+  --ring: oklch(0.62 0.12 250);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
@@ -77,19 +170,6 @@
   --card-gradient-via: oklch(0.18 0 0);
   --card-gradient-to: oklch(0.12 0 0);
   --card-accent: oklch(0.985 0 0 / 0.1);
-  --font-sans: Geist, ui-sans-serif, sans-serif, system-ui;
-  --font-serif: serif;
-  --font-mono: Geist Mono, ui-monospace, monospace;
-  --radius: 0.75rem;
-  --shadow-x: 0px;
-  --shadow-y: 8px;
-  --shadow-blur: 24px;
-  --shadow-spread: -12px;
-  --shadow-opacity: 0.5;
-  --color-violet: #a770ef;
-  --color-coral: #fb7185;
-  --color-peach: #fdb99b;
-  --shadow-color: #0a0a0a;
   --shadow-2xs: 0px 2px 8px -4px hsl(0 0% 2% / 0.2);
   --shadow-xs: 0px 4px 12px -6px hsl(0 0% 2% / 0.3);
   --shadow-sm:
@@ -103,8 +183,6 @@
   --shadow-xl:
     0px 24px 48px -16px hsl(0 0% 2% / 0.8), 0px 8px 16px -8px hsl(0 0% 2% / 0.6);
   --shadow-2xl: 0px 32px 64px -20px hsl(0 0% 2% / 0.9);
-  --tracking-normal: -0.025em;
-  --spacing: 0.25rem;
 }
 
 @theme inline {
@@ -124,7 +202,11 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-info: var(--info);
   --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -150,7 +232,7 @@
   --color-coral: var(--color-coral);
   --color-peach: var(--color-peach);
 
-  --font-sans: 'Geist Variable', sans-serif;
+  --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
   --font-serif: var(--font-serif);
   --font-display: 'Space Mono', 'Courier New', monospace;
@@ -181,6 +263,10 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  --duration-fast: var(--duration-fast);
+  --duration-normal: var(--duration-normal);
+  --duration-slow: var(--duration-slow);
 }
 
 body {
@@ -196,6 +282,12 @@ body {
   }
   html {
     @apply font-sans;
+  }
+  /* Visible keyboard focus in both themes; component-level focus styles in
+     the utilities layer still win over this baseline. */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
   }
 }
 
@@ -369,8 +461,16 @@ body {
   }
 }
 
-/* Reduced motion: simple fade pulse */
+/* Reduced motion: simple fade pulse. Theme switches and focus changes also
+   skip transitions so the new theme paints immediately. */
 @media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
   .progress-shimmer::after {
     animation: none;
   }
