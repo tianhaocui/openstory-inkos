@@ -60,6 +60,8 @@ import {
 } from '@/stories/ai-filmmaking.fn';
 import { FilmmakingPanel } from '@/stories/ui/filmmaking-panel';
 import { toast } from 'sonner';
+import i18n from '@/i18n';
+import { useTranslation } from 'react-i18next';
 
 export const Route = createFileRoute('/_app/stories/$id')({
   component: StoryDetailPage,
@@ -106,18 +108,18 @@ type HookType = 'foreshadow' | 'mystery' | 'promise' | 'question' | 'tension';
 type PayoffTiming = 'soon' | 'mid' | 'late' | 'climax';
 
 const HOOK_TYPES: Array<{ value: HookType; label: string }> = [
-  { value: 'foreshadow', label: '伏笔' },
-  { value: 'mystery', label: '谜题' },
-  { value: 'promise', label: '承诺' },
-  { value: 'question', label: '疑问' },
-  { value: 'tension', label: '张力' },
+  { value: 'foreshadow', label: i18n.t('story.detail.hookTypes.foreshadow') },
+  { value: 'mystery', label: i18n.t('story.detail.hookTypes.mystery') },
+  { value: 'promise', label: i18n.t('story.detail.hookTypes.promise') },
+  { value: 'question', label: i18n.t('story.detail.hookTypes.question') },
+  { value: 'tension', label: i18n.t('story.detail.hookTypes.tension') },
 ];
 
 const PAYOFF_TIMINGS: Array<{ value: PayoffTiming; label: string }> = [
-  { value: 'soon', label: '近期' },
-  { value: 'mid', label: '中期' },
-  { value: 'late', label: '后期' },
-  { value: 'climax', label: '高潮' },
+  { value: 'soon', label: i18n.t('story.detail.payoffTimings.soon') },
+  { value: 'mid', label: i18n.t('story.detail.payoffTimings.mid') },
+  { value: 'late', label: i18n.t('story.detail.payoffTimings.late') },
+  { value: 'climax', label: i18n.t('story.detail.payoffTimings.climax') },
 ];
 
 function isHookType(value: string | null): value is HookType {
@@ -131,6 +133,7 @@ function isPayoffTiming(value: string | null): value is PayoffTiming {
 }
 
 function StoryDetailPage() {
+  const { t } = useTranslation();
   const {
     story,
     chapters,
@@ -200,7 +203,7 @@ function StoryDetailPage() {
       // 刷新页面数据
       await navigate({ to: '/stories/$id', params: { id }, replace: true });
     } catch (error) {
-      toast.error('创建章节失败', {
+      toast.error(t('story.detail.createChapterFailed'), {
         description: error instanceof Error ? error.message : undefined,
       });
     } finally {
@@ -224,7 +227,7 @@ function StoryDetailPage() {
       setCharacterForm({ name: '', description: '' });
       await navigate({ to: '/stories/$id', params: { id }, replace: true });
     } catch (error) {
-      toast.error('创建角色失败', {
+      toast.error(t('story.detail.createCharacterFailed'), {
         description: error instanceof Error ? error.message : undefined,
       });
     } finally {
@@ -257,7 +260,7 @@ function StoryDetailPage() {
       });
       await navigate({ to: '/stories/$id', params: { id }, replace: true });
     } catch (error) {
-      toast.error('创建伏笔失败', {
+      toast.error(t('story.detail.createHookFailed'), {
         description: error instanceof Error ? error.message : undefined,
       });
     } finally {
@@ -279,8 +282,9 @@ function StoryDetailPage() {
       setAiInstruction('');
       await navigate({ to: '/stories/$id', params: { id }, replace: true });
     } catch (error) {
-      toast.error('AI 续写失败', {
-        description: error instanceof Error ? error.message : '请稍后重试',
+      toast.error(t('story.detail.aiContinueFailed'), {
+        description:
+          error instanceof Error ? error.message : t('story.detail.retryLater'),
       });
     } finally {
       setIsAIWriting(false);
@@ -296,7 +300,7 @@ function StoryDetailPage() {
             <Button variant="outline" asChild>
               <Link to="/stories">
                 <ArrowLeftIcon className="size-4" />
-                返回列表
+                {t('story.detail.backToList')}
               </Link>
             </Button>
             <Button
@@ -304,12 +308,12 @@ function StoryDetailPage() {
               onClick={() => setShowSettingsDialog(true)}
             >
               <SettingsIcon className="size-4" />
-              设置
+              {t('nav.settings')}
             </Button>
             <Button variant="outline" asChild>
               <a href={inkosScriptUrl} target="_blank" rel="noreferrer">
                 <ClapperboardIcon className="size-4" />
-                剧本创作
+                {t('story.detail.chapter.script')}
               </a>
             </Button>
             <Button variant="outline" asChild>
@@ -319,17 +323,17 @@ function StoryDetailPage() {
                 rel="noreferrer"
               >
                 <FilmIcon className="size-4" />
-                互动影游
+                {t('story.detail.chapter.interactive')}
               </a>
             </Button>
             <Button onClick={() => setShowAIWriteDialog(true)}>
               <SparklesIcon className="size-4" />
-              AI 续写
+              {t('story.detail.chapter.aiContinue')}
             </Button>
           </div>
         }
       >
-        {story.description ?? '这个故事还没有描述'}
+        {story.description ?? t('story.detail.noDescription')}
       </PageIntro>
 
       <PageContainer
@@ -340,23 +344,23 @@ function StoryDetailPage() {
           <TabsList>
             <TabsTrigger value="chapters">
               <FileTextIcon className="size-4" />
-              章节 ({chapters.length})
+              {t('story.detail.tabs.chapters', { count: chapters.length })}
             </TabsTrigger>
             <TabsTrigger value="filmmaking">
               <FilmIcon className="size-4" />
-              影视制作
+              {t('story.detail.tabs.filmmaking')}
             </TabsTrigger>
             <TabsTrigger value="characters">
               <UsersIcon className="size-4" />
-              角色 ({characters.length})
+              {t('story.detail.tabs.characters', { count: characters.length })}
             </TabsTrigger>
             <TabsTrigger value="locations">
               <MapPinIcon className="size-4" />
-              场景
+              {t('story.detail.tabs.locations')}
             </TabsTrigger>
             <TabsTrigger value="hooks">
               <BookmarkIcon className="size-4" />
-              伏笔 ({hooks.length})
+              {t('story.detail.tabs.hooks', { count: hooks.length })}
             </TabsTrigger>
           </TabsList>
 
@@ -364,12 +368,16 @@ function StoryDetailPage() {
           <TabsContent value="chapters" className="flex-1">
             <div className="mb-4 flex flex-col gap-3 rounded-lg border border-primary/20 bg-primary/5 p-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="font-medium">剧本正文由 InkOS Studio 管理</p>
+                <p className="font-medium">
+                  {t('story.detail.inkos.managedBy')}
+                </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  OpenStory 负责影视化分镜、资产和视频；章节、记忆和 AI
-                  写作会保存在同一个 InkOS 项目中。
+                  {t('story.detail.inkos.description')}
                   {inkos?.status === 'unavailable' && (
-                    <span> {inkos.error ?? '连接暂时不可用'}。</span>
+                    <span>
+                      {' '}
+                      {inkos.error ?? t('story.detail.inkos.unavailable')}。
+                    </span>
                   )}
                 </p>
               </div>
@@ -377,7 +385,7 @@ function StoryDetailPage() {
                 <Button variant="outline" asChild>
                   <a href={inkosScriptUrl} target="_blank" rel="noreferrer">
                     <ClapperboardIcon className="size-4" />
-                    剧本创作
+                    {t('story.detail.chapter.script')}
                   </a>
                 </Button>
                 <Button variant="outline" asChild>
@@ -387,7 +395,7 @@ function StoryDetailPage() {
                     rel="noreferrer"
                   >
                     <ExternalLinkIcon className="size-4" />
-                    互动影游
+                    {t('story.detail.chapter.interactive')}
                   </a>
                 </Button>
               </div>
@@ -395,12 +403,12 @@ function StoryDetailPage() {
             {chapters.length === 0 ? (
               <EmptyState
                 icon={<FileTextIcon className="size-8" />}
-                title="还没有章节"
-                description="创建第一章开始你的故事"
+                title={t('story.detail.empty.noChapters')}
+                description={t('story.detail.empty.noChaptersDescription')}
                 action={
                   <Button onClick={() => setShowChapterDialog(true)}>
                     <PlusIcon className="size-4" />
-                    创建第一章
+                    {t('story.detail.empty.createFirstChapter')}
                   </Button>
                 }
               />
@@ -418,7 +426,9 @@ function StoryDetailPage() {
                       <div>
                         <h3 className="font-medium">{chapter.title}</h3>
                         <p className="text-sm text-muted-foreground">
-                          {chapter.wordCount.toLocaleString()} 字
+                          {t('story.detail.chapter.wordCount', {
+                            count: chapter.wordCount.toLocaleString(),
+                          })}
                         </p>
                       </div>
                     </div>
@@ -433,10 +443,10 @@ function StoryDetailPage() {
                         }`}
                       >
                         {chapter.status === 'final'
-                          ? '已完成'
+                          ? t('story.detail.chapter.final')
                           : chapter.status === 'review'
-                            ? '审阅中'
-                            : '草稿'}
+                            ? t('story.detail.chapter.review')
+                            : t('story.detail.chapter.draft')}
                       </span>
                     </div>
                   </div>
@@ -447,7 +457,7 @@ function StoryDetailPage() {
                   onClick={() => setShowChapterDialog(true)}
                 >
                   <PlusIcon className="size-4" />
-                  添加新章节
+                  {t('story.detail.empty.addChapter')}
                 </Button>
               </div>
             )}
@@ -534,12 +544,12 @@ function StoryDetailPage() {
             {characters.length === 0 ? (
               <EmptyState
                 icon={<UsersIcon className="size-8" />}
-                title="还没有角色"
-                description="添加故事中的角色"
+                title={t('story.detail.empty.noCharacters')}
+                description={t('story.detail.empty.noCharactersDescription')}
                 action={
                   <Button onClick={() => setShowCharacterDialog(true)}>
                     <PlusIcon className="size-4" />
-                    添加角色
+                    {t('story.detail.empty.addCharacter')}
                   </Button>
                 }
               />
@@ -565,7 +575,7 @@ function StoryDetailPage() {
                   onClick={() => setShowCharacterDialog(true)}
                 >
                   <PlusIcon className="size-4" />
-                  添加角色
+                  {t('story.detail.empty.addCharacter')}
                 </Button>
               </div>
             )}
@@ -575,12 +585,12 @@ function StoryDetailPage() {
           <TabsContent value="locations" className="flex-1">
             <EmptyState
               icon={<MapPinIcon className="size-8" />}
-              title="还没有场景"
-              description="添加故事中的场景地点"
+              title={t('story.detail.empty.noLocations')}
+              description={t('story.detail.empty.noLocationsDescription')}
               action={
                 <Button>
                   <PlusIcon className="size-4" />
-                  添加场景
+                  {t('story.detail.empty.addLocation')}
                 </Button>
               }
             />
@@ -591,12 +601,12 @@ function StoryDetailPage() {
             {hooks.length === 0 ? (
               <EmptyState
                 icon={<BookmarkIcon className="size-8" />}
-                title="还没有伏笔"
-                description="伏笔系统会追踪故事中的悬念和待解决的问题"
+                title={t('story.detail.empty.noHooks')}
+                description={t('story.detail.empty.noHooksDescription')}
                 action={
                   <Button onClick={() => setShowHookDialog(true)}>
                     <PlusIcon className="size-4" />
-                    添加伏笔
+                    {t('story.detail.empty.addHook')}
                   </Button>
                 }
               />
@@ -620,20 +630,24 @@ function StoryDetailPage() {
                           }`}
                         >
                           {hook.status === 'resolved'
-                            ? '已解决'
+                            ? t('filmmaking.status.hook.resolved')
                             : hook.status === 'advanced'
-                              ? '已推进'
-                              : '待处理'}
+                              ? t('filmmaking.status.hook.advanced')
+                              : t('filmmaking.status.hook.open')}
                         </span>
                       </div>
                       <p className="mt-1 text-sm text-muted-foreground">
                         <span>
-                          类型:{' '}
+                          {t('story.detail.hookTypeLabel')}{' '}
                           {HOOK_TYPES.find((t) => t.value === hook.type)
                             ?.label || hook.type}
                         </span>
                         {hook.expectedPayoff && (
-                          <span> | 预期结局: {hook.expectedPayoff}</span>
+                          <span>
+                            {' '}
+                            | {t('story.detail.hookPayoffLabel')}{' '}
+                            {hook.expectedPayoff}
+                          </span>
                         )}
                       </p>
                     </div>
@@ -644,7 +658,7 @@ function StoryDetailPage() {
                   onClick={() => setShowHookDialog(true)}
                 >
                   <PlusIcon className="size-4" />
-                  添加伏笔
+                  {t('story.detail.empty.addHook')}
                 </Button>
               </div>
             )}
@@ -656,15 +670,19 @@ function StoryDetailPage() {
       <Dialog open={showChapterDialog} onOpenChange={setShowChapterDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>创建新章节</DialogTitle>
-            <DialogDescription>为你的故事添加新的章节</DialogDescription>
+            <DialogTitle>{t('story.detail.chapterDialog.title')}</DialogTitle>
+            <DialogDescription>
+              {t('story.detail.chapterDialog.description')}
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="chapter-title">章节标题</Label>
+              <Label htmlFor="chapter-title">
+                {t('story.detail.chapterDialog.titleLabel')}
+              </Label>
               <Input
                 id="chapter-title"
-                placeholder="第一章：开端"
+                placeholder={t('story.detail.chapterDialog.titlePlaceholder')}
                 value={chapterForm.title}
                 onChange={(e) =>
                   setChapterForm({ ...chapterForm, title: e.target.value })
@@ -672,10 +690,12 @@ function StoryDetailPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="chapter-content">章节内容（可选）</Label>
+              <Label htmlFor="chapter-content">
+                {t('story.detail.chapterDialog.contentLabel')}
+              </Label>
               <Textarea
                 id="chapter-content"
-                placeholder="开始书写..."
+                placeholder={t('story.detail.chapterDialog.contentPlaceholder')}
                 rows={6}
                 value={chapterForm.content}
                 onChange={(e) =>
@@ -689,14 +709,14 @@ function StoryDetailPage() {
               variant="outline"
               onClick={() => setShowChapterDialog(false)}
             >
-              取消
+              {t('common.cancel')}
             </Button>
             <Button
               onClick={() => void handleCreateChapter()}
               disabled={isCreating || !chapterForm.title.trim()}
             >
               {isCreating && <Loader2Icon className="size-4 animate-spin" />}
-              <span>创建章节</span>
+              <span>{t('story.detail.chapterDialog.submit')}</span>
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -706,15 +726,19 @@ function StoryDetailPage() {
       <Dialog open={showCharacterDialog} onOpenChange={setShowCharacterDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>添加角色</DialogTitle>
-            <DialogDescription>创建故事中的角色</DialogDescription>
+            <DialogTitle>{t('story.detail.characterDialog.title')}</DialogTitle>
+            <DialogDescription>
+              {t('story.detail.characterDialog.description')}
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="character-name">角色名称</Label>
+              <Label htmlFor="character-name">
+                {t('story.detail.characterDialog.nameLabel')}
+              </Label>
               <Input
                 id="character-name"
-                placeholder="张三"
+                placeholder={t('story.detail.characterDialog.namePlaceholder')}
                 value={characterForm.name}
                 onChange={(e) =>
                   setCharacterForm({ ...characterForm, name: e.target.value })
@@ -722,10 +746,14 @@ function StoryDetailPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="character-description">角色描述（可选）</Label>
+              <Label htmlFor="character-description">
+                {t('story.detail.characterDialog.descriptionLabel')}
+              </Label>
               <Textarea
                 id="character-description"
-                placeholder="角色的性格、外貌、背景故事..."
+                placeholder={t(
+                  'story.detail.characterDialog.descriptionPlaceholder'
+                )}
                 rows={4}
                 value={characterForm.description}
                 onChange={(e) =>
@@ -742,14 +770,14 @@ function StoryDetailPage() {
               variant="outline"
               onClick={() => setShowCharacterDialog(false)}
             >
-              取消
+              {t('common.cancel')}
             </Button>
             <Button
               onClick={() => void handleCreateCharacter()}
               disabled={isCreating || !characterForm.name.trim()}
             >
               {isCreating && <Loader2Icon className="size-4 animate-spin" />}
-              <span>添加角色</span>
+              <span>{t('story.detail.empty.addCharacter')}</span>
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -759,14 +787,16 @@ function StoryDetailPage() {
       <Dialog open={showHookDialog} onOpenChange={setShowHookDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>添加伏笔</DialogTitle>
+            <DialogTitle>{t('story.detail.hookDialog.title')}</DialogTitle>
             <DialogDescription>
-              追踪故事中的悬念和待解决的问题
+              {t('story.detail.hookDialog.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="hook-id">伏笔标识</Label>
+              <Label htmlFor="hook-id">
+                {t('story.detail.hookDialog.idLabel')}
+              </Label>
               <Input
                 id="hook-id"
                 placeholder="alice-secret"
@@ -777,7 +807,7 @@ function StoryDetailPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label>伏笔类型</Label>
+              <Label>{t('story.detail.hookTypes.foreshadow')}</Label>
               <Select
                 value={hookForm.type}
                 items={HOOK_TYPES}
@@ -789,10 +819,12 @@ function StoryDetailPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="hook-payoff">预期结局</Label>
+              <Label htmlFor="hook-payoff">
+                {t('story.detail.hookDialog.payoffLabel')}
+              </Label>
               <Input
                 id="hook-payoff"
-                placeholder="在第 10 章揭晓真相"
+                placeholder={t('story.detail.hookDialog.payoffPlaceholder')}
                 value={hookForm.expectedPayoff}
                 onChange={(e) =>
                   setHookForm({ ...hookForm, expectedPayoff: e.target.value })
@@ -800,7 +832,7 @@ function StoryDetailPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label>结局时机</Label>
+              <Label>{t('story.detail.hookDialog.timingLabel')}</Label>
               <Select
                 value={hookForm.payoffTiming}
                 items={PAYOFF_TIMINGS}
@@ -812,10 +844,12 @@ function StoryDetailPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="hook-notes">备注（可选）</Label>
+              <Label htmlFor="hook-notes">
+                {t('story.detail.hookDialog.notesLabel')}
+              </Label>
               <Textarea
                 id="hook-notes"
-                placeholder="关于这个伏笔的其他说明..."
+                placeholder={t('story.detail.hookDialog.notesPlaceholder')}
                 rows={3}
                 value={hookForm.notes}
                 onChange={(e) =>
@@ -826,14 +860,14 @@ function StoryDetailPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowHookDialog(false)}>
-              取消
+              {t('common.cancel')}
             </Button>
             <Button
               onClick={() => void handleCreateHook()}
               disabled={isCreating || !hookForm.hookId.trim()}
             >
               {isCreating && <Loader2Icon className="size-4 animate-spin" />}
-              <span>添加伏笔</span>
+              <span>{t('story.detail.empty.addHook')}</span>
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -843,31 +877,37 @@ function StoryDetailPage() {
       <Dialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>故事设置</DialogTitle>
-            <DialogDescription>调整故事的基本设置</DialogDescription>
+            <DialogTitle>{t('story.detail.settingsDialog.title')}</DialogTitle>
+            <DialogDescription>
+              {t('story.detail.settingsDialog.description')}
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>类型</Label>
+              <Label>{t('story.detail.settingsDialog.genre')}</Label>
               <p className="text-sm text-muted-foreground">
-                {settings.genre || '未设置'}
+                {settings.genre || t('story.detail.settingsDialog.notSet')}
               </p>
             </div>
             <div className="space-y-2">
-              <Label>基调</Label>
+              <Label>{t('story.form.tone')}</Label>
               <p className="text-sm text-muted-foreground">
-                {settings.tone || '未设置'}
+                {settings.tone || t('story.detail.settingsDialog.notSet')}
               </p>
             </div>
             <div className="space-y-2">
-              <Label>目标字数</Label>
+              <Label>{t('story.detail.settingsDialog.targetLength')}</Label>
               <p className="text-sm text-muted-foreground">
-                {settings.targetLength?.toLocaleString() || '100,000'} 字
+                {t('story.detail.chapter.wordCount', {
+                  count: settings.targetLength?.toLocaleString() || '100,000',
+                })}
               </p>
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={() => setShowSettingsDialog(false)}>关闭</Button>
+            <Button onClick={() => setShowSettingsDialog(false)}>
+              {t('common.close')}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -878,52 +918,77 @@ function StoryDetailPage() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <SparklesIcon className="size-5 text-purple-500" />
-              AI 续写
+              {t('story.detail.chapter.aiContinue')}
             </DialogTitle>
             <DialogDescription>
-              AI 将基于故事上下文、角色设定和伏笔信息，自动生成下一章内容
+              {t('story.detail.aiWriteDialog.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="rounded-lg bg-muted p-4">
-              <h4 className="text-sm font-medium">当前进度</h4>
+              <h4 className="text-sm font-medium">
+                {t('story.detail.aiWriteDialog.progress')}
+              </h4>
               <div className="mt-2 grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-muted-foreground">已有章节: </span>
-                  <span className="font-medium">{chapters.length} 章</span>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">总字数: </span>
+                  <span className="text-muted-foreground">
+                    {t('story.detail.aiWriteDialog.chapters')}{' '}
+                  </span>
                   <span className="font-medium">
-                    {chapters
-                      .reduce((sum, ch) => sum + ch.wordCount, 0)
-                      .toLocaleString()}{' '}
-                    字
+                    {t('story.detail.aiWriteDialog.chapterCount', {
+                      count: chapters.length,
+                    })}
                   </span>
                 </div>
                 <div>
-                  <span className="text-muted-foreground">角色: </span>
-                  <span className="font-medium">{characters.length} 个</span>
+                  <span className="text-muted-foreground">
+                    {t('story.detail.aiWriteDialog.totalWords')}{' '}
+                  </span>
+                  <span className="font-medium">
+                    {t('story.detail.chapter.wordCount', {
+                      count: chapters
+                        .reduce((sum, ch) => sum + ch.wordCount, 0)
+                        .toLocaleString(),
+                    })}
+                  </span>
                 </div>
                 <div>
-                  <span className="text-muted-foreground">伏笔: </span>
+                  <span className="text-muted-foreground">
+                    {t('story.detail.aiWriteDialog.characters')}{' '}
+                  </span>
                   <span className="font-medium">
-                    {hooks.filter((h) => h.status === 'open').length} 个待回收
+                    {t('story.detail.aiWriteDialog.characterCount', {
+                      count: characters.length,
+                    })}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">
+                    {t('story.detail.aiWriteDialog.hooks')}{' '}
+                  </span>
+                  <span className="font-medium">
+                    {t('story.detail.aiWriteDialog.hookCount', {
+                      count: hooks.filter((h) => h.status === 'open').length,
+                    })}
                   </span>
                 </div>
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="ai-instruction">续写指示（可选）</Label>
+              <Label htmlFor="ai-instruction">
+                {t('story.detail.aiWriteDialog.instruction')}
+              </Label>
               <Textarea
                 id="ai-instruction"
-                placeholder="例如: 主角在这章要遇到一个神秘老人，获得关键线索..."
+                placeholder={t(
+                  'story.detail.aiWriteDialog.instructionPlaceholder'
+                )}
                 rows={4}
                 value={aiInstruction}
                 onChange={(e) => setAiInstruction(e.target.value)}
               />
               <p className="text-xs text-muted-foreground">
-                留空则由 AI 根据故事发展自动决定下一章内容
+                {t('story.detail.aiWriteDialog.hint')}
               </p>
             </div>
           </div>
@@ -932,7 +997,7 @@ function StoryDetailPage() {
               variant="outline"
               onClick={() => setShowAIWriteDialog(false)}
             >
-              取消
+              {t('common.cancel')}
             </Button>
             <Button
               onClick={() => void handleAIContinue()}
@@ -941,12 +1006,12 @@ function StoryDetailPage() {
               {isAIWriting ? (
                 <>
                   <Loader2Icon className="size-4 animate-spin" />
-                  AI 正在创作...
+                  {t('story.detail.aiWriteDialog.writing')}
                 </>
               ) : (
                 <>
                   <SparklesIcon className="size-4" />
-                  开始续写
+                  {t('story.detail.aiWriteDialog.submit')}
                 </>
               )}
             </Button>

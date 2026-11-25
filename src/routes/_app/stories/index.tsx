@@ -11,6 +11,9 @@ import { PageContainer } from '@/ui/layout/page-container';
 import { PageIntro } from '@/ui/typography/page-intro';
 import { PlusIcon, BookOpenIcon, PenLineIcon } from 'lucide-react';
 import { getStoriesFn } from '@/stories/stories.fn';
+import { formatDate } from '@/ui/format-date';
+import i18n from '@/i18n';
+import { useTranslation } from 'react-i18next';
 
 export const Route = createFileRoute('/_app/stories/')({
   component: StoriesPage,
@@ -21,22 +24,23 @@ export const Route = createFileRoute('/_app/stories/')({
 });
 
 function StoriesPage() {
+  const { t } = useTranslation();
   const { stories } = Route.useLoaderData();
 
   return (
     <>
       <PageIntro
-        title="故事创作"
+        title={t('story.pageTitle')}
         actions={
           <Button asChild>
             <Link to="/stories/new">
               <PlusIcon className="size-4" />
-              新建故事
+              {t('story.newStory')}
             </Link>
           </Button>
         }
       >
-        使用 AI 辅助创作长篇小说和剧本
+        {t('story.pageDescription')}
       </PageIntro>
       <PageContainer
         padding="none"
@@ -45,13 +49,13 @@ function StoriesPage() {
         {stories.length === 0 ? (
           <EmptyState
             icon={<BookOpenIcon className="size-8" />}
-            title="还没有故事"
-            description="开始创作你的第一个 AI 辅助故事吧"
+            title={t('story.noStories')}
+            description={t('story.emptyDescription')}
             action={
               <Button asChild>
                 <Link to="/stories/new">
                   <PenLineIcon className="size-4" />
-                  开始创作
+                  {t('story.startCreating')}
                 </Link>
               </Button>
             }
@@ -80,8 +84,8 @@ function StoriesPage() {
                 </div>
                 <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
                   <span>
-                    更新于{' '}
-                    {new Date(story.updatedAt).toLocaleDateString('zh-CN')}
+                    {t('story.updatedAt')}{' '}
+                    {formatDate(new Date(story.updatedAt), i18n.language)}
                   </span>
                 </div>
               </Link>

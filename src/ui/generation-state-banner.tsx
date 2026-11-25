@@ -6,6 +6,7 @@
  */
 
 import { AlertCircleIcon, InfoIcon, Loader2Icon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Alert, AlertDescription } from '@/ui/shadcn/alert';
 import { Button } from '@/ui/shadcn/button';
 import { cn } from '@/ui/utils';
@@ -29,6 +30,7 @@ export function GenerationStateBanner({
   isRetrying = false,
   className,
 }: GenerationStateBannerProps) {
+  const { t } = useTranslation();
   if (phase === 'idle') return null;
 
   const isError = phase === 'error';
@@ -53,7 +55,11 @@ export function GenerationStateBanner({
       <AlertDescription className="flex flex-col gap-2">
         <span className="flex flex-wrap items-center gap-2 font-medium">
           <span>
-            {isError ? '生成失败' : isLoading ? '正在生成' : '部分完成'}
+            {isError
+              ? t('filmmaking.banner.error')
+              : isLoading
+                ? t('filmmaking.banner.loading')
+                : t('filmmaking.banner.partial')}
           </span>
           <span className="text-muted-foreground">{title}</span>
         </span>
@@ -68,7 +74,9 @@ export function GenerationStateBanner({
             onClick={onRetry}
             disabled={isRetrying}
           >
-            {isRetrying ? '重试中…' : '重试'}
+            {isRetrying
+              ? t('filmmaking.banner.retrying')
+              : t('filmmaking.banner.retry')}
           </Button>
         )}
       </AlertDescription>

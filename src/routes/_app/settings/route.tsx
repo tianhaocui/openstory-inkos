@@ -13,22 +13,26 @@ import {
   useLocation,
 } from '@tanstack/react-router';
 import { Fingerprint, Key, Terminal } from 'lucide-react';
+import i18n from '@/i18n';
+import { useTranslation } from 'react-i18next';
 
 export const Route = createFileRoute('/_app/settings')({
   component: SettingsLayout,
   beforeLoad: async ({ context: { queryClient }, location }) => {
     await requireSessionOrRedirect(queryClient, location.href);
   },
-  staticData: { breadcrumb: { label: '设置', to: '/settings' } },
+  staticData: {
+    breadcrumb: { label: i18n.t('nav.settings'), to: '/settings' },
+  },
   errorComponent: (props) => (
     <RouteErrorFallback
       {...props}
       error={
-        new Error('暂时无法加载设置，请稍后重试。', {
+        new Error(i18n.t('settings.loadError'), {
           cause: props.error,
         })
       }
-      heading="设置页面出现错误"
+      heading={i18n.t('settings.pageError')}
     />
   ),
 });
@@ -36,25 +40,26 @@ export const Route = createFileRoute('/_app/settings')({
 const tabs = [
   {
     value: 'api-keys',
-    label: 'API 密钥',
+    label: 'settings.apiKeys',
     href: '/settings/api-keys',
     icon: <Key className="h-4 w-4" />,
   },
   {
     value: 'passkeys',
-    label: '通行密钥',
+    label: 'settings.passkeys',
     href: '/settings/passkeys',
     icon: <Fingerprint className="h-4 w-4" />,
   },
   {
     value: 'developer',
-    label: '开发者',
+    label: 'settings.developerShort',
     href: '/settings/developer',
     icon: <Terminal className="h-4 w-4" />,
   },
 ];
 
 function SettingsLayout() {
+  const { t } = useTranslation();
   const location = useLocation();
 
   // Determine active tab from current route
@@ -69,7 +74,7 @@ function SettingsLayout() {
             <TabsTrigger key={tab.value} value={tab.value} asChild>
               <Link to={tab.href} className="flex items-center gap-2">
                 {tab.icon}
-                {tab.label}
+                {t(tab.label)}
               </Link>
             </TabsTrigger>
           ))}

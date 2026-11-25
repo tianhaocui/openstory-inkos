@@ -6,6 +6,7 @@
  */
 
 import { AlertCircleIcon, CheckCircleIcon, Loader2Icon } from 'lucide-react';
+import i18n from '@/i18n';
 import type { ComponentType } from 'react';
 import { Badge } from '@/ui/shadcn/badge';
 import { cn } from '@/ui/utils';
@@ -27,56 +28,65 @@ export interface ResolvedStatus {
   icon: ComponentType<{ className?: string }> | null;
 }
 
-/** 原 filmmaking-panel 的本地 label 表统一收拢到这里。 */
+/** 状态值 → i18n key；渲染时经 t() 解析，缺 key 回退状态原值/「未知」。 */
 const STATUS_LABELS: Record<StatusDomain, Record<string, string>> = {
   'shot-size': {
-    extreme_wide: '大远景',
-    wide: '远景',
-    full: '全景',
-    medium_wide: '中远景',
-    medium: '中景',
-    medium_close: '中近景',
-    close_up: '近景',
-    extreme_close_up: '特写',
+    extreme_wide: 'filmmaking.status.shotSizes.extremeWide',
+    wide: 'filmmaking.status.shotSizes.wide',
+    full: 'filmmaking.status.shotSizes.full',
+    medium_wide: 'filmmaking.status.shotSizes.mediumWide',
+    medium: 'filmmaking.status.shotSizes.medium',
+    medium_close: 'filmmaking.status.shotSizes.mediumClose',
+    close_up: 'filmmaking.status.shotSizes.closeUp',
+    extreme_close_up: 'filmmaking.status.shotSizes.extremeCloseUp',
   },
   'camera-angle': {
-    eye_level: '平视',
-    high: '高角度',
-    low: '低角度',
-    bird_eye: '俯瞰',
-    overhead: '顶视',
-    dutch: '倾斜角',
+    eye_level: 'filmmaking.status.cameraAngles.eyeLevel',
+    high: 'filmmaking.status.cameraAngles.high',
+    low: 'filmmaking.status.cameraAngles.low',
+    bird_eye: 'filmmaking.status.cameraAngles.birdEye',
+    overhead: 'filmmaking.status.cameraAngles.overhead',
+    dutch: 'filmmaking.status.cameraAngles.dutch',
   },
   'view-angle': {
-    front: '正面',
-    side: '侧面',
-    back: '背面',
-    wide: '全景',
-    detail: '细节',
+    front: 'filmmaking.status.viewAngles.front',
+    side: 'filmmaking.status.viewAngles.side',
+    back: 'filmmaking.status.viewAngles.back',
+    wide: 'filmmaking.status.viewAngles.wide',
+    detail: 'filmmaking.status.viewAngles.detail',
   },
   'video-status': {
-    pending: '等待中',
-    queued: '排队中',
-    processing: '生成中',
-    generating: '生成中',
-    failed: '失败',
-    completed: '完成',
+    pending: 'filmmaking.status.video.pending',
+    queued: 'filmmaking.status.video.queued',
+    processing: 'filmmaking.status.video.processing',
+    generating: 'filmmaking.status.video.generating',
+    failed: 'filmmaking.status.video.failed',
+    completed: 'filmmaking.status.video.completed',
   },
   'asset-status': {
-    generated: '已生成',
-    pending: '待生成',
+    generated: 'filmmaking.status.asset.generated',
+    pending: 'filmmaking.status.asset.pending',
   },
   'chapter-status': {
-    final: '已完成',
-    review: '审阅中',
-    draft: '草稿',
+    final: 'filmmaking.status.chapter.final',
+    review: 'filmmaking.status.chapter.review',
+    draft: 'filmmaking.status.chapter.draft',
   },
   'hook-status': {
-    resolved: '已解决',
-    advanced: '已推进',
-    open: '待处理',
+    resolved: 'filmmaking.status.hook.resolved',
+    advanced: 'filmmaking.status.hook.advanced',
+    open: 'filmmaking.status.hook.open',
   },
 };
+
+function resolveLabel(
+  domain: StatusDomain,
+  status: string | null | undefined
+): string {
+  const labelKey = STATUS_LABELS[domain][status ?? ''];
+  if (labelKey) return String(i18n.t(labelKey));
+  return status || String(i18n.t('filmmaking.status.unknown'));
+}
 
 const CATEGORICAL_DOMAINS: ReadonlySet<StatusDomain> = new Set([
   'shot-size',
@@ -116,7 +126,7 @@ export function statusLabel(
   domain: StatusDomain,
   status: string | null | undefined
 ): string {
-  return STATUS_LABELS[domain][status ?? ''] ?? status ?? '未知';
+  return resolveLabel(domain, status);
 }
 
 /** 纯函数，便于单测与 story 直接使用。 */
@@ -125,7 +135,7 @@ export function resolveStatus(
   domain: StatusDomain
 ): ResolvedStatus {
   const key = status ?? '';
-  const label = STATUS_LABELS[domain][key] || key || '未知';
+  const label = resolveLabel(domain, status);
 
   let tone: StatusTone = 'neutral';
   if (!CATEGORICAL_DOMAINS.has(domain)) {

@@ -1,6 +1,7 @@
 import { NewSequencePage } from '@/sequences/ui/script/new-sequence-page';
 import { requireSessionOrRedirect } from '@/platform/ui/auth/route-guards';
 import { createFileRoute } from '@tanstack/react-router';
+import i18n from '@/i18n';
 import { z } from 'zod';
 
 // Logged-in alias of the home composer. Style/prefill match `/`; `from` is
@@ -21,7 +22,10 @@ export const Route = createFileRoute('/_app/films/new/')({
   },
   component: NewSequenceRoutePage,
   staticData: {
-    breadcrumb: [{ label: '我的影片', to: '/films' }, { label: '新建影片' }],
+    breadcrumb: [
+      { label: i18n.t('nav.films'), to: '/films' },
+      { label: i18n.t('nav.newSequence') },
+    ],
   },
 });
 

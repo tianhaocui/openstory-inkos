@@ -14,6 +14,8 @@ import { toSceneView, type SceneView } from '@/ui/view-models/scene-view';
 import { toShotView, type ShotView } from '@/ui/view-models/shot-view';
 import { toStoryView, type StoryView } from '@/ui/view-models/story-view';
 import { createFileRoute, notFound, Outlet } from '@tanstack/react-router';
+import i18n from '@/i18n';
+import { useTranslation } from 'react-i18next';
 
 function SequenceCrumbLabel({ id }: { id: string }) {
   const { data } = useSequence(id);
@@ -43,7 +45,7 @@ export const Route = createFileRoute('/_app/films/$id')({
     breadcrumb: (match) => {
       const { id } = routeParams<{ id: string }>(match);
       return [
-        { label: '我的影片', to: '/films' },
+        { label: i18n.t('nav.films'), to: '/films' },
         {
           label: <SequenceCrumbLabel id={id} />,
           to: getDefaultSequenceTabPath(id),
@@ -52,11 +54,12 @@ export const Route = createFileRoute('/_app/films/$id')({
     },
   },
   errorComponent: (props) => (
-    <RouteErrorFallback {...props} heading="影片加载失败" />
+    <RouteErrorFallback {...props} heading={i18n.t('films.loadFailed')} />
   ),
 });
 
 function SequenceLayout() {
+  const { t } = useTranslation();
   const { id: sequenceId } = Route.useParams();
 
   useUser();
@@ -83,7 +86,7 @@ function SequenceLayout() {
             breadcrumb crumb is always a Link here, which can't host a button. */}
         <div className="flex min-w-0 items-center gap-1">
           <h1 className="truncate text-sm font-medium">
-            {story?.title ?? '影片'}
+            {story?.title ?? t('films.fallbackTitle')}
           </h1>
           {sequence && (
             <RenameSequenceButton
@@ -104,7 +107,10 @@ function SequenceLayout() {
         </div>
         {(sceneViews.length > 0 || shotViews.length > 0) && (
           <p className="text-xs text-muted-foreground">
-            {sceneViews.length} 个分镜场景 · {shotViews.length} 个镜头
+            {t('films.sceneShotCount', {
+              scenes: sceneViews.length,
+              shots: shotViews.length,
+            })}
           </p>
         )}
         {/* No Script | Scenes tab strip — those are lifecycle destinations,

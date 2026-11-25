@@ -38,6 +38,7 @@ import { GenerationStateBanner } from '@/ui/generation-state-banner';
 import { MediaThumbnail } from '@/ui/media-thumbnail';
 import { PipelineProgress, type PipelineStage } from '@/ui/pipeline-progress';
 import { ShotActionButton, shotActionToastId } from '@/ui/shot-action-button';
+import { useTranslation } from 'react-i18next';
 import { StatusBadge, statusLabel } from '@/ui/status-badge';
 import type { FilmProjectStatus } from '@/stories/inkos-integration';
 
@@ -199,6 +200,7 @@ export function FilmmakingPanel({
   onGenerateVideo,
   onBatchGenerateSegment,
 }: FilmmakingPanelProps) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('pipeline');
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingStep, setProcessingStep] = useState('');
@@ -211,36 +213,49 @@ export function FilmmakingPanel({
   // 阶段态：不伪造 0/100 百分比，直接展示每阶段的完成情况和计数。
   const pipelineStages: PipelineStage[] = [
     {
-      label: '故事与剧本',
+      label: t('filmmaking.pipelineStages.story'),
       state: filmStatus.stages.story.completed ? 'completed' : 'pending',
-      detail: `${filmStatus.stages.story.chapterCount} 章`,
+      detail: t('filmmaking.pipelineStages.chapterCount', {
+        count: filmStatus.stages.story.chapterCount,
+      }),
     },
     {
-      label: '分镜切分',
+      label: t('filmmaking.pipelineStages.storyboard'),
       state: filmStatus.stages.storyboard.completed
         ? 'completed'
         : filmStatus.stages.story.chapterCount > 0
           ? 'active'
           : 'pending',
-      detail: `${filmStatus.stages.storyboard.segmentCount} 片段 / ${filmStatus.stages.storyboard.shotCount} 镜头`,
+      detail: t('filmmaking.pipelineStages.segmentShotCount', {
+        segments: filmStatus.stages.storyboard.segmentCount,
+        shots: filmStatus.stages.storyboard.shotCount,
+      }),
     },
     {
-      label: '资产与关键帧',
+      label: t('filmmaking.pipelineStages.assets'),
       state: filmStatus.stages.assets.completed
         ? 'completed'
         : filmStatus.stages.storyboard.completed
           ? 'active'
           : 'pending',
-      detail: `${filmStatus.stages.assets.characterCount + filmStatus.stages.assets.sceneAssetCount} 资产 / ${filmStatus.stages.keyframes.approvedCount} 已批准`,
+      detail: t('filmmaking.pipelineStages.assetApprovedCount', {
+        assets:
+          filmStatus.stages.assets.characterCount +
+          filmStatus.stages.assets.sceneAssetCount,
+        approved: filmStatus.stages.keyframes.approvedCount,
+      }),
     },
     {
-      label: '视频生成',
+      label: t('filmmaking.pipelineStages.video'),
       state: filmStatus.stages.video.completed
         ? 'completed'
         : filmStatus.stages.keyframes.approvedCount > 0
           ? 'active'
           : 'pending',
-      detail: `${filmStatus.stages.video.generatedCount}/${filmStatus.stages.video.clipCount} 片段`,
+      detail: t('filmmaking.pipelineStages.videoClipCount', {
+        generated: filmStatus.stages.video.generatedCount,
+        count: filmStatus.stages.video.clipCount,
+      }),
       percent:
         filmStatus.stages.video.clipCount > 0
           ? (filmStatus.stages.video.generatedCount /
@@ -253,7 +268,9 @@ export function FilmmakingPanel({
   // 处理分镜切分
   const handleSegmentChapter = async (chapterNumber: number) => {
     setIsProcessing(true);
-    setProcessingStep(`正在切分第 ${chapterNumber} 章...`);
+    setProcessingStep(
+      t('filmmaking.processing.splittingChapter', { count: chapterNumber })
+    );
     try {
       await onSegmentChapter(chapterNumber);
     } finally {
@@ -265,7 +282,9 @@ export function FilmmakingPanel({
   // 处理资产提取
   const handleExtractAssets = async (chapterNumber: number) => {
     setIsProcessing(true);
-    setProcessingStep(`正在提取第 ${chapterNumber} 章的角色和场景...`);
+    setProcessingStep(
+      t('filmmaking.processing.extractingChapter', { count: chapterNumber })
+    );
     try {
       await onExtractAssets(chapterNumber);
     } finally {
@@ -280,7 +299,7 @@ export function FilmmakingPanel({
     viewAngle?: string
   ) => {
     setIsProcessing(true);
-    setProcessingStep('正在生成资产图像...');
+    setProcessingStep(t('filmmaking.processing.generatingAssets'));
     try {
       await onGenerateAssetImage(assetId, viewAngle);
     } finally {
@@ -291,7 +310,7 @@ export function FilmmakingPanel({
 
   const handleGenerateKeyframe = async (shotId: string) => {
     setIsProcessing(true);
-    setProcessingStep('正在生成关键帧...');
+    setProcessingStep(t('filmmaking.processing.generatingKeyframes'));
     try {
       await onGenerateKeyframe(shotId);
     } finally {
@@ -302,7 +321,7 @@ export function FilmmakingPanel({
 
   const handleGenerateVideo = async (keyframeId: string) => {
     setIsProcessing(true);
-    setProcessingStep('正在生成视频片段...');
+    setProcessingStep(t('filmmaking.processing.generatingVideos'));
     try {
       await onGenerateVideo(keyframeId);
     } finally {
@@ -314,7 +333,14 @@ export function FilmmakingPanel({
   // 处理批量生成
   const handleBatchGenerate = async (segmentId: string) => {
     setIsProcessing(true);
-    setProcessingStep('正在批量生成关键帧...');
+    const segmentNumber = segments.find(
+      (s) => s.id === segmentId
+    )?.segmentNumber;
+    setProcessingStep(
+      segmentNumber
+        ? t('filmmaking.processing.segment', { count: segmentNumber })
+        : t('filmmaking.processing.generatingKeyframesBatch')
+    );
     try {
       await onBatchGenerateSegment(segmentId);
     } finally {

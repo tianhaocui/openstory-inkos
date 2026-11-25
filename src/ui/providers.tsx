@@ -1,5 +1,9 @@
 import { PostHogIdentify } from '@/platform/ui/observability/posthog-identify';
 import { sessionQueryOptions } from '@/platform/ui/auth/session-query';
+// Module-level singleton init (no window/localStorage access) — safe for SSR
+// and must run before any child renders `useTranslation`.
+import i18n from '@/i18n';
+import { I18nextProvider } from 'react-i18next';
 import { Toaster } from '@/ui/shadcn/sonner';
 import { TooltipProvider } from '@/ui/shadcn/tooltip';
 import { installChunkReload } from './chunk-reload';
@@ -163,37 +167,39 @@ function useRealtimeEnabled(): boolean {
 export function Providers({ children, queryClient }: ProvidersProps) {
   const realtimeEnabled = useRealtimeEnabled();
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="dark"
-      enableSystem={false}
-      storageKey="os:theme"
-      disableTransitionOnChange
-    >
-      <ObservabilityProvider queryClient={queryClient}>
-        <QueryClientProvider client={queryClient}>
-          <TooltipProvider>
-            <PostHogIdentify />
-            {realtimeEnabled ? (
-              <RealtimeProvider>{children}</RealtimeProvider>
-            ) : (
-              // Stub context so consumers (useRealtime) don't throw; nothing ever
-              // registers a channel, so no EventSource is ever opened.
-              <RealtimeContext.Provider
-                value={{
-                  status: 'disconnected',
-                  register: () => {},
-                  unregister: () => {},
-                }}
-              >
-                {children}
-              </RealtimeContext.Provider>
-            )}
-            <TanStackDevtoolsLazy />
-            <Toaster />
-          </TooltipProvider>
-        </QueryClientProvider>
-      </ObservabilityProvider>
-    </ThemeProvider>
+    <I18nextProvider i18n={i18n}>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="dark"
+        enableSystem={false}
+        storageKey="os:theme"
+        disableTransitionOnChange
+      >
+        <ObservabilityProvider queryClient={queryClient}>
+          <QueryClientProvider client={queryClient}>
+            <TooltipProvider>
+              <PostHogIdentify />
+              {realtimeEnabled ? (
+                <RealtimeProvider>{children}</RealtimeProvider>
+              ) : (
+                // Stub context so consumers (useRealtime) don't throw; nothing ever
+                // registers a channel, so no EventSource is ever opened.
+                <RealtimeContext.Provider
+                  value={{
+                    status: 'disconnected',
+                    register: () => {},
+                    unregister: () => {},
+                  }}
+                >
+                  {children}
+                </RealtimeContext.Provider>
+              )}
+              <TanStackDevtoolsLazy />
+              <Toaster />
+            </TooltipProvider>
+          </QueryClientProvider>
+        </ObservabilityProvider>
+      </ThemeProvider>
+    </I18nextProvider>
   );
 }

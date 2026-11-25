@@ -39,11 +39,13 @@ import {
 } from '@/billing/constants';
 import { microsToDisplayUsd } from '@/billing/money';
 import { Link } from '@tanstack/react-router';
+import { useTranslation } from 'react-i18next';
 import { Wallet } from 'lucide-react';
 
 const WELCOME_AMOUNT = microsToDisplayUsd(SIGNUP_GRANT_MICROS);
 
 export const CreditBalancePill: React.FC = () => {
+  const { t } = useTranslation();
   const { data: user, isLoading: userLoading } = useUser();
   const {
     balance,
@@ -87,12 +89,12 @@ export const CreditBalancePill: React.FC = () => {
         <SidebarMenuItem>
           <SidebarMenuButton
             asChild
-            tooltip={`欢迎积分 · ${WELCOME_AMOUNT} 可领取`}
+            tooltip={t('credits.welcomeTooltip', { amount: WELCOME_AMOUNT })}
             className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-400"
           >
             <Link
               to="/login"
-              aria-label={`欢迎积分 ${WELCOME_AMOUNT}。登录领取。`}
+              aria-label={t('credits.welcomeAria', { amount: WELCOME_AMOUNT })}
             >
               <Wallet />
               <span className="tabular-nums" aria-live="polite">
@@ -111,9 +113,14 @@ export const CreditBalancePill: React.FC = () => {
       <SidebarMenu>
         <SidebarMenuItem>
           <SidebarMenuButton
-            tooltip={`领取 ${WELCOME_AMOUNT} 欢迎积分`}
+            tooltip={t('credits.claimWelcomeTooltip', {
+              amount: WELCOME_AMOUNT,
+            })}
             onClick={() => reopenWelcomeCredits()}
-            aria-label={`积分余额 ${amount}。领取 ${WELCOME_AMOUNT} 欢迎积分。`}
+            aria-label={t('credits.claimWelcomeAria', {
+              amount,
+              welcomeAmount: WELCOME_AMOUNT,
+            })}
             className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-400"
           >
             <Wallet />
@@ -136,7 +143,10 @@ export const CreditBalancePill: React.FC = () => {
       : undefined;
 
   const amount = `$${balance?.toFixed(2) ?? '0.00'}`;
-  const tooltip = reserved > 0 ? `积分 · ${amount} 可用` : `积分 · ${amount}`;
+  const tooltip =
+    reserved > 0
+      ? t('credits.balanceTooltip', { amount })
+      : t('credits.balanceTooltipShort', { amount });
 
   return (
     <SidebarMenu>
@@ -145,7 +155,7 @@ export const CreditBalancePill: React.FC = () => {
         <SidebarMenuButton
           tooltip={tooltip}
           onClick={() => openAddCreditsDialog('sidebar_pill')}
-          aria-label={`积分余额 ${amount}。添加积分。`}
+          aria-label={t('credits.balanceAria', { amount })}
           className={cn(
             'animate-[balance-flash-in_300ms_ease-out_both]',
             toneClass

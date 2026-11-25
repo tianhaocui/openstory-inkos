@@ -5,6 +5,9 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/ui/shadcn/dropdown-menu';
 import { SidebarMenuButton, SidebarMenuItem } from '@/ui/shadcn/sidebar';
@@ -14,9 +17,13 @@ import { authClient } from '@/platform/ui/auth/client';
 import { sessionQueryOptions } from '@/platform/ui/auth/session-query';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
+import i18n from '@/i18n';
+import { useTranslation } from 'react-i18next';
 import {
   BarChart3,
+  Check,
   ChevronsUpDown,
+  Languages,
   LogIn,
   LogOut,
   Settings,
@@ -26,6 +33,7 @@ import {
 import { useState } from 'react';
 
 export function UserSidebarFooter() {
+  const { t } = useTranslation();
   const { data: user, isLoading } = useUser();
   const [isSigningOut, setIsSigningOut] = useState(false);
   const navigate = useNavigate();
@@ -50,10 +58,10 @@ export function UserSidebarFooter() {
   if (!user) {
     return (
       <SidebarMenuItem>
-        <SidebarMenuButton asChild tooltip="登录">
+        <SidebarMenuButton asChild tooltip={t('auth.signIn')}>
           <Link to="/login">
             <LogIn />
-            <span>登录</span>
+            <span>{t('auth.signIn')}</span>
           </Link>
         </SidebarMenuButton>
       </SidebarMenuItem>
@@ -61,7 +69,7 @@ export function UserSidebarFooter() {
   }
 
   const userEmail = user.email;
-  const displayName = user.name || userEmail || '用户';
+  const displayName = user.name || userEmail || t('auth.user');
   const initials = getInitials(displayName);
 
   const handleSignOut = async () => {
@@ -137,23 +145,42 @@ export function UserSidebarFooter() {
           <DropdownMenuItem asChild>
             <Link to="/settings">
               <Settings className="mr-2 h-4 w-4" />
-              设置
+              {t('nav.settings')}
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link to="/credits" search={{ tab: 'balance' }}>
               <Wallet className="mr-2 h-4 w-4" />
-              积分
+              {t('settings.credits')}
             </Link>
           </DropdownMenuItem>
           <AdminMenuItem />
+          <DropdownMenuSeparator />
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              <Languages className="mr-2 h-4 w-4" />
+              {t('settings.interfaceLanguage')}
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuItem onSelect={() => void i18n.changeLanguage('zh')}>
+                <Check className="mr-2 h-4 w-4" />
+                {t('settings.chineseCurrent')}
+              </DropdownMenuItem>
+              <DropdownMenuItem disabled>
+                <span>English</span>
+                <span className="ml-auto text-xs text-muted-foreground">
+                  {t('settings.comingSoon')}
+                </span>
+              </DropdownMenuItem>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={() => void handleSignOut()}
             disabled={isSigningOut}
           >
             <LogOut className="mr-2 h-4 w-4" />
-            {isSigningOut ? '退出中…' : '退出登录'}
+            {isSigningOut ? t('auth.signingOut') : t('auth.signOut')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -162,6 +189,7 @@ export function UserSidebarFooter() {
 }
 
 function AdminMenuItem() {
+  const { t } = useTranslation();
   const { data: adminStatus } = useQuery({
     queryKey: ['system-admin-status'],
     queryFn: () => isSystemAdminFn(),
@@ -174,18 +202,18 @@ function AdminMenuItem() {
     <>
       <DropdownMenuSeparator />
       <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
-        管理员
+        {t('admin.label')}
       </DropdownMenuLabel>
       <DropdownMenuItem asChild>
         <Link to="/admin/usage">
           <BarChart3 className="mr-2 h-4 w-4" />
-          使用统计
+          {t('admin.usage')}
         </Link>
       </DropdownMenuItem>
       <DropdownMenuItem asChild>
         <Link to="/admin/moderation">
           <ShieldAlert className="mr-2 h-4 w-4" />
-          内容审核
+          {t('admin.moderation')}
         </Link>
       </DropdownMenuItem>
     </>

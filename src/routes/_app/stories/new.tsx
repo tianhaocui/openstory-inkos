@@ -21,35 +21,40 @@ import {
 import { ArrowLeftIcon, SparklesIcon } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
 import { createStoryFn } from '@/stories/stories.fn';
+import i18n from '@/i18n';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 export const Route = createFileRoute('/_app/stories/new')({
   component: NewStoryPage,
 });
 
+// Base UI reads `label` back for the selected value, so resolve the
+// dictionary at module init (i18n is initialised synchronously on import).
 const GENRES = [
-  { value: 'fantasy', label: '奇幻' },
-  { value: 'scifi', label: '科幻' },
-  { value: 'romance', label: '言情' },
-  { value: 'mystery', label: '悬疑' },
-  { value: 'thriller', label: '惊悚' },
-  { value: 'historical', label: '历史' },
-  { value: 'wuxia', label: '武侠' },
-  { value: 'xianxia', label: '仙侠' },
-  { value: 'urban', label: '都市' },
-  { value: 'other', label: '其他' },
+  { value: 'fantasy', label: i18n.t('story.form.genres.fantasy') },
+  { value: 'scifi', label: i18n.t('story.form.genres.scifi') },
+  { value: 'romance', label: i18n.t('story.form.genres.romance') },
+  { value: 'mystery', label: i18n.t('story.form.genres.mystery') },
+  { value: 'thriller', label: i18n.t('story.form.genres.thriller') },
+  { value: 'historical', label: i18n.t('story.form.genres.historical') },
+  { value: 'wuxia', label: i18n.t('story.form.genres.wuxia') },
+  { value: 'xianxia', label: i18n.t('story.form.genres.xianxia') },
+  { value: 'urban', label: i18n.t('story.form.genres.urban') },
+  { value: 'other', label: i18n.t('story.form.genres.other') },
 ];
 
 const TONES = [
-  { value: 'serious', label: '严肃' },
-  { value: 'humorous', label: '幽默' },
-  { value: 'dark', label: '黑暗' },
-  { value: 'lighthearted', label: '轻松' },
-  { value: 'dramatic', label: '戏剧性' },
-  { value: 'philosophical', label: '哲理' },
+  { value: 'serious', label: i18n.t('story.form.tones.serious') },
+  { value: 'humorous', label: i18n.t('story.form.tones.humorous') },
+  { value: 'dark', label: i18n.t('story.form.tones.dark') },
+  { value: 'lighthearted', label: i18n.t('story.form.tones.lighthearted') },
+  { value: 'dramatic', label: i18n.t('story.form.tones.dramatic') },
+  { value: 'philosophical', label: i18n.t('story.form.tones.philosophical') },
 ];
 
 function NewStoryPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [isCreating, setIsCreating] = useState(false);
   const [formData, setFormData] = useState({
@@ -74,10 +79,10 @@ function NewStoryPage() {
           targetLength: formData.targetLength,
         },
       });
-      if (!story) throw new Error('创建故事失败');
+      if (!story) throw new Error(t('story.form.createFailed'));
       await navigate({ to: '/stories/$id', params: { id: story.id } });
     } catch (error) {
-      toast.error('创建故事失败', {
+      toast.error(t('story.form.createFailed'), {
         description: error instanceof Error ? error.message : undefined,
       });
     } finally {
@@ -88,13 +93,13 @@ function NewStoryPage() {
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
       <PageHeader
-        title="新建故事"
-        description="设置故事的基本信息和写作风格"
+        title={t('story.newStory')}
+        description={t('story.form.description')}
         actions={
           <Button variant="ghost" asChild>
             <Link to="/stories">
               <ArrowLeftIcon className="size-4" />
-              返回
+              {t('common.back')}
             </Link>
           </Button>
         }
@@ -103,13 +108,13 @@ function NewStoryPage() {
       <div className="mx-auto w-full max-w-2xl space-y-6">
         {/* 基本信息 */}
         <div className="space-y-4 rounded-lg border bg-card p-6">
-          <h2 className="text-lg font-medium">基本信息</h2>
+          <h2 className="text-lg font-medium">{t('story.form.basicInfo')}</h2>
 
           <div className="space-y-2">
-            <Label htmlFor="name">故事名称 *</Label>
+            <Label htmlFor="name">{t('story.form.nameLabel')}</Label>
             <Input
               id="name"
-              placeholder="输入故事名称"
+              placeholder={t('story.form.namePlaceholder')}
               value={formData.name}
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
@@ -118,10 +123,12 @@ function NewStoryPage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">故事简介</Label>
+            <Label htmlFor="description">
+              {t('story.form.descriptionLabel')}
+            </Label>
             <Textarea
               id="description"
-              placeholder="简要描述你的故事（可选）"
+              placeholder={t('story.form.descriptionPlaceholder')}
               rows={3}
               value={formData.description}
               onChange={(e) =>
@@ -133,11 +140,13 @@ function NewStoryPage() {
 
         {/* 写作风格 */}
         <div className="space-y-4 rounded-lg border bg-card p-6">
-          <h2 className="text-lg font-medium">写作风格</h2>
+          <h2 className="text-lg font-medium">
+            {t('story.form.writingStyle')}
+          </h2>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label>类型</Label>
+              <Label>{t('story.form.genre')}</Label>
               <Select
                 value={formData.genre}
                 items={GENRES}
@@ -146,7 +155,7 @@ function NewStoryPage() {
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="选择类型" />
+                  <SelectValue placeholder={t('story.form.selectGenre')} />
                 </SelectTrigger>
                 <SelectContent>
                   {GENRES.map((genre) => (
@@ -159,7 +168,7 @@ function NewStoryPage() {
             </div>
 
             <div className="space-y-2">
-              <Label>基调</Label>
+              <Label>{t('story.form.tone')}</Label>
               <Select
                 value={formData.tone}
                 items={TONES}
@@ -168,7 +177,7 @@ function NewStoryPage() {
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="选择基调" />
+                  <SelectValue placeholder={t('story.form.selectTone')} />
                 </SelectTrigger>
                 <SelectContent>
                   {TONES.map((tone) => (
@@ -182,7 +191,7 @@ function NewStoryPage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="targetLength">目标字数</Label>
+            <Label htmlFor="targetLength">{t('story.form.targetLength')}</Label>
             <div className="flex items-center gap-2">
               <Input
                 id="targetLength"
@@ -198,11 +207,14 @@ function NewStoryPage() {
                 }
                 className="w-32"
               />
-              <span className="text-sm text-muted-foreground">字</span>
+              <span className="text-sm text-muted-foreground">
+                {t('story.form.unit')}
+              </span>
             </div>
             <p className="text-xs text-muted-foreground">
-              预计 {Math.round(formData.targetLength / 3000)} 章（每章约 3000
-              字）
+              {t('story.form.estimatedChapters', {
+                count: Math.round(formData.targetLength / 3000),
+              })}
             </p>
           </div>
         </div>
@@ -215,7 +227,7 @@ function NewStoryPage() {
             disabled={!formData.name.trim() || isCreating}
           >
             <SparklesIcon className="size-4" />
-            {isCreating ? '创建中...' : '开始创作'}
+            {isCreating ? t('story.form.creating') : t('story.startCreating')}
           </Button>
         </div>
       </div>

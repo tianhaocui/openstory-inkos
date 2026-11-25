@@ -1,4 +1,16 @@
 /**
+ * Format a date as a locale-aware calendar date (e.g. `2026/11/25` for zh-CN).
+ *
+ * `timeZone` is intentionally omitted: `Intl.DateTimeFormat` then uses the
+ * device/runtime local zone, matching the previous
+ * `date.toLocaleDateString('zh-CN')` behaviour. Keep the default options so
+ * the rendered string does not change when a locale is swapped in later.
+ */
+export function formatDate(date: Date, locale = 'zh-CN'): string {
+  return new Intl.DateTimeFormat(locale).format(date);
+}
+
+/**
  * Format a date as a relative time string (e.g., "2 hours ago")
  */
 export function formatDistanceToNow(date: Date): string {

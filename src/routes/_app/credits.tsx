@@ -10,6 +10,8 @@ import { TransactionSettings } from '@/ui/settings/transaction-settings';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/shadcn/tabs';
 import { requireSessionOrRedirect } from '@/platform/ui/auth/route-guards';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import i18n from '@/i18n';
+import { useTranslation } from 'react-i18next';
 import { Gift, Receipt, Wallet } from 'lucide-react';
 import { z } from 'zod';
 
@@ -28,31 +30,32 @@ export const Route = createFileRoute('/_app/credits')({
   beforeLoad: async ({ context: { queryClient }, location }) => {
     await requireSessionOrRedirect(queryClient, location.href);
   },
-  staticData: { breadcrumb: '点数' },
+  staticData: { breadcrumb: i18n.t('nav.credits') },
   errorComponent: (props) => (
-    <RouteErrorFallback {...props} heading="点数页面出错" />
+    <RouteErrorFallback {...props} heading={i18n.t('credits.pageError')} />
   ),
 });
 
 const tabs = [
   {
     value: 'balance' as const,
-    label: '余额',
+    label: 'credits.balance',
     icon: <Wallet className="h-4 w-4" />,
   },
   {
     value: 'transactions' as const,
-    label: '交易记录',
+    label: 'settings.transactions',
     icon: <Receipt className="h-4 w-4" />,
   },
   {
     value: 'gift-codes' as const,
-    label: '礼品码',
+    label: 'credits.giftCodeLabel',
     icon: <Gift className="h-4 w-4" />,
   },
 ];
 
 function CreditsPage() {
+  const { t: translate } = useTranslation();
   const { tab, success, canceled, session_id: sessionId } = Route.useSearch();
   const navigate = useNavigate();
 
@@ -68,14 +71,14 @@ function CreditsPage() {
         }}
       >
         <TabsList className="mb-6 w-full justify-start">
-          {tabs.map((t) => (
+          {tabs.map((tab) => (
             <TabsTrigger
-              key={t.value}
-              value={t.value}
+              key={tab.value}
+              value={tab.value}
               className="flex items-center gap-2"
             >
-              {t.icon}
-              {t.label}
+              {tab.icon}
+              {translate(tab.label)}
             </TabsTrigger>
           ))}
         </TabsList>

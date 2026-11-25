@@ -18,7 +18,9 @@ import {
 import { createFileRoute } from '@tanstack/react-router';
 import { Video } from 'lucide-react';
 import { useIsomorphicLayoutEffect } from '@/ui/use-isomorphic-layout-effect';
+import i18n from '@/i18n';
 import { useCallback, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type SequencesListNavigate = (opts: {
   search: SequencesListSearch;
@@ -77,17 +79,18 @@ export function useSequencesListPrefs(
 export const Route = createFileRoute('/_app/films/')({
   validateSearch: sequencesListSearchSchema,
   component: SequencesPage,
-  staticData: { breadcrumb: '我的影片' },
+  staticData: { breadcrumb: i18n.t('films.title') },
 });
 
 function SequencesPage() {
+  const { t } = useTranslation();
   const search = Route.useSearch();
   const { data: currentUser } = useUser();
 
   return (
     <>
-      <PageIntro title="我的影片" maxWidth="full">
-        从初稿到终剪，你的所有影片都在这里。
+      <PageIntro title={t('films.title')} maxWidth="full">
+        {t('films.pageDescription')}
       </PageIntro>
       <PageContainer
         maxWidth="full"
@@ -99,8 +102,8 @@ function SequencesPage() {
         ) : (
           <SignInPrompt
             icon={<Video className="h-12 w-12" />}
-            title="登录查看你的影片"
-            description="创建账号后，你生成的影片将显示在这里。"
+            title={t('films.loginTitle')}
+            description={t('films.loginDescription')}
           />
         )}
       </PageContainer>

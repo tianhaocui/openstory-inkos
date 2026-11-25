@@ -16,6 +16,7 @@ import {
 import { MODELS_ENABLED } from '@/platform/flags';
 import { Link, useRouterState } from '@tanstack/react-router';
 import { useCallback, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   type LucideIcon,
   BookOpenIcon,
@@ -149,30 +150,36 @@ function useLowBalanceWarning() {
 
 /** 创作：影片线与本地故事线并存，各自保留独立入口。 */
 const creationLinks = [
-  { to: '/films', label: '我的影片', icon: Video },
-  { to: '/stories', label: '我的故事', icon: BookOpenIcon },
+  { to: '/films', label: 'nav.films', icon: Video },
+  { to: '/stories', label: 'nav.stories', icon: BookOpenIcon },
 ] as const;
 
 /** 资产库：角色 / 场景 / 风格 / 模型是全局共享资产。 */
 const libraryLinks = [
-  { to: '/library/talent', label: '角色', icon: Users },
-  { to: '/library/locations', label: '场景', icon: MapPin },
-  { to: '/library/styles', label: '风格', icon: Palette },
+  { to: '/library/talent', label: 'nav.characters', icon: Users },
+  { to: '/library/locations', label: 'scene.title', icon: MapPin },
+  { to: '/library/styles', label: 'nav.styles', icon: Palette },
   ...(MODELS_ENABLED
-    ? [{ to: '/library/models', label: '模型', icon: Boxes } as const]
+    ? [
+        {
+          to: '/library/models',
+          label: 'generation.model',
+          icon: Boxes,
+        } as const,
+      ]
     : []),
 ] as const;
 
 /** 产出：图片 / 视频生成结果，以及公开作品集。 */
 const outputLinks = [
-  { to: '/studio/images', label: '图片', icon: Images },
-  { to: '/studio/videos', label: '视频', icon: Film },
-  { to: '/gallery', label: '作品集', icon: Clapperboard },
+  { to: '/studio/images', label: 'nav.images', icon: Images },
+  { to: '/studio/videos', label: 'nav.videos', icon: Film },
+  { to: '/gallery', label: 'nav.gallery', icon: Clapperboard },
 ] as const;
 
 const systemLinks = [
-  { to: '/settings', label: '设置', icon: SettingsIcon },
-  { to: '/credits', label: '点数', icon: CoinsIcon },
+  { to: '/settings', label: 'nav.settings', icon: SettingsIcon },
+  { to: '/credits', label: 'nav.credits', icon: CoinsIcon },
 ] as const;
 
 function NavGroup({
@@ -182,21 +189,22 @@ function NavGroup({
   label: string;
   links: ReadonlyArray<{ to: string; label: string; icon: LucideIcon }>;
 }) {
+  const { t } = useTranslation();
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>{label}</SidebarGroupLabel>
+      <SidebarGroupLabel>{t(label)}</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
           {links.map(({ to, label: itemLabel, icon: Icon }) => (
             <SidebarMenuItem key={itemLabel}>
-              <SidebarMenuButton asChild tooltip={itemLabel}>
+              <SidebarMenuButton asChild tooltip={t(itemLabel)}>
                 <Link
                   to={to}
                   activeProps={{ 'data-active': 'true' }}
                   activeOptions={{ exact: false }}
                 >
                   <Icon />
-                  <span>{itemLabel}</span>
+                  <span>{t(itemLabel)}</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -210,6 +218,7 @@ function NavGroup({
 export function AppSidebar() {
   useLowBalanceWarning();
 
+  const { t } = useTranslation();
   const { isMobile, setOpenMobile } = useSidebar();
   const posthog = usePostHog();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -231,11 +240,11 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>创作</SidebarGroupLabel>
+          <SidebarGroupLabel>{t('nav.create')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="新建影片">
+                <SidebarMenuButton asChild tooltip={t('nav.newSequence')}>
                   {/* `/` is the free composer for everyone (#1104); the
                       signed-in alias `/films/new` is for copy/breadcrumb
                       entry points that require a session. */}
@@ -248,20 +257,20 @@ export function AppSidebar() {
                     }
                   >
                     <Plus />
-                    <span>新建影片</span>
+                    <span>{t('nav.newSequence')}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               {creationLinks.map(({ to, label, icon: Icon }) => (
                 <SidebarMenuItem key={label}>
-                  <SidebarMenuButton asChild tooltip={label}>
+                  <SidebarMenuButton asChild tooltip={t(label)}>
                     <Link
                       to={to}
                       activeProps={{ 'data-active': 'true' }}
                       activeOptions={{ exact: false }}
                     >
                       <Icon />
-                      <span>{label}</span>
+                      <span>{t(label)}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -269,9 +278,9 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        <NavGroup label="资产库" links={libraryLinks} />
-        <NavGroup label="产出" links={outputLinks} />
-        <NavGroup label="系统" links={systemLinks} />
+        <NavGroup label="nav.library" links={libraryLinks} />
+        <NavGroup label="nav.output" links={outputLinks} />
+        <NavGroup label="nav.system" links={systemLinks} />
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>

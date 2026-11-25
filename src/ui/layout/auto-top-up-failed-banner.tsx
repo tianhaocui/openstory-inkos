@@ -9,8 +9,10 @@ import { Alert, AlertDescription } from '@/ui/shadcn/alert';
 import { useBillingGateQuery } from '@/billing/ui/use-billing-gate';
 import { Link } from '@tanstack/react-router';
 import { AlertTriangle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export const AutoTopUpFailedBanner: React.FC = () => {
+  const { t } = useTranslation();
   const { data } = useBillingGateQuery();
   if (!data?.autoTopUpFailed) return null;
 
@@ -18,11 +20,9 @@ export const AutoTopUpFailedBanner: React.FC = () => {
     <Alert variant="destructive" className="rounded-none border-x-0 border-t-0">
       <AlertTriangle className="h-4 w-4" />
       <AlertDescription className="flex items-center justify-between gap-4">
-        <span>
-          自动充值已暂停，因为银行卡付款被拒绝。余额用尽后将无法继续生成内容。
-        </span>
+        <span>{t('credits.autoTopUpFailed')}</span>
         <Link to="/credits" className="shrink-0 font-medium underline">
-          更新银行卡 →
+          {t('credits.updateCard')}
         </Link>
       </AlertDescription>
     </Alert>

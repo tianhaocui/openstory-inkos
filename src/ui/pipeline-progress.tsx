@@ -11,6 +11,7 @@ import {
   CircleDashedIcon,
 } from 'lucide-react';
 import type { ComponentType } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Progress } from '@/ui/shadcn/progress';
 import { cn } from '@/ui/utils';
 
@@ -30,11 +31,11 @@ export interface PipelineStage {
 }
 
 const STATE_LABELS: Record<PipelineStageState, string> = {
-  pending: '未开始',
-  active: '进行中',
-  completed: '已完成',
-  failed: '失败',
-  skipped: '已跳过',
+  pending: 'filmmaking.progress.pending',
+  active: 'filmmaking.progress.active',
+  completed: 'filmmaking.progress.completed',
+  failed: 'filmmaking.progress.failed',
+  skipped: 'filmmaking.progress.skipped',
 };
 
 const STATE_ICONS: Record<
@@ -64,12 +65,14 @@ export interface PipelineProgressProps {
 
 export function PipelineProgress({
   stages,
-  label = '流水线进度',
+  label,
   className,
 }: PipelineProgressProps) {
+  const { t } = useTranslation();
+  const resolvedLabel = label ?? t('filmmaking.progress.label');
   return (
     <ol
-      aria-label={label}
+      aria-label={resolvedLabel}
       className={cn('grid gap-3 sm:grid-cols-2 lg:grid-cols-4', className)}
     >
       {stages.map((stage) => {
@@ -89,13 +92,17 @@ export function PipelineProgress({
                 {stage.label}
               </p>
               <p className="text-xs">
-                <span className="font-medium">{STATE_LABELS[stage.state]}</span>
+                <span className="font-medium">
+                  {t(STATE_LABELS[stage.state])}
+                </span>
                 <span>{` · ${stage.detail ?? '—'}`}</span>
               </p>
               {stage.percent !== undefined && (
                 <Progress
                   value={stage.percent}
-                  aria-label={`${stage.label}完成比例`}
+                  aria-label={t('filmmaking.progress.percentAria', {
+                    label: stage.label,
+                  })}
                   className="h-1"
                 />
               )}

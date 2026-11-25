@@ -7,6 +7,8 @@ import { DocsReferrerTracker } from '@/ui/docs/docs-referrer-tracker';
 import { DefaultNotFound } from '@/ui/error/default-not-found';
 import { Providers } from '@/ui/providers';
 import { Button } from '@/ui/shadcn/button';
+import i18n from '@/i18n';
+import { useTranslation } from 'react-i18next';
 import { SITE_CONFIG } from '@/ui/marketing/constants';
 import appCss from '@/styles/global.css?url';
 import type { QueryClient } from '@tanstack/react-query';
@@ -149,7 +151,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 function RootLayout() {
   const { queryClient } = Route.useRouteContext();
   return (
-    <html lang="zh-CN">
+    <html lang={i18n.language}>
       <head>
         <HeadContent />
       </head>
@@ -166,12 +168,13 @@ function RootLayout() {
 
 function ErrorBoundary({ reset }: ErrorComponentProps) {
   const router = useRouter();
+  const { t } = useTranslation();
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-4">
-      <h1 className="text-4xl font-bold">出现了一些问题</h1>
+      <h1 className="text-4xl font-bold">{t('errors.pageErrorTitle')}</h1>
       <p className="text-muted-foreground max-w-md text-center">
-        暂时无法加载此页面，请稍后重试。
+        {t('errors.pageErrorDescription')}
       </p>
       <div className="flex gap-2">
         <Button
@@ -181,10 +184,10 @@ function ErrorBoundary({ reset }: ErrorComponentProps) {
             void router.invalidate();
           }}
         >
-          重试
+          {t('common.retry')}
         </Button>
         <Button asChild>
-          <Link to="/">返回首页</Link>
+          <Link to="/">{t('errors.backHome')}</Link>
         </Button>
       </div>
     </div>
