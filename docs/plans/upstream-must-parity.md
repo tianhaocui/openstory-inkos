@@ -78,6 +78,34 @@ ElevenLabs adapter + 角色声音 + 逐句对白（09-11 ~ 09-16，含 #1651）�
 - 计费：提交前预留、完成后按实际用量结算；失败释放预留；无 $0 生成路径
 - `batchGenerateSegmentFn` 移除"跳过视频"的注释，关键帧之后调用视频生成（错误计入 `results.errors`）
 
+## 簇 A 执行结果（2026-11-25）
+
+| 项           | 结果                                                                                   |
+| ------------ | -------------------------------------------------------------------------------------- |
+| 门禁修复提交 | `c184b2dc` — fix: satisfy project quality gates for local story mode                   |
+| 簇 A 提交    | `2756012` — feat: wire story video generation workflow（**已 push**）                  |
+| UI 入口修复  | `d5eec39` — fix: wire single-shot video generation button（本地 ahead 1，**未 push**） |
+| 门禁         | lint / typecheck / format / dead-code 全绿；全量测试 4708 passed                       |
+
+**端到端联调（mock provider / aimock）**：
+
+| 检查                                                    | 结果                    |
+| ------------------------------------------------------- | ----------------------- |
+| completed 关键帧 → clip id + queued、无 missing-binding | ✅ 实跑                 |
+| 重复调用 `alreadyInFlight`、不新增行不重扣              | ✅ 实跑                 |
+| workflow 实例真实创建（Explorer API 可见）              | ✅ 实跑                 |
+| 完成后 R2 url + `storyShots.videoClipId` 回填           | ✅ 实跑                 |
+| 预留 → 结算 / 失败释放、无 $0 路径                      | ✅ 实跑                 |
+| `batchGenerateSegmentFn` 不再跳过视频                   | ⚠️ 仅静态确认 + 单测    |
+| 前端播放 `/r2/videos/...mp4`                            | ✅ 实跑（readyState=4） |
+
+**验收口径补充（PM 拍板）**：幂等只在 in-flight 期成立；clip 处于终态（completed / failed）
+后再次调用会**开启新的付费生成尝试**——这与关键帧路径的设计一致，用户需知晓。
+UI 侧在影片仍 in-flight 时禁用按钮以避免重复付费。
+
+**已知限制**：`.env.local` 无任何生成类 key（FAL / ElevenLabs / Ark / OpenRouter / xAI），
+真实 provider 的质量与费用未验证；mock 只覆盖触发 / 回写 / 计费链路。
+
 ## 簇 B — 配音 / 对白（P0-2）
 
 **接入点**：`story_shots.dialogue` → 逐句对白；`storyFilmSettings.hasVoiceover/hasSoundtrack` → 开关。
