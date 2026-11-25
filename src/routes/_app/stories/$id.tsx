@@ -7,7 +7,8 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { Button } from '@/ui/shadcn/button';
-import { PageHeader } from '@/ui/typography/page-header';
+import { PageContainer } from '@/ui/layout/page-container';
+import { PageIntro } from '@/ui/typography/page-intro';
 import { EmptyState } from '@/ui/shadcn/empty-state';
 import {
   ArrowLeftIcon,
@@ -287,10 +288,9 @@ function StoryDetailPage() {
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-6 p-6">
-      <PageHeader
+    <>
+      <PageIntro
         title={story.name}
-        description={story.description}
         actions={
           <div className="flex items-center gap-2">
             <Button variant="outline" asChild>
@@ -328,316 +328,329 @@ function StoryDetailPage() {
             </Button>
           </div>
         }
-      />
+      >
+        {story.description ?? '这个故事还没有描述'}
+      </PageIntro>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
-        <TabsList>
-          <TabsTrigger value="chapters">
-            <FileTextIcon className="size-4" />
-            章节 ({chapters.length})
-          </TabsTrigger>
-          <TabsTrigger value="filmmaking">
-            <FilmIcon className="size-4" />
-            影视制作
-          </TabsTrigger>
-          <TabsTrigger value="characters">
-            <UsersIcon className="size-4" />
-            角色 ({characters.length})
-          </TabsTrigger>
-          <TabsTrigger value="locations">
-            <MapPinIcon className="size-4" />
-            场景
-          </TabsTrigger>
-          <TabsTrigger value="hooks">
-            <BookmarkIcon className="size-4" />
-            伏笔 ({hooks.length})
-          </TabsTrigger>
-        </TabsList>
+      <PageContainer
+        padding="none"
+        className="flex min-h-0 flex-1 flex-col gap-4 px-4 pb-6"
+      >
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
+          <TabsList>
+            <TabsTrigger value="chapters">
+              <FileTextIcon className="size-4" />
+              章节 ({chapters.length})
+            </TabsTrigger>
+            <TabsTrigger value="filmmaking">
+              <FilmIcon className="size-4" />
+              影视制作
+            </TabsTrigger>
+            <TabsTrigger value="characters">
+              <UsersIcon className="size-4" />
+              角色 ({characters.length})
+            </TabsTrigger>
+            <TabsTrigger value="locations">
+              <MapPinIcon className="size-4" />
+              场景
+            </TabsTrigger>
+            <TabsTrigger value="hooks">
+              <BookmarkIcon className="size-4" />
+              伏笔 ({hooks.length})
+            </TabsTrigger>
+          </TabsList>
 
-        {/* 章节列表 */}
-        <TabsContent value="chapters" className="flex-1">
-          <div className="mb-4 flex flex-col gap-3 rounded-lg border border-primary/20 bg-primary/5 p-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="font-medium">剧本正文由 InkOS Studio 管理</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                OpenStory 负责影视化分镜、资产和视频；章节、记忆和 AI
-                写作会保存在同一个 InkOS 项目中。
-                {inkos?.status === 'unavailable' && (
-                  <span> {inkos.error ?? '连接暂时不可用'}。</span>
-                )}
-              </p>
-            </div>
-            <div className="flex shrink-0 flex-wrap gap-2">
-              <Button variant="outline" asChild>
-                <a href={inkosScriptUrl} target="_blank" rel="noreferrer">
-                  <ClapperboardIcon className="size-4" />
-                  剧本创作
-                </a>
-              </Button>
-              <Button variant="outline" asChild>
-                <a
-                  href={inkosInteractiveFilmUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <ExternalLinkIcon className="size-4" />
-                  互动影游
-                </a>
-              </Button>
-            </div>
-          </div>
-          {chapters.length === 0 ? (
-            <EmptyState
-              icon={<FileTextIcon className="size-8" />}
-              title="还没有章节"
-              description="创建第一章开始你的故事"
-              action={
-                <Button onClick={() => setShowChapterDialog(true)}>
-                  <PlusIcon className="size-4" />
-                  创建第一章
+          {/* 章节列表 */}
+          <TabsContent value="chapters" className="flex-1">
+            <div className="mb-4 flex flex-col gap-3 rounded-lg border border-primary/20 bg-primary/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="font-medium">剧本正文由 InkOS Studio 管理</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  OpenStory 负责影视化分镜、资产和视频；章节、记忆和 AI
+                  写作会保存在同一个 InkOS 项目中。
+                  {inkos?.status === 'unavailable' && (
+                    <span> {inkos.error ?? '连接暂时不可用'}。</span>
+                  )}
+                </p>
+              </div>
+              <div className="flex shrink-0 flex-wrap gap-2">
+                <Button variant="outline" asChild>
+                  <a href={inkosScriptUrl} target="_blank" rel="noreferrer">
+                    <ClapperboardIcon className="size-4" />
+                    剧本创作
+                  </a>
                 </Button>
-              }
-            />
-          ) : (
-            <div className="space-y-2">
-              {chapters.map((chapter) => (
-                <div
-                  key={chapter.id}
-                  className="flex items-center justify-between rounded-lg border bg-card p-4 transition-colors hover:bg-muted"
-                >
-                  <div className="flex items-center gap-4">
-                    <span className="text-2xl font-bold text-muted-foreground">
-                      {chapter.chapterNumber}
-                    </span>
-                    <div>
-                      <h3 className="font-medium">{chapter.title}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {chapter.wordCount.toLocaleString()} 字
-                      </p>
+                <Button variant="outline" asChild>
+                  <a
+                    href={inkosInteractiveFilmUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <ExternalLinkIcon className="size-4" />
+                    互动影游
+                  </a>
+                </Button>
+              </div>
+            </div>
+            {chapters.length === 0 ? (
+              <EmptyState
+                icon={<FileTextIcon className="size-8" />}
+                title="还没有章节"
+                description="创建第一章开始你的故事"
+                action={
+                  <Button onClick={() => setShowChapterDialog(true)}>
+                    <PlusIcon className="size-4" />
+                    创建第一章
+                  </Button>
+                }
+              />
+            ) : (
+              <div className="space-y-2">
+                {chapters.map((chapter) => (
+                  <div
+                    key={chapter.id}
+                    className="flex items-center justify-between rounded-lg border bg-card p-4 transition-colors hover:bg-muted"
+                  >
+                    <div className="flex items-center gap-4">
+                      <span className="text-2xl font-bold text-muted-foreground">
+                        {chapter.chapterNumber}
+                      </span>
+                      <div>
+                        <h3 className="font-medium">{chapter.title}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {chapter.wordCount.toLocaleString()} 字
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs ${
+                          chapter.status === 'final'
+                            ? 'bg-green-500/10 text-green-500'
+                            : chapter.status === 'review'
+                              ? 'bg-yellow-500/10 text-yellow-500'
+                              : 'bg-muted text-muted-foreground'
+                        }`}
+                      >
+                        {chapter.status === 'final'
+                          ? '已完成'
+                          : chapter.status === 'review'
+                            ? '审阅中'
+                            : '草稿'}
+                      </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-xs ${
-                        chapter.status === 'final'
-                          ? 'bg-green-500/10 text-green-500'
-                          : chapter.status === 'review'
-                            ? 'bg-yellow-500/10 text-yellow-500'
-                            : 'bg-muted text-muted-foreground'
-                      }`}
+                ))}
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => setShowChapterDialog(true)}
+                >
+                  <PlusIcon className="size-4" />
+                  添加新章节
+                </Button>
+              </div>
+            )}
+          </TabsContent>
+
+          {/* 影视制作面板 */}
+          <TabsContent value="filmmaking" className="flex-1">
+            <FilmmakingPanel
+              projectId={id}
+              chapters={chapters.map((c) => ({
+                chapterNumber: c.chapterNumber,
+                title: c.title,
+                content: c.content || '',
+              }))}
+              segments={segments}
+              shots={shots}
+              assets={assets}
+              keyframes={keyframes}
+              videoClips={videoClips}
+              filmStatus={filmStatus}
+              onSegmentChapter={async (chapterNumber) => {
+                await segmentChapterFn({
+                  data: { projectId: id, chapterNumber },
+                });
+                await navigate({
+                  to: '/stories/$id',
+                  params: { id },
+                  replace: true,
+                });
+              }}
+              onExtractAssets={async (chapterNumber) => {
+                await extractAssetsFromChapterFn({
+                  data: { projectId: id, chapterNumber },
+                });
+                await navigate({
+                  to: '/stories/$id',
+                  params: { id },
+                  replace: true,
+                });
+              }}
+              onGenerateAssetImage={async (assetId, viewAngle) => {
+                await generateAssetImageFn({
+                  data: { projectId: id, assetId, viewAngle },
+                });
+                await navigate({
+                  to: '/stories/$id',
+                  params: { id },
+                  replace: true,
+                });
+              }}
+              onGenerateKeyframe={async (shotId, referenceAssetIds) => {
+                await generateKeyframeFn({
+                  data: { projectId: id, shotId, referenceAssetIds },
+                });
+                await navigate({
+                  to: '/stories/$id',
+                  params: { id },
+                  replace: true,
+                });
+              }}
+              onGenerateVideo={async (keyframeId) => {
+                await generateVideoFn({ data: { projectId: id, keyframeId } });
+                await navigate({
+                  to: '/stories/$id',
+                  params: { id },
+                  replace: true,
+                });
+              }}
+              onBatchGenerateSegment={async (segmentId) => {
+                await batchGenerateSegmentFn({
+                  data: { projectId: id, segmentId },
+                });
+                await navigate({
+                  to: '/stories/$id',
+                  params: { id },
+                  replace: true,
+                });
+              }}
+            />
+          </TabsContent>
+
+          {/* 角色列表 */}
+          <TabsContent value="characters" className="flex-1">
+            {characters.length === 0 ? (
+              <EmptyState
+                icon={<UsersIcon className="size-8" />}
+                title="还没有角色"
+                description="添加故事中的角色"
+                action={
+                  <Button onClick={() => setShowCharacterDialog(true)}>
+                    <PlusIcon className="size-4" />
+                    添加角色
+                  </Button>
+                }
+              />
+            ) : (
+              <div className="space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {characters.map((character) => (
+                    <div
+                      key={character.id}
+                      className="rounded-lg border bg-card p-4"
                     >
-                      {chapter.status === 'final'
-                        ? '已完成'
-                        : chapter.status === 'review'
-                          ? '审阅中'
-                          : '草稿'}
-                    </span>
-                  </div>
+                      <h3 className="font-medium">{character.name}</h3>
+                      {character.description && (
+                        <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                          {character.description}
+                        </p>
+                      )}
+                    </div>
+                  ))}
                 </div>
-              ))}
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => setShowChapterDialog(true)}
-              >
-                <PlusIcon className="size-4" />
-                添加新章节
-              </Button>
-            </div>
-          )}
-        </TabsContent>
-
-        {/* 影视制作面板 */}
-        <TabsContent value="filmmaking" className="flex-1">
-          <FilmmakingPanel
-            projectId={id}
-            chapters={chapters.map((c) => ({
-              chapterNumber: c.chapterNumber,
-              title: c.title,
-              content: c.content || '',
-            }))}
-            segments={segments}
-            shots={shots}
-            assets={assets}
-            keyframes={keyframes}
-            videoClips={videoClips}
-            filmStatus={filmStatus}
-            onSegmentChapter={async (chapterNumber) => {
-              await segmentChapterFn({
-                data: { projectId: id, chapterNumber },
-              });
-              await navigate({
-                to: '/stories/$id',
-                params: { id },
-                replace: true,
-              });
-            }}
-            onExtractAssets={async (chapterNumber) => {
-              await extractAssetsFromChapterFn({
-                data: { projectId: id, chapterNumber },
-              });
-              await navigate({
-                to: '/stories/$id',
-                params: { id },
-                replace: true,
-              });
-            }}
-            onGenerateAssetImage={async (assetId, viewAngle) => {
-              await generateAssetImageFn({
-                data: { projectId: id, assetId, viewAngle },
-              });
-              await navigate({
-                to: '/stories/$id',
-                params: { id },
-                replace: true,
-              });
-            }}
-            onGenerateKeyframe={async (shotId, referenceAssetIds) => {
-              await generateKeyframeFn({
-                data: { projectId: id, shotId, referenceAssetIds },
-              });
-              await navigate({
-                to: '/stories/$id',
-                params: { id },
-                replace: true,
-              });
-            }}
-            onGenerateVideo={async (keyframeId) => {
-              await generateVideoFn({ data: { projectId: id, keyframeId } });
-              await navigate({
-                to: '/stories/$id',
-                params: { id },
-                replace: true,
-              });
-            }}
-            onBatchGenerateSegment={async (segmentId) => {
-              await batchGenerateSegmentFn({
-                data: { projectId: id, segmentId },
-              });
-              await navigate({
-                to: '/stories/$id',
-                params: { id },
-                replace: true,
-              });
-            }}
-          />
-        </TabsContent>
-
-        {/* 角色列表 */}
-        <TabsContent value="characters" className="flex-1">
-          {characters.length === 0 ? (
-            <EmptyState
-              icon={<UsersIcon className="size-8" />}
-              title="还没有角色"
-              description="添加故事中的角色"
-              action={
-                <Button onClick={() => setShowCharacterDialog(true)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowCharacterDialog(true)}
+                >
                   <PlusIcon className="size-4" />
                   添加角色
                 </Button>
-              }
-            />
-          ) : (
-            <div className="space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {characters.map((character) => (
-                  <div
-                    key={character.id}
-                    className="rounded-lg border bg-card p-4"
-                  >
-                    <h3 className="font-medium">{character.name}</h3>
-                    {character.description && (
-                      <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                        {character.description}
-                      </p>
-                    )}
-                  </div>
-                ))}
               </div>
-              <Button
-                variant="outline"
-                onClick={() => setShowCharacterDialog(true)}
-              >
-                <PlusIcon className="size-4" />
-                添加角色
-              </Button>
-            </div>
-          )}
-        </TabsContent>
+            )}
+          </TabsContent>
 
-        {/* 场景列表 */}
-        <TabsContent value="locations" className="flex-1">
-          <EmptyState
-            icon={<MapPinIcon className="size-8" />}
-            title="还没有场景"
-            description="添加故事中的场景地点"
-            action={
-              <Button>
-                <PlusIcon className="size-4" />
-                添加场景
-              </Button>
-            }
-          />
-        </TabsContent>
-
-        {/* 伏笔追踪 */}
-        <TabsContent value="hooks" className="flex-1">
-          {hooks.length === 0 ? (
+          {/* 场景列表 */}
+          <TabsContent value="locations" className="flex-1">
             <EmptyState
-              icon={<BookmarkIcon className="size-8" />}
-              title="还没有伏笔"
-              description="伏笔系统会追踪故事中的悬念和待解决的问题"
+              icon={<MapPinIcon className="size-8" />}
+              title="还没有场景"
+              description="添加故事中的场景地点"
               action={
-                <Button onClick={() => setShowHookDialog(true)}>
+                <Button>
                   <PlusIcon className="size-4" />
-                  添加伏笔
+                  添加场景
                 </Button>
               }
             />
-          ) : (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                {hooks.map((hook) => (
-                  <div key={hook.id} className="rounded-lg border bg-card p-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-medium">{hook.hookId}</h3>
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-xs ${
-                          hook.status === 'resolved'
-                            ? 'bg-green-500/10 text-green-500'
+          </TabsContent>
+
+          {/* 伏笔追踪 */}
+          <TabsContent value="hooks" className="flex-1">
+            {hooks.length === 0 ? (
+              <EmptyState
+                icon={<BookmarkIcon className="size-8" />}
+                title="还没有伏笔"
+                description="伏笔系统会追踪故事中的悬念和待解决的问题"
+                action={
+                  <Button onClick={() => setShowHookDialog(true)}>
+                    <PlusIcon className="size-4" />
+                    添加伏笔
+                  </Button>
+                }
+              />
+            ) : (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  {hooks.map((hook) => (
+                    <div
+                      key={hook.id}
+                      className="rounded-lg border bg-card p-4"
+                    >
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-medium">{hook.hookId}</h3>
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-xs ${
+                            hook.status === 'resolved'
+                              ? 'bg-green-500/10 text-green-500'
+                              : hook.status === 'advanced'
+                                ? 'bg-blue-500/10 text-blue-500'
+                                : 'bg-yellow-500/10 text-yellow-500'
+                          }`}
+                        >
+                          {hook.status === 'resolved'
+                            ? '已解决'
                             : hook.status === 'advanced'
-                              ? 'bg-blue-500/10 text-blue-500'
-                              : 'bg-yellow-500/10 text-yellow-500'
-                        }`}
-                      >
-                        {hook.status === 'resolved'
-                          ? '已解决'
-                          : hook.status === 'advanced'
-                            ? '已推进'
-                            : '待处理'}
-                      </span>
+                              ? '已推进'
+                              : '待处理'}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        <span>
+                          类型:{' '}
+                          {HOOK_TYPES.find((t) => t.value === hook.type)
+                            ?.label || hook.type}
+                        </span>
+                        {hook.expectedPayoff && (
+                          <span> | 预期结局: {hook.expectedPayoff}</span>
+                        )}
+                      </p>
                     </div>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      <span>
-                        类型:{' '}
-                        {HOOK_TYPES.find((t) => t.value === hook.type)?.label ||
-                          hook.type}
-                      </span>
-                      {hook.expectedPayoff && (
-                        <span> | 预期结局: {hook.expectedPayoff}</span>
-                      )}
-                    </p>
-                  </div>
-                ))}
+                  ))}
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowHookDialog(true)}
+                >
+                  <PlusIcon className="size-4" />
+                  添加伏笔
+                </Button>
               </div>
-              <Button variant="outline" onClick={() => setShowHookDialog(true)}>
-                <PlusIcon className="size-4" />
-                添加伏笔
-              </Button>
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
+            )}
+          </TabsContent>
+        </Tabs>
+      </PageContainer>
 
       {/* 创建章节对话框 */}
       <Dialog open={showChapterDialog} onOpenChange={setShowChapterDialog}>
@@ -940,6 +953,6 @@ function StoryDetailPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }

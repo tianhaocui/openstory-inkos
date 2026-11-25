@@ -255,3 +255,32 @@ src/ui/text-editor/markdown-editor.stories.tsx
 > `chromatic.config.json`、`vite.config.ts`；未读取/输出任何 token 或 `.env.local` 内容；
 > 未 stop 系统服务 `openstory.service`，仅清理卡死会话遗留在 :3002 的 test server 与挂起的 runner；
 > 未 push、未 force push、未 reset --hard；按本轮授权范围改了 `e2e/*` 与 `playwright.config.ts`。
+
+## 8. P3 组件层重锁（2026-11-25）
+
+P3 要求在 `filmmaking-panel.tsx` 的**非冻结区**替换状态标签、阶段进度、固定高度、
+整卡 onClick，并接入 `ShotActionButton` 外包。父会话裁决采用方案 B：允许改非冻结区，
+并用「冻结逻辑区逐字哈希」守护防重复扣费，**不再以整个文件的 sha256 不变作为判据**。
+
+| 文件 / 区域                                                                | P0 sha256（原）                                                    | P3 sha256（现）                                                    | 结论                             |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------ | -------------------------------- |
+| `src/stories/ui/filmmaking-panel.tsx`（全文件）                            | `56eaabbae3ef64e692551b11d11929ba74bb6a0b0fd8fd8b38fadcf4909e8f28` | `d6679b1a0f1e8c2416d4bce431e9ddada2c0323064c06189a87b44d9af994fec` | 因非冻结区改造而**变更**（预期） |
+| **冻结逻辑区**（`/** Mirror of generateVideoFn` → `ShotVideoButton` 结束） | `ffa1cf1ae5d030bb2c23a52afe50e77c01ec72b96fcdee029a4fe4dd4b66d9af` | `ffa1cf1ae5d030bb2c23a52afe50e77c01ec72b96fcdee029a4fe4dd4b66d9af` | **逐字一致**（核心判据）         |
+| `src/stories/ui/filmmaking-panel.test.tsx`                                 | `afd37ed42b0c559c30b4e9d6be5e4fe3695c25cdaaff8f1be35b79211dcaff92` | `afd37ed42b0c559c30b4e9d6be5e4fe3695c25cdaaff8f1be35b79211dcaff92` | **未变**                         |
+| `src/stories/ai-filmmaking.fn.ts`                                          | `9bcb598d68e7d46f3139ac58500c0995a798dd9850a87e2e9e3be21a4e9248ec` | `9bcb598d68e7d46f3139ac58500c0995a798dd9850a87e2e9e3be21a4e9248ec` | **未变**                         |
+
+复核命令（可从任意 HEAD 复算）：
+
+```bash
+# 冻结逻辑区（不依赖行号，避免上方改动造成偏移）
+awk '/^\/\*\* Mirror of generateVideoFn/{f=1} /^interface FilmmakingPanelProps/{f=0} f' \
+  src/stories/ui/filmmaking-panel.tsx | sha256sum
+# 另两个冻结文件
+sha256sum src/stories/ui/filmmaking-panel.test.tsx src/stories/ai-filmmaking.fn.ts
+```
+
+`ShotActionButton`（`src/ui/shot-action-button.tsx`）只在 `ShotVideoButton` 外包一层
+`<fieldset aria-label>`（i18n 文案 + 缺 key 回退中文）、`data-toast-id` 与焦点恢复；
+props 原样透传，回调签名不变，视频逻辑与扣费判断全部留在未改动的冻结区内。
+P3 新增 9 条外包/公共组件单测，`bun run test` 实测 439 文件 / 4717 用例全绿
+（4708 基线 + 9），契约 7/7 与 `ai-filmmaking.video.test.ts` 5/5 逐条通过。

@@ -7,6 +7,12 @@ interface PageHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   description?: React.ReactNode;
 }
 
+/**
+ * 容器内标题条（卡片、Tab 面板内部的标题 + 操作区）。
+ *
+ * 页面级标题请使用 `PageIntro`：它统一页面左右边距、sr-only 的 h1
+ * 与描述排版，避免每页各写一套 PageContainer + PageHeader。
+ */
 export const PageHeader: React.FC<PageHeaderProps> = ({
   className,
   children,

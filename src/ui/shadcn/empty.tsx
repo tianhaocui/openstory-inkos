@@ -2,6 +2,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from '@/ui/utils';
 
+/** @deprecated 请使用 `EmptyState`（`@/ui/shadcn/empty-state`）。 */
 function Empty({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -15,6 +16,7 @@ function Empty({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
+/** @deprecated 请使用 `EmptyState`（`@/ui/shadcn/empty-state`）。 */
 function EmptyHeader({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -40,6 +42,7 @@ const emptyMediaVariants = cva(
   }
 );
 
+/** @deprecated 请使用 `EmptyState`（`@/ui/shadcn/empty-state`）。 */
 function EmptyMedia({
   className,
   variant = 'default',
@@ -55,6 +58,7 @@ function EmptyMedia({
   );
 }
 
+/** @deprecated 请使用 `EmptyState`（`@/ui/shadcn/empty-state`）。 */
 function EmptyTitle({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -68,6 +72,7 @@ function EmptyTitle({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
+/** @deprecated 请使用 `EmptyState`（`@/ui/shadcn/empty-state`）。 */
 function EmptyDescription({ className, ...props }: React.ComponentProps<'p'>) {
   return (
     <div
@@ -81,6 +86,7 @@ function EmptyDescription({ className, ...props }: React.ComponentProps<'p'>) {
   );
 }
 
+/** @deprecated 请使用 `EmptyState`（`@/ui/shadcn/empty-state`）。 */
 function EmptyContent({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div

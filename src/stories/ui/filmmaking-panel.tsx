@@ -12,7 +12,6 @@ import {
   CardTitle,
 } from '@/ui/shadcn/card';
 import { Badge } from '@/ui/shadcn/badge';
-import { Progress } from '@/ui/shadcn/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/shadcn/tabs';
 import { ScrollArea } from '@/ui/shadcn/scroll-area';
 import {
@@ -33,9 +32,13 @@ import {
   SparklesIcon,
   PlayIcon,
   CheckCircleIcon,
-  AlertCircleIcon,
   ChevronRightIcon,
 } from 'lucide-react';
+import { GenerationStateBanner } from '@/ui/generation-state-banner';
+import { MediaThumbnail } from '@/ui/media-thumbnail';
+import { PipelineProgress, type PipelineStage } from '@/ui/pipeline-progress';
+import { ShotActionButton, shotActionToastId } from '@/ui/shot-action-button';
+import { StatusBadge, statusLabel } from '@/ui/status-badge';
 import type { FilmProjectStatus } from '@/stories/inkos-integration';
 
 // Types
@@ -93,43 +96,6 @@ interface VideoClip {
   duration: number | null;
   status: string;
 }
-
-const SHOT_SIZE_LABELS: Record<string, string> = {
-  extreme_wide: '大远景',
-  wide: '远景',
-  full: '全景',
-  medium_wide: '中远景',
-  medium: '中景',
-  medium_close: '中近景',
-  close_up: '近景',
-  extreme_close_up: '特写',
-};
-
-const CAMERA_ANGLE_LABELS: Record<string, string> = {
-  eye_level: '平视',
-  high: '高角度',
-  low: '低角度',
-  bird_eye: '俯瞰',
-  overhead: '顶视',
-  dutch: '倾斜角',
-};
-
-const VIEW_ANGLE_LABELS: Record<string, string> = {
-  front: '正面',
-  side: '侧面',
-  back: '背面',
-  wide: '全景',
-  detail: '细节',
-};
-
-const VIDEO_STATUS_LABELS: Record<string, string> = {
-  pending: '等待中',
-  queued: '排队中',
-  processing: '生成中',
-  generating: '生成中',
-  failed: '失败',
-  completed: '完成',
-};
 
 /** Mirror of generateVideoFn's in-flight guard: a clip that already holds a
  *  reservation must not be queued (and paid for) a second time by a click. */
@@ -242,10 +208,47 @@ export function FilmmakingPanel({
   const [showVideoPreview, setShowVideoPreview] = useState(false);
   const [previewVideoUrl, setPreviewVideoUrl] = useState('');
 
-  // 计算进度
-  const segmentProgress = filmStatus.stages.storyboard.completed ? 100 : 0;
-  const assetProgress = filmStatus.stages.assets.completed ? 100 : 0;
-  const videoProgress = filmStatus.stages.video.completed ? 100 : 0;
+  // 阶段态：不伪造 0/100 百分比，直接展示每阶段的完成情况和计数。
+  const pipelineStages: PipelineStage[] = [
+    {
+      label: '故事与剧本',
+      state: filmStatus.stages.story.completed ? 'completed' : 'pending',
+      detail: `${filmStatus.stages.story.chapterCount} 章`,
+    },
+    {
+      label: '分镜切分',
+      state: filmStatus.stages.storyboard.completed
+        ? 'completed'
+        : filmStatus.stages.story.chapterCount > 0
+          ? 'active'
+          : 'pending',
+      detail: `${filmStatus.stages.storyboard.segmentCount} 片段 / ${filmStatus.stages.storyboard.shotCount} 镜头`,
+    },
+    {
+      label: '资产与关键帧',
+      state: filmStatus.stages.assets.completed
+        ? 'completed'
+        : filmStatus.stages.storyboard.completed
+          ? 'active'
+          : 'pending',
+      detail: `${filmStatus.stages.assets.characterCount + filmStatus.stages.assets.sceneAssetCount} 资产 / ${filmStatus.stages.keyframes.approvedCount} 已批准`,
+    },
+    {
+      label: '视频生成',
+      state: filmStatus.stages.video.completed
+        ? 'completed'
+        : filmStatus.stages.keyframes.approvedCount > 0
+          ? 'active'
+          : 'pending',
+      detail: `${filmStatus.stages.video.generatedCount}/${filmStatus.stages.video.clipCount} 片段`,
+      percent:
+        filmStatus.stages.video.clipCount > 0
+          ? (filmStatus.stages.video.generatedCount /
+              filmStatus.stages.video.clipCount) *
+            100
+          : undefined,
+    },
+  ];
 
   // 处理分镜切分
   const handleSegmentChapter = async (chapterNumber: number) => {
@@ -331,48 +334,15 @@ export function FilmmakingPanel({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">分镜切分</span>
-                <span>{filmStatus.stages.storyboard.segmentCount} 片段</span>
-              </div>
-              <Progress value={segmentProgress} className="h-2" />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">资产生成</span>
-                <span>
-                  {filmStatus.stages.assets.characterCount +
-                    filmStatus.stages.assets.sceneAssetCount}{' '}
-                  资产
-                </span>
-              </div>
-              <Progress value={assetProgress} className="h-2" />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">视频生成</span>
-                <span>
-                  {filmStatus.stages.video.generatedCount}/
-                  {filmStatus.stages.video.clipCount} 片段
-                </span>
-              </div>
-              <Progress value={videoProgress} className="h-2" />
-            </div>
-          </div>
+          <PipelineProgress stages={pipelineStages} />
         </CardContent>
       </Card>
 
       {/* 处理中提示 */}
-      {isProcessing && (
-        <Card className="border-primary/50 bg-primary/5">
-          <CardContent className="flex items-center gap-3 py-4">
-            <Loader2Icon className="size-5 animate-spin text-primary" />
-            <span>{processingStep}</span>
-          </CardContent>
-        </Card>
-      )}
+      <GenerationStateBanner
+        phase={isProcessing ? 'loading' : 'idle'}
+        title={processingStep}
+      />
 
       {/* 主标签页 */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -475,12 +445,12 @@ export function FilmmakingPanel({
         <TabsContent value="segments" className="space-y-4">
           <div className="grid gap-4 lg:grid-cols-2">
             {/* 片段列表 */}
-            <Card className="lg:col-span-1">
+            <Card className="flex min-h-0 flex-col lg:col-span-1">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">片段列表</CardTitle>
               </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-[400px]">
+              <CardContent className="flex min-h-0 flex-1 flex-col">
+                <ScrollArea className="min-h-0 max-h-[28rem] flex-1">
                   <div className="space-y-2">
                     {segments.map((segment) => (
                       <button
@@ -521,7 +491,7 @@ export function FilmmakingPanel({
             </Card>
 
             {/* 镜头详情 */}
-            <Card className="lg:col-span-1">
+            <Card className="flex min-h-0 flex-col lg:col-span-1">
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-base">
@@ -543,8 +513,8 @@ export function FilmmakingPanel({
                   )}
                 </div>
               </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-[400px]">
+              <CardContent className="flex min-h-0 flex-1 flex-col">
+                <ScrollArea className="min-h-0 max-h-[28rem] flex-1">
                   {selectedSegment ? (
                     <div className="space-y-3">
                       {shots
@@ -570,22 +540,14 @@ export function FilmmakingPanel({
                                     <span className="font-mono text-sm">
                                       镜头 {shot.shotNumber}
                                     </span>
-                                    <Badge
-                                      variant="outline"
-                                      className="text-xs"
-                                    >
-                                      {SHOT_SIZE_LABELS[
-                                        shot.shotSize || 'medium'
-                                      ] ?? shot.shotSize}
-                                    </Badge>
-                                    <Badge
-                                      variant="outline"
-                                      className="text-xs"
-                                    >
-                                      {CAMERA_ANGLE_LABELS[
-                                        shot.cameraAngle || 'eye_level'
-                                      ] ?? shot.cameraAngle}
-                                    </Badge>
+                                    <StatusBadge
+                                      domain="shot-size"
+                                      status={shot.shotSize || 'medium'}
+                                    />
+                                    <StatusBadge
+                                      domain="camera-angle"
+                                      status={shot.cameraAngle || 'eye_level'}
+                                    />
                                   </div>
                                   <p className="mt-1 text-sm text-muted-foreground">
                                     {shot.description || '无描述'}
@@ -598,15 +560,17 @@ export function FilmmakingPanel({
                                 </div>
                                 <div className="flex flex-col gap-1">
                                   {shotKeyframe?.imageUrl ? (
-                                    <img
+                                    <MediaThumbnail
                                       src={shotKeyframe.imageUrl}
                                       alt="关键帧"
-                                      className="h-16 w-24 rounded object-cover"
+                                      shotNumber={shot.shotNumber}
+                                      className="h-16 w-24"
                                     />
                                   ) : (
                                     <Button
                                       size="sm"
                                       variant="outline"
+                                      aria-label={`为镜头 ${shot.shotNumber} 生成关键帧`}
                                       onClick={() =>
                                         void handleGenerateKeyframe(shot.id)
                                       }
@@ -615,7 +579,7 @@ export function FilmmakingPanel({
                                       <ImageIcon className="size-4" />
                                     </Button>
                                   )}
-                                  <ShotVideoButton
+                                  <ShotActionButton
                                     shotNumber={shot.shotNumber}
                                     keyframe={shotKeyframe}
                                     clips={shotClips}
@@ -625,6 +589,7 @@ export function FilmmakingPanel({
                                       setPreviewVideoUrl(url);
                                       setShowVideoPreview(true);
                                     }}
+                                    toastId={shotActionToastId(shot.shotNumber)}
                                   />
                                 </div>
                               </div>
@@ -647,14 +612,7 @@ export function FilmmakingPanel({
         <TabsContent value="assets" className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {assets.map((asset) => (
-              <Card
-                key={asset.id}
-                className="cursor-pointer transition-colors hover:bg-muted"
-                onClick={() => {
-                  setSelectedAsset(asset);
-                  setShowAssetDialog(true);
-                }}
-              >
+              <Card key={asset.id}>
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
                     <div className="flex size-10 items-center justify-center rounded-lg bg-muted">
@@ -666,17 +624,23 @@ export function FilmmakingPanel({
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <h4 className="font-medium">{asset.name}</h4>
-                        <Badge
-                          variant={
-                            asset.status === 'generated'
-                              ? 'default'
-                              : 'secondary'
-                          }
-                          className="text-xs"
-                        >
-                          {asset.status === 'generated' ? '已生成' : '待生成'}
-                        </Badge>
+                        <h4 className="font-medium">
+                          <Button
+                            type="button"
+                            variant="link"
+                            className="h-auto p-0 font-medium"
+                            onClick={() => {
+                              setSelectedAsset(asset);
+                              setShowAssetDialog(true);
+                            }}
+                          >
+                            {asset.name}
+                          </Button>
+                        </h4>
+                        <StatusBadge
+                          domain="asset-status"
+                          status={asset.status}
+                        />
                       </div>
                       <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
                         {asset.description || '无描述'}
@@ -686,13 +650,11 @@ export function FilmmakingPanel({
                   {asset.views && asset.views.length > 0 && (
                     <div className="mt-3 flex gap-2">
                       {asset.views.slice(0, 3).map((view) => (
-                        <img
+                        <MediaThumbnail
                           key={view.id}
-                          src={view.imageUrl || ''}
-                          alt={
-                            VIEW_ANGLE_LABELS[view.viewAngle] ?? view.viewAngle
-                          }
-                          className="h-12 w-16 rounded object-cover"
+                          src={view.imageUrl}
+                          alt={`${asset.name} · ${statusLabel('view-angle', view.viewAngle)}`}
+                          className="h-12 w-16"
                         />
                       ))}
                       {asset.views.length > 3 && (
@@ -720,6 +682,9 @@ export function FilmmakingPanel({
             {videoClips.map((clip) => {
               const keyframe = keyframes.find((k) => k.id === clip.keyframeId);
               const clipVideoUrl = clip.videoUrl;
+              const clipShotNumber = shots.find(
+                (s) => s.id === keyframe?.shotId
+              )?.shotNumber;
 
               return (
                 <Card key={clip.id}>
@@ -727,10 +692,11 @@ export function FilmmakingPanel({
                     <div className="relative aspect-video overflow-hidden rounded-lg bg-muted">
                       {clipVideoUrl ? (
                         <>
-                          <img
-                            src={keyframe?.imageUrl || ''}
+                          <MediaThumbnail
+                            src={keyframe?.imageUrl}
                             alt="视频缩略图"
-                            className="h-full w-full object-cover"
+                            shotNumber={clipShotNumber}
+                            className="h-full w-full"
                           />
                           <Button
                             size="sm"
@@ -755,18 +721,7 @@ export function FilmmakingPanel({
                       <span className="text-sm text-muted-foreground">
                         {clip.duration ? `${clip.duration} 秒` : '生成中...'}
                       </span>
-                      <Badge
-                        variant={
-                          clip.status === 'completed' ? 'default' : 'secondary'
-                        }
-                      >
-                        {clip.status === 'completed' ? (
-                          <CheckCircleIcon className="mr-1 size-3" />
-                        ) : (
-                          <AlertCircleIcon className="mr-1 size-3" />
-                        )}
-                        {VIDEO_STATUS_LABELS[clip.status] ?? clip.status}
-                      </Badge>
+                      <StatusBadge domain="video-status" status={clip.status} />
                     </div>
                   </CardContent>
                 </Card>
@@ -804,15 +759,13 @@ export function FilmmakingPanel({
                 <div className="grid gap-2 sm:grid-cols-3">
                   {selectedAsset.views.map((view) => (
                     <div key={view.id} className="space-y-1">
-                      <img
-                        src={view.imageUrl || ''}
-                        alt={
-                          VIEW_ANGLE_LABELS[view.viewAngle] ?? view.viewAngle
-                        }
-                        className="aspect-video w-full rounded-lg object-cover"
+                      <MediaThumbnail
+                        src={view.imageUrl}
+                        alt={`${selectedAsset.name} · ${statusLabel('view-angle', view.viewAngle)}`}
+                        className="aspect-video w-full"
                       />
                       <p className="text-center text-xs text-muted-foreground">
-                        {VIEW_ANGLE_LABELS[view.viewAngle] ?? view.viewAngle}
+                        {statusLabel('view-angle', view.viewAngle)}
                       </p>
                     </div>
                   ))}

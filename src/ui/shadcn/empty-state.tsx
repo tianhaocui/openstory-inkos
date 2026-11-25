@@ -45,6 +45,7 @@ interface EmptyStateProps
   iconSize?: VariantProps<typeof iconContainerVariants>['size'];
 }
 
+/** 空态的默认组件；`Empty*` 系列已 deprecated，请勿在新代码中使用。 */
 export const EmptyState: React.FC<EmptyStateProps> = ({
   className,
   spacing,
