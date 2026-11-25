@@ -235,7 +235,7 @@ export const LocationSuggestionSelector: React.FC<
             </div>
 
             {/* Locations grid */}
-            <ScrollArea className="h-[400px]">
+            <ScrollArea className="min-h-0 max-h-[28rem] flex-1">
               {isLoading ? (
                 <div className="grid grid-cols-2 gap-4 p-1 sm:grid-cols-3">
                   {Array.from({ length: 6 }).map((_, i) => (

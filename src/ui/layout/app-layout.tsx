@@ -17,6 +17,7 @@ import { AutoTopUpFailedBanner } from './auto-top-up-failed-banner';
 import { Breadcrumbs } from './breadcrumbs';
 import { ComplianceRestrictionBanner } from './compliance-restriction-banner';
 import { InvalidApiKeyBanner } from './invalid-api-key-banner';
+import { ThemeToggle } from './theme-toggle';
 
 interface AppLayoutProps extends React.HTMLAttributes<HTMLElement> {}
 
@@ -44,6 +45,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
                   <div className="min-w-0 flex-1">
                     <Breadcrumbs />
                   </div>
+                  <ThemeToggle />
                 </header>
                 <ComplianceRestrictionBanner />
                 <InvalidApiKeyBanner />

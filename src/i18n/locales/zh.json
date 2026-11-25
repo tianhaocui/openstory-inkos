@@ -316,6 +316,8 @@
     "invalidApiKeyMessage": "你的 OpenRouter API 密钥无效。修复前，生成任务将暂时使用平台密钥。",
     "goFixApiKey": "前往设置修复 →",
     "theme": "主题",
+    "appearance": "外观",
+    "toggleTheme": "切换主题",
     "darkMode": "深色模式",
     "lightMode": "浅色模式",
     "systemMode": "跟随系统",

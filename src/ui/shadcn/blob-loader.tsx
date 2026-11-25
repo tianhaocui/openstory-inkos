@@ -37,6 +37,9 @@ export const BlobLoader: React.FC<BlobLoaderProps> = ({
       <div
         className={cn(
           config.blob,
+          // Brand-decorative gradient kept as-is (same palette as the logo).
+          // Hardcoded brand colours are exempt from tokenisation — see
+          // docs/plans/ui-unification.md §8.1.
           'bg-linear-to-br from-[#6D28D9] via-[#A855F7] to-[#EA7B30]',
           'dark:from-[#A770EF] dark:via-[#CF8BF3] dark:to-[#FDB99B]',
           'bg-[length:200%_200%]',

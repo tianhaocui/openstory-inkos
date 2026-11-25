@@ -110,7 +110,7 @@ export const TalentPickerDialog: React.FC<TalentPickerDialogProps> = ({
         </div>
 
         {/* Talent grid */}
-        <ScrollArea className="h-[400px]">
+        <ScrollArea className="min-h-0 max-h-[28rem] flex-1">
           {isLoading ? (
             <div className="grid grid-cols-3 gap-4 p-1 sm:grid-cols-4">
               {Array.from({ length: 8 }).map((_, i) => (

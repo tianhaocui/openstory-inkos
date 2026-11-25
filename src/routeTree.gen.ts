@@ -58,6 +58,7 @@ import { Route as AppSequencesIndexRouteImport } from './routes/_app/sequences/i
 import { Route as AppSequencesIdRouteRouteImport } from './routes/_app/sequences/$id/route'
 import { Route as AppSettingsIndexRouteImport } from './routes/_app/settings/index'
 import { Route as AppSettingsApiKeysRouteImport } from './routes/_app/settings/api-keys'
+import { Route as AppSettingsAppearanceRouteImport } from './routes/_app/settings/appearance'
 import { Route as AppSettingsDeveloperRouteImport } from './routes/_app/settings/developer'
 import { Route as AppSettingsPasskeysRouteImport } from './routes/_app/settings/passkeys'
 import { Route as AppStoriesIndexRouteImport } from './routes/_app/stories/index'
@@ -371,6 +372,11 @@ const AppSettingsIndexRoute = AppSettingsIndexRouteImport.update({
 const AppSettingsApiKeysRoute = AppSettingsApiKeysRouteImport.update({
   id: '/api-keys',
   path: '/api-keys',
+  getParentRoute: () => AppSettingsRouteRoute,
+} as any)
+const AppSettingsAppearanceRoute = AppSettingsAppearanceRouteImport.update({
+  id: '/appearance',
+  path: '/appearance',
   getParentRoute: () => AppSettingsRouteRoute,
 } as any)
 const AppSettingsDeveloperRoute = AppSettingsDeveloperRouteImport.update({
@@ -784,6 +790,7 @@ export interface FileRoutesByFullPath {
   '/models/$': typeof AppModelsSplatRoute
   '/oauth/consent': typeof AppOauthConsentRoute
   '/settings/api-keys': typeof AppSettingsApiKeysRoute
+  '/settings/appearance': typeof AppSettingsAppearanceRoute
   '/settings/developer': typeof AppSettingsDeveloperRoute
   '/settings/passkeys': typeof AppSettingsPasskeysRoute
   '/stories/$id': typeof AppStoriesIdRoute
@@ -901,6 +908,7 @@ export interface FileRoutesByTo {
   '/models/$': typeof AppModelsSplatRoute
   '/oauth/consent': typeof AppOauthConsentRoute
   '/settings/api-keys': typeof AppSettingsApiKeysRoute
+  '/settings/appearance': typeof AppSettingsAppearanceRoute
   '/settings/developer': typeof AppSettingsDeveloperRoute
   '/settings/passkeys': typeof AppSettingsPasskeysRoute
   '/stories/$id': typeof AppStoriesIdRoute
@@ -1024,6 +1032,7 @@ export interface FileRoutesById {
   '/_app/models/$': typeof AppModelsSplatRoute
   '/_app/oauth/consent': typeof AppOauthConsentRoute
   '/_app/settings/api-keys': typeof AppSettingsApiKeysRoute
+  '/_app/settings/appearance': typeof AppSettingsAppearanceRoute
   '/_app/settings/developer': typeof AppSettingsDeveloperRoute
   '/_app/settings/passkeys': typeof AppSettingsPasskeysRoute
   '/_app/stories/$id': typeof AppStoriesIdRoute
@@ -1146,6 +1155,7 @@ export interface FileRouteTypes {
     | '/models/$'
     | '/oauth/consent'
     | '/settings/api-keys'
+    | '/settings/appearance'
     | '/settings/developer'
     | '/settings/passkeys'
     | '/stories/$id'
@@ -1263,6 +1273,7 @@ export interface FileRouteTypes {
     | '/models/$'
     | '/oauth/consent'
     | '/settings/api-keys'
+    | '/settings/appearance'
     | '/settings/developer'
     | '/settings/passkeys'
     | '/stories/$id'
@@ -1385,6 +1396,7 @@ export interface FileRouteTypes {
     | '/_app/models/$'
     | '/_app/oauth/consent'
     | '/_app/settings/api-keys'
+    | '/_app/settings/appearance'
     | '/_app/settings/developer'
     | '/_app/settings/passkeys'
     | '/_app/stories/$id'
@@ -1842,6 +1854,13 @@ declare module '@tanstack/react-router' {
       path: '/api-keys'
       fullPath: '/settings/api-keys'
       preLoaderRoute: typeof AppSettingsApiKeysRouteImport
+      parentRoute: typeof AppSettingsRouteRoute
+    }
+    '/_app/settings/appearance': {
+      id: '/_app/settings/appearance'
+      path: '/appearance'
+      fullPath: '/settings/appearance'
+      preLoaderRoute: typeof AppSettingsAppearanceRouteImport
       parentRoute: typeof AppSettingsRouteRoute
     }
     '/_app/settings/developer': {
@@ -2360,6 +2379,7 @@ const AppAdminRouteRouteWithChildren = AppAdminRouteRoute._addFileChildren(
 
 interface AppSettingsRouteRouteChildren {
   AppSettingsApiKeysRoute: typeof AppSettingsApiKeysRoute
+  AppSettingsAppearanceRoute: typeof AppSettingsAppearanceRoute
   AppSettingsDeveloperRoute: typeof AppSettingsDeveloperRoute
   AppSettingsPasskeysRoute: typeof AppSettingsPasskeysRoute
   AppSettingsIndexRoute: typeof AppSettingsIndexRoute
@@ -2367,6 +2387,7 @@ interface AppSettingsRouteRouteChildren {
 
 const AppSettingsRouteRouteChildren: AppSettingsRouteRouteChildren = {
   AppSettingsApiKeysRoute: AppSettingsApiKeysRoute,
+  AppSettingsAppearanceRoute: AppSettingsAppearanceRoute,
   AppSettingsDeveloperRoute: AppSettingsDeveloperRoute,
   AppSettingsPasskeysRoute: AppSettingsPasskeysRoute,
   AppSettingsIndexRoute: AppSettingsIndexRoute,

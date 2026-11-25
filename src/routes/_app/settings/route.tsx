@@ -12,7 +12,7 @@ import {
   Outlet,
   useLocation,
 } from '@tanstack/react-router';
-import { Fingerprint, Key, Terminal } from 'lucide-react';
+import { Fingerprint, Key, Palette, Terminal } from 'lucide-react';
 import i18n from '@/i18n';
 import { useTranslation } from 'react-i18next';
 
@@ -38,6 +38,12 @@ export const Route = createFileRoute('/_app/settings')({
 });
 
 const tabs = [
+  {
+    value: 'appearance',
+    label: 'settings.appearance',
+    href: '/settings/appearance',
+    icon: <Palette className="h-4 w-4" />,
+  },
   {
     value: 'api-keys',
     label: 'settings.apiKeys',
