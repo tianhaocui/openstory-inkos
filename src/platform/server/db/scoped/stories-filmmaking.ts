@@ -579,6 +579,22 @@ export function createStoryFilmmakingMethods(db: Database) {
     return clip?.projectId;
   }
 
+  /** Latest clip for a keyframe in this project — the in-flight guard for i2v. */
+  async function getLatestVideoClip(projectId: string, keyframeId: string) {
+    const [clip] = await db
+      .select()
+      .from(storyVideoClips)
+      .where(
+        and(
+          eq(storyVideoClips.projectId, projectId),
+          eq(storyVideoClips.keyframeId, keyframeId)
+        )
+      )
+      .orderBy(desc(storyVideoClips.createdAt))
+      .limit(1);
+    return clip;
+  }
+
   async function createVideoClip(values: ClipInsert) {
     const [clip] = await db.insert(storyVideoClips).values(values).returning();
     return clip;
@@ -740,6 +756,7 @@ export function createStoryFilmmakingMethods(db: Database) {
     updateKeyframe,
     listVideoClips,
     getVideoClipProjectId,
+    getLatestVideoClip,
     createVideoClip,
     updateVideoClip,
     getChapterByNumber,

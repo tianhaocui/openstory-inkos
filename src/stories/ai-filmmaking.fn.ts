@@ -8,8 +8,14 @@ import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { zodValidator } from '@tanstack/zod-adapter';
 import { authWithTeamMiddleware } from '@/platform/middleware.fn';
-import { DEFAULT_IMAGE_MODEL, safeTextToImageModel } from '@/models/models';
+import {
+  DEFAULT_IMAGE_MODEL,
+  DEFAULT_VIDEO_MODEL,
+  safeImageToVideoModel,
+  safeTextToImageModel,
+} from '@/models/models';
 import { aspectRatioSchema, type AspectRatio } from '@/models/aspect-ratios';
+import { resolveShotDuration } from '@/motion/resolve-shot-duration';
 import { generateId } from '@/platform/id';
 import {
   generateAndStoreStoryImage,
@@ -17,13 +23,23 @@ import {
 } from './server/story-image-generation';
 import { toWorkflowScopedDb } from '@/platform/server/db/scoped-workflow';
 import { getEffectiveFalPricing } from '@/billing/server/fal-pricing-live';
-import { estimateImageCost, gateEstimate } from '@/billing/cost-estimation';
-import { requireCredits } from '@/billing/server/preflight';
+import {
+  estimateImageCost,
+  estimateVideoCost,
+  gateEstimate,
+} from '@/billing/cost-estimation';
+import {
+  releaseReservationOnThrow,
+  requireCredits,
+  reserveRunCredits,
+} from '@/billing/server/preflight';
 import {
   deductWorkflowCredits,
   extractImageCost,
   recordFalUsage,
 } from '@/billing/server/workflow-deduction';
+import { triggerWorkflow } from '@/platform/server/workflow/client';
+import type { StoryVideoWorkflowInput } from '@/platform/server/workflow/types';
 import { sanitizeFailResponse } from '@/platform/server/workflow/sanitize-fail-response';
 import type { ScopedDb } from '@/platform/server/db/scoped';
 
@@ -51,6 +67,11 @@ type StoryGenerationContext = {
 
 function nowIso(): string {
   return new Date().toISOString();
+}
+
+/** Statuses that already hold a clip row and a credit reservation. */
+export function isStoryVideoInFlight(status: string): boolean {
+  return status === 'pending' || status === 'queued' || status === 'generating';
 }
 
 function secondsToTimecode(totalSeconds: number): string {
@@ -576,12 +597,130 @@ export const generateVideoFn = createServerFn()
       throw new Error('Keyframe not found');
     }
 
-    if (!keyframe.imageUrl) {
+    const imageUrl = keyframe.imageUrl;
+    if (!imageUrl) {
       throw new Error('Keyframe has no image');
     }
+    if (keyframe.status !== 'completed' && keyframe.status !== 'approved') {
+      throw new Error('Keyframe is not ready for video generation');
+    }
 
-    throw new Error(
-      'Story video generation is not configured yet; no placeholder clip was created'
+    // Same in-flight guard as generateKeyframeFn: a queued/running clip for
+    // this keyframe already holds a reservation, so a second click must not
+    // create a row or charge again.
+    const inFlight = await storiesDb.getLatestVideoClip(projectId, keyframeId);
+    if (inFlight && isStoryVideoInFlight(inFlight.status)) {
+      return {
+        success: true as const,
+        clipId: inFlight.id,
+        status: inFlight.status,
+        alreadyInFlight: true as const,
+      };
+    }
+
+    const shot = keyframe.shotId
+      ? await storiesDb.getShotByIdAndProject(keyframe.shotId, projectId)
+      : undefined;
+    const settings = await storiesDb.getFilmSettings(projectId);
+    const model = safeImageToVideoModel(
+      settings?.preferredVideoModel ?? undefined,
+      DEFAULT_VIDEO_MODEL
+    );
+    const aspectRatio = resolveStoryAspectRatio(keyframe.aspectRatio);
+    const duration = resolveShotDuration({
+      durationMs: shot ? shot.duration * 1000 : undefined,
+      model,
+    });
+
+    const estimate = gateEstimate(
+      estimateVideoCost(model, duration, {
+        pricing: await getEffectiveFalPricing(),
+      }),
+      { model, operation: 'motion' }
+    );
+    const reservationId = await reserveRunCredits(context.scopedDb, estimate, {
+      errorMessage: 'Insufficient credits for story video generation',
+    });
+
+    const clipId = generateId();
+    const timestamp = nowIso();
+    const generationParams = {
+      model,
+      duration,
+      aspectRatio,
+      reservationId: reservationId ?? null,
+    };
+
+    await storiesDb.createVideoClip({
+      id: clipId,
+      projectId,
+      keyframeId,
+      segmentId: keyframe.segmentId ?? shot?.segmentId ?? null,
+      name: `${keyframe.name} Video Clip`,
+      duration,
+      aspectRatio,
+      prompt: keyframe.prompt ?? keyframe.description,
+      motionPrompt: keyframe.description,
+      generationParams,
+      status: 'pending',
+      queuedAt: timestamp,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    });
+
+    return await releaseReservationOnThrow(
+      context.scopedDb,
+      reservationId,
+      async () => {
+        // Snapshot everything the run needs — Workflows replay steps from a
+        // durable cache hours later, so mid-run D1 reads would be replay-unsafe.
+        const workflowInput: StoryVideoWorkflowInput = {
+          userId: context.user.id,
+          teamId: context.teamId,
+          reservationId,
+          ownsReservation: Boolean(reservationId),
+          projectId,
+          clipId,
+          keyframeId,
+          ...(shot ? { shotId: shot.id, segmentId: shot.segmentId } : {}),
+          imageUrl,
+          prompt: keyframe.prompt ?? keyframe.description,
+          model,
+          duration,
+          aspectRatio,
+          estimatedCostMicros: Number(estimate),
+        };
+
+        try {
+          const workflowRunId = await triggerWorkflow(
+            '/story-video',
+            workflowInput,
+            { deduplicationId: `story-video-${clipId}` }
+          );
+          await storiesDb.updateVideoClip(clipId, {
+            status: 'queued',
+            generationParams: { ...generationParams, workflowRunId },
+            updatedAt: nowIso(),
+          });
+          return {
+            success: true as const,
+            clipId,
+            status: 'queued' as const,
+            workflowRunId,
+            alreadyInFlight: false as const,
+          };
+        } catch (error) {
+          // A missing workflow binding (or any trigger failure) must not leave
+          // a clip that looks queued forever. The reservation is released by
+          // releaseReservationOnThrow after this rethrow.
+          await storiesDb.updateVideoClip(clipId, {
+            status: 'failed',
+            errorMessage: sanitizeFailResponse(error),
+            updatedAt: nowIso(),
+          });
+          throw error;
+        }
+      }
     );
   });
 
@@ -618,8 +757,8 @@ export const batchGenerateSegmentFn = createServerFn()
       errors: [] as string[],
     };
 
-    // 3. Generate keyframes. Video generation remains disabled until its
-    // provider path is wired; never persist a placeholder clip as completed.
+    // 3. Generate the keyframe first, then queue its video clip. A failure in
+    // either stage is reported for that shot without aborting the batch.
     for (const shot of shots) {
       try {
         // 匹配相关资产
@@ -641,7 +780,10 @@ export const batchGenerateSegmentFn = createServerFn()
         });
         results.keyframesGenerated++;
 
-        void kfResult;
+        await generateVideoFn({
+          data: { projectId, keyframeId: kfResult.keyframeId },
+        });
+        results.videosGenerated++;
       } catch (error) {
         results.errors.push(
           `Shot ${shot.shotNumber}: ${sanitizeFailResponse(error)}`

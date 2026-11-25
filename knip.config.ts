@@ -115,9 +115,5 @@ export default {
     'src/stories/server/storyboard-ai.ts': ['exports', 'types'],
     // OpenStoryIcon
     'src/ui/icons/openstory-logo.tsx': ['exports'],
-    // TEMPORARY: StoryVideoWorkflow is not registered yet — registration
-    // awaits the cluster-A architecture decision (wrangler + server.ts +
-    // TRIGGER_TO_BINDING). REMOVE THIS ENTRY once the workflow is registered.
-    'src/stories/server/workflows/story-video-workflow.ts': ['exports'],
   },
 } satisfies KnipConfig;

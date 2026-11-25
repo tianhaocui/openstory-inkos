@@ -308,6 +308,11 @@
       "binding": "STUDIO_WORKFLOW",
       "class_name": "StudioGenerationWorkflow",
     },
+    {
+      "name": "story-video-workflow",
+      "binding": "STORY_VIDEO_WORKFLOW",
+      "class_name": "StoryVideoWorkflow",
+    },
   ],
   // Realtime broker (#802): one SQLite-backed Durable Object per channel holds
   // SSE subscribers open and persists replayable history. The `RealtimeChannel`
@@ -590,6 +595,11 @@
           "name": "studio-generation-workflow",
           "binding": "STUDIO_WORKFLOW",
           "class_name": "StudioGenerationWorkflow",
+        },
+        {
+          "name": "story-video-workflow",
+          "binding": "STORY_VIDEO_WORKFLOW",
+          "class_name": "StoryVideoWorkflow",
         },
       ],
       // Server-side video export (#968). The `VideoExportContainer` Durable
@@ -911,6 +921,11 @@
           "name": "studio-generation-workflow",
           "binding": "STUDIO_WORKFLOW",
           "class_name": "StudioGenerationWorkflow",
+        },
+        {
+          "name": "story-video-workflow",
+          "binding": "STORY_VIDEO_WORKFLOW",
+          "class_name": "StoryVideoWorkflow",
         },
       ],
       // Realtime broker DO — redeclared because durable_objects + migrations
