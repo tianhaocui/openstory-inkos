@@ -19,7 +19,7 @@
 | P1   | 主题基础设施（token 重构 + ThemeProvider + ThemeToggle）        | ✅ 完成   | dev + uiux 评审 | 暗色全量比对零差异、亮色新基线                     | 已落地 `0f3787ec`；token 级暗色保留 57/60，3 项方案内对比度修复；像素零差异待 CI Chromatic                 |
 | P2   | IA/路由（/films 影片线 + /stories 小说线、重定向、侧栏/面包屑） | ✅ 完成   | dev + uiux 评审 | 8 e2e URL/选择器绿、/inkos 入口不受影响            | 已落地 `4046b7d6f`；A 方案：影片→/films、小说保留 /stories；307 重定向实测通过。e2e URL 断言需独立轨道更新 |
 | P3   | 组件层（合并/新增、ShotActionButton 外包、去固定高度）          | ✅ 完成   | dev + qa        | **视频按钮契约 7/7**、4708 单测、full-sequence e2e | 已落地 `f7afeb8b`；冻结逻辑区哈希逐字一致、契约 7/7、4717 用例全绿。e2e 仍为独立轨道债                     |
-| P4   | i18n（Provider + 三批抽取）                                     | ⏳        | dev             | 缺失 key 回退中文、SSR 无闪烁                      | —                                                                                                          |
+| P4   | i18n（Provider + 三批抽取）                                     | ✅ 完成   | dev             | 缺失 key 回退中文、SSR 无闪烁                      | 已落地 `d50af60d`；232 处 t()、756 key、197 静态 key 零缺失、SSR 无闪烁、冻结哈希未变                      |
 | P5   | a11y（story 补齐 + test-runner + axe + CI）                     | ⏳        | dev + qa        | 新 story 0 critical/serious、键盘矩阵              | 已授权新依赖                                                                                               |
 | 验收 | 全量回归 + 视觉走查 + a11y + 功能矩阵 + 签核                    | ⏳        | PM + qa + uiux  | 方案 §8 全部通过                                   | —                                                                                                          |
 
