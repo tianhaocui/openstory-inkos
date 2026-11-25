@@ -8,18 +8,6 @@
 import { createServerFn } from '@tanstack/react-start';
 import { zodValidator } from '@tanstack/zod-adapter';
 import { z } from 'zod';
-import { eq, and, asc, desc, count } from 'drizzle-orm';
-import { getDb } from '#db-client';
-import {
-  storySegments,
-  storyShots,
-  storyAssets,
-  storyAssetViews,
-  storyKeyframes,
-  storyVideoClips,
-  storyFilmSettings,
-  storyChapters,
-} from '@/platform/server/db/schema';
 import { authWithTeamMiddleware } from '@/platform/middleware.fn';
 import {
   calculateFilmStatus,
@@ -32,6 +20,8 @@ import {
   getStoryboardStatus,
   getProjectChapters,
 } from './server/storyboard-ai';
+
+const storyboardAspectRatioSchema = z.enum(['9:16', '16:9']);
 
 function serializeGenerationParams<
   T extends { generationParams: Record<string, unknown> | null },
@@ -55,35 +45,25 @@ export const getFilmSettingsFn = createServerFn({ method: 'GET' })
   .middleware([authWithTeamMiddleware])
   .validator(zodValidator(z.object({ projectId: z.string() })))
   .handler(async ({ data, context }) => {
-    const project = await context.scopedDb.stories.getProject(data.projectId);
+    const storiesDb = context.scopedDb.stories;
+    const project = await storiesDb.getProject(data.projectId);
     if (!project) {
       throw new Error('项目不存在');
     }
 
-    const db = getDb();
-    const existing = await db
-      .select()
-      .from(storyFilmSettings)
-      .where(eq(storyFilmSettings.projectId, data.projectId))
-      .get();
+    const existing = await storiesDb.getFilmSettings(data.projectId);
 
     if (existing) return existing;
 
     // Create default settings
-    const created = await db
-      .insert(storyFilmSettings)
-      .values({
-        projectId: data.projectId,
-        aspectRatio: '9:16',
-        resolution: '1080x1920',
-        frameRate: 24,
-        segmentDuration: 15,
-        exportFormat: 'mp4',
-      })
-      .returning()
-      .get();
-
-    return created;
+    return storiesDb.createFilmSettings({
+      projectId: data.projectId,
+      aspectRatio: '9:16',
+      resolution: '1080x1920',
+      frameRate: 24,
+      segmentDuration: 15,
+      exportFormat: 'mp4',
+    });
   });
 
 /**
@@ -111,24 +91,16 @@ export const updateFilmSettingsFn = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data, context }) => {
     const { projectId, ...updates } = data;
-    const project = await context.scopedDb.stories.getProject(projectId);
+    const storiesDb = context.scopedDb.stories;
+    const project = await storiesDb.getProject(projectId);
     if (!project) {
       throw new Error('项目不存在');
     }
 
-    const db = getDb();
-
-    const updated = await db
-      .update(storyFilmSettings)
-      .set({
-        ...updates,
-        updatedAt: new Date().toISOString(),
-      })
-      .where(eq(storyFilmSettings.projectId, projectId))
-      .returning()
-      .get();
-
-    return updated;
+    return storiesDb.updateFilmSettings(projectId, {
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    });
   });
 
 // =============================================================================
@@ -142,109 +114,24 @@ export const getFilmStatusFn = createServerFn({ method: 'GET' })
   .middleware([authWithTeamMiddleware])
   .validator(zodValidator(z.object({ projectId: z.string() })))
   .handler(async ({ data, context }): Promise<FilmProjectStatus> => {
-    const project = await context.scopedDb.stories.getProject(data.projectId);
+    const storiesDb = context.scopedDb.stories;
+    const project = await storiesDb.getProject(data.projectId);
     if (!project) {
       throw new Error('项目不存在');
     }
 
-    const db = getDb();
-    const [
-      chapterCount,
-      segmentCount,
-      shotCount,
-      characterAssetCount,
-      sceneAssetCount,
-      keyframeCount,
-      approvedKeyframeCount,
-      videoClipCount,
-      generatedClipCount,
-    ] = await Promise.all([
-      db
-        .select({ count: count() })
-        .from(storyChapters)
-        .where(eq(storyChapters.projectId, data.projectId))
-        .get()
-        .then((r) => r?.count ?? 0),
-      db
-        .select({ count: count() })
-        .from(storySegments)
-        .where(eq(storySegments.projectId, data.projectId))
-        .get()
-        .then((r) => r?.count ?? 0),
-      db
-        .select({ count: count() })
-        .from(storyShots)
-        .where(eq(storyShots.projectId, data.projectId))
-        .get()
-        .then((r) => r?.count ?? 0),
-      db
-        .select({ count: count() })
-        .from(storyAssets)
-        .where(
-          and(
-            eq(storyAssets.projectId, data.projectId),
-            eq(storyAssets.type, 'character-design')
-          )
-        )
-        .get()
-        .then((r) => r?.count ?? 0),
-      db
-        .select({ count: count() })
-        .from(storyAssets)
-        .where(
-          and(
-            eq(storyAssets.projectId, data.projectId),
-            eq(storyAssets.type, 'scene-asset')
-          )
-        )
-        .get()
-        .then((r) => r?.count ?? 0),
-      db
-        .select({ count: count() })
-        .from(storyKeyframes)
-        .where(eq(storyKeyframes.projectId, data.projectId))
-        .get()
-        .then((r) => r?.count ?? 0),
-      db
-        .select({ count: count() })
-        .from(storyKeyframes)
-        .where(
-          and(
-            eq(storyKeyframes.projectId, data.projectId),
-            eq(storyKeyframes.status, 'approved')
-          )
-        )
-        .get()
-        .then((r) => r?.count ?? 0),
-      db
-        .select({ count: count() })
-        .from(storyVideoClips)
-        .where(eq(storyVideoClips.projectId, data.projectId))
-        .get()
-        .then((r) => r?.count ?? 0),
-      db
-        .select({ count: count() })
-        .from(storyVideoClips)
-        .where(
-          and(
-            eq(storyVideoClips.projectId, data.projectId),
-            eq(storyVideoClips.status, 'completed')
-          )
-        )
-        .get()
-        .then((r) => r?.count ?? 0),
-    ]);
+    const counts = await storiesDb.countFilmStatus(data.projectId);
 
     return calculateFilmStatus({
-      chapters: chapterCount,
-      segments: segmentCount,
-      shots: shotCount,
-      characterAssets: characterAssetCount,
-      sceneAssets: sceneAssetCount,
-      keyframes: keyframeCount,
-      approvedKeyframes: approvedKeyframeCount,
-      videoClips: videoClipCount,
-      generatedClips: generatedClipCount,
+      chapters: counts.chapters,
+      segments: counts.segments,
+      shots: counts.shots,
+      characterAssets: counts.characterAssets,
+      sceneAssets: counts.sceneAssets,
+      keyframes: counts.keyframes,
+      approvedKeyframes: counts.approvedKeyframes,
+      videoClips: counts.videoClips,
+      generatedClips: counts.generatedClips,
     });
   });
 
@@ -266,38 +153,13 @@ export const listFilmSegmentsFn = createServerFn({ method: 'GET' })
     )
   )
   .handler(async ({ data, context }) => {
-    const project = await context.scopedDb.stories.getProject(data.projectId);
+    const storiesDb = context.scopedDb.stories;
+    const project = await storiesDb.getProject(data.projectId);
     if (!project) {
       throw new Error('项目不存在');
     }
 
-    const db = getDb();
-    if (data.chapterNumber !== undefined) {
-      return db
-        .select()
-        .from(storySegments)
-        .where(
-          and(
-            eq(storySegments.projectId, data.projectId),
-            eq(storySegments.chapterNumber, data.chapterNumber)
-          )
-        )
-        .orderBy(
-          asc(storySegments.chapterNumber),
-          asc(storySegments.segmentNumber)
-        )
-        .all();
-    }
-
-    return db
-      .select()
-      .from(storySegments)
-      .where(eq(storySegments.projectId, data.projectId))
-      .orderBy(
-        asc(storySegments.chapterNumber),
-        asc(storySegments.segmentNumber)
-      )
-      .all();
+    return storiesDb.listSegments(data.projectId, data.chapterNumber);
   });
 
 /**
@@ -320,18 +182,13 @@ export const createFilmSegmentFn = createServerFn({ method: 'POST' })
     )
   )
   .handler(async ({ data, context }) => {
-    const project = await context.scopedDb.stories.getProject(data.projectId);
+    const storiesDb = context.scopedDb.stories;
+    const project = await storiesDb.getProject(data.projectId);
     if (!project) {
       throw new Error('项目不存在');
     }
 
-    const db = getDb();
-    const segment = await db
-      .insert(storySegments)
-      .values(data)
-      .returning()
-      .get();
-    return segment;
+    return storiesDb.createSegment(data);
   });
 
 /**
@@ -358,23 +215,18 @@ export const batchCreateSegmentsFn = createServerFn({ method: 'POST' })
     )
   )
   .handler(async ({ data, context }) => {
-    const project = await context.scopedDb.stories.getProject(data.projectId);
+    const storiesDb = context.scopedDb.stories;
+    const project = await storiesDb.getProject(data.projectId);
     if (!project) {
       throw new Error('项目不存在');
     }
 
-    const db = getDb();
     const values = data.segments.map((s) => ({
       ...s,
       projectId: data.projectId,
     }));
 
-    const created = await db
-      .insert(storySegments)
-      .values(values)
-      .returning()
-      .all();
-    return created;
+    return storiesDb.batchCreateSegments(values);
   });
 
 // =============================================================================
@@ -395,46 +247,32 @@ export const listFilmShotsFn = createServerFn({ method: 'GET' })
     )
   )
   .handler(async ({ data, context }) => {
-    const db = getDb();
+    const storiesDb = context.scopedDb.stories;
     if (data.projectId) {
-      const project = await context.scopedDb.stories.getProject(data.projectId);
+      const project = await storiesDb.getProject(data.projectId);
       if (!project) {
         throw new Error('项目不存在');
       }
     }
 
     if (data.segmentId) {
-      const segment = await db
-        .select({ projectId: storySegments.projectId })
-        .from(storySegments)
-        .where(eq(storySegments.id, data.segmentId))
-        .get();
+      const segmentProjectId = await storiesDb.getSegmentProjectId(
+        data.segmentId
+      );
 
-      if (!segment) {
+      if (!segmentProjectId) {
         return [];
       }
 
-      const project = await context.scopedDb.stories.getProject(
-        segment.projectId
-      );
+      const project = await storiesDb.getProject(segmentProjectId);
       if (!project) {
         throw new Error('项目不存在');
       }
 
-      return db
-        .select()
-        .from(storyShots)
-        .where(eq(storyShots.segmentId, data.segmentId))
-        .orderBy(asc(storyShots.shotNumber))
-        .all();
+      return storiesDb.listShotsBySegment(data.segmentId);
     }
     if (data.projectId) {
-      return db
-        .select()
-        .from(storyShots)
-        .where(eq(storyShots.projectId, data.projectId))
-        .orderBy(asc(storyShots.shotNumber))
-        .all();
+      return storiesDb.listShotsByProject(data.projectId);
     }
     return [];
   });
@@ -467,14 +305,13 @@ export const createFilmShotFn = createServerFn({ method: 'POST' })
     )
   )
   .handler(async ({ data, context }) => {
-    const project = await context.scopedDb.stories.getProject(data.projectId);
+    const storiesDb = context.scopedDb.stories;
+    const project = await storiesDb.getProject(data.projectId);
     if (!project) {
       throw new Error('项目不存在');
     }
 
-    const db = getDb();
-    const shot = await db.insert(storyShots).values(data).returning().get();
-    return shot;
+    return storiesDb.createShot(data);
   });
 
 /**
@@ -509,24 +346,19 @@ export const batchCreateShotsFn = createServerFn({ method: 'POST' })
     )
   )
   .handler(async ({ data, context }) => {
-    const project = await context.scopedDb.stories.getProject(data.projectId);
+    const storiesDb = context.scopedDb.stories;
+    const project = await storiesDb.getProject(data.projectId);
     if (!project) {
       throw new Error('项目不存在');
     }
 
-    const db = getDb();
     const values = data.shots.map((s) => ({
       ...s,
       segmentId: data.segmentId,
       projectId: data.projectId,
     }));
 
-    const created = await db
-      .insert(storyShots)
-      .values(values)
-      .returning()
-      .all();
-    return created;
+    return storiesDb.batchCreateShots(values);
   });
 
 // =============================================================================
@@ -547,32 +379,13 @@ export const listAssetsFn = createServerFn({ method: 'GET' })
     )
   )
   .handler(async ({ data, context }) => {
-    const project = await context.scopedDb.stories.getProject(data.projectId);
+    const storiesDb = context.scopedDb.stories;
+    const project = await storiesDb.getProject(data.projectId);
     if (!project) {
       throw new Error('项目不存在');
     }
 
-    const db = getDb();
-    if (data.type) {
-      return db
-        .select()
-        .from(storyAssets)
-        .where(
-          and(
-            eq(storyAssets.projectId, data.projectId),
-            eq(storyAssets.type, data.type)
-          )
-        )
-        .orderBy(desc(storyAssets.createdAt))
-        .all();
-    }
-
-    return db
-      .select()
-      .from(storyAssets)
-      .where(eq(storyAssets.projectId, data.projectId))
-      .orderBy(desc(storyAssets.createdAt))
-      .all();
+    return storiesDb.listAssets(data.projectId, data.type);
   });
 
 /**
@@ -582,27 +395,19 @@ export const getAssetWithViewsFn = createServerFn({ method: 'GET' })
   .middleware([authWithTeamMiddleware])
   .validator(zodValidator(z.object({ assetId: z.string() })))
   .handler(async ({ data, context }) => {
-    const db = getDb();
-    const asset = await db
-      .select()
-      .from(storyAssets)
-      .where(eq(storyAssets.id, data.assetId))
-      .get();
+    const storiesDb = context.scopedDb.stories;
+    const asset = await storiesDb.getAsset(data.assetId);
 
     if (!asset) {
       throw new Error('资产不存在');
     }
 
-    const project = await context.scopedDb.stories.getProject(asset.projectId);
+    const project = await storiesDb.getProject(asset.projectId);
     if (!project) {
       throw new Error('项目不存在');
     }
 
-    const views = await db
-      .select()
-      .from(storyAssetViews)
-      .where(eq(storyAssetViews.assetId, data.assetId))
-      .all();
+    const views = await storiesDb.listAssetViews(data.assetId);
 
     return { ...asset, views: views.map(serializeGenerationParams) };
   });
@@ -628,14 +433,13 @@ export const createAssetFn = createServerFn({ method: 'POST' })
     )
   )
   .handler(async ({ data, context }) => {
-    const project = await context.scopedDb.stories.getProject(data.projectId);
+    const storiesDb = context.scopedDb.stories;
+    const project = await storiesDb.getProject(data.projectId);
     if (!project) {
       throw new Error('项目不存在');
     }
 
-    const db = getDb();
-    const asset = await db.insert(storyAssets).values(data).returning().get();
-    return asset;
+    return storiesDb.createAsset(data);
   });
 
 /**
@@ -660,27 +464,22 @@ export const addAssetViewFn = createServerFn({ method: 'POST' })
     )
   )
   .handler(async ({ data, context }) => {
-    const db = getDb();
-    const asset = await db
-      .select({ projectId: storyAssets.projectId })
-      .from(storyAssets)
-      .where(eq(storyAssets.id, data.assetId))
-      .get();
+    const storiesDb = context.scopedDb.stories;
+    const assetProjectId = await storiesDb.getAssetProjectId(data.assetId);
 
-    if (!asset) {
+    if (!assetProjectId) {
       throw new Error('资产不存在');
     }
 
-    const project = await context.scopedDb.stories.getProject(asset.projectId);
+    const project = await storiesDb.getProject(assetProjectId);
     if (!project) {
       throw new Error('项目不存在');
     }
 
-    const view = await db
-      .insert(storyAssetViews)
-      .values(data)
-      .returning()
-      .get();
+    const view = await storiesDb.createAssetView(data);
+    if (!view) {
+      throw new Error('资产视图创建失败');
+    }
     return serializeGenerationParams(view);
   });
 
@@ -703,26 +502,16 @@ export const listKeyframesFn = createServerFn({ method: 'GET' })
     )
   )
   .handler(async ({ data, context }) => {
-    const project = await context.scopedDb.stories.getProject(data.projectId);
+    const storiesDb = context.scopedDb.stories;
+    const project = await storiesDb.getProject(data.projectId);
     if (!project) {
       throw new Error('项目不存在');
     }
 
-    const db = getDb();
-    const conditions = [eq(storyKeyframes.projectId, data.projectId)];
-    if (data.segmentId) {
-      conditions.push(eq(storyKeyframes.segmentId, data.segmentId));
-    }
-    if (data.status) {
-      conditions.push(eq(storyKeyframes.status, data.status));
-    }
-
-    const keyframes = await db
-      .select()
-      .from(storyKeyframes)
-      .where(and(...conditions))
-      .orderBy(desc(storyKeyframes.createdAt))
-      .all();
+    const keyframes = await storiesDb.listKeyframes(data.projectId, {
+      segmentId: data.segmentId,
+      status: data.status,
+    });
     return keyframes.map(serializeGenerationParams);
   });
 
@@ -747,17 +536,16 @@ export const createKeyframeFn = createServerFn({ method: 'POST' })
     )
   )
   .handler(async ({ data, context }) => {
-    const project = await context.scopedDb.stories.getProject(data.projectId);
+    const storiesDb = context.scopedDb.stories;
+    const project = await storiesDb.getProject(data.projectId);
     if (!project) {
       throw new Error('项目不存在');
     }
 
-    const db = getDb();
-    const keyframe = await db
-      .insert(storyKeyframes)
-      .values(data)
-      .returning()
-      .get();
+    const keyframe = await storiesDb.createKeyframe(data);
+    if (!keyframe) {
+      throw new Error('关键帧创建失败');
+    }
     return serializeGenerationParams(keyframe);
   });
 
@@ -781,34 +569,26 @@ export const updateKeyframeFn = createServerFn({ method: 'POST' })
     )
   )
   .handler(async ({ data, context }) => {
-    const db = getDb();
+    const storiesDb = context.scopedDb.stories;
     const { keyframeId, ...updates } = data;
-    const keyframe = await db
-      .select({ projectId: storyKeyframes.projectId })
-      .from(storyKeyframes)
-      .where(eq(storyKeyframes.id, keyframeId))
-      .get();
+    const keyframeProjectId = await storiesDb.getKeyframeProjectId(keyframeId);
 
-    if (!keyframe) {
+    if (!keyframeProjectId) {
       throw new Error('关键帧不存在');
     }
 
-    const project = await context.scopedDb.stories.getProject(
-      keyframe.projectId
-    );
+    const project = await storiesDb.getProject(keyframeProjectId);
     if (!project) {
       throw new Error('项目不存在');
     }
 
-    const updated = await db
-      .update(storyKeyframes)
-      .set({
-        ...updates,
-        updatedAt: new Date().toISOString(),
-      })
-      .where(eq(storyKeyframes.id, keyframeId))
-      .returning()
-      .get();
+    const updated = await storiesDb.updateKeyframe(keyframeId, {
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    });
+    if (!updated) {
+      throw new Error('关键帧不存在');
+    }
 
     return serializeGenerationParams(updated);
   });
@@ -832,26 +612,16 @@ export const listVideoClipsFn = createServerFn({ method: 'GET' })
     )
   )
   .handler(async ({ data, context }) => {
-    const project = await context.scopedDb.stories.getProject(data.projectId);
+    const storiesDb = context.scopedDb.stories;
+    const project = await storiesDb.getProject(data.projectId);
     if (!project) {
       throw new Error('项目不存在');
     }
 
-    const db = getDb();
-    const conditions = [eq(storyVideoClips.projectId, data.projectId)];
-    if (data.segmentId) {
-      conditions.push(eq(storyVideoClips.segmentId, data.segmentId));
-    }
-    if (data.status) {
-      conditions.push(eq(storyVideoClips.status, data.status));
-    }
-
-    const clips = await db
-      .select()
-      .from(storyVideoClips)
-      .where(and(...conditions))
-      .orderBy(desc(storyVideoClips.createdAt))
-      .all();
+    const clips = await storiesDb.listVideoClips(data.projectId, {
+      segmentId: data.segmentId,
+      status: data.status,
+    });
     return clips.map(serializeGenerationParams);
   });
 
@@ -875,22 +645,21 @@ export const createVideoClipFn = createServerFn({ method: 'POST' })
     )
   )
   .handler(async ({ data, context }) => {
-    const project = await context.scopedDb.stories.getProject(data.projectId);
+    const storiesDb = context.scopedDb.stories;
+    const project = await storiesDb.getProject(data.projectId);
     if (!project) {
       throw new Error('项目不存在');
     }
 
-    const db = getDb();
-    const clip = await db
-      .insert(storyVideoClips)
-      .values({
-        ...data,
-        status: 'pending',
-        queuedAt: new Date().toISOString(),
-      })
-      .returning()
-      .get();
+    const clip = await storiesDb.createVideoClip({
+      ...data,
+      status: 'pending',
+      queuedAt: new Date().toISOString(),
+    });
 
+    if (!clip) {
+      throw new Error('视频片段创建失败');
+    }
     return serializeGenerationParams(clip);
   });
 
@@ -925,19 +694,15 @@ export const updateVideoClipFn = createServerFn({ method: 'POST' })
     )
   )
   .handler(async ({ data, context }) => {
-    const db = getDb();
+    const storiesDb = context.scopedDb.stories;
     const { clipId, ...updates } = data;
-    const clip = await db
-      .select({ projectId: storyVideoClips.projectId })
-      .from(storyVideoClips)
-      .where(eq(storyVideoClips.id, clipId))
-      .get();
+    const clipProjectId = await storiesDb.getVideoClipProjectId(clipId);
 
-    if (!clip) {
+    if (!clipProjectId) {
       throw new Error('视频片段不存在');
     }
 
-    const project = await context.scopedDb.stories.getProject(clip.projectId);
+    const project = await storiesDb.getProject(clipProjectId);
     if (!project) {
       throw new Error('项目不存在');
     }
@@ -951,15 +716,13 @@ export const updateVideoClipFn = createServerFn({ method: 'POST' })
       additionalUpdates.completedAt = now;
     }
 
-    const updated = await db
-      .update(storyVideoClips)
-      .set({
-        ...updates,
-        ...additionalUpdates,
-      })
-      .where(eq(storyVideoClips.id, clipId))
-      .returning()
-      .get();
+    const updated = await storiesDb.updateVideoClip(clipId, {
+      ...updates,
+      ...additionalUpdates,
+    });
+    if (!updated) {
+      throw new Error('视频片段不存在');
+    }
 
     return serializeGenerationParams(updated);
   });
@@ -997,13 +760,14 @@ export const generateStoryboardFn = createServerFn({ method: 'POST' })
       clearExisting,
     } = data;
 
-    const project = await context.scopedDb.stories.getProject(projectId);
+    const storiesDb = context.scopedDb.stories;
+    const project = await storiesDb.getProject(projectId);
     if (!project) {
       throw new Error('项目不存在');
     }
 
     // Get chapters content
-    const { chapters } = await getProjectChapters(projectId);
+    const { chapters } = await getProjectChapters(storiesDb, projectId);
 
     if (chapters.length === 0) {
       throw new Error('项目没有章节内容，请先创建章节');
@@ -1025,7 +789,7 @@ export const generateStoryboardFn = createServerFn({ method: 'POST' })
 
     // Clear existing storyboard if requested
     if (clearExisting) {
-      await clearProjectStoryboard(projectId);
+      await clearProjectStoryboard(storiesDb, projectId);
     }
 
     // Get API key from environment
@@ -1048,6 +812,7 @@ export const generateStoryboardFn = createServerFn({ method: 'POST' })
 
     // Save to database
     const { segmentIds, shotIds } = await saveStoryboardToDb(
+      storiesDb,
       projectId,
       analysis
     );
@@ -1067,12 +832,13 @@ export const getStoryboardStatusFn = createServerFn({ method: 'GET' })
   .middleware([authWithTeamMiddleware])
   .validator(zodValidator(z.object({ projectId: z.string() })))
   .handler(async ({ data, context }) => {
-    const project = await context.scopedDb.stories.getProject(data.projectId);
+    const storiesDb = context.scopedDb.stories;
+    const project = await storiesDb.getProject(data.projectId);
     if (!project) {
       throw new Error('项目不存在');
     }
 
-    return getStoryboardStatus(data.projectId);
+    return getStoryboardStatus(storiesDb, data.projectId);
   });
 
 /**
@@ -1082,12 +848,13 @@ export const clearStoryboardFn = createServerFn({ method: 'POST' })
   .middleware([authWithTeamMiddleware])
   .validator(zodValidator(z.object({ projectId: z.string() })))
   .handler(async ({ data, context }) => {
-    const project = await context.scopedDb.stories.getProject(data.projectId);
+    const storiesDb = context.scopedDb.stories;
+    const project = await storiesDb.getProject(data.projectId);
     if (!project) {
       throw new Error('项目不存在');
     }
 
-    await clearProjectStoryboard(data.projectId);
+    await clearProjectStoryboard(storiesDb, data.projectId);
     return { success: true };
   });
 
@@ -1105,40 +872,28 @@ export const reanalyzeSegmentFn = createServerFn({ method: 'POST' })
     )
   )
   .handler(async ({ data, context }) => {
-    const db = getDb();
+    const storiesDb = context.scopedDb.stories;
 
     // Get segment
-    const segment = await db
-      .select()
-      .from(storySegments)
-      .where(eq(storySegments.id, data.segmentId))
-      .get();
+    const segment = await storiesDb.getSegment(data.segmentId);
 
     if (!segment) {
       throw new Error('片段不存在');
     }
 
-    const project = await context.scopedDb.stories.getProject(
-      segment.projectId
-    );
+    const project = await storiesDb.getProject(segment.projectId);
     if (!project) {
       throw new Error('项目不存在');
     }
 
     // Delete existing shots for this segment
-    await db.delete(storyShots).where(eq(storyShots.segmentId, data.segmentId));
+    await storiesDb.deleteShotsBySegment(data.segmentId);
 
     // Get chapter content for this segment
-    const chapter = await db
-      .select()
-      .from(storyChapters)
-      .where(
-        and(
-          eq(storyChapters.projectId, segment.projectId),
-          eq(storyChapters.chapterNumber, segment.chapterNumber)
-        )
-      )
-      .get();
+    const chapter = await storiesDb.getChapterByNumber(
+      segment.projectId,
+      segment.chapterNumber
+    );
 
     if (!chapter) {
       throw new Error('章节不存在');
@@ -1151,13 +906,13 @@ export const reanalyzeSegmentFn = createServerFn({ method: 'POST' })
     }
 
     // Get film settings for aspect ratio
-    const settings = await db
-      .select()
-      .from(storyFilmSettings)
-      .where(eq(storyFilmSettings.projectId, segment.projectId))
-      .get();
-
-    const aspectRatio = (settings?.aspectRatio as '9:16' | '16:9') || '9:16';
+    const settings = await storiesDb.getFilmSettings(segment.projectId);
+    const parsedAspectRatio = storyboardAspectRatioSchema.safeParse(
+      settings?.aspectRatio
+    );
+    const aspectRatio = parsedAspectRatio.success
+      ? parsedAspectRatio.data
+      : '9:16';
 
     // Re-analyze just this segment's content
     const segmentPrompt = `请只分析以下片段的镜头设计，该片段时长约${segment.duration}秒：
@@ -1186,27 +941,26 @@ ${data.customPrompt ? `额外要求：${data.customPrompt}` : ''}`;
     const shotIds: string[] = [];
 
     for (const shot of newShots) {
-      const created = await db
-        .insert(storyShots)
-        .values({
-          segmentId: data.segmentId,
-          projectId: segment.projectId,
-          shotNumber: shot.shotNumber,
-          startTime: shot.startTime,
-          duration: shot.duration,
-          shotSize: shot.shotSize,
-          cameraAngle: shot.cameraAngle,
-          cameraMovement: shot.cameraMovement,
-          description: shot.description,
-          action: shot.action,
-          dialogue: shot.dialogue,
-          characters: shot.characters,
-          soundEffects: shot.soundEffects,
-          ambience: shot.ambience,
-          transition: shot.transition,
-        })
-        .returning()
-        .get();
+      const created = await storiesDb.createShot({
+        segmentId: data.segmentId,
+        projectId: segment.projectId,
+        shotNumber: shot.shotNumber,
+        startTime: shot.startTime,
+        duration: shot.duration,
+        shotSize: shot.shotSize,
+        cameraAngle: shot.cameraAngle,
+        cameraMovement: shot.cameraMovement,
+        description: shot.description,
+        action: shot.action,
+        dialogue: shot.dialogue,
+        characters: shot.characters,
+        soundEffects: shot.soundEffects,
+        ambience: shot.ambience,
+        transition: shot.transition,
+      });
+      if (!created) {
+        throw new Error('镜头创建失败');
+      }
 
       shotIds.push(created.id);
     }

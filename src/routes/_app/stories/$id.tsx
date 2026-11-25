@@ -362,9 +362,9 @@ function StoryDetailPage() {
               <p className="mt-1 text-sm text-muted-foreground">
                 OpenStory 负责影视化分镜、资产和视频；章节、记忆和 AI
                 写作会保存在同一个 InkOS 项目中。
-                {inkos?.status === 'unavailable'
-                  ? ` ${inkos.error ?? '连接暂时不可用'}。`
-                  : ''}
+                {inkos?.status === 'unavailable' && (
+                  <span> {inkos.error ?? '连接暂时不可用'}。</span>
+                )}
               </p>
             </div>
             <div className="flex shrink-0 flex-wrap gap-2">

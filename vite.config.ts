@@ -195,7 +195,12 @@ export default defineConfig({
   server: {
     port: 3000,
     host: true, // Listen on all interfaces for QStash Docker to reach via host.docker.internal
-    allowedHosts: ['localhost', '127.0.0.1', 'host.docker.internal', 'creation.dakalami.com'],
+    allowedHosts: [
+      'localhost',
+      '127.0.0.1',
+      'host.docker.internal',
+      'creation.dakalami.com',
+    ],
     watch: {
       ignored: [
         '**/e2e/.auth/**',

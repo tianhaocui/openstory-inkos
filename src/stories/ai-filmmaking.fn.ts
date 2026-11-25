@@ -8,18 +8,6 @@ import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { zodValidator } from '@tanstack/zod-adapter';
 import { authWithTeamMiddleware } from '@/platform/middleware.fn';
-import { getDb } from '#db-client';
-import { and, asc, desc, eq, inArray } from 'drizzle-orm';
-import {
-  storyProjects,
-  storyChapters,
-  storySegments,
-  storyShots,
-  storyAssets,
-  storyAssetViews,
-  storyKeyframes,
-  storyFilmSettings,
-} from '@/platform/server/db/schema';
 import { DEFAULT_IMAGE_MODEL, safeTextToImageModel } from '@/models/models';
 import { aspectRatioSchema, type AspectRatio } from '@/models/aspect-ratios';
 import { generateId } from '@/platform/id';
@@ -52,9 +40,7 @@ const AI_CONFIG = {
 };
 
 const chatCompletionResponseSchema = z.object({
-  choices: z.array(
-    z.object({ message: z.object({ content: z.string() }) })
-  ),
+  choices: z.array(z.object({ message: z.object({ content: z.string() }) })),
 });
 
 type StoryGenerationContext = {
@@ -77,14 +63,13 @@ function secondsToTimecode(totalSeconds: number): string {
     .join(':');
 }
 
-async function requireStoryProject(projectId: string, teamId: string) {
-  const [project] = await getDb()
-    .select()
-    .from(storyProjects)
-    .where(
-      and(eq(storyProjects.id, projectId), eq(storyProjects.teamId, teamId))
-    )
-    .limit(1);
+async function requireStoryProject(
+  projectId: string,
+  storiesDb: ScopedDb['stories']
+) {
+  // The scoped read filters by the caller's team, same as the old
+  // (id, teamId) predicate.
+  const project = await storiesDb.getProject(projectId);
   if (!project) throw new Error('Project not found');
   return project;
 }
@@ -190,20 +175,14 @@ export const segmentChapterFn = createServerFn()
   .validator(zodValidator(segmentChapterSchema))
   .handler(async ({ data, context }) => {
     const { projectId, chapterNumber } = data;
-    const project = await requireStoryProject(projectId, context.teamId);
+    const storiesDb = context.scopedDb.stories;
+    const project = await requireStoryProject(projectId, storiesDb);
 
     // 1. 获取章节内容
-    const db = getDb();
-    const [chapter] = await db
-      .select()
-      .from(storyChapters)
-      .where(
-        and(
-          eq(storyChapters.projectId, projectId),
-          eq(storyChapters.chapterNumber, chapterNumber)
-        )
-      )
-      .limit(1);
+    const chapter = await storiesDb.getChapterByNumber(
+      projectId,
+      chapterNumber
+    );
 
     if (!chapter) {
       throw new Error(`Chapter ${chapterNumber} not found`);
@@ -227,46 +206,42 @@ export const segmentChapterFn = createServerFn()
       const segmentId = generateId();
       const timestamp = nowIso();
 
-      await getDb()
-        .insert(storySegments)
-        .values({
-          id: segmentId,
-          projectId,
-          chapterNumber,
-          segmentNumber: seg.segmentNumber,
-          startTime: secondsToTimecode(seg.startTime),
-          endTime: secondsToTimecode(seg.endTime),
-          duration: seg.duration,
-          narrativeFunction: seg.narrativeFunction,
-          summary: seg.summary,
-          status: 'draft',
-          createdAt: timestamp,
-          updatedAt: timestamp,
-        });
+      await storiesDb.createSegment({
+        id: segmentId,
+        projectId,
+        chapterNumber,
+        segmentNumber: seg.segmentNumber,
+        startTime: secondsToTimecode(seg.startTime),
+        endTime: secondsToTimecode(seg.endTime),
+        duration: seg.duration,
+        narrativeFunction: seg.narrativeFunction,
+        summary: seg.summary,
+        status: 'draft',
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      });
 
       createdSegments.push(segmentId);
 
       // 插入镜头
       let shotStartTime = 0;
       for (const shot of seg.shots) {
-        await getDb()
-          .insert(storyShots)
-          .values({
-            id: generateId(),
-            segmentId,
-            projectId,
-            shotNumber: shot.shotNumber,
-            startTime: secondsToTimecode(shotStartTime),
-            shotSize: shot.shotSize,
-            cameraAngle: shot.cameraAngle,
-            cameraMovement: shot.cameraMovement,
-            dialogue: shot.dialogue,
-            soundEffects: shot.soundEffects,
-            description: shot.description,
-            duration: shot.duration,
-            createdAt: timestamp,
-            updatedAt: timestamp,
-          });
+        await storiesDb.createShot({
+          id: generateId(),
+          segmentId,
+          projectId,
+          shotNumber: shot.shotNumber,
+          startTime: secondsToTimecode(shotStartTime),
+          shotSize: shot.shotSize,
+          cameraAngle: shot.cameraAngle,
+          cameraMovement: shot.cameraMovement,
+          dialogue: shot.dialogue,
+          soundEffects: shot.soundEffects,
+          description: shot.description,
+          duration: shot.duration,
+          createdAt: timestamp,
+          updatedAt: timestamp,
+        });
         shotStartTime += shot.duration;
       }
     }
@@ -296,26 +271,17 @@ export const generateAssetImageFn = createServerFn()
   .validator(zodValidator(generateAssetSchema))
   .handler(async ({ data, context }) => {
     const { projectId, assetId, viewAngle } = data;
-    await requireStoryProject(projectId, context.teamId);
+    const storiesDb = context.scopedDb.stories;
+    await requireStoryProject(projectId, storiesDb);
 
     // 1. 获取资产信息
-    const [asset] = await getDb()
-      .select()
-      .from(storyAssets)
-      .where(
-        and(eq(storyAssets.id, assetId), eq(storyAssets.projectId, projectId))
-      )
-      .limit(1);
+    const asset = await storiesDb.getAssetByIdAndProject(assetId, projectId);
 
     if (!asset) {
       throw new Error('Asset not found');
     }
 
-    const [settings] = await getDb()
-      .select()
-      .from(storyFilmSettings)
-      .where(eq(storyFilmSettings.projectId, projectId))
-      .limit(1);
+    const settings = await storiesDb.getFilmSettings(projectId);
     const aspectRatio = resolveStoryAspectRatio(settings?.aspectRatio);
     const model = safeTextToImageModel(
       settings?.preferredImageModel,
@@ -327,28 +293,26 @@ export const generateAssetImageFn = createServerFn()
     const viewId = generateId();
     const attemptId = generateId();
     const timestamp = nowIso();
-    await getDb()
-      .insert(storyAssetViews)
-      .values({
-        id: viewId,
-        assetId,
-        viewAngle:
-          viewAngle ||
-          (asset.type === 'character' || asset.type === 'character-design'
-            ? 'front'
-            : 'wide'),
-        prompt,
-        generatedBy: model,
-        generationParams: { aspectRatio, attemptId },
-        status: 'generating',
-        createdAt: timestamp,
-        updatedAt: timestamp,
-      });
+    await storiesDb.createAssetView({
+      id: viewId,
+      assetId,
+      viewAngle:
+        viewAngle ||
+        (asset.type === 'character' || asset.type === 'character-design'
+          ? 'front'
+          : 'wide'),
+      prompt,
+      generatedBy: model,
+      generationParams: { aspectRatio, attemptId },
+      status: 'generating',
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    });
 
-    await getDb()
-      .update(storyAssets)
-      .set({ status: 'generating', updatedAt: timestamp })
-      .where(eq(storyAssets.id, assetId));
+    await storiesDb.updateAsset(assetId, {
+      status: 'generating',
+      updatedAt: timestamp,
+    });
 
     try {
       const generationContext: StoryGenerationContext = context;
@@ -377,43 +341,37 @@ export const generateAssetImageFn = createServerFn()
       );
 
       const completedAt = nowIso();
-      await getDb()
-        .update(storyAssetViews)
-        .set({
-          imageUrl: image.url,
-          imagePath: image.path,
-          generatedBy: model,
-          generationParams: {
-            aspectRatio,
-            attemptId,
-            via: image.via,
-            endpointId: image.metadata.endpointId,
-            requestId: image.metadata.requestId,
-          },
-          status: 'completed',
-          updatedAt: completedAt,
-        })
-        .where(eq(storyAssetViews.id, viewId));
-      await getDb()
-        .update(storyAssets)
-        .set({ status: 'completed', updatedAt: completedAt })
-        .where(eq(storyAssets.id, assetId));
+      await storiesDb.updateAssetView(viewId, {
+        imageUrl: image.url,
+        imagePath: image.path,
+        generatedBy: model,
+        generationParams: {
+          aspectRatio,
+          attemptId,
+          via: image.via,
+          endpointId: image.metadata.endpointId,
+          requestId: image.metadata.requestId,
+        },
+        status: 'completed',
+        updatedAt: completedAt,
+      });
+      await storiesDb.updateAsset(assetId, {
+        status: 'completed',
+        updatedAt: completedAt,
+      });
 
       return { success: true, viewId, imageUrl: image.url };
     } catch (error) {
       const message = sanitizeFailResponse(error);
-      await getDb()
-        .update(storyAssetViews)
-        .set({
-          status: 'failed',
-          generationParams: { aspectRatio, attemptId, error: message },
-          updatedAt: nowIso(),
-        })
-        .where(eq(storyAssetViews.id, viewId));
-      await getDb()
-        .update(storyAssets)
-        .set({ status: 'draft', updatedAt: nowIso() })
-        .where(eq(storyAssets.id, assetId));
+      await storiesDb.updateAssetView(viewId, {
+        status: 'failed',
+        generationParams: { aspectRatio, attemptId, error: message },
+        updatedAt: nowIso(),
+      });
+      await storiesDb.updateAsset(assetId, {
+        status: 'draft',
+        updatedAt: nowIso(),
+      });
       throw error;
     }
   });
@@ -433,26 +391,17 @@ export const generateKeyframeFn = createServerFn()
   .validator(zodValidator(generateKeyframeSchema))
   .handler(async ({ data, context }) => {
     const { projectId, shotId, referenceAssetIds } = data;
-    await requireStoryProject(projectId, context.teamId);
+    const storiesDb = context.scopedDb.stories;
+    await requireStoryProject(projectId, storiesDb);
 
     // 1. 获取镜头信息
-    const [shot] = await getDb()
-      .select()
-      .from(storyShots)
-      .where(
-        and(eq(storyShots.id, shotId), eq(storyShots.projectId, projectId))
-      )
-      .limit(1);
+    const shot = await storiesDb.getShotByIdAndProject(shotId, projectId);
 
     if (!shot) {
       throw new Error('Shot not found');
     }
 
-    const [settings] = await getDb()
-      .select()
-      .from(storyFilmSettings)
-      .where(eq(storyFilmSettings.projectId, projectId))
-      .limit(1);
+    const settings = await storiesDb.getFilmSettings(projectId);
     const aspectRatio = resolveStoryAspectRatio(settings?.aspectRatio);
     const model = safeTextToImageModel(
       settings?.preferredImageModel,
@@ -462,10 +411,7 @@ export const generateKeyframeFn = createServerFn()
     // Explicit references are validated against this project. Without an
     // explicit selection, attach generated assets whose names occur in the
     // shot description so the existing UI still gets consistency references.
-    const projectAssets = await getDb()
-      .select({ id: storyAssets.id, name: storyAssets.name })
-      .from(storyAssets)
-      .where(eq(storyAssets.projectId, projectId));
+    const projectAssets = await storiesDb.listProjectAssets(projectId);
     const requestedAssetIds = referenceAssetIds
       ? [...new Set(referenceAssetIds)]
       : projectAssets
@@ -482,19 +428,10 @@ export const generateKeyframeFn = createServerFn()
       throw new Error('Reference asset not found in project');
     }
 
-    const assetViews =
-      requestedAssetIds.length === 0
-        ? []
-        : await getDb()
-            .select({ imageUrl: storyAssetViews.imageUrl })
-            .from(storyAssetViews)
-            .innerJoin(storyAssets, eq(storyAssetViews.assetId, storyAssets.id))
-            .where(
-              and(
-                eq(storyAssets.projectId, projectId),
-                inArray(storyAssets.id, requestedAssetIds)
-              )
-            );
+    const assetViews = await storiesDb.listAssetImageUrls(
+      projectId,
+      requestedAssetIds
+    );
     const referenceImages = assetViews
       .map((view) => view.imageUrl)
       .filter((url): url is string => Boolean(url));
@@ -512,17 +449,7 @@ export const generateKeyframeFn = createServerFn()
       referenceImages.length > 0
     );
 
-    const [existing] = await getDb()
-      .select()
-      .from(storyKeyframes)
-      .where(
-        and(
-          eq(storyKeyframes.projectId, projectId),
-          eq(storyKeyframes.shotId, shotId)
-        )
-      )
-      .orderBy(desc(storyKeyframes.createdAt))
-      .limit(1);
+    const existing = await storiesDb.getLatestKeyframe(projectId, shotId);
     if (existing?.status === 'generating') {
       return {
         success: true,
@@ -553,18 +480,13 @@ export const generateKeyframeFn = createServerFn()
       updatedAt: timestamp,
     };
     if (existing) {
-      await getDb()
-        .update(storyKeyframes)
-        .set(pendingValues)
-        .where(eq(storyKeyframes.id, keyframeId));
+      await storiesDb.updateKeyframe(keyframeId, pendingValues);
     } else {
-      await getDb()
-        .insert(storyKeyframes)
-        .values({
-          id: keyframeId,
-          ...pendingValues,
-          createdAt: timestamp,
-        });
+      await storiesDb.createKeyframe({
+        id: keyframeId,
+        ...pendingValues,
+        createdAt: timestamp,
+      });
     }
 
     try {
@@ -588,29 +510,24 @@ export const generateKeyframeFn = createServerFn()
       );
 
       const completedAt = nowIso();
-      await getDb()
-        .update(storyKeyframes)
-        .set({
-          imageUrl: image.url,
-          imagePath: image.path,
-          generatedBy: model,
-          generationParams: {
-            aspectRatio,
-            attemptId,
-            via: image.via,
-            endpointId: image.metadata.endpointId,
-            requestId: image.metadata.requestId,
-          },
-          status: 'completed',
-          updatedAt: completedAt,
-        })
-        .where(eq(storyKeyframes.id, keyframeId));
-      await getDb()
-        .update(storyShots)
-        .set({ keyframeId, updatedAt: completedAt })
-        .where(
-          and(eq(storyShots.id, shotId), eq(storyShots.projectId, projectId))
-        );
+      await storiesDb.updateKeyframe(keyframeId, {
+        imageUrl: image.url,
+        imagePath: image.path,
+        generatedBy: model,
+        generationParams: {
+          aspectRatio,
+          attemptId,
+          via: image.via,
+          endpointId: image.metadata.endpointId,
+          requestId: image.metadata.requestId,
+        },
+        status: 'completed',
+        updatedAt: completedAt,
+      });
+      await storiesDb.updateShot(shotId, projectId, {
+        keyframeId,
+        updatedAt: completedAt,
+      });
 
       return {
         success: true,
@@ -619,18 +536,15 @@ export const generateKeyframeFn = createServerFn()
         alreadyInFlight: false,
       } as const;
     } catch (error) {
-      await getDb()
-        .update(storyKeyframes)
-        .set({
-          status: 'failed',
-          generationParams: {
-            aspectRatio,
-            attemptId,
-            error: sanitizeFailResponse(error),
-          },
-          updatedAt: nowIso(),
-        })
-        .where(eq(storyKeyframes.id, keyframeId));
+      await storiesDb.updateKeyframe(keyframeId, {
+        status: 'failed',
+        generationParams: {
+          aspectRatio,
+          attemptId,
+          error: sanitizeFailResponse(error),
+        },
+        updatedAt: nowIso(),
+      });
       throw error;
     }
   });
@@ -649,19 +563,14 @@ export const generateVideoFn = createServerFn()
   .validator(zodValidator(generateVideoSchema))
   .handler(async ({ data, context }) => {
     const { projectId, keyframeId } = data;
-    await requireStoryProject(projectId, context.teamId);
+    const storiesDb = context.scopedDb.stories;
+    await requireStoryProject(projectId, storiesDb);
 
     // 1. 获取关键帧信息
-    const [keyframe] = await getDb()
-      .select()
-      .from(storyKeyframes)
-      .where(
-        and(
-          eq(storyKeyframes.id, keyframeId),
-          eq(storyKeyframes.projectId, projectId)
-        )
-      )
-      .limit(1);
+    const keyframe = await storiesDb.getKeyframeByIdAndProject(
+      keyframeId,
+      projectId
+    );
 
     if (!keyframe) {
       throw new Error('Keyframe not found');
@@ -690,29 +599,18 @@ export const batchGenerateSegmentFn = createServerFn()
   .validator(zodValidator(batchGenerateSegmentSchema))
   .handler(async ({ data, context }) => {
     const { projectId, segmentId } = data;
-    await requireStoryProject(projectId, context.teamId);
+    const storiesDb = context.scopedDb.stories;
+    await requireStoryProject(projectId, storiesDb);
 
     // 1. 获取片段的所有镜头
-    const shots = await getDb()
-      .select()
-      .from(storyShots)
-      .where(
-        and(
-          eq(storyShots.segmentId, segmentId),
-          eq(storyShots.projectId, projectId)
-        )
-      )
-      .orderBy(asc(storyShots.shotNumber));
+    const shots = await storiesDb.listShotsForSegment(segmentId, projectId);
 
     if (shots.length === 0) {
       throw new Error('No shots found in segment');
     }
 
     // 2. 获取项目的所有资产（用于 reference）
-    const assets = await getDb()
-      .select({ id: storyAssets.id, name: storyAssets.name })
-      .from(storyAssets)
-      .where(eq(storyAssets.projectId, projectId));
+    const assets = await storiesDb.listProjectAssets(projectId);
 
     const results = {
       keyframesGenerated: 0,
@@ -926,20 +824,14 @@ export const extractAssetsFromChapterFn = createServerFn()
   .validator(zodValidator(extractAssetsSchema))
   .handler(async ({ data, context }) => {
     const { projectId, chapterNumber } = data;
-    await requireStoryProject(projectId, context.teamId);
+    const storiesDb = context.scopedDb.stories;
+    await requireStoryProject(projectId, storiesDb);
 
     // 1. 获取章节内容
-    const db = getDb();
-    const [chapter] = await db
-      .select()
-      .from(storyChapters)
-      .where(
-        and(
-          eq(storyChapters.projectId, projectId),
-          eq(storyChapters.chapterNumber, chapterNumber)
-        )
-      )
-      .limit(1);
+    const chapter = await storiesDb.getChapterByNumber(
+      projectId,
+      chapterNumber
+    );
 
     if (!chapter) {
       throw new Error(`Chapter ${chapterNumber} not found`);
@@ -1016,75 +908,57 @@ export const extractAssetsFromChapterFn = createServerFn()
     // 保存角色资产
     for (const char of extracted.characters) {
       // 检查是否已存在
-      const [existing] = await getDb()
-        .select({ id: storyAssets.id })
-        .from(storyAssets)
-        .where(
-          and(
-            eq(storyAssets.projectId, projectId),
-            eq(storyAssets.name, char.name),
-            eq(storyAssets.type, 'character')
-          )
-        )
-        .limit(1);
+      const existing = await storiesDb.findAssetByNameType(
+        projectId,
+        char.name,
+        'character'
+      );
 
       if (!existing) {
         const timestamp = nowIso();
-        await getDb()
-          .insert(storyAssets)
-          .values({
-            id: generateId(),
-            projectId,
-            name: char.name,
-            type: 'character',
-            description: char.description,
-            styleNotes: char.styleNotes || null,
-            colorPalette: char.colorPalette
-              ? { notes: char.colorPalette }
-              : null,
-            visualIdentifiers: char.visualIdentifiers || null,
-            status: 'draft',
-            createdAt: timestamp,
-            updatedAt: timestamp,
-          });
+        await storiesDb.createAsset({
+          id: generateId(),
+          projectId,
+          name: char.name,
+          type: 'character',
+          description: char.description,
+          styleNotes: char.styleNotes || null,
+          colorPalette: char.colorPalette ? { notes: char.colorPalette } : null,
+          visualIdentifiers: char.visualIdentifiers || null,
+          status: 'draft',
+          createdAt: timestamp,
+          updatedAt: timestamp,
+        });
         results.charactersCreated++;
       }
     }
 
     // 保存场景资产
     for (const scene of extracted.scenes) {
-      const [existing] = await getDb()
-        .select({ id: storyAssets.id })
-        .from(storyAssets)
-        .where(
-          and(
-            eq(storyAssets.projectId, projectId),
-            eq(storyAssets.name, scene.name),
-            eq(storyAssets.type, 'scene')
-          )
-        )
-        .limit(1);
+      const existing = await storiesDb.findAssetByNameType(
+        projectId,
+        scene.name,
+        'scene'
+      );
 
       if (!existing) {
         const timestamp = nowIso();
-        await getDb()
-          .insert(storyAssets)
-          .values({
-            id: generateId(),
-            projectId,
-            name: scene.name,
-            type: 'scene',
-            sceneName: scene.name,
-            description: scene.description,
-            styleNotes: scene.styleNotes || null,
-            colorPalette: scene.colorPalette
-              ? { notes: scene.colorPalette }
-              : null,
-            visualIdentifiers: scene.visualIdentifiers || null,
-            status: 'draft',
-            createdAt: timestamp,
-            updatedAt: timestamp,
-          });
+        await storiesDb.createAsset({
+          id: generateId(),
+          projectId,
+          name: scene.name,
+          type: 'scene',
+          sceneName: scene.name,
+          description: scene.description,
+          styleNotes: scene.styleNotes || null,
+          colorPalette: scene.colorPalette
+            ? { notes: scene.colorPalette }
+            : null,
+          visualIdentifiers: scene.visualIdentifiers || null,
+          status: 'draft',
+          createdAt: timestamp,
+          updatedAt: timestamp,
+        });
         results.scenesCreated++;
       }
     }

@@ -82,7 +82,7 @@ describe('getMarkdownForPath', () => {
   it('serves the FAQ rendition', () => {
     const markdown = getMarkdownForPath('/docs/faq');
     expect(markdown).toContain('# Frequently Asked Questions');
-    expect(markdown).toContain('## What is OpenStory?');
+    expect(markdown).toContain('## OpenStory 是什么？');
   });
 
   it('serves docs pages from content-collections by slug', () => {

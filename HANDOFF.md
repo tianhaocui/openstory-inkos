@@ -57,25 +57,25 @@
 
 ### ✅ 已完成
 
-| 模块 | 状态 | 说明 |
-|------|------|------|
-| 基础部署 | ✅ | HTTPS、域名、保活脚本 |
-| 界面汉化 | ✅ | i18n 中文本地化 |
-| 用户认证 | ✅ | Better Auth |
-| InkOS 整合 | ✅ | 数据库 schema 合并 |
-| 分镜切分 AI | ✅ | `ai-filmmaking.fn.ts` |
-| 影视面板 UI | ✅ | `filmmaking-panel.tsx` |
-| Server Functions | ✅ | TanStack Start 服务端函数 |
+| 模块             | 状态 | 说明                      |
+| ---------------- | ---- | ------------------------- |
+| 基础部署         | ✅   | HTTPS、域名、保活脚本     |
+| 界面汉化         | ✅   | i18n 中文本地化           |
+| 用户认证         | ✅   | Better Auth               |
+| InkOS 整合       | ✅   | 数据库 schema 合并        |
+| 分镜切分 AI      | ✅   | `ai-filmmaking.fn.ts`     |
+| 影视面板 UI      | ✅   | `filmmaking-panel.tsx`    |
+| Server Functions | ✅   | TanStack Start 服务端函数 |
 
 ### 🚧 进行中 / 待完成
 
-| 模块 | 状态 | 说明 |
-|------|------|------|
-| **关键帧生成** | 🚧 | UI 完成，需接入实际图像 API |
-| **视频生成** | 🚧 | 需接入 Seedance/fal.ai |
-| **资产管理** | 🚧 | 角色/场景图像生成 |
-| **视频拼接** | ❌ | 最终导出功能 |
-| **配音/音乐** | ❌ | TTS + 背景音乐 |
+| 模块           | 状态 | 说明                        |
+| -------------- | ---- | --------------------------- |
+| **关键帧生成** | 🚧   | UI 完成，需接入实际图像 API |
+| **视频生成**   | 🚧   | 需接入 Seedance/fal.ai      |
+| **资产管理**   | 🚧   | 角色/场景图像生成           |
+| **视频拼接**   | ❌   | 最终导出功能                |
+| **配音/音乐**  | ❌   | TTS + 背景音乐              |
 
 ---
 
@@ -96,6 +96,7 @@ Assets (角色/场景)
 ```
 
 **数据库表** (定义在 `src/platform/server/db/schema.ts`):
+
 - `story_projects` — 项目
 - `story_chapters` — 章节
 - `story_segments` — 分镜片段
@@ -112,23 +113,23 @@ Assets (角色/场景)
 
 ```typescript
 // src/stories/filmmaking.fn.ts
-getFilmSettingsFn      // 获取制作设置
-updateFilmSettingsFn   // 更新设置
-analyzeStoryboardFn    // AI 分镜分析
-getFilmStatusFn        // 获取制作进度
+getFilmSettingsFn; // 获取制作设置
+updateFilmSettingsFn; // 更新设置
+analyzeStoryboardFn; // AI 分镜分析
+getFilmStatusFn; // 获取制作进度
 
 // src/stories/ai-filmmaking.fn.ts
-segmentChapterFn       // 章节 → 分镜切分
-extractAssetsFn        // 提取角色/场景
-generateAssetImageFn   // 生成资产图像
-generateKeyframeFn     // 生成关键帧
-generateVideoFn        // 生成视频片段
+segmentChapterFn; // 章节 → 分镜切分
+extractAssetsFn; // 提取角色/场景
+generateAssetImageFn; // 生成资产图像
+generateKeyframeFn; // 生成关键帧
+generateVideoFn; // 生成视频片段
 
 // src/stills/shot-image.fn.ts
-generateShotImageFn    // 镜头图像生成
+generateShotImageFn; // 镜头图像生成
 
 // src/motion/motion.fn.ts
-submitMotionFn         // 提交视频生成任务
+submitMotionFn; // 提交视频生成任务
 ```
 
 ---
@@ -180,6 +181,7 @@ const AI_CONFIG = {
 **位置**: `src/stills/shot-image.fn.ts`
 
 **需要**:
+
 - 接入 fal.ai 图像生成 API
 - 根据 shot 描述 + 资产参考图生成关键帧
 - 支持风格一致性控制
@@ -189,6 +191,7 @@ const AI_CONFIG = {
 **位置**: `src/motion/motion.fn.ts`
 
 **需要**:
+
 - 接入 Seedance 或其他视频生成 API
 - 图生视频 (keyframe → video clip)
 - 支持摄像机运动参数
@@ -198,6 +201,7 @@ const AI_CONFIG = {
 **位置**: `src/stories/ai-filmmaking.fn.ts` → `generateAssetImageFn`
 
 **需要**:
+
 - 角色设定图生成 (正面/侧面/背面)
 - 场景设定图生成
 - 风格一致性
@@ -205,6 +209,7 @@ const AI_CONFIG = {
 ### 4. 视频拼接导出 (优先级: 低)
 
 **需要**:
+
 - FFmpeg 视频片段拼接
 - 配音轨道合成
 - 背景音乐混音
@@ -250,6 +255,7 @@ ai-daily-digest  # 每天 UTC 22:00
 ## 联系方式
 
 如有问题，查看:
+
 - `CLAUDE.md` — 详细架构和代码规范
 - `src/platform/server/db/schema.ts` — 完整数据库 schema
 - GitHub Issues / 代码注释

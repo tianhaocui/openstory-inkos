@@ -100,18 +100,18 @@ flowchart TD
 
 **输入结构（`StoryboardWorkflowInput`）：**
 
-| 字段                   | 类型      | 用途                                         |
-| ---------------------- | --------- | -------------------------------------------- |
-| `userId`               | string    | 身份验证上下文                               |
-| `teamId`               | string    | 身份验证上下文                               |
-| `sequenceId`           | string    | 目标序列                                     |
-| `options`              | object    | `framesPerScene`、`generateThumbnails` 等    |
-| `autoGenerateMotion`   | boolean   | 是否为每一帧生成视频                         |
-| `autoGenerateMusic`    | boolean   | 是否为序列生成音乐                           |
-| `musicModel`           | string?   | 覆盖音乐模型                                 |
-| `imageModels`          | string[]? | 用于并行生成的多个图像模型                   |
-| `suggestedTalentIds`   | string[]? | 为选角预先选定的演员                         |
-| `suggestedLocationIds` | string[]? | 为匹配预先选定的地点                         |
+| 字段                   | 类型      | 用途                                      |
+| ---------------------- | --------- | ----------------------------------------- |
+| `userId`               | string    | 身份验证上下文                            |
+| `teamId`               | string    | 身份验证上下文                            |
+| `sequenceId`           | string    | 目标序列                                  |
+| `options`              | object    | `framesPerScene`、`generateThumbnails` 等 |
+| `autoGenerateMotion`   | boolean   | 是否为每一帧生成视频                      |
+| `autoGenerateMusic`    | boolean   | 是否为序列生成音乐                        |
+| `musicModel`           | string?   | 覆盖音乐模型                              |
+| `imageModels`          | string[]? | 用于并行生成的多个图像模型                |
+| `suggestedTalentIds`   | string[]? | 为选角预先选定的演员                      |
+| `suggestedLocationIds` | string[]? | 为匹配预先选定的地点                      |
 
 ## 故事板工作流
 
@@ -361,34 +361,34 @@ flowchart TD
 
 事件通过 Upstash Realtime 在逐序列频道（`getGenerationChannel(sequenceId)`）上发送。
 
-| 事件                                  | 发送时机                                          | 载荷                                                                  |
-| ------------------------------------- | ------------------------------------------------- | --------------------------------------------------------------------- |
-| `generation.phase:start`              | 每次 LLM 调用或生成阶段之前                       | `{ phase, phaseName }`                                                |
-| `generation.phase:complete`           | 每个阶段完成后                                    | `{ phase }`                                                           |
-| `generation.poster:ready`             | 故事板工作流：海报生成后                          | `{ posterUrl }`                                                       |
-| `generation.scene:new`                | 阶段 1：场景流入时逐步发送                        | `{ sceneId, sceneNumber, title, scriptExtract, durationSeconds }`     |
-| `generation.scene:updated`            | 阶段 1：流式处理期间场景元数据更新时              | `{ sceneId, sceneNumber, title, scriptExtract, durationSeconds }`     |
-| `generation.updated`                  | 阶段 1：在数据流中检测到标题后                    | `{ title }`                                                           |
-| `generation.shot:created`             | 阶段 1：镜头更新插入时逐步发送                    | `{ shotId, sceneId, orderIndex }`                                     |
-| `generation.frame:updated`            | 阶段 4：提示词写入数据库后                        | `{ frameId, updateType, metadata }`                                   |
-| `generation.talent:matched`           | 阶段 2：演员与角色匹配时                          | `{ matches: [{ characterId, characterName, talentId, talentName }] }` |
-| `generation.talent:unmatched`         | 阶段 2：匹配后有未使用的演员时                    | `{ unusedTalentIds, unusedTalentNames }`                              |
-| `generation.location:matched`         | 阶段 2：地点与地点库匹配时                        | `{ matches: [{ locationId, locationName, libraryLocationId, ... }] }` |
-| `generation.image:progress`           | 图像工作流：生成中/已完成/失败                    | `{ frameId, status, thumbnailUrl? }`                                  |
-| `generation.variant-image:progress`   | 变体工作流：生成中/已完成/失败                    | `{ frameId, status, variantImageUrl? }`                               |
-| `generation.video:progress`           | 动态工作流：生成中/已完成/失败                    | `{ frameId, status, videoUrl? }`                                      |
-| `generation.audio:progress`           | 音乐工作流：生成中/已完成/失败                    | `{ status, audioUrl? }`                                               |
-| `generation.character-sheet:progress` | 角色设定集：逐角色                                | `{ characterId, status, sheetImageUrl? }`                             |
-| `generation.location-sheet:progress`  | 地点设定集：逐地点                                | `{ locationId, status, referenceImageUrl? }`                          |
-| `generation.recast:start`             | 重新选角：重新生成帧之前                          | `{ characterId, frameCount }`                                         |
-| `generation.recast:complete`          | 重新选角：所有帧重新生成后                        | `{ characterId, successCount, failedCount }`                          |
-| `generation.recast:failed`            | 重新选角：失败时                                  | `{ characterId, error }`                                              |
-| `generation.recast-location:start`    | 重新选地点：重新生成帧之前                        | `{ locationId, frameCount }`                                          |
-| `generation.recast-location:complete` | 重新选地点：所有帧重新生成后                      | `{ locationId, successCount, failedCount }`                           |
-| `generation.recast-location:failed`   | 重新选地点：失败时                                | `{ locationId, error }`                                               |
-| `generation.error`                    | 出现非致命工作流错误时                            | `{ message, phase? }`                                                 |
-| `generation.failed`                   | 工作流失败时                                      | `{ message }`                                                         |
-| `generation.complete`                 | 故事板工作流：所有工作完成后                      | `{ sequenceId }`                                                      |
+| 事件                                  | 发送时机                             | 载荷                                                                  |
+| ------------------------------------- | ------------------------------------ | --------------------------------------------------------------------- |
+| `generation.phase:start`              | 每次 LLM 调用或生成阶段之前          | `{ phase, phaseName }`                                                |
+| `generation.phase:complete`           | 每个阶段完成后                       | `{ phase }`                                                           |
+| `generation.poster:ready`             | 故事板工作流：海报生成后             | `{ posterUrl }`                                                       |
+| `generation.scene:new`                | 阶段 1：场景流入时逐步发送           | `{ sceneId, sceneNumber, title, scriptExtract, durationSeconds }`     |
+| `generation.scene:updated`            | 阶段 1：流式处理期间场景元数据更新时 | `{ sceneId, sceneNumber, title, scriptExtract, durationSeconds }`     |
+| `generation.updated`                  | 阶段 1：在数据流中检测到标题后       | `{ title }`                                                           |
+| `generation.shot:created`             | 阶段 1：镜头更新插入时逐步发送       | `{ shotId, sceneId, orderIndex }`                                     |
+| `generation.frame:updated`            | 阶段 4：提示词写入数据库后           | `{ frameId, updateType, metadata }`                                   |
+| `generation.talent:matched`           | 阶段 2：演员与角色匹配时             | `{ matches: [{ characterId, characterName, talentId, talentName }] }` |
+| `generation.talent:unmatched`         | 阶段 2：匹配后有未使用的演员时       | `{ unusedTalentIds, unusedTalentNames }`                              |
+| `generation.location:matched`         | 阶段 2：地点与地点库匹配时           | `{ matches: [{ locationId, locationName, libraryLocationId, ... }] }` |
+| `generation.image:progress`           | 图像工作流：生成中/已完成/失败       | `{ frameId, status, thumbnailUrl? }`                                  |
+| `generation.variant-image:progress`   | 变体工作流：生成中/已完成/失败       | `{ frameId, status, variantImageUrl? }`                               |
+| `generation.video:progress`           | 动态工作流：生成中/已完成/失败       | `{ frameId, status, videoUrl? }`                                      |
+| `generation.audio:progress`           | 音乐工作流：生成中/已完成/失败       | `{ status, audioUrl? }`                                               |
+| `generation.character-sheet:progress` | 角色设定集：逐角色                   | `{ characterId, status, sheetImageUrl? }`                             |
+| `generation.location-sheet:progress`  | 地点设定集：逐地点                   | `{ locationId, status, referenceImageUrl? }`                          |
+| `generation.recast:start`             | 重新选角：重新生成帧之前             | `{ characterId, frameCount }`                                         |
+| `generation.recast:complete`          | 重新选角：所有帧重新生成后           | `{ characterId, successCount, failedCount }`                          |
+| `generation.recast:failed`            | 重新选角：失败时                     | `{ characterId, error }`                                              |
+| `generation.recast-location:start`    | 重新选地点：重新生成帧之前           | `{ locationId, frameCount }`                                          |
+| `generation.recast-location:complete` | 重新选地点：所有帧重新生成后         | `{ locationId, successCount, failedCount }`                           |
+| `generation.recast-location:failed`   | 重新选地点：失败时                   | `{ locationId, error }`                                               |
+| `generation.error`                    | 出现非致命工作流错误时               | `{ message, phase? }`                                                 |
+| `generation.failed`                   | 工作流失败时                         | `{ message }`                                                         |
+| `generation.complete`                 | 故事板工作流：所有工作完成后         | `{ sequenceId }`                                                      |
 
 ## 错误处理
 
@@ -410,12 +410,12 @@ flowchart TD
 
 在 Cloudflare Workflows 下，重试按 `step.do()`（以及工作流类）配置，而不是在触发器上配置。`triggerWorkflow()` 上旧版的 `retries`/`retryDelay` 选项为保持向后兼容仍会被接受，但**不会产生任何效果**。
 
-| 层级                                       | 重试            | 退避                                                                            |
-| ------------------------------------------ | --------------- | ------------------------------------------------------------------------------- |
-| 单个 `step.do()` 步骤                      | 引擎默认值      | 由 Workflows 引擎管理                                                           |
-| LLM 调用步骤（`durableLLMCallCf`）         | 通过 `step.do`  | 由引擎管理                                                                      |
-| 子工作流（`spawnAndAwaitChild`）           | 自有步骤预算    | 使用 `timeout` 等待；子工作流自行重试其步骤                                     |
-| Ark 静帧申领（`<prefix>-ark-<n>-claim`）   | 40 × 30s        | 固定间隔：等待另一运行完成创建；租约池已满时立即失败                            |
+| 层级                                     | 重试           | 退避                                                 |
+| ---------------------------------------- | -------------- | ---------------------------------------------------- |
+| 单个 `step.do()` 步骤                    | 引擎默认值     | 由 Workflows 引擎管理                                |
+| LLM 调用步骤（`durableLLMCallCf`）       | 通过 `step.do` | 由引擎管理                                           |
+| 子工作流（`spawnAndAwaitChild`）         | 自有步骤预算   | 使用 `timeout` 等待；子工作流自行重试其步骤          |
+| Ark 静帧申领（`<prefix>-ark-<n>-claim`） | 40 × 30s       | 固定间隔：等待另一运行完成创建；租约池已满时立即失败 |
 
 逐场景扇出（图像、变体、动态）会对 `spawnAndAwaitChild` 使用 `Promise.allSettled`，因此某个场景失败或超时不会终止批次中的其余任务；所有失败会被收集并作为一个错误统一报告。
 
@@ -427,52 +427,52 @@ flowchart TD
 
 ## 关键文件参考
 
-| 文件                                                           | 用途                                                                |
-| -------------------------------------------------------------- | ------------------------------------------------------------------- |
-| `src/sequences/sequences.fn.ts`                                | 触发管道的服务器函数                                                |
-| `src/platform/server/workflow/client.ts`                       | `triggerWorkflow()` — 解析绑定 + `binding.create()`                 |
-| `src/platform/server/workflow/trigger-bindings.ts`             | `TRIGGER_TO_BINDING` — 将触发路径映射到 Workflows 绑定              |
-| `src/platform/server/workflow/base-workflow.ts`                | `OpenStoryWorkflowEntrypoint` — 基类、`onFailure`、`ScopedDb`       |
-| `src/platform/server/workflow/await-child.ts`                  | `spawnAndAwaitChild()` — 父级→子级扇出 + 等待                       |
-| `src/models/server/llm-call-helper.ts`                         | `durableLLMCallCf` / `durableStreamingLLMCallCf`                    |
-| `src/sequences/server/workflows/storyboard-workflow.ts`        | 包装器：验证、清理、海报、生成脚本分析工作流                        |
-| `src/sequences/server/workflows/analyze-script-workflow.ts`    | 核心编排（阶段 1–5）                                                |
-| `src/sequences/server/workflows/scene-split-workflow.ts`       | 阶段 1：并行生成场景 + 设定集，然后流式生成镜头列表                 |
-| `src/sequences/boundary-split.ts`                              | 锚点解析 + 逐字脚本切片                                             |
-| `src/sequences/tag-reconcile.ts`                               | 合并后将场景连续性标签规范化为设定集标签                            |
-| `src/sequences/server/streaming-scene-parser.ts`               | 边界注释数据流的增量 JSON 解析器                                    |
-| `src/platform/server/workflow/sanitize-fail-response.ts`       | 错误消息提取 + Cloudflare 错误代码映射                              |
-| `src/lib/db/helpers/frames.ts`                                 | `upsertFrame()` / `bulkInsertFrames()` 幂等辅助函数                 |
-| **提取 + 匹配**                                                |                                                                     |
-| `src/cast/server/workflows/talent-matching-workflow.ts`        | 根据阶段 1 角色设定集进行演员匹配                                  |
-| `src/cast/server/workflows/location-matching-workflow.ts`      | 根据阶段 1 地点设定集进行地点匹配                                  |
-| **参考图生成**                                                 |                                                                     |
-| `src/cast/server/workflows/character-bible-workflow.ts`        | 角色设定图生成（逐角色并行）                                        |
-| `src/cast/server/workflows/character-sheet-workflow.ts`        | 单个角色设定图生成                                                  |
-| `src/cast/server/workflows/location-bible-workflow.ts`         | 地点设定图生成（逐地点并行）                                        |
-| `src/cast/server/workflows/location-sheet-workflow.ts`         | 单个地点参考图像生成                                                |
-| **提示词生成**                                                 |                                                                     |
-| `src/lib/workflows/visual-prompt-workflow.ts`                  | 视觉提示词子工作流（逐场景并行）                                    |
-| `src/lib/workflows/visual-prompt-scene-workflow.ts`            | 逐场景视觉提示词 LLM 调用                                           |
-| `src/motion/server/workflows/motion-prompt-workflow.ts`        | 动态提示词子工作流（逐场景并行）                                    |
-| `src/lib/workflows/motion-prompt-scene-workflow.ts`            | 逐场景动态提示词 LLM 调用                                           |
-| `src/motion/server/workflows/motion-music-prompts-workflow.ts` | 并行编排动态 + 音乐提示词                                           |
-| `src/audio/server/workflows/music-prompt-workflow.ts`          | 音乐设计 LLM 调用                                                   |
-| **图像生成**                                                   |                                                                     |
-| `src/lib/workflows/frame-images-workflow.ts`                   | 编排所有场景的图像 + 变体生成                                       |
-| `src/stills/server/workflows/image-workflow.ts`                | 单张图像生成（fal.ai）                                              |
-| `src/lib/workflows/variant-workflow.ts`                        | 镜头网格变体生成                                                    |
-| **动态 + 音乐生成**                                            |                                                                     |
-| `src/motion/server/workflows/motion-batch-workflow.ts`         | 编排动态 + 音乐 + 合并                                              |
-| `src/motion/server/workflows/motion-workflow.ts`               | 单个动态/视频生成（fal.ai）                                         |
-| `src/audio/server/workflows/music-workflow.ts`                 | 音乐生成（fal.ai）                                                  |
-| `src/lib/workflows/merge-video-workflow.ts`                    | 将帧视频合并为序列视频                                              |
-| `src/lib/workflows/merge-audio-video-workflow.ts`              | 将音乐音频与视频合并                                                |
-| **重新选配 + 重新生成**                                        |                                                                     |
-| `src/cast/server/workflows/recast-character-workflow.ts`       | 重新选择角色演员，并重新生成受影响的帧                              |
-| `src/cast/server/workflows/recast-location-workflow.ts`        | 重新选择地点，并重新生成受影响的帧                                  |
-| `src/lib/workflows/regenerate-frames-workflow.ts`              | 使用新提示词重新生成指定帧                                          |
-| **Schema + 事件**                                              |                                                                     |
-| `src/shared/realtime.ts`                                       | 实时事件 schema 和频道辅助函数                                      |
-| `src/shots/scene-analysis.schema.ts`                           | `Scene` 类型定义                                                    |
-| `src/sequences/response-schemas.ts`                            | `musicDesignResultSchema` 和其他 LLM 响应 schema                    |
+| 文件                                                           | 用途                                                          |
+| -------------------------------------------------------------- | ------------------------------------------------------------- |
+| `src/sequences/sequences.fn.ts`                                | 触发管道的服务器函数                                          |
+| `src/platform/server/workflow/client.ts`                       | `triggerWorkflow()` — 解析绑定 + `binding.create()`           |
+| `src/platform/server/workflow/trigger-bindings.ts`             | `TRIGGER_TO_BINDING` — 将触发路径映射到 Workflows 绑定        |
+| `src/platform/server/workflow/base-workflow.ts`                | `OpenStoryWorkflowEntrypoint` — 基类、`onFailure`、`ScopedDb` |
+| `src/platform/server/workflow/await-child.ts`                  | `spawnAndAwaitChild()` — 父级→子级扇出 + 等待                 |
+| `src/models/server/llm-call-helper.ts`                         | `durableLLMCallCf` / `durableStreamingLLMCallCf`              |
+| `src/sequences/server/workflows/storyboard-workflow.ts`        | 包装器：验证、清理、海报、生成脚本分析工作流                  |
+| `src/sequences/server/workflows/analyze-script-workflow.ts`    | 核心编排（阶段 1–5）                                          |
+| `src/sequences/server/workflows/scene-split-workflow.ts`       | 阶段 1：并行生成场景 + 设定集，然后流式生成镜头列表           |
+| `src/sequences/boundary-split.ts`                              | 锚点解析 + 逐字脚本切片                                       |
+| `src/sequences/tag-reconcile.ts`                               | 合并后将场景连续性标签规范化为设定集标签                      |
+| `src/sequences/server/streaming-scene-parser.ts`               | 边界注释数据流的增量 JSON 解析器                              |
+| `src/platform/server/workflow/sanitize-fail-response.ts`       | 错误消息提取 + Cloudflare 错误代码映射                        |
+| `src/lib/db/helpers/frames.ts`                                 | `upsertFrame()` / `bulkInsertFrames()` 幂等辅助函数           |
+| **提取 + 匹配**                                                |                                                               |
+| `src/cast/server/workflows/talent-matching-workflow.ts`        | 根据阶段 1 角色设定集进行演员匹配                             |
+| `src/cast/server/workflows/location-matching-workflow.ts`      | 根据阶段 1 地点设定集进行地点匹配                             |
+| **参考图生成**                                                 |                                                               |
+| `src/cast/server/workflows/character-bible-workflow.ts`        | 角色设定图生成（逐角色并行）                                  |
+| `src/cast/server/workflows/character-sheet-workflow.ts`        | 单个角色设定图生成                                            |
+| `src/cast/server/workflows/location-bible-workflow.ts`         | 地点设定图生成（逐地点并行）                                  |
+| `src/cast/server/workflows/location-sheet-workflow.ts`         | 单个地点参考图像生成                                          |
+| **提示词生成**                                                 |                                                               |
+| `src/lib/workflows/visual-prompt-workflow.ts`                  | 视觉提示词子工作流（逐场景并行）                              |
+| `src/lib/workflows/visual-prompt-scene-workflow.ts`            | 逐场景视觉提示词 LLM 调用                                     |
+| `src/motion/server/workflows/motion-prompt-workflow.ts`        | 动态提示词子工作流（逐场景并行）                              |
+| `src/lib/workflows/motion-prompt-scene-workflow.ts`            | 逐场景动态提示词 LLM 调用                                     |
+| `src/motion/server/workflows/motion-music-prompts-workflow.ts` | 并行编排动态 + 音乐提示词                                     |
+| `src/audio/server/workflows/music-prompt-workflow.ts`          | 音乐设计 LLM 调用                                             |
+| **图像生成**                                                   |                                                               |
+| `src/lib/workflows/frame-images-workflow.ts`                   | 编排所有场景的图像 + 变体生成                                 |
+| `src/stills/server/workflows/image-workflow.ts`                | 单张图像生成（fal.ai）                                        |
+| `src/lib/workflows/variant-workflow.ts`                        | 镜头网格变体生成                                              |
+| **动态 + 音乐生成**                                            |                                                               |
+| `src/motion/server/workflows/motion-batch-workflow.ts`         | 编排动态 + 音乐 + 合并                                        |
+| `src/motion/server/workflows/motion-workflow.ts`               | 单个动态/视频生成（fal.ai）                                   |
+| `src/audio/server/workflows/music-workflow.ts`                 | 音乐生成（fal.ai）                                            |
+| `src/lib/workflows/merge-video-workflow.ts`                    | 将帧视频合并为序列视频                                        |
+| `src/lib/workflows/merge-audio-video-workflow.ts`              | 将音乐音频与视频合并                                          |
+| **重新选配 + 重新生成**                                        |                                                               |
+| `src/cast/server/workflows/recast-character-workflow.ts`       | 重新选择角色演员，并重新生成受影响的帧                        |
+| `src/cast/server/workflows/recast-location-workflow.ts`        | 重新选择地点，并重新生成受影响的帧                            |
+| `src/lib/workflows/regenerate-frames-workflow.ts`              | 使用新提示词重新生成指定帧                                    |
+| **Schema + 事件**                                              |                                                               |
+| `src/shared/realtime.ts`                                       | 实时事件 schema 和频道辅助函数                                |
+| `src/shots/scene-analysis.schema.ts`                           | `Scene` 类型定义                                              |
+| `src/sequences/response-schemas.ts`                            | `musicDesignResultSchema` 和其他 LLM 响应 schema              |

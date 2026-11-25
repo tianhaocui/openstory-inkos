@@ -2,9 +2,7 @@
   "version": "7",
   "dialect": "sqlite",
   "id": "49236a49-5acf-47ec-99a5-e9205b6847be",
-  "prevIds": [
-    "fe0f0118-a045-4e87-806d-ef718125336a"
-  ],
+  "prevIds": ["fe0f0118-a045-4e87-806d-ef718125336a"],
   "ddl": [
     {
       "name": "account",
@@ -10557,13 +10555,9 @@
       "table": "welcome_card_claims"
     },
     {
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -10572,13 +10566,9 @@
       "table": "account"
     },
     {
-      "columns": [
-        "team_id"
-      ],
+      "columns": ["team_id"],
       "tableTo": "teams",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -10587,13 +10577,9 @@
       "table": "audio"
     },
     {
-      "columns": [
-        "created_by"
-      ],
+      "columns": ["created_by"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "nameExplicit": false,
@@ -10602,13 +10588,9 @@
       "table": "audio"
     },
     {
-      "columns": [
-        "character_id"
-      ],
+      "columns": ["character_id"],
       "tableTo": "characters",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -10617,13 +10599,9 @@
       "table": "character_sheet_variants"
     },
     {
-      "columns": [
-        "sequence_id"
-      ],
+      "columns": ["sequence_id"],
       "tableTo": "sequences",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -10632,13 +10610,9 @@
       "table": "characters"
     },
     {
-      "columns": [
-        "talent_id"
-      ],
+      "columns": ["talent_id"],
       "tableTo": "talent",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "nameExplicit": false,
@@ -10647,13 +10621,9 @@
       "table": "characters"
     },
     {
-      "columns": [
-        "team_id"
-      ],
+      "columns": ["team_id"],
       "tableTo": "teams",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "nameExplicit": false,
@@ -10662,13 +10632,9 @@
       "table": "content_provenance"
     },
     {
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "nameExplicit": false,
@@ -10677,13 +10643,9 @@
       "table": "content_provenance"
     },
     {
-      "columns": [
-        "reporter_user_id"
-      ],
+      "columns": ["reporter_user_id"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "nameExplicit": false,
@@ -10692,13 +10654,9 @@
       "table": "content_reports"
     },
     {
-      "columns": [
-        "subject_team_id"
-      ],
+      "columns": ["subject_team_id"],
       "tableTo": "teams",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "nameExplicit": false,
@@ -10707,13 +10665,9 @@
       "table": "content_reports"
     },
     {
-      "columns": [
-        "subject_user_id"
-      ],
+      "columns": ["subject_user_id"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "nameExplicit": false,
@@ -10722,13 +10676,9 @@
       "table": "content_reports"
     },
     {
-      "columns": [
-        "handled_by_user_id"
-      ],
+      "columns": ["handled_by_user_id"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "nameExplicit": false,
@@ -10737,13 +10687,9 @@
       "table": "content_reports"
     },
     {
-      "columns": [
-        "team_id"
-      ],
+      "columns": ["team_id"],
       "tableTo": "teams",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -10752,13 +10698,9 @@
       "table": "credit_batches"
     },
     {
-      "columns": [
-        "transaction_id"
-      ],
+      "columns": ["transaction_id"],
       "tableTo": "transactions",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "nameExplicit": false,
@@ -10767,13 +10709,9 @@
       "table": "credit_batches"
     },
     {
-      "columns": [
-        "team_id"
-      ],
+      "columns": ["team_id"],
       "tableTo": "teams",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -10782,13 +10720,9 @@
       "table": "credit_reservations"
     },
     {
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "nameExplicit": false,
@@ -10797,13 +10731,9 @@
       "table": "credit_reservations"
     },
     {
-      "columns": [
-        "team_id"
-      ],
+      "columns": ["team_id"],
       "tableTo": "teams",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -10812,13 +10742,9 @@
       "table": "credits"
     },
     {
-      "columns": [
-        "subject_user_id"
-      ],
+      "columns": ["subject_user_id"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "nameExplicit": false,
@@ -10827,13 +10753,9 @@
       "table": "enforcement_actions"
     },
     {
-      "columns": [
-        "subject_team_id"
-      ],
+      "columns": ["subject_team_id"],
       "tableTo": "teams",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "nameExplicit": false,
@@ -10842,13 +10764,9 @@
       "table": "enforcement_actions"
     },
     {
-      "columns": [
-        "report_id"
-      ],
+      "columns": ["report_id"],
       "tableTo": "content_reports",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "nameExplicit": false,
@@ -10857,13 +10775,9 @@
       "table": "enforcement_actions"
     },
     {
-      "columns": [
-        "actor_user_id"
-      ],
+      "columns": ["actor_user_id"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "nameExplicit": false,
@@ -10872,13 +10786,9 @@
       "table": "enforcement_actions"
     },
     {
-      "columns": [
-        "revoked_by_user_id"
-      ],
+      "columns": ["revoked_by_user_id"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "nameExplicit": false,
@@ -10887,13 +10797,9 @@
       "table": "enforcement_actions"
     },
     {
-      "columns": [
-        "frame_id"
-      ],
+      "columns": ["frame_id"],
       "tableTo": "frames",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -10902,13 +10808,9 @@
       "table": "frame_prompt_versions"
     },
     {
-      "columns": [
-        "created_by"
-      ],
+      "columns": ["created_by"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "nameExplicit": false,
@@ -10917,13 +10819,9 @@
       "table": "frame_prompt_versions"
     },
     {
-      "columns": [
-        "frame_id"
-      ],
+      "columns": ["frame_id"],
       "tableTo": "frames",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -10932,13 +10830,9 @@
       "table": "frame_variants"
     },
     {
-      "columns": [
-        "sequence_id"
-      ],
+      "columns": ["sequence_id"],
       "tableTo": "sequences",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -10947,13 +10841,9 @@
       "table": "frame_variants"
     },
     {
-      "columns": [
-        "shot_id"
-      ],
+      "columns": ["shot_id"],
       "tableTo": "shots",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -10962,13 +10852,9 @@
       "table": "frames"
     },
     {
-      "columns": [
-        "sequence_id"
-      ],
+      "columns": ["sequence_id"],
       "tableTo": "sequences",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -10977,13 +10863,9 @@
       "table": "frames"
     },
     {
-      "columns": [
-        "team_id"
-      ],
+      "columns": ["team_id"],
       "tableTo": "teams",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "nameExplicit": false,
@@ -10992,13 +10874,9 @@
       "table": "generated_assets"
     },
     {
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "nameExplicit": false,
@@ -11007,13 +10885,9 @@
       "table": "generated_assets"
     },
     {
-      "columns": [
-        "gift_token_id"
-      ],
+      "columns": ["gift_token_id"],
       "tableTo": "gift_tokens",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11022,13 +10896,9 @@
       "table": "gift_token_redemptions"
     },
     {
-      "columns": [
-        "team_id"
-      ],
+      "columns": ["team_id"],
       "tableTo": "teams",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11037,13 +10907,9 @@
       "table": "gift_token_redemptions"
     },
     {
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "nameExplicit": false,
@@ -11052,13 +10918,9 @@
       "table": "gift_token_redemptions"
     },
     {
-      "columns": [
-        "created_by_user_id"
-      ],
+      "columns": ["created_by_user_id"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11067,13 +10929,9 @@
       "table": "gift_tokens"
     },
     {
-      "columns": [
-        "team_id"
-      ],
+      "columns": ["team_id"],
       "tableTo": "teams",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11082,13 +10940,9 @@
       "table": "location_library"
     },
     {
-      "columns": [
-        "created_by"
-      ],
+      "columns": ["created_by"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "nameExplicit": false,
@@ -11097,13 +10951,9 @@
       "table": "location_library"
     },
     {
-      "columns": [
-        "location_id"
-      ],
+      "columns": ["location_id"],
       "tableTo": "location_library",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11112,13 +10962,9 @@
       "table": "location_sheets"
     },
     {
-      "columns": [
-        "client_id"
-      ],
+      "columns": ["client_id"],
       "tableTo": "oauth_client",
-      "columnsTo": [
-        "client_id"
-      ],
+      "columnsTo": ["client_id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11127,13 +10973,9 @@
       "table": "oauth_access_token"
     },
     {
-      "columns": [
-        "refresh_id"
-      ],
+      "columns": ["refresh_id"],
       "tableTo": "oauth_refresh_token",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11142,13 +10984,9 @@
       "table": "oauth_access_token"
     },
     {
-      "columns": [
-        "client_id"
-      ],
+      "columns": ["client_id"],
       "tableTo": "oauth_client",
-      "columnsTo": [
-        "client_id"
-      ],
+      "columnsTo": ["client_id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11157,13 +10995,9 @@
       "table": "oauth_client_resource"
     },
     {
-      "columns": [
-        "resource_id"
-      ],
+      "columns": ["resource_id"],
       "tableTo": "oauth_resource",
-      "columnsTo": [
-        "identifier"
-      ],
+      "columnsTo": ["identifier"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11172,13 +11006,9 @@
       "table": "oauth_client_resource"
     },
     {
-      "columns": [
-        "client_id"
-      ],
+      "columns": ["client_id"],
       "tableTo": "oauth_client",
-      "columnsTo": [
-        "client_id"
-      ],
+      "columnsTo": ["client_id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11187,13 +11017,9 @@
       "table": "oauth_consent"
     },
     {
-      "columns": [
-        "client_id"
-      ],
+      "columns": ["client_id"],
       "tableTo": "oauth_client",
-      "columnsTo": [
-        "client_id"
-      ],
+      "columnsTo": ["client_id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11202,13 +11028,9 @@
       "table": "oauth_refresh_token"
     },
     {
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11217,13 +11039,9 @@
       "table": "passkey"
     },
     {
-      "columns": [
-        "scene_id"
-      ],
+      "columns": ["scene_id"],
       "tableTo": "scenes",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11232,13 +11050,9 @@
       "table": "render_segments"
     },
     {
-      "columns": [
-        "sequence_id"
-      ],
+      "columns": ["sequence_id"],
       "tableTo": "sequences",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11247,13 +11061,9 @@
       "table": "render_segments"
     },
     {
-      "columns": [
-        "scene_id"
-      ],
+      "columns": ["scene_id"],
       "tableTo": "scenes",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11262,13 +11072,9 @@
       "table": "scene_script_versions"
     },
     {
-      "columns": [
-        "created_by"
-      ],
+      "columns": ["created_by"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "nameExplicit": false,
@@ -11277,13 +11083,9 @@
       "table": "scene_script_versions"
     },
     {
-      "columns": [
-        "sequence_id"
-      ],
+      "columns": ["sequence_id"],
       "tableTo": "sequences",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11292,13 +11094,9 @@
       "table": "scenes"
     },
     {
-      "columns": [
-        "sequence_id"
-      ],
+      "columns": ["sequence_id"],
       "tableTo": "sequences",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11307,13 +11105,9 @@
       "table": "sequence_elements"
     },
     {
-      "columns": [
-        "sequence_id"
-      ],
+      "columns": ["sequence_id"],
       "tableTo": "sequences",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11322,13 +11116,9 @@
       "table": "sequence_events"
     },
     {
-      "columns": [
-        "actor_id"
-      ],
+      "columns": ["actor_id"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "nameExplicit": false,
@@ -11337,13 +11127,9 @@
       "table": "sequence_events"
     },
     {
-      "columns": [
-        "sequence_id"
-      ],
+      "columns": ["sequence_id"],
       "tableTo": "sequences",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "nameExplicit": false,
@@ -11352,13 +11138,9 @@
       "table": "sequence_exports"
     },
     {
-      "columns": [
-        "sequence_id"
-      ],
+      "columns": ["sequence_id"],
       "tableTo": "sequences",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11367,13 +11149,9 @@
       "table": "sequence_locations"
     },
     {
-      "columns": [
-        "library_location_id"
-      ],
+      "columns": ["library_location_id"],
       "tableTo": "location_library",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "nameExplicit": false,
@@ -11382,13 +11160,9 @@
       "table": "sequence_locations"
     },
     {
-      "columns": [
-        "sequence_id"
-      ],
+      "columns": ["sequence_id"],
       "tableTo": "sequences",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11397,13 +11171,9 @@
       "table": "sequence_music_prompt_versions"
     },
     {
-      "columns": [
-        "created_by"
-      ],
+      "columns": ["created_by"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "nameExplicit": false,
@@ -11412,13 +11182,9 @@
       "table": "sequence_music_prompt_versions"
     },
     {
-      "columns": [
-        "sequence_id"
-      ],
+      "columns": ["sequence_id"],
       "tableTo": "sequences",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11427,13 +11193,9 @@
       "table": "sequence_music_variants"
     },
     {
-      "columns": [
-        "team_id"
-      ],
+      "columns": ["team_id"],
       "tableTo": "teams",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11442,13 +11204,9 @@
       "table": "sequences"
     },
     {
-      "columns": [
-        "created_by"
-      ],
+      "columns": ["created_by"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "nameExplicit": false,
@@ -11457,13 +11215,9 @@
       "table": "sequences"
     },
     {
-      "columns": [
-        "updated_by"
-      ],
+      "columns": ["updated_by"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "nameExplicit": false,
@@ -11472,13 +11226,9 @@
       "table": "sequences"
     },
     {
-      "columns": [
-        "style_id"
-      ],
+      "columns": ["style_id"],
       "tableTo": "styles",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "nameExplicit": false,
@@ -11487,13 +11237,9 @@
       "table": "sequences"
     },
     {
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11502,13 +11248,9 @@
       "table": "session"
     },
     {
-      "columns": [
-        "shot_id"
-      ],
+      "columns": ["shot_id"],
       "tableTo": "shots",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11517,13 +11259,9 @@
       "table": "shot_prompt_versions"
     },
     {
-      "columns": [
-        "created_by"
-      ],
+      "columns": ["created_by"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "nameExplicit": false,
@@ -11532,13 +11270,9 @@
       "table": "shot_prompt_versions"
     },
     {
-      "columns": [
-        "shot_id"
-      ],
+      "columns": ["shot_id"],
       "tableTo": "shots",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11547,13 +11281,9 @@
       "table": "shot_variants"
     },
     {
-      "columns": [
-        "sequence_id"
-      ],
+      "columns": ["sequence_id"],
       "tableTo": "sequences",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11562,13 +11292,9 @@
       "table": "shot_variants"
     },
     {
-      "columns": [
-        "sequence_id"
-      ],
+      "columns": ["sequence_id"],
       "tableTo": "sequences",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11577,13 +11303,9 @@
       "table": "shots"
     },
     {
-      "columns": [
-        "scene_id"
-      ],
+      "columns": ["scene_id"],
       "tableTo": "scenes",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "nameExplicit": false,
@@ -11592,13 +11314,9 @@
       "table": "shots"
     },
     {
-      "columns": [
-        "render_segment_id"
-      ],
+      "columns": ["render_segment_id"],
       "tableTo": "render_segments",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "nameExplicit": false,
@@ -11607,13 +11325,9 @@
       "table": "shots"
     },
     {
-      "columns": [
-        "asset_id"
-      ],
+      "columns": ["asset_id"],
       "tableTo": "story_assets",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11622,13 +11336,9 @@
       "table": "story_asset_views"
     },
     {
-      "columns": [
-        "project_id"
-      ],
+      "columns": ["project_id"],
       "tableTo": "story_projects",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11637,13 +11347,9 @@
       "table": "story_assets"
     },
     {
-      "columns": [
-        "project_id"
-      ],
+      "columns": ["project_id"],
       "tableTo": "story_projects",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11652,13 +11358,9 @@
       "table": "story_chapter_summaries"
     },
     {
-      "columns": [
-        "project_id"
-      ],
+      "columns": ["project_id"],
       "tableTo": "story_projects",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11667,13 +11369,9 @@
       "table": "story_chapters"
     },
     {
-      "columns": [
-        "project_id"
-      ],
+      "columns": ["project_id"],
       "tableTo": "story_projects",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11682,13 +11380,9 @@
       "table": "story_characters"
     },
     {
-      "columns": [
-        "project_id"
-      ],
+      "columns": ["project_id"],
       "tableTo": "story_projects",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11697,13 +11391,9 @@
       "table": "story_facts"
     },
     {
-      "columns": [
-        "project_id"
-      ],
+      "columns": ["project_id"],
       "tableTo": "story_projects",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11712,13 +11402,9 @@
       "table": "story_film_settings"
     },
     {
-      "columns": [
-        "project_id"
-      ],
+      "columns": ["project_id"],
       "tableTo": "story_projects",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11727,13 +11413,9 @@
       "table": "story_hooks"
     },
     {
-      "columns": [
-        "project_id"
-      ],
+      "columns": ["project_id"],
       "tableTo": "story_projects",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11742,13 +11424,9 @@
       "table": "story_keyframes"
     },
     {
-      "columns": [
-        "segment_id"
-      ],
+      "columns": ["segment_id"],
       "tableTo": "story_segments",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "nameExplicit": false,
@@ -11757,13 +11435,9 @@
       "table": "story_keyframes"
     },
     {
-      "columns": [
-        "shot_id"
-      ],
+      "columns": ["shot_id"],
       "tableTo": "story_shots",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "nameExplicit": false,
@@ -11772,13 +11446,9 @@
       "table": "story_keyframes"
     },
     {
-      "columns": [
-        "team_id"
-      ],
+      "columns": ["team_id"],
       "tableTo": "teams",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11787,13 +11457,9 @@
       "table": "story_projects"
     },
     {
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11802,13 +11468,9 @@
       "table": "story_projects"
     },
     {
-      "columns": [
-        "project_id"
-      ],
+      "columns": ["project_id"],
       "tableTo": "story_projects",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11817,13 +11479,9 @@
       "table": "story_segments"
     },
     {
-      "columns": [
-        "segment_id"
-      ],
+      "columns": ["segment_id"],
       "tableTo": "story_segments",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11832,13 +11490,9 @@
       "table": "story_shots"
     },
     {
-      "columns": [
-        "project_id"
-      ],
+      "columns": ["project_id"],
       "tableTo": "story_projects",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11847,13 +11501,9 @@
       "table": "story_shots"
     },
     {
-      "columns": [
-        "project_id"
-      ],
+      "columns": ["project_id"],
       "tableTo": "story_projects",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11862,13 +11512,9 @@
       "table": "story_video_clips"
     },
     {
-      "columns": [
-        "keyframe_id"
-      ],
+      "columns": ["keyframe_id"],
       "tableTo": "story_keyframes",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "nameExplicit": false,
@@ -11877,13 +11523,9 @@
       "table": "story_video_clips"
     },
     {
-      "columns": [
-        "segment_id"
-      ],
+      "columns": ["segment_id"],
       "tableTo": "story_segments",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "nameExplicit": false,
@@ -11892,13 +11534,9 @@
       "table": "story_video_clips"
     },
     {
-      "columns": [
-        "team_id"
-      ],
+      "columns": ["team_id"],
       "tableTo": "teams",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11907,13 +11545,9 @@
       "table": "styles"
     },
     {
-      "columns": [
-        "created_by"
-      ],
+      "columns": ["created_by"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "nameExplicit": false,
@@ -11922,13 +11556,9 @@
       "table": "styles"
     },
     {
-      "columns": [
-        "team_id"
-      ],
+      "columns": ["team_id"],
       "tableTo": "teams",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11937,13 +11567,9 @@
       "table": "talent"
     },
     {
-      "columns": [
-        "created_by"
-      ],
+      "columns": ["created_by"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "nameExplicit": false,
@@ -11952,13 +11578,9 @@
       "table": "talent"
     },
     {
-      "columns": [
-        "talent_id"
-      ],
+      "columns": ["talent_id"],
       "tableTo": "talent",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11967,13 +11589,9 @@
       "table": "talent_media"
     },
     {
-      "columns": [
-        "talent_sheet_id"
-      ],
+      "columns": ["talent_sheet_id"],
       "tableTo": "talent_sheets",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11982,13 +11600,9 @@
       "table": "talent_sheet_variants"
     },
     {
-      "columns": [
-        "talent_id"
-      ],
+      "columns": ["talent_id"],
       "tableTo": "talent",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -11997,13 +11611,9 @@
       "table": "talent_sheets"
     },
     {
-      "columns": [
-        "team_id"
-      ],
+      "columns": ["team_id"],
       "tableTo": "teams",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -12012,13 +11622,9 @@
       "table": "team_api_keys"
     },
     {
-      "columns": [
-        "added_by"
-      ],
+      "columns": ["added_by"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -12027,13 +11633,9 @@
       "table": "team_api_keys"
     },
     {
-      "columns": [
-        "team_id"
-      ],
+      "columns": ["team_id"],
       "tableTo": "teams",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -12042,13 +11644,9 @@
       "table": "team_billing_settings"
     },
     {
-      "columns": [
-        "team_id"
-      ],
+      "columns": ["team_id"],
       "tableTo": "teams",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -12057,13 +11655,9 @@
       "table": "team_invitations"
     },
     {
-      "columns": [
-        "invited_by"
-      ],
+      "columns": ["invited_by"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -12072,13 +11666,9 @@
       "table": "team_invitations"
     },
     {
-      "columns": [
-        "team_id"
-      ],
+      "columns": ["team_id"],
       "tableTo": "teams",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -12087,13 +11677,9 @@
       "table": "team_members"
     },
     {
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -12102,13 +11688,9 @@
       "table": "team_members"
     },
     {
-      "columns": [
-        "team_id"
-      ],
+      "columns": ["team_id"],
       "tableTo": "teams",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -12117,13 +11699,9 @@
       "table": "transactions"
     },
     {
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "nameExplicit": false,
@@ -12132,13 +11710,9 @@
       "table": "transactions"
     },
     {
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "nameExplicit": false,
@@ -12147,13 +11721,9 @@
       "table": "upload_attestations"
     },
     {
-      "columns": [
-        "team_id"
-      ],
+      "columns": ["team_id"],
       "tableTo": "teams",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "nameExplicit": false,
@@ -12162,13 +11732,9 @@
       "table": "upload_attestations"
     },
     {
-      "columns": [
-        "team_id"
-      ],
+      "columns": ["team_id"],
       "tableTo": "teams",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -12177,13 +11743,9 @@
       "table": "vfx"
     },
     {
-      "columns": [
-        "created_by"
-      ],
+      "columns": ["created_by"],
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "nameExplicit": false,
@@ -12192,13 +11754,9 @@
       "table": "vfx"
     },
     {
-      "columns": [
-        "render_segment_id"
-      ],
+      "columns": ["render_segment_id"],
       "tableTo": "render_segments",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -12207,13 +11765,9 @@
       "table": "video_variants"
     },
     {
-      "columns": [
-        "sequence_id"
-      ],
+      "columns": ["sequence_id"],
       "tableTo": "sequences",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -12222,13 +11776,9 @@
       "table": "video_variants"
     },
     {
-      "columns": [
-        "team_id"
-      ],
+      "columns": ["team_id"],
       "tableTo": "teams",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "nameExplicit": false,
@@ -12237,723 +11787,560 @@
       "table": "welcome_card_claims"
     },
     {
-      "columns": [
-        "provider",
-        "endpoint_id",
-        "unit"
-      ],
+      "columns": ["provider", "endpoint_id", "unit"],
       "nameExplicit": false,
       "name": "model_pricing_pk",
       "entityType": "pks",
       "table": "model_pricing"
     },
     {
-      "columns": [
-        "team_id",
-        "user_id"
-      ],
+      "columns": ["team_id", "user_id"],
       "nameExplicit": false,
       "name": "team_members_team_id_user_id_pk",
       "entityType": "pks",
       "table": "team_members"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "account_pk",
       "table": "account",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "apikey_pk",
       "table": "apikey",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "key"
-      ],
+      "columns": ["key"],
       "nameExplicit": false,
       "name": "app_metadata_pk",
       "table": "app_metadata",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "audio_pk",
       "table": "audio",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "byteplus_asset_leases_pk",
       "table": "byteplus_asset_leases",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "byteplus_assets_pk",
       "table": "byteplus_assets",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "character_sheet_variants_pk",
       "table": "character_sheet_variants",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "characters_pk",
       "table": "characters",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "content_provenance_pk",
       "table": "content_provenance",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "content_reports_pk",
       "table": "content_reports",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "credit_batches_pk",
       "table": "credit_batches",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "credit_reservations_pk",
       "table": "credit_reservations",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "team_id"
-      ],
+      "columns": ["team_id"],
       "nameExplicit": false,
       "name": "credits_pk",
       "table": "credits",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "device_code_pk",
       "table": "device_code",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "enforcement_actions_pk",
       "table": "enforcement_actions",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "frame_prompt_versions_pk",
       "table": "frame_prompt_versions",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "frame_variants_pk",
       "table": "frame_variants",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "frames_pk",
       "table": "frames",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "generated_assets_pk",
       "table": "generated_assets",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "gift_token_redemptions_pk",
       "table": "gift_token_redemptions",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "gift_tokens_pk",
       "table": "gift_tokens",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "jwks_pk",
       "table": "jwks",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "location_library_pk",
       "table": "location_library",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "location_sheet_variants_pk",
       "table": "location_sheet_variants",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "location_sheets_pk",
       "table": "location_sheets",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "model_pricing_history_pk",
       "table": "model_pricing_history",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "model_usage_observations_pk",
       "table": "model_usage_observations",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "oauth_access_token_pk",
       "table": "oauth_access_token",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "oauth_client_pk",
       "table": "oauth_client",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "oauth_client_assertion_pk",
       "table": "oauth_client_assertion",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "oauth_client_resource_pk",
       "table": "oauth_client_resource",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "oauth_consent_pk",
       "table": "oauth_consent",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "oauth_refresh_token_pk",
       "table": "oauth_refresh_token",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "oauth_resource_pk",
       "table": "oauth_resource",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "passkey_pk",
       "table": "passkey",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "render_segments_pk",
       "table": "render_segments",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "scene_script_versions_pk",
       "table": "scene_script_versions",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "scenes_pk",
       "table": "scenes",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "sequence_elements_pk",
       "table": "sequence_elements",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "sequence_events_pk",
       "table": "sequence_events",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "sequence_exports_pk",
       "table": "sequence_exports",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "sequence_locations_pk",
       "table": "sequence_locations",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "sequence_music_prompt_variants_pk",
       "table": "sequence_music_prompt_versions",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "sequence_music_variants_pk",
       "table": "sequence_music_variants",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "sequences_pk",
       "table": "sequences",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "session_pk",
       "table": "session",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "shot_prompt_variants_pk",
       "table": "shot_prompt_versions",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "shot_variants_pk",
       "table": "shot_variants",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "shots_pk",
       "table": "shots",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "story_asset_views_pk",
       "table": "story_asset_views",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "story_assets_pk",
       "table": "story_assets",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "story_chapter_summaries_pk",
       "table": "story_chapter_summaries",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "story_chapters_pk",
       "table": "story_chapters",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "story_characters_pk",
       "table": "story_characters",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "story_facts_pk",
       "table": "story_facts",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "story_film_settings_pk",
       "table": "story_film_settings",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "story_hooks_pk",
       "table": "story_hooks",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "story_keyframes_pk",
       "table": "story_keyframes",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "story_projects_pk",
       "table": "story_projects",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "story_segments_pk",
       "table": "story_segments",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "story_shots_pk",
       "table": "story_shots",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "story_video_clips_pk",
       "table": "story_video_clips",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "styles_pk",
       "table": "styles",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "talent_pk",
       "table": "talent",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "talent_media_pk",
       "table": "talent_media",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "talent_sheet_variants_pk",
       "table": "talent_sheet_variants",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "talent_sheets_pk",
       "table": "talent_sheets",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "team_api_keys_pk",
       "table": "team_api_keys",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "team_id"
-      ],
+      "columns": ["team_id"],
       "nameExplicit": false,
       "name": "team_billing_settings_pk",
       "table": "team_billing_settings",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "team_invitations_pk",
       "table": "team_invitations",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "teams_pk",
       "table": "teams",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "transactions_pk",
       "table": "transactions",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "upload_attestations_pk",
       "table": "upload_attestations",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "user_pk",
       "table": "user",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "verification_pk",
       "table": "verification",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "vfx_pk",
       "table": "vfx",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "video_variants_pk",
       "table": "video_variants",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "welcome_card_claims_pk",
       "table": "welcome_card_claims",
@@ -15972,63 +15359,49 @@
       "table": "welcome_card_claims"
     },
     {
-      "columns": [
-        "token"
-      ],
+      "columns": ["token"],
       "nameExplicit": false,
       "name": "oauth_access_token_token_unique",
       "entityType": "uniques",
       "table": "oauth_access_token"
     },
     {
-      "columns": [
-        "client_id"
-      ],
+      "columns": ["client_id"],
       "nameExplicit": false,
       "name": "oauth_client_client_id_unique",
       "entityType": "uniques",
       "table": "oauth_client"
     },
     {
-      "columns": [
-        "token"
-      ],
+      "columns": ["token"],
       "nameExplicit": false,
       "name": "oauth_refresh_token_token_unique",
       "entityType": "uniques",
       "table": "oauth_refresh_token"
     },
     {
-      "columns": [
-        "identifier"
-      ],
+      "columns": ["identifier"],
       "nameExplicit": false,
       "name": "oauth_resource_identifier_unique",
       "entityType": "uniques",
       "table": "oauth_resource"
     },
     {
-      "columns": [
-        "token"
-      ],
+      "columns": ["token"],
       "nameExplicit": false,
       "name": "session_token_unique",
       "entityType": "uniques",
       "table": "session"
     },
     {
-      "columns": [
-        "project_id"
-      ],
+      "columns": ["project_id"],
       "nameExplicit": false,
       "name": "story_film_settings_project_id_unique",
       "entityType": "uniques",
       "table": "story_film_settings"
     },
     {
-      "columns": [
-        "email"
-      ],
+      "columns": ["email"],
       "nameExplicit": false,
       "name": "user_email_unique",
       "entityType": "uniques",

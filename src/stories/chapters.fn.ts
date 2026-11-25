@@ -8,9 +8,6 @@ import { createServerFn } from '@tanstack/react-start';
 import { zodValidator } from '@tanstack/zod-adapter';
 import { z } from 'zod';
 import { authWithTeamMiddleware } from '@/platform/middleware.fn';
-import { storyChapters, storyProjects } from '@/platform/server/db/schema';
-import { getDb } from '#db-client';
-import { eq, desc } from 'drizzle-orm';
 import { ulid } from 'ulid';
 
 // Schemas
@@ -42,27 +39,15 @@ export const getChaptersFn = createServerFn({ method: 'GET' })
   .middleware([authWithTeamMiddleware])
   .validator(zodValidator(projectIdSchema))
   .handler(async ({ data, context }) => {
-    const { teamId } = context;
-    const db = getDb();
+    const storiesDb = context.scopedDb.stories;
 
     // 验证项目所有权
-    const [project] = await db
-      .select()
-      .from(storyProjects)
-      .where(eq(storyProjects.id, data.projectId))
-      .limit(1);
-
-    if (!project || project.teamId !== teamId) {
+    const project = await storiesDb.getOwnedProject(data.projectId);
+    if (!project) {
       throw new Error('项目不存在');
     }
 
-    const chapters = await db
-      .select()
-      .from(storyChapters)
-      .where(eq(storyChapters.projectId, data.projectId))
-      .orderBy(storyChapters.chapterNumber);
-
-    return chapters;
+    return storiesDb.listChapters(data.projectId);
   });
 
 /**
@@ -72,27 +57,16 @@ export const getChapterFn = createServerFn({ method: 'GET' })
   .middleware([authWithTeamMiddleware])
   .validator(zodValidator(chapterIdSchema))
   .handler(async ({ data, context }) => {
-    const { teamId } = context;
-    const db = getDb();
-
-    const [chapter] = await db
-      .select()
-      .from(storyChapters)
-      .where(eq(storyChapters.id, data.id))
-      .limit(1);
+    const storiesDb = context.scopedDb.stories;
+    const chapter = await storiesDb.getChapter(data.id);
 
     if (!chapter) {
       throw new Error('章节不存在');
     }
 
     // 验证项目所有权
-    const [project] = await db
-      .select()
-      .from(storyProjects)
-      .where(eq(storyProjects.id, chapter.projectId))
-      .limit(1);
-
-    if (!project || project.teamId !== teamId) {
+    const project = await storiesDb.getOwnedProject(chapter.projectId);
+    if (!project) {
       throw new Error('章节不存在');
     }
 
@@ -106,34 +80,26 @@ export const createChapterFn = createServerFn({ method: 'POST' })
   .middleware([authWithTeamMiddleware])
   .validator(zodValidator(createChapterSchema))
   .handler(async ({ data, context }) => {
-    const { teamId } = context;
-    const db = getDb();
+    const storiesDb = context.scopedDb.stories;
 
     // 验证项目所有权
-    const [project] = await db
-      .select()
-      .from(storyProjects)
-      .where(eq(storyProjects.id, data.projectId))
-      .limit(1);
-
-    if (!project || project.teamId !== teamId) {
+    const project = await storiesDb.getOwnedProject(data.projectId);
+    if (!project) {
       throw new Error('项目不存在');
     }
 
     // 获取当前最大章节号
-    const [lastChapter] = await db
-      .select()
-      .from(storyChapters)
-      .where(eq(storyChapters.projectId, data.projectId))
-      .orderBy(desc(storyChapters.chapterNumber))
-      .limit(1);
+    const lastChapterNumber = await storiesDb.getLastChapterNumber(
+      data.projectId
+    );
 
-    const chapterNumber = lastChapter ? lastChapter.chapterNumber + 1 : 1;
+    const chapterNumber =
+      lastChapterNumber !== undefined ? lastChapterNumber + 1 : 1;
     const id = ulid();
     const now = new Date().toISOString();
     const wordCount = data.content.replace(/\s/g, '').length;
 
-    await db.insert(storyChapters).values({
+    return storiesDb.createChapter({
       id,
       projectId: data.projectId,
       chapterNumber,
@@ -144,14 +110,6 @@ export const createChapterFn = createServerFn({ method: 'POST' })
       createdAt: now,
       updatedAt: now,
     });
-
-    const [chapter] = await db
-      .select()
-      .from(storyChapters)
-      .where(eq(storyChapters.id, id))
-      .limit(1);
-
-    return chapter;
   });
 
 /**
@@ -161,27 +119,16 @@ export const updateChapterFn = createServerFn({ method: 'POST' })
   .middleware([authWithTeamMiddleware])
   .validator(zodValidator(updateChapterSchema))
   .handler(async ({ data, context }) => {
-    const { teamId } = context;
-    const db = getDb();
-
-    const [existing] = await db
-      .select()
-      .from(storyChapters)
-      .where(eq(storyChapters.id, data.id))
-      .limit(1);
+    const storiesDb = context.scopedDb.stories;
+    const existing = await storiesDb.getChapter(data.id);
 
     if (!existing) {
       throw new Error('章节不存在');
     }
 
     // 验证项目所有权
-    const [project] = await db
-      .select()
-      .from(storyProjects)
-      .where(eq(storyProjects.id, existing.projectId))
-      .limit(1);
-
-    if (!project || project.teamId !== teamId) {
+    const project = await storiesDb.getOwnedProject(existing.projectId);
+    if (!project) {
       throw new Error('章节不存在');
     }
 
@@ -189,24 +136,13 @@ export const updateChapterFn = createServerFn({ method: 'POST' })
       ? data.content.replace(/\s/g, '').length
       : existing.wordCount;
 
-    await db
-      .update(storyChapters)
-      .set({
-        ...(data.title !== undefined && { title: data.title }),
-        ...(data.content !== undefined && { content: data.content }),
-        ...(data.status !== undefined && { status: data.status }),
-        wordCount,
-        updatedAt: new Date().toISOString(),
-      })
-      .where(eq(storyChapters.id, data.id));
-
-    const [chapter] = await db
-      .select()
-      .from(storyChapters)
-      .where(eq(storyChapters.id, data.id))
-      .limit(1);
-
-    return chapter;
+    return storiesDb.updateChapter(data.id, {
+      ...(data.title !== undefined && { title: data.title }),
+      ...(data.content !== undefined && { content: data.content }),
+      ...(data.status !== undefined && { status: data.status }),
+      wordCount,
+      updatedAt: new Date().toISOString(),
+    });
   });
 
 /**
@@ -216,31 +152,20 @@ export const deleteChapterFn = createServerFn({ method: 'POST' })
   .middleware([authWithTeamMiddleware])
   .validator(zodValidator(chapterIdSchema))
   .handler(async ({ data, context }) => {
-    const { teamId } = context;
-    const db = getDb();
-
-    const [existing] = await db
-      .select()
-      .from(storyChapters)
-      .where(eq(storyChapters.id, data.id))
-      .limit(1);
+    const storiesDb = context.scopedDb.stories;
+    const existing = await storiesDb.getChapter(data.id);
 
     if (!existing) {
       throw new Error('章节不存在');
     }
 
     // 验证项目所有权
-    const [project] = await db
-      .select()
-      .from(storyProjects)
-      .where(eq(storyProjects.id, existing.projectId))
-      .limit(1);
-
-    if (!project || project.teamId !== teamId) {
+    const project = await storiesDb.getOwnedProject(existing.projectId);
+    if (!project) {
       throw new Error('章节不存在');
     }
 
-    await db.delete(storyChapters).where(eq(storyChapters.id, data.id));
+    await storiesDb.deleteChapter(data.id);
 
     return { success: true };
   });

@@ -10,13 +10,7 @@
  */
 
 import { z } from 'zod';
-import { getDb } from '#db-client';
-import {
-  storyChapters,
-  storySegments,
-  storyShots,
-} from '@/platform/server/db/schema';
-import { asc, eq } from 'drizzle-orm';
+import type { StoryFilmmakingDb } from '@/platform/server/db/scoped/stories-filmmaking';
 import { getLogger } from '@/platform/logger';
 
 const logger = getLogger(['openstory', 'storyboard-ai']);
@@ -114,22 +108,14 @@ const AI_CONFIG = {
 /**
  * Get all chapter content for a project
  */
-export async function getProjectChapters(projectId: string): Promise<{
+export async function getProjectChapters(
+  storyDb: StoryFilmmakingDb,
+  projectId: string
+): Promise<{
   chapters: Array<{ chapterNumber: number; title: string; content: string }>;
   totalWordCount: number;
 }> {
-  const db = getDb();
-  const chapters = await db
-    .select({
-      chapterNumber: storyChapters.chapterNumber,
-      title: storyChapters.title,
-      content: storyChapters.content,
-      wordCount: storyChapters.wordCount,
-    })
-    .from(storyChapters)
-    .where(eq(storyChapters.projectId, projectId))
-    .orderBy(asc(storyChapters.chapterNumber))
-    .all();
+  const chapters = await storyDb.getProjectChapters(projectId);
 
   const totalWordCount = chapters.reduce(
     (sum, ch) => sum + (ch.wordCount || 0),
@@ -320,6 +306,7 @@ ${storyText}
  * Save storyboard analysis to database
  */
 export async function saveStoryboardToDb(
+  storyDb: StoryFilmmakingDb,
   projectId: string,
   analysis: StoryboardAnalysis
 ): Promise<{
@@ -330,57 +317,10 @@ export async function saveStoryboardToDb(
     throw new Error(analysis.error || 'No segments to save');
   }
 
-  const db = getDb();
-  const segmentIds: string[] = [];
-  const shotIds: string[] = [];
-
-  for (const segment of analysis.segments) {
-    // Create segment
-    const createdSegment = await db
-      .insert(storySegments)
-      .values({
-        projectId,
-        chapterNumber: segment.chapterNumber,
-        segmentNumber: segment.segmentNumber,
-        startTime: segment.startTime,
-        endTime: segment.endTime,
-        duration: segment.duration,
-        narrativeFunction: segment.narrativeFunction,
-        summary: segment.summary,
-        status: 'storyboarded',
-      })
-      .returning()
-      .get();
-
-    segmentIds.push(createdSegment.id);
-
-    // Create shots for this segment
-    for (const shot of segment.shots) {
-      const createdShot = await db
-        .insert(storyShots)
-        .values({
-          segmentId: createdSegment.id,
-          projectId,
-          shotNumber: shot.shotNumber,
-          startTime: shot.startTime,
-          duration: shot.duration,
-          shotSize: shot.shotSize,
-          cameraAngle: shot.cameraAngle,
-          cameraMovement: shot.cameraMovement,
-          description: shot.description,
-          action: shot.action,
-          dialogue: shot.dialogue,
-          characters: shot.characters,
-          soundEffects: shot.soundEffects,
-          ambience: shot.ambience,
-          transition: shot.transition,
-        })
-        .returning()
-        .get();
-
-      shotIds.push(createdShot.id);
-    }
-  }
+  const { segmentIds, shotIds } = await storyDb.saveStoryboardSegments(
+    projectId,
+    analysis.segments
+  );
 
   logger.info('[StoryboardAI] Saved to database', {
     projectId,
@@ -394,11 +334,11 @@ export async function saveStoryboardToDb(
 /**
  * Clear existing storyboard data for a project
  */
-export async function clearProjectStoryboard(projectId: string): Promise<void> {
-  const db = getDb();
-
-  // Shots will be cascade deleted with segments
-  await db.delete(storySegments).where(eq(storySegments.projectId, projectId));
+export async function clearProjectStoryboard(
+  storyDb: StoryFilmmakingDb,
+  projectId: string
+): Promise<void> {
+  await storyDb.clearProjectStoryboard(projectId);
 
   logger.info('[StoryboardAI] Cleared existing storyboard', { projectId });
 }
@@ -406,25 +346,16 @@ export async function clearProjectStoryboard(projectId: string): Promise<void> {
 /**
  * Get storyboard status for a project
  */
-export async function getStoryboardStatus(projectId: string): Promise<{
+export async function getStoryboardStatus(
+  storyDb: StoryFilmmakingDb,
+  projectId: string
+): Promise<{
   hasStoryboard: boolean;
   segmentCount: number;
   shotCount: number;
   totalDuration: number;
 }> {
-  const db = getDb();
-
-  const segments = await db
-    .select()
-    .from(storySegments)
-    .where(eq(storySegments.projectId, projectId))
-    .all();
-
-  const shots = await db
-    .select()
-    .from(storyShots)
-    .where(eq(storyShots.projectId, projectId))
-    .all();
+  const { segments, shots } = await storyDb.getStoryboardRows(projectId);
 
   const totalDuration = segments.reduce((sum, s) => sum + (s.duration || 0), 0);
 

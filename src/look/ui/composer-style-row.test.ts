@@ -56,7 +56,7 @@ function trio(category: string): Style[] {
 }
 
 describe('composerStyleCategoryOptions', () => {
-  it('puts Film & Cinematic first', () => {
+  it('puts 电影感 first', () => {
     const options = composerStyleCategoryOptions([
       ...trio('tech'),
       ...trio('ecommerce'),
@@ -64,7 +64,7 @@ describe('composerStyleCategoryOptions', () => {
     ]);
     expect(options[0]).toEqual({
       value: 'film',
-      label: 'Film & Cinematic',
+      label: '电影感',
     });
     expect(options.map((option) => option.value)).toEqual([
       'film',

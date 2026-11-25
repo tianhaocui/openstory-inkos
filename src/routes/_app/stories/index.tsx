@@ -74,7 +74,9 @@ function StoriesPage() {
                 <BookOpenIcon className="size-5 text-muted-foreground" />
               </div>
               <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
-                <span>更新于 {new Date(story.updatedAt).toLocaleDateString('zh-CN')}</span>
+                <span>
+                  更新于 {new Date(story.updatedAt).toLocaleDateString('zh-CN')}
+                </span>
               </div>
             </Link>
           ))}

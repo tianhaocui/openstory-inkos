@@ -49,11 +49,7 @@ export const RouteErrorFallback: React.FC<RouteErrorFallbackProps> = ({
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>{heading}</AlertTitle>
         <AlertDescription className="flex flex-col gap-3">
-          <p>
-            {error instanceof Error
-              ? error.message
-              : '发生了意外错误'}
-          </p>
+          <p>{error instanceof Error ? error.message : '发生了意外错误'}</p>
           <Button
             variant="outline"
             size="sm"

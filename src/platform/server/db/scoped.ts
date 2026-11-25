@@ -52,6 +52,8 @@ import { createShotsMethods } from '@/shots/server/db/shots';
 import { createVideoVariantsMethods } from '@/motion/server/db/video-variants';
 import { createStorySyncMethods } from '@/platform/server/db/scoped/stories';
 import type { InkOSChapterSyncInput } from '@/platform/server/db/scoped/stories';
+import { createStoryContentMethods } from '@/platform/server/db/scoped/stories-content';
+import { createStoryFilmmakingMethods } from '@/platform/server/db/scoped/stories-filmmaking';
 import { createLibraryMethods } from '@/look/server/db/library';
 import {
   createLocationSheetsMethods,
@@ -508,7 +510,11 @@ export function createScopedDb(teamId: string, userId: string) {
     billing: createBillingMethods(db, teamId, userId),
     apiKeys: createApiKeysMethods(db, teamId, userId),
     teamManagement: createTeamManagementMethods(db, teamId, userId),
-    stories: createStorySyncMethods(db, teamId),
+    stories: {
+      ...createStorySyncMethods(db, teamId),
+      ...createStoryContentMethods(db, teamId),
+      ...createStoryFilmmakingMethods(db),
+    },
 
     // Compliance (#1180). `provenance` is its own domain rather than a member
     // of `compliance` because workflows must reach it and the workflow write

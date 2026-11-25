@@ -1,15 +1,24 @@
 import { getEnv } from '#env';
+import { z } from 'zod';
+
+const inkOSBookSummarySchema = z.object({
+  id: z.unknown().optional(),
+  title: z.unknown().optional(),
+});
+
+const inkOSBooksResponseSchema = z.object({
+  books: z.array(inkOSBookSummarySchema).optional(),
+});
+
+const inkOSCreateBookResponseSchema = z.object({
+  bookId: z.unknown().optional(),
+});
 
 export type InkOSBookLink = {
   bookId: string;
   studioUrl: string;
   status: 'creating' | 'ready' | 'unavailable';
   error?: string;
-};
-
-type InkOSBookSummary = {
-  id?: unknown;
-  title?: unknown;
 };
 
 const DEFAULT_STUDIO_URL = 'https://creation.dakalami.com/inkos';
@@ -43,10 +52,19 @@ async function findExistingBook(apiUrl: string, title: string, bookId: string) {
   const response = await fetch(`${apiUrl}/books`);
   if (!response.ok) return undefined;
 
-  const payload = (await response.json()) as { books?: InkOSBookSummary[] };
-  const books = Array.isArray(payload.books) ? payload.books : [];
+  const rawPayload: unknown = await response.json();
+  // The old code dereferenced the JSON value directly, so a null body threw.
+  // Keep that path: the caller's try/catch turns it into "unavailable".
+  if (rawPayload === null) {
+    throw new TypeError("Cannot read properties of null (reading 'books')");
+  }
+  const parsed = inkOSBooksResponseSchema.safeParse(rawPayload);
+  const books =
+    parsed.success && Array.isArray(parsed.data.books) ? parsed.data.books : [];
   const match = books.find(
-    (book) => book.id === bookId || (book.title === title && typeof book.id === 'string'),
+    (book) =>
+      book.id === bookId ||
+      (book.title === title && typeof book.id === 'string')
   );
   return typeof match?.id === 'string' ? match.id : undefined;
 }
@@ -64,7 +82,10 @@ export async function createOrReuseInkOSBook(input: {
   const studioUrl = getInkOSStudioUrl();
   const apiUrl = `${studioUrl}/api/v1`;
   const bookId = normalizeInkOSBookId(input.title);
-  const targetChapters = Math.max(1, Math.round((input.targetLength ?? 100000) / 3000));
+  const targetChapters = Math.max(
+    1,
+    Math.round((input.targetLength ?? 100000) / 3000)
+  );
 
   try {
     const response = await fetch(`${apiUrl}/books/create`, {
@@ -82,13 +103,26 @@ export async function createOrReuseInkOSBook(input: {
     });
 
     if (response.ok) {
-      const payload = (await response.json()) as { bookId?: unknown };
-      const createdBookId = typeof payload.bookId === 'string' ? payload.bookId : bookId;
+      const rawPayload: unknown = await response.json();
+      if (rawPayload === null) {
+        throw new TypeError(
+          "Cannot read properties of null (reading 'bookId')"
+        );
+      }
+      const parsed = inkOSCreateBookResponseSchema.safeParse(rawPayload);
+      const createdBookId =
+        parsed.success && typeof parsed.data.bookId === 'string'
+          ? parsed.data.bookId
+          : bookId;
       return { bookId: createdBookId, studioUrl, status: 'creating' };
     }
 
     if (response.status === 409) {
-      const existingBookId = await findExistingBook(apiUrl, input.title, bookId);
+      const existingBookId = await findExistingBook(
+        apiUrl,
+        input.title,
+        bookId
+      );
       if (existingBookId) {
         return { bookId: existingBookId, studioUrl, status: 'ready' };
       }

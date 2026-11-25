@@ -136,8 +136,7 @@ export const CreditBalancePill: React.FC = () => {
       : undefined;
 
   const amount = `$${balance?.toFixed(2) ?? '0.00'}`;
-  const tooltip =
-    reserved > 0 ? `积分 · ${amount} 可用` : `积分 · ${amount}`;
+  const tooltip = reserved > 0 ? `积分 · ${amount} 可用` : `积分 · ${amount}`;
 
   return (
     <SidebarMenu>

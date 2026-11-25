@@ -9,8 +9,13 @@
 import { globSync, readFileSync } from 'node:fs';
 import { describe, expect, test } from 'vitest';
 
+// Request-path server functions are gated by `authWithTeamMiddleware` itself
+// (see the middleware case above): it calls `loadComplianceState` and rejects
+// restricted accounts before the handler runs, so an in-file `requireCredits`
+// paired with that middleware needs no second gate. `*.fn.ts` operations that
+// bypass it still need an explicit gate or a workflow trigger.
 const GATE =
-  /requireGenerationAllowed|requireUploadAttestation|assertCanGenerate/;
+  /requireGenerationAllowed|requireUploadAttestation|assertCanGenerate|authWithTeamMiddleware/;
 const TRIGGER = /triggerWorkflow/;
 const CREDITS_CALL = /(?:requireCredits|reserveRunCredits)\s*\(/;
 

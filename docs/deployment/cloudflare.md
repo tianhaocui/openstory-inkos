@@ -87,14 +87,14 @@ CI 中没有种子数据步骤：worker 会在首次请求时自行填充系统�
 
 密钥通过 `wrangler secret bulk` 推送到 Worker。完整列表定义在 [`.github/workflows/deploy-cloudflare.yml`](https://github.com/openstory-so/openstory/blob/main/.github/workflows/deploy-cloudflare.yml) 中。核心密钥包括：
 
-| 变量                                        | 说明                                                                                  |
-| ------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `BETTER_AUTH_SECRET`                        | Better Auth 签名密钥                                                                  |
-| `VITE_APP_URL`                              | 部署的公共 URL                                                                        |
-| `FAL_KEY`                                   | 用于图像/视频生成的 fal.ai API 密钥                                                   |
-| `OPENROUTER_KEY`                            | 用于 LLM 脚本分析的 OpenRouter API 密钥                                               |
-| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth 凭据                                                                     |
-| `EMAIL_FROM`                                | 事务邮件的发件人地址（域名已接入 Cloudflare Email Service）                           |
+| 变量                                        | 说明                                                        |
+| ------------------------------------------- | ----------------------------------------------------------- |
+| `BETTER_AUTH_SECRET`                        | Better Auth 签名密钥                                        |
+| `VITE_APP_URL`                              | 部署的公共 URL                                              |
+| `FAL_KEY`                                   | 用于图像/视频生成的 fal.ai API 密钥                         |
+| `OPENROUTER_KEY`                            | 用于 LLM 脚本分析的 OpenRouter API 密钥                     |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth 凭据                                           |
+| `EMAIL_FROM`                                | 事务邮件的发件人地址（域名已接入 Cloudflare Email Service） |
 
 ## 生产数据库切换（velro-prd → openstory-prd）
 

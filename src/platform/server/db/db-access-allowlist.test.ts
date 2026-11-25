@@ -19,6 +19,9 @@ const SRC = resolve(__dirname, '..', '..', '..', '..');
 const RAW_DB_ALLOWLIST = [
   'src/platform/server/db/scoped.ts',
   'src/platform/server/db/client.ts',
+  // Self-hosted Node entry: platform-wide DB lifecycle (initDb/closeDb), not
+  // a team-scoped query. It is a composition root, like the cron dispatcher.
+  'src/platform/server/server-node.ts',
   'src/platform/server/auth/config.ts',
   'src/platform/server/cron/reconcile-all.ts',
   'src/billing/server/reconcile-fal-billing.ts',

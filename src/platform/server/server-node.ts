@@ -28,10 +28,8 @@ import {
   stopWorkflowWorkers,
 } from './workflow/workflow-node';
 import { getLogger, toErrorPayload } from '@/platform/logger';
-import {
-  STORAGE_BUCKETS,
-  type StorageBucket,
-} from './storage/buckets';
+import { refreshFalPricingForCron } from './api-v1/cron-fal-pricing';
+import { STORAGE_BUCKETS, type StorageBucket } from './storage/buckets';
 
 const logger = getLogger(['openstory', 'server-node']);
 
@@ -164,9 +162,7 @@ app.post('/api/cron/fal-pricing', async (c) => {
   }
 
   try {
-    const { refreshFalPricing } =
-      await import('@/billing/server/refresh-fal-pricing');
-    await refreshFalPricing();
+    await refreshFalPricingForCron();
     return c.json({ success: true });
   } catch (error) {
     logger.error('Fal pricing refresh failed:', {

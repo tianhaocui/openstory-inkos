@@ -101,7 +101,9 @@ export function createStorySyncMethods(db: Database, teamId: string) {
     type BatchStatement = Parameters<Database['batch']>[0][number];
     const statements: BatchStatement[] = [];
     const now = new Date().toISOString();
-    const incomingKeys = new Set(input.chapters.map((chapter) => chapter.sourceKey));
+    const incomingKeys = new Set(
+      input.chapters.map((chapter) => chapter.sourceKey)
+    );
 
     for (const chapter of input.chapters) {
       const existing = existingByKey.get(chapter.sourceKey);
@@ -212,7 +214,16 @@ export function createStorySyncMethods(db: Database, teamId: string) {
       })
     );
 
-    await db.batch(statements as [BatchStatement, ...BatchStatement[]]);
+    // `statements` always has at least the two trailing writes above, but keep
+    // the empty case a no-op instead of asserting a non-empty tuple.
+    const [firstStatement, ...remainingStatements] = statements;
+    if (firstStatement) {
+      const batch: [BatchStatement, ...BatchStatement[]] = [
+        firstStatement,
+        ...remainingStatements,
+      ];
+      await db.batch(batch);
+    }
     const synced = await db
       .select()
       .from(storyChapters)

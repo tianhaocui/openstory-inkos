@@ -102,7 +102,16 @@ function resolveLocal(fromFile: string, spec: string): string | null {
   else return null; // bare specifier — checked against SERVER_ONLY, not walked
   for (const suffix of ['.ts', '.tsx', '/index.ts', '/index.tsx', '']) {
     const candidate = base + suffix;
-    if (existsSync(candidate) && statSync(candidate).isFile()) return candidate;
+    // Only TS modules take part in the import graph: i18n imports a `.json`
+    // bundle, which Babel cannot parse as a module and the browser never
+    // loads as TS (#1455). Following it made every boundary walk throw.
+    if (
+      /\.(ts|tsx)$/.test(candidate) &&
+      existsSync(candidate) &&
+      statSync(candidate).isFile()
+    ) {
+      return candidate;
+    }
   }
   return null;
 }

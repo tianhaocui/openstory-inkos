@@ -350,9 +350,7 @@ describe('llm-client', () => {
         )
       ).rejects.toMatchObject({
         name: 'NonRetryableError',
-        message: expect.stringMatching(
-          /Blocked by the content checker: Script/
-        ),
+        message: expect.stringMatching(/内容审核未通过：Script/),
       });
     });
 

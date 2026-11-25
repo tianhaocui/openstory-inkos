@@ -85,9 +85,9 @@ describe('renderEmail(AutoTopUpFailedEmail)', () => {
   it('renders the pause, the balance, and one link to fix the card', async () => {
     const { html } = await renderEmail(email);
 
-    expect(html).toContain('Auto-reload is paused');
+    expect(html).toContain('自动充值已暂停');
     expect(html).toContain('$1.20');
     expect(html).toContain('https://openstory.so/credits');
-    expect(html).toContain('Update card');
+    expect(html).toContain('更新银行卡');
   });
 });

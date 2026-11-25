@@ -8,9 +8,6 @@ import { createServerFn } from '@tanstack/react-start';
 import { zodValidator } from '@tanstack/zod-adapter';
 import { z } from 'zod';
 import { authWithTeamMiddleware } from '@/platform/middleware.fn';
-import { storyCharacters, storyProjects } from '@/platform/server/db/schema';
-import { getDb } from '#db-client';
-import { eq } from 'drizzle-orm';
 import { ulid } from 'ulid';
 
 // Schemas
@@ -47,26 +44,15 @@ export const getCharactersFn = createServerFn({ method: 'GET' })
   .middleware([authWithTeamMiddleware])
   .validator(zodValidator(projectIdSchema))
   .handler(async ({ data, context }) => {
-    const { teamId } = context;
-    const db = getDb();
+    const storiesDb = context.scopedDb.stories;
 
     // 验证项目所有权
-    const [project] = await db
-      .select()
-      .from(storyProjects)
-      .where(eq(storyProjects.id, data.projectId))
-      .limit(1);
-
-    if (!project || project.teamId !== teamId) {
+    const project = await storiesDb.getOwnedProject(data.projectId);
+    if (!project) {
       throw new Error('项目不存在');
     }
 
-    const characters = await db
-      .select()
-      .from(storyCharacters)
-      .where(eq(storyCharacters.projectId, data.projectId));
-
-    return characters;
+    return storiesDb.listCharacters(data.projectId);
   });
 
 /**
@@ -76,24 +62,18 @@ export const createCharacterFn = createServerFn({ method: 'POST' })
   .middleware([authWithTeamMiddleware])
   .validator(zodValidator(createCharacterSchema))
   .handler(async ({ data, context }) => {
-    const { teamId } = context;
-    const db = getDb();
+    const storiesDb = context.scopedDb.stories;
 
     // 验证项目所有权
-    const [project] = await db
-      .select()
-      .from(storyProjects)
-      .where(eq(storyProjects.id, data.projectId))
-      .limit(1);
-
-    if (!project || project.teamId !== teamId) {
+    const project = await storiesDb.getOwnedProject(data.projectId);
+    if (!project) {
       throw new Error('项目不存在');
     }
 
     const id = ulid();
     const now = new Date().toISOString();
 
-    await db.insert(storyCharacters).values({
+    return storiesDb.createCharacter({
       id,
       projectId: data.projectId,
       name: data.name,
@@ -104,14 +84,6 @@ export const createCharacterFn = createServerFn({ method: 'POST' })
       createdAt: now,
       updatedAt: now,
     });
-
-    const [character] = await db
-      .select()
-      .from(storyCharacters)
-      .where(eq(storyCharacters.id, id))
-      .limit(1);
-
-    return character;
   });
 
 /**
@@ -121,49 +93,27 @@ export const updateCharacterFn = createServerFn({ method: 'POST' })
   .middleware([authWithTeamMiddleware])
   .validator(zodValidator(updateCharacterSchema))
   .handler(async ({ data, context }) => {
-    const { teamId } = context;
-    const db = getDb();
-
-    const [existing] = await db
-      .select()
-      .from(storyCharacters)
-      .where(eq(storyCharacters.id, data.id))
-      .limit(1);
+    const storiesDb = context.scopedDb.stories;
+    const existing = await storiesDb.getCharacter(data.id);
 
     if (!existing) {
       throw new Error('角色不存在');
     }
 
     // 验证项目所有权
-    const [project] = await db
-      .select()
-      .from(storyProjects)
-      .where(eq(storyProjects.id, existing.projectId))
-      .limit(1);
-
-    if (!project || project.teamId !== teamId) {
+    const project = await storiesDb.getOwnedProject(existing.projectId);
+    if (!project) {
       throw new Error('角色不存在');
     }
 
-    await db
-      .update(storyCharacters)
-      .set({
-        ...(data.name !== undefined && { name: data.name }),
-        ...(data.description !== undefined && { description: data.description }),
-        ...(data.traits !== undefined && { traits: data.traits }),
-        ...(data.backstory !== undefined && { backstory: data.backstory }),
-        ...(data.voiceNotes !== undefined && { voiceNotes: data.voiceNotes }),
-        updatedAt: new Date().toISOString(),
-      })
-      .where(eq(storyCharacters.id, data.id));
-
-    const [character] = await db
-      .select()
-      .from(storyCharacters)
-      .where(eq(storyCharacters.id, data.id))
-      .limit(1);
-
-    return character;
+    return storiesDb.updateCharacter(data.id, {
+      ...(data.name !== undefined && { name: data.name }),
+      ...(data.description !== undefined && { description: data.description }),
+      ...(data.traits !== undefined && { traits: data.traits }),
+      ...(data.backstory !== undefined && { backstory: data.backstory }),
+      ...(data.voiceNotes !== undefined && { voiceNotes: data.voiceNotes }),
+      updatedAt: new Date().toISOString(),
+    });
   });
 
 /**
@@ -173,31 +123,20 @@ export const deleteCharacterFn = createServerFn({ method: 'POST' })
   .middleware([authWithTeamMiddleware])
   .validator(zodValidator(characterIdSchema))
   .handler(async ({ data, context }) => {
-    const { teamId } = context;
-    const db = getDb();
-
-    const [existing] = await db
-      .select()
-      .from(storyCharacters)
-      .where(eq(storyCharacters.id, data.id))
-      .limit(1);
+    const storiesDb = context.scopedDb.stories;
+    const existing = await storiesDb.getCharacter(data.id);
 
     if (!existing) {
       throw new Error('角色不存在');
     }
 
     // 验证项目所有权
-    const [project] = await db
-      .select()
-      .from(storyProjects)
-      .where(eq(storyProjects.id, existing.projectId))
-      .limit(1);
-
-    if (!project || project.teamId !== teamId) {
+    const project = await storiesDb.getOwnedProject(existing.projectId);
+    if (!project) {
       throw new Error('角色不存在');
     }
 
-    await db.delete(storyCharacters).where(eq(storyCharacters.id, data.id));
+    await storiesDb.deleteCharacter(data.id);
 
     return { success: true };
   });

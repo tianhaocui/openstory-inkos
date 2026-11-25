@@ -47,12 +47,12 @@ Authorization: Bearer <access_token>
 
 与密钥不同，令牌受**作用域**限制：
 
-| 作用域            | 授予的权限                                                |
-| ----------------- | --------------------------------------------------------- |
-| `sequences:read`  | 所有 `GET` 请求                                           |
-| `sequences:write` | 编辑和导出（`POST …/exports`、样式变更）                  |
-| `generate`        | 任何消耗额度的操作（`POST /sequences`、增强）             |
-| `credits:read`    | 额度余额（为 MCP 端点保留）                               |
+| 作用域            | 授予的权限                                    |
+| ----------------- | --------------------------------------------- |
+| `sequences:read`  | 所有 `GET` 请求                               |
+| `sequences:write` | 编辑和导出（`POST …/exports`、样式变更）      |
+| `generate`        | 任何消耗额度的操作（`POST /sequences`、增强） |
+| `credits:read`    | 额度余额（为 MCP 端点保留）                   |
 
 令牌缺少路由所需作用域时，会收到 `403`，并附带 `WWW-Authenticate: Bearer error="insufficient_scope", scope="…"` 质询，指出重新授权所需的作用域；令牌无效或已过期时，会收到带有 `error="invalid_token"` 的 `401`。两种响应都会携带指向 RFC 9728 文档的 `resource_metadata="…"`，MCP 客户端据此进入授权流程。
 

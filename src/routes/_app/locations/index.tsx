@@ -57,9 +57,7 @@ function LocationsPage() {
         {!isLoading && filteredLocations && filteredLocations.length === 0 ? (
           <EmptyState
             icon={<MapPin className="h-12 w-12" />}
-            title={
-              isAuthenticated ? '暂无场景' : '暂无系统场景'
-            }
+            title={isAuthenticated ? '暂无场景' : '暂无系统场景'}
             description={
               isAuthenticated
                 ? '添加场景到你的库中，以保持序列间的视觉一致性。'

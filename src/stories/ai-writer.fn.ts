@@ -8,24 +8,19 @@ import { createServerFn } from '@tanstack/react-start';
 import { zodValidator } from '@tanstack/zod-adapter';
 import { z } from 'zod';
 import { authWithTeamMiddleware } from '@/platform/middleware.fn';
-import {
-  storyProjects,
-  storyChapters,
-  storyCharacters,
-  storyHooks,
-  storyFacts,
-  storyChapterSummaries,
-} from '@/platform/server/db/schema';
-import { getDb } from '#db-client';
-import { eq } from 'drizzle-orm';
+import type { ScopedDb } from '@/platform/server/db/scoped';
 import { ulid } from 'ulid';
+
+type StoriesDb = ScopedDb['stories'];
 
 // ============================================================================
 // Types & Constants
 // ============================================================================
 
 const AI_CONFIG = {
-  baseUrl: process.env.AI_BASE_URL || 'https://kiro.dakalami.com/aiclient2api/claude-kiro-oauth/v1',
+  baseUrl:
+    process.env.AI_BASE_URL ||
+    'https://kiro.dakalami.com/aiclient2api/claude-kiro-oauth/v1',
   apiKey: process.env.AI_API_KEY || '1234',
   model: process.env.AI_MODEL || 'claude-opus-4-6',
 };
@@ -43,11 +38,57 @@ const analyzeChapterSchema = z.object({
   chapterId: z.string(),
 });
 
+const chatCompletionResponseSchema = z.object({
+  choices: z.array(z.object({ message: z.object({ content: z.string() }) })),
+});
+
+const storySettingsSchema = z
+  .object({
+    genre: z.string().optional(),
+    tone: z.string().optional(),
+    targetLength: z.number().optional(),
+    language: z.string().optional(),
+  })
+  .passthrough();
+
+const chapterAnalysisSchema = z.object({
+  facts: z
+    .array(
+      z.object({
+        subject: z.string(),
+        predicate: z.string(),
+        object: z.string(),
+      })
+    )
+    .optional(),
+  hooks: z
+    .array(
+      z.object({
+        hookId: z.string(),
+        type: z.string().optional(),
+        expectedPayoff: z.string().optional(),
+        payoffTiming: z.string().optional(),
+      })
+    )
+    .optional(),
+  summary: z
+    .object({
+      events: z.string().optional(),
+      mood: z.string().optional(),
+      characters: z.array(z.string()).optional(),
+      stateChanges: z.string().optional(),
+    })
+    .optional(),
+});
+
 // ============================================================================
 // Helper Functions
 // ============================================================================
 
-async function callAI(systemPrompt: string, userPrompt: string): Promise<string> {
+async function callAI(
+  systemPrompt: string,
+  userPrompt: string
+): Promise<string> {
   const response = await fetch(`${AI_CONFIG.baseUrl}/chat/completions`, {
     method: 'POST',
     headers: {
@@ -70,55 +111,57 @@ async function callAI(systemPrompt: string, userPrompt: string): Promise<string>
     throw new Error(`AI API error: ${response.status} - ${error}`);
   }
 
-  const data = await response.json() as { choices: { message: { content: string } }[] };
-  return data.choices[0]?.message?.content || '';
+  // A malformed completion used to surface through an unchecked assertion;
+  // treat it as an empty answer instead.
+  const parsed = chatCompletionResponseSchema.safeParse(await response.json());
+  if (!parsed.success) return '';
+  return parsed.data.choices[0]?.message.content || '';
+}
+
+type ChapterAnalysisParse =
+  | { ok: true; analysis: unknown; data: z.infer<typeof chapterAnalysisSchema> }
+  | { ok: false };
+
+function parseChapterAnalysis(response: string): ChapterAnalysisParse {
+  try {
+    const jsonMatch = response.match(/```json\n?([\s\S]*?)\n?```/);
+    const jsonStr = jsonMatch?.[1] ?? response;
+    const analysis: unknown = JSON.parse(jsonStr);
+    const validated = chapterAnalysisSchema.safeParse(analysis);
+    if (!validated.success) return { ok: false };
+    return { ok: true, analysis, data: validated.data };
+  } catch {
+    // 如果解析失败，返回原始响应
+    return { ok: false };
+  }
+}
+
+/**
+ * `story_projects.settings` is a JSON column, so Drizzle hands back an object.
+ * Legacy rows can still hold a raw JSON string; accept both without asserting.
+ */
+function readStorySettings(
+  value: unknown
+): z.infer<typeof storySettingsSchema> {
+  const direct = storySettingsSchema.safeParse(value);
+  if (direct.success) return direct.data;
+  if (typeof value === 'string') {
+    const decoded: unknown = JSON.parse(value);
+    const fromJson = storySettingsSchema.safeParse(decoded);
+    if (fromJson.success) return fromJson.data;
+  }
+  return {};
 }
 
 /**
  * 构建故事上下文（用于 AI 理解故事状态）
  */
-async function buildStoryContext(projectId: string, db: ReturnType<typeof getDb>) {
-  // 获取项目信息
-  const [project] = await db
-    .select()
-    .from(storyProjects)
-    .where(eq(storyProjects.id, projectId))
-    .limit(1);
+async function buildStoryContext(projectId: string, storiesDb: StoriesDb) {
+  const loaded = await storiesDb.loadStoryContext(projectId);
+  if (!loaded) throw new Error('项目不存在');
+  const { project, chapters, characters, hooks, facts, summaries } = loaded;
 
-  if (!project) throw new Error('项目不存在');
-
-  // 获取所有章节
-  const chapters = await db
-    .select()
-    .from(storyChapters)
-    .where(eq(storyChapters.projectId, projectId))
-    .orderBy(storyChapters.chapterNumber);
-
-  // 获取角色
-  const characters = await db
-    .select()
-    .from(storyCharacters)
-    .where(eq(storyCharacters.projectId, projectId));
-
-  // 获取伏笔
-  const hooks = await db
-    .select()
-    .from(storyHooks)
-    .where(eq(storyHooks.projectId, projectId));
-
-  // 获取事实（时序记忆）
-  const facts = await db
-    .select()
-    .from(storyFacts)
-    .where(eq(storyFacts.projectId, projectId));
-
-  // 获取章节摘要
-  const summaries = await db
-    .select()
-    .from(storyChapterSummaries)
-    .where(eq(storyChapterSummaries.projectId, projectId));
-
-  const settings = project.settings ? JSON.parse(project.settings as string) : {};
+  const settings = readStorySettings(project.settings);
 
   return {
     project,
@@ -136,7 +179,9 @@ async function buildStoryContext(projectId: string, db: ReturnType<typeof getDb>
 /**
  * 构建写作系统提示词（InkOS 风格）
  */
-function buildWriterSystemPrompt(context: Awaited<ReturnType<typeof buildStoryContext>>): string {
+function buildWriterSystemPrompt(
+  context: Awaited<ReturnType<typeof buildStoryContext>>
+): string {
   const { settings, characters, hooks } = context;
 
   const parts = [
@@ -144,7 +189,7 @@ function buildWriterSystemPrompt(context: Awaited<ReturnType<typeof buildStoryCo
     '',
     '## 写作原则',
     '- 盐溶于汤：人物价值观和野心靠行动表现，不靠口号。',
-    '- Show don\'t tell：用行为、证据、细节和场景让读者自己感到人物状态。',
+    "- Show don't tell：用行为、证据、细节和场景让读者自己感到人物状态。",
     '- 明喻节制：别把「像/仿佛/如同」当默认修辞反复用，每个场景最多 1 处。',
     '- 反注水：每个场景都推动冲突、因果、情绪、证据、压迫、回报或关系。',
     '- 高潮即场景：冲突爆发、反转、生死、揭露这些关键拍必须当场一拍一拍演出。',
@@ -169,11 +214,15 @@ function buildWriterSystemPrompt(context: Awaited<ReturnType<typeof buildStoryCo
   }
 
   if (hooks.length > 0) {
-    const openHooks = hooks.filter((h) => h.status === 'open' || h.status === 'advanced');
+    const openHooks = hooks.filter(
+      (h) => h.status === 'open' || h.status === 'advanced'
+    );
     if (openHooks.length > 0) {
       parts.push('', '## 待处理伏笔（需要在后续章节回收）');
       for (const hook of openHooks) {
-        parts.push(`- **${hook.hookId}** (${hook.type}): ${hook.expectedPayoff || '待揭晓'}`);
+        parts.push(
+          `- **${hook.hookId}** (${hook.type}): ${hook.expectedPayoff || '待揭晓'}`
+        );
       }
     }
   }
@@ -236,10 +285,10 @@ export const continueWritingFn = createServerFn({ method: 'POST' })
   .validator(zodValidator(continueWritingSchema))
   .handler(async ({ data, context: authContext }) => {
     const { teamId } = authContext;
-    const db = getDb();
+    const storiesDb = authContext.scopedDb.stories;
 
     // 构建故事上下文
-    const storyContext = await buildStoryContext(data.projectId, db);
+    const storyContext = await buildStoryContext(data.projectId, storiesDb);
 
     // 验证项目所有权
     if (storyContext.project.teamId !== teamId) {
@@ -259,11 +308,15 @@ export const continueWritingFn = createServerFn({ method: 'POST' })
       // 添加最近章节内容作为上下文
       const recentChapters = storyContext.chapters.slice(-3);
       userPromptParts.push(`当前是第 ${storyContext.currentChapter + 1} 章`);
-      userPromptParts.push(`总字数: ${storyContext.totalWordCount.toLocaleString()} 字`);
+      userPromptParts.push(
+        `总字数: ${storyContext.totalWordCount.toLocaleString()} 字`
+      );
       userPromptParts.push('', '## 最近章节内容');
 
       for (const chapter of recentChapters) {
-        userPromptParts.push(`### 第 ${chapter.chapterNumber} 章: ${chapter.title}`);
+        userPromptParts.push(
+          `### 第 ${chapter.chapterNumber} 章: ${chapter.title}`
+        );
         // 只取最后 2000 字
         const content =
           chapter.content.length > 2000
@@ -300,7 +353,7 @@ export const continueWritingFn = createServerFn({ method: 'POST' })
     const now = new Date().toISOString();
     const wordCount = content.replace(/\s/g, '').length;
 
-    await db.insert(storyChapters).values({
+    return storiesDb.createChapter({
       id,
       projectId: data.projectId,
       chapterNumber,
@@ -312,14 +365,6 @@ export const continueWritingFn = createServerFn({ method: 'POST' })
       createdAt: now,
       updatedAt: now,
     });
-
-    const [chapter] = await db
-      .select()
-      .from(storyChapters)
-      .where(eq(storyChapters.id, id))
-      .limit(1);
-
-    return chapter;
   });
 
 /**
@@ -329,28 +374,19 @@ export const analyzeChapterFn = createServerFn({ method: 'POST' })
   .middleware([authWithTeamMiddleware])
   .validator(zodValidator(analyzeChapterSchema))
   .handler(async ({ data, context: authContext }) => {
-    const { teamId } = authContext;
-    const db = getDb();
+    const storiesDb = authContext.scopedDb.stories;
 
     // 获取章节
-    const [chapter] = await db
-      .select()
-      .from(storyChapters)
-      .where(eq(storyChapters.id, data.chapterId))
-      .limit(1);
+    const chapter = await storiesDb.getChapter(data.chapterId);
 
     if (!chapter) {
       throw new Error('章节不存在');
     }
 
     // 验证项目所有权
-    const [project] = await db
-      .select()
-      .from(storyProjects)
-      .where(eq(storyProjects.id, chapter.projectId))
-      .limit(1);
+    const project = await storiesDb.getOwnedProject(chapter.projectId);
 
-    if (!project || project.teamId !== teamId) {
+    if (!project) {
       throw new Error('章节不存在');
     }
 
@@ -361,22 +397,18 @@ export const analyzeChapterFn = createServerFn({ method: 'POST' })
     const response = await callAI(systemPrompt, userPrompt);
 
     // 解析 JSON 响应
-    let analysis;
-    try {
-      const jsonMatch = response.match(/```json\n?([\s\S]*?)\n?```/);
-      const jsonStr = jsonMatch?.[1] ?? response;
-      analysis = JSON.parse(jsonStr);
-    } catch {
-      // 如果解析失败，返回原始响应
+    const parsed = parseChapterAnalysis(response);
+    if (!parsed.ok) {
       return { raw: response, parsed: false };
     }
 
     const now = new Date().toISOString();
+    const { facts = [], hooks = [], summary } = parsed.data;
 
     // 保存事实到数据库
-    if (analysis.facts && Array.isArray(analysis.facts)) {
-      for (const fact of analysis.facts) {
-        await db.insert(storyFacts).values({
+    if (facts.length > 0) {
+      await storiesDb.insertFacts(
+        facts.map((fact) => ({
           projectId: chapter.projectId,
           subject: fact.subject,
           predicate: fact.predicate,
@@ -384,14 +416,14 @@ export const analyzeChapterFn = createServerFn({ method: 'POST' })
           validFromChapter: chapter.chapterNumber,
           sourceChapter: chapter.chapterNumber,
           createdAt: now,
-        });
-      }
+        }))
+      );
     }
 
     // 保存伏笔到数据库
-    if (analysis.hooks && Array.isArray(analysis.hooks)) {
-      for (const hook of analysis.hooks) {
-        await db.insert(storyHooks).values({
+    if (hooks.length > 0) {
+      await storiesDb.insertHooks(
+        hooks.map((hook) => ({
           id: ulid(),
           projectId: chapter.projectId,
           hookId: hook.hookId,
@@ -402,28 +434,28 @@ export const analyzeChapterFn = createServerFn({ method: 'POST' })
           payoffTiming: hook.payoffTiming || 'mid',
           createdAt: now,
           updatedAt: now,
-        });
-      }
+        }))
+      );
     }
 
     // 保存章节摘要
-    if (analysis.summary) {
-      await db.insert(storyChapterSummaries).values({
+    if (summary) {
+      await storiesDb.insertSummary({
         projectId: chapter.projectId,
         chapter: chapter.chapterNumber,
         title: chapter.title,
-        events: analysis.summary.events || '',
-        mood: analysis.summary.mood || '',
-        characters: Array.isArray(analysis.summary.characters)
-          ? analysis.summary.characters.join(', ')
+        events: summary.events || '',
+        mood: summary.mood || '',
+        characters: Array.isArray(summary.characters)
+          ? summary.characters.join(', ')
           : '',
-        stateChanges: analysis.summary.stateChanges || '',
+        stateChanges: summary.stateChanges || '',
         createdAt: now,
         updatedAt: now,
       });
     }
 
-    return { analysis, parsed: true };
+    return { analysis: parsed.data, parsed: true };
   });
 
 /**
@@ -441,31 +473,23 @@ export const rewriteChapterFn = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data, context: authContext }) => {
     const { teamId } = authContext;
-    const db = getDb();
+    const storiesDb = authContext.scopedDb.stories;
 
     // 获取章节
-    const [chapter] = await db
-      .select()
-      .from(storyChapters)
-      .where(eq(storyChapters.id, data.chapterId))
-      .limit(1);
+    const chapter = await storiesDb.getChapter(data.chapterId);
 
     if (!chapter) {
       throw new Error('章节不存在');
     }
 
     // 验证项目所有权
-    const [project] = await db
-      .select()
-      .from(storyProjects)
-      .where(eq(storyProjects.id, chapter.projectId))
-      .limit(1);
+    const project = await storiesDb.getOwnedProject(chapter.projectId);
 
     if (!project || project.teamId !== teamId) {
       throw new Error('章节不存在');
     }
 
-    const storyContext = await buildStoryContext(chapter.projectId, db);
+    const storyContext = await buildStoryContext(chapter.projectId, storiesDb);
     const systemPrompt = buildWriterSystemPrompt(storyContext);
 
     const userPrompt = `## 原章节内容
@@ -480,20 +504,9 @@ ${data.instruction}
     const wordCount = newContent.replace(/\s/g, '').length;
 
     // 更新章节
-    await db
-      .update(storyChapters)
-      .set({
-        content: newContent,
-        wordCount,
-        updatedAt: new Date().toISOString(),
-      })
-      .where(eq(storyChapters.id, data.chapterId));
-
-    const [updated] = await db
-      .select()
-      .from(storyChapters)
-      .where(eq(storyChapters.id, data.chapterId))
-      .limit(1);
-
-    return updated;
+    return storiesDb.updateChapter(data.chapterId, {
+      content: newContent,
+      wordCount,
+      updatedAt: new Date().toISOString(),
+    });
   });

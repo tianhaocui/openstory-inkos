@@ -229,10 +229,10 @@ describe('createSequenceSchema over-long reference gate', () => {
     if (!result.success) {
       const message = result.error.issues.map((i) => i.message).join(' ');
       expect(message).toContain(
-        "can't use PUPPET_WALK — 10s, over its 3s limit"
+        '无法使用 PUPPET_WALK：时长为 10 秒，超过 3 秒上限'
       );
-      expect(message).toContain('3s');
-      expect(message).toContain('Trim it');
+      expect(message).toContain('3 秒');
+      expect(message).toContain('请截短');
     }
   });
 

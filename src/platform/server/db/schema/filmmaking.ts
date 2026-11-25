@@ -12,7 +12,13 @@
  * 原始故事 → 剧本创作(InkOS) → 分镜切分 → 资产设定 → 关键帧生成 → 视频生成
  */
 
-import { integer, sqliteTable, text, index, real } from 'drizzle-orm/sqlite-core';
+import {
+  integer,
+  sqliteTable,
+  text,
+  index,
+  real,
+} from 'drizzle-orm/sqlite-core';
 import { sql } from 'drizzle-orm';
 import { ulid } from 'ulid';
 import { storyProjects } from './inkos';
@@ -57,8 +63,15 @@ export const storySegments = sqliteTable(
   },
   (table) => [
     index('story_segments_project_idx').on(table.projectId),
-    index('story_segments_chapter_idx').on(table.projectId, table.chapterNumber),
-    index('story_segments_order_idx').on(table.projectId, table.chapterNumber, table.segmentNumber),
+    index('story_segments_chapter_idx').on(
+      table.projectId,
+      table.chapterNumber
+    ),
+    index('story_segments_order_idx').on(
+      table.projectId,
+      table.chapterNumber,
+      table.segmentNumber
+    ),
   ]
 );
 
@@ -69,34 +82,34 @@ export const storySegments = sqliteTable(
 /**
  * Shot types for cinematography
  */
-export type ShotSize = 
-  | 'extreme-wide'    // 大远景
-  | 'wide'            // 远景
-  | 'full'            // 全景
-  | 'medium-wide'     // 中远景
-  | 'medium'          // 中景
-  | 'medium-close'    // 中近景
-  | 'close-up'        // 近景
-  | 'extreme-close'   // 特写
-  | 'insert';         // 插入镜头
+export type ShotSize =
+  | 'extreme-wide' // 大远景
+  | 'wide' // 远景
+  | 'full' // 全景
+  | 'medium-wide' // 中远景
+  | 'medium' // 中景
+  | 'medium-close' // 中近景
+  | 'close-up' // 近景
+  | 'extreme-close' // 特写
+  | 'insert'; // 插入镜头
 
-export type CameraAngle = 
-  | 'eye-level'       // 平视
-  | 'high'            // 俯视
-  | 'low'             // 仰视
-  | 'dutch'           // 倾斜
-  | 'overhead'        // 鸟瞰
-  | 'pov';            // 主观视角
+export type CameraAngle =
+  | 'eye-level' // 平视
+  | 'high' // 俯视
+  | 'low' // 仰视
+  | 'dutch' // 倾斜
+  | 'overhead' // 鸟瞰
+  | 'pov'; // 主观视角
 
-export type CameraMovement = 
-  | 'static'          // 固定
-  | 'pan'             // 摇镜
-  | 'tilt'            // 俯仰
-  | 'dolly'           // 推拉
-  | 'track'           // 跟踪
-  | 'crane'           // 升降
-  | 'handheld'        // 手持
-  | 'zoom';           // 变焦
+export type CameraMovement =
+  | 'static' // 固定
+  | 'pan' // 摇镜
+  | 'tilt' // 俯仰
+  | 'dolly' // 推拉
+  | 'track' // 跟踪
+  | 'crane' // 升降
+  | 'handheld' // 手持
+  | 'zoom'; // 变焦
 
 /**
  * A shot is a single camera setup within a segment.
@@ -156,24 +169,24 @@ export const storyShots = sqliteTable(
 // Assets — Character designs and scene assets
 // ---------------------------------------------------------------------------
 
-export type AssetType = 
-  | 'character-design'   // 角色设定图
-  | 'scene-asset'        // 场景资产
-  | 'prop'               // 道具
-  | 'vehicle'            // 载具
-  | 'creature'           // 生物/怪物
-  | 'effect';            // 特效参考
+export type AssetType =
+  | 'character-design' // 角色设定图
+  | 'scene-asset' // 场景资产
+  | 'prop' // 道具
+  | 'vehicle' // 载具
+  | 'creature' // 生物/怪物
+  | 'effect'; // 特效参考
 
-export type AssetViewAngle = 
-  | 'front'              // 正面
-  | 'side-left'          // 左侧
-  | 'side-right'         // 右侧
-  | 'back'               // 背面
-  | 'three-quarter'      // 3/4视角
-  | 'top'                // 俯视
-  | 'close-up'           // 特写
-  | 'full-body'          // 全身
-  | 'expression-sheet';  // 表情集
+export type AssetViewAngle =
+  | 'front' // 正面
+  | 'side-left' // 左侧
+  | 'side-right' // 右侧
+  | 'back' // 背面
+  | 'three-quarter' // 3/4视角
+  | 'top' // 俯视
+  | 'close-up' // 特写
+  | 'full-body' // 全身
+  | 'expression-sheet'; // 表情集
 
 /**
  * Visual assets for the production.
@@ -247,7 +260,9 @@ export const storyAssetViews = sqliteTable(
     imagePath: text('image_path'), // Local file path
     // Generation metadata
     generatedBy: text('generated_by'), // Model used
-    generationParams: text('generation_params', { mode: 'json' }).$type<Record<string, unknown>>(),
+    generationParams: text('generation_params', { mode: 'json' }).$type<
+      Record<string, unknown>
+    >(),
     // Status
     status: text('status').notNull().default('pending'), // pending, generating, completed, failed
     createdAt: text('created_at')
@@ -281,10 +296,12 @@ export const storyKeyframes = sqliteTable(
       .notNull()
       .references(() => storyProjects.id, { onDelete: 'cascade' }),
     // Which segment/shot this keyframe belongs to
-    segmentId: text('segment_id')
-      .references(() => storySegments.id, { onDelete: 'set null' }),
-    shotId: text('shot_id')
-      .references(() => storyShots.id, { onDelete: 'set null' }),
+    segmentId: text('segment_id').references(() => storySegments.id, {
+      onDelete: 'set null',
+    }),
+    shotId: text('shot_id').references(() => storyShots.id, {
+      onDelete: 'set null',
+    }),
     // Keyframe identification
     name: text('name').notNull(),
     // Why this moment was selected as a keyframe
@@ -299,10 +316,14 @@ export const storyKeyframes = sqliteTable(
     imageUrl: text('image_url'),
     imagePath: text('image_path'),
     // Reference assets used (JSON array of asset IDs)
-    referenceAssets: text('reference_assets', { mode: 'json' }).$type<string[]>(),
+    referenceAssets: text('reference_assets', { mode: 'json' }).$type<
+      string[]
+    >(),
     // Generation metadata
     generatedBy: text('generated_by'),
-    generationParams: text('generation_params', { mode: 'json' }).$type<Record<string, unknown>>(),
+    generationParams: text('generation_params', { mode: 'json' }).$type<
+      Record<string, unknown>
+    >(),
     // Status
     status: text('status').notNull().default('pending'), // pending, generating, completed, approved, rejected
     createdAt: text('created_at')
@@ -337,11 +358,13 @@ export const storyVideoClips = sqliteTable(
       .notNull()
       .references(() => storyProjects.id, { onDelete: 'cascade' }),
     // Source keyframe (for image-to-video generation)
-    keyframeId: text('keyframe_id')
-      .references(() => storyKeyframes.id, { onDelete: 'set null' }),
+    keyframeId: text('keyframe_id').references(() => storyKeyframes.id, {
+      onDelete: 'set null',
+    }),
     // Which segment this clip is for
-    segmentId: text('segment_id')
-      .references(() => storySegments.id, { onDelete: 'set null' }),
+    segmentId: text('segment_id').references(() => storySegments.id, {
+      onDelete: 'set null',
+    }),
     // Clip identification
     name: text('name').notNull(),
     // Duration in seconds
@@ -358,7 +381,9 @@ export const storyVideoClips = sqliteTable(
     thumbnailPath: text('thumbnail_path'),
     // Generation metadata
     generatedBy: text('generated_by'), // e.g., "seedance-2.5"
-    generationParams: text('generation_params', { mode: 'json' }).$type<Record<string, unknown>>(),
+    generationParams: text('generation_params', { mode: 'json' }).$type<
+      Record<string, unknown>
+    >(),
     // Quality metrics
     qualityScore: real('quality_score'), // 0-1 quality rating
     // Status
@@ -426,7 +451,5 @@ export const storyFilmSettings = sqliteTable(
       .notNull()
       .default(sql`(datetime('now'))`),
   },
-  (table) => [
-    index('story_film_settings_project_idx').on(table.projectId),
-  ]
+  (table) => [index('story_film_settings_project_idx').on(table.projectId)]
 );

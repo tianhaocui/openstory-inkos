@@ -416,9 +416,7 @@ describe('MotionWorkflow content-flag rescue (#1373)', () => {
 
     await expect(
       makeWorkflow().runBody(makeEvent(), step, scopedDb)
-    ).rejects.toThrow(
-      `Content checker rejected the prompt (${NAME}). Rewrite the motion prompt.`
-    );
+    ).rejects.toThrow(`内容审核拒绝了提示词（${NAME}）。请重写动态提示词。`);
     expect(mockSubmit).toHaveBeenCalledTimes(3);
     expect(step.names).not.toContain('write-softened-motion-prompt');
     expect(shotPromptVersions.write).not.toHaveBeenCalled();
@@ -432,7 +430,7 @@ describe('MotionWorkflow content-flag rescue (#1373)', () => {
     await expect(
       makeWorkflow().runBody(makeEvent({ model: GROK }), step, scopedDb)
     ).rejects.toThrow(
-      `Content checker rejected the still (${GROK_NAME}). Regenerate the still.`
+      `内容审核拒绝了参考静态画面（${GROK_NAME}）。重新生成静态画面。`
     );
     expect(mockSubmit).toHaveBeenCalledTimes(3);
     expect(step.names).not.toContain('switch-to-fallback-video-model');
@@ -451,7 +449,7 @@ describe('MotionWorkflow content-flag rescue (#1373)', () => {
     await expect(
       makeWorkflow().runBody(makeEvent(), makeStep(), scopedDb)
     ).rejects.toThrow(
-      `Content checker rejected the still and the prompt (${NAME}, then ${GROK_NAME}; softened prompt also rejected). Regenerate the still or rewrite the motion prompt.`
+      `内容审核拒绝了参考静态画面和提示词（${NAME}, then ${GROK_NAME}; 提示词软化版本也被拒绝）。重新生成静态画面，或重写动态提示词。`
     );
     expect(mockSubmit).toHaveBeenCalledTimes(4);
     expect(mockDeductWorkflowCredits).not.toHaveBeenCalled();

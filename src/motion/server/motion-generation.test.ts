@@ -570,7 +570,7 @@ describe('Motion Service', () => {
             },
           ],
         })
-      ).rejects.toThrow("can't use LONG_TAKE — 10s, over its 3s limit");
+      ).rejects.toThrow(/无法使用 LONG_TAKE：时长为 10 秒，超过 3 秒上限/);
 
       expect(mockGenerateVideo).not.toHaveBeenCalled();
     });

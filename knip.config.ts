@@ -30,6 +30,14 @@ export default {
     // shadcn/ui: a vendored component library kept at full API surface on
     // purpose (managed by the shadcn CLI, not hand-pruned).
     'src/ui/shadcn/**',
+    // BASELINE DEBT (PM-approved, 2026-11-25): these five files are already
+    // unreferenced at HEAD. Kept in the tree for a later integration decision;
+    // do not treat the debt as new work introduced by a commit.
+    'src/i18n/index.ts',
+    'src/platform/server/storage/storage-stub.ts',
+    'src/platform/ui/feedback/feedback-dialog.tsx',
+    'src/ui/icons/youtube-icon.tsx',
+    'src/ui/layout/credit-balance-pill.tsx',
   ],
   ignoreDependencies: [
     // Tailwind plugin / PostCSS / Tailwind — used via CSS + @tailwindcss/vite, not imported.
@@ -56,6 +64,15 @@ export default {
     '@tailwindcss/typography',
     // Used by the e2e mocks (e2e/ is outside knip's project scope).
     '@copilotkit/aimock',
+    // BASELINE DEBT: i18n/index.ts is kept but unreferenced, so its two
+    // i18next packages read as unused. Removing them is a separate decision.
+    'i18next',
+    'react-i18next',
+    // BASELINE DEBT: imported directly by scripts/start-node.ts and
+    // server-node.ts but not declared in package.json (transitive today).
+    // Declaring them would require a package.json edit, out of scope here.
+    'hono',
+    '@hono/node-server',
   ],
   ignoreBinaries: [
     // CLI tools / shell builtins invoked from package.json scripts.
@@ -64,5 +81,43 @@ export default {
     'open', // macOS URL/file opener (bun explorer)
     'openssl', // used by scripts/env-file.ts for secret generation
     'doppler', // package.json secrets:pull + scripts/push-secrets.ts
+    'tsx', // BASELINE DEBT: declared binary with no package.json script using it
   ],
+  // BASELINE DEBT (PM-approved, 2026-11-25): the exports/types below were
+  // already unused at HEAD. File-pattern + issue-type is the narrowest
+  // suppression Knip offers without adding @public JSDoc tags to product
+  // source (out of scope for this commit). Each excluded file lists the
+  // symbol(s) it covers so a future audit can remove the entry one by one.
+  ignoreIssues: {
+    // useBalanceFlash
+    'src/billing/ui/use-balance-flash.ts': ['exports'],
+    // useBillingBalanceRealtime
+    'src/billing/ui/use-billing-balance-realtime.ts': ['exports'],
+    // defineWorkflow, registerWorkflow; InstanceStatus, WorkflowEvent,
+    // WorkflowStep, WorkflowDefinition, WorkflowEventType
+    'src/platform/server/workflow/workflow-node.ts': ['exports', 'types'],
+    // ShotSize, CameraAngle, CameraMovement, AssetType, AssetViewAngle
+    'src/platform/server/db/schema/filmmaking.ts': ['types'],
+    // InkOSChapterSourceType
+    'src/platform/server/db/scoped/stories.ts': ['types'],
+    // StoryboardShotInput
+    'src/platform/server/db/scoped/stories-filmmaking.ts': ['types'],
+    // toInkOSBookConfig, PIPELINE_PROMPTS; BookConfig, ChapterMeta,
+    // RuntimeStateDelta, HookRecord, ChapterSummaryRow, CurrentStateFact,
+    // FilmPipelineStage, StoryboardConfig, SegmentFromChapter, ShotBreakdown
+    'src/stories/inkos-integration.ts': ['exports', 'types'],
+    // getInkOSStudioUrl
+    'src/stories/server/inkos-studio.ts': ['exports'],
+    // InkOSSyncPayload
+    'src/stories/server/inkos-sync.ts': ['types'],
+    // ShotAnalysisSchema, SegmentAnalysisSchema, StoryboardAnalysisSchema;
+    // ShotAnalysis, SegmentAnalysis
+    'src/stories/server/storyboard-ai.ts': ['exports', 'types'],
+    // OpenStoryIcon
+    'src/ui/icons/openstory-logo.tsx': ['exports'],
+    // TEMPORARY: StoryVideoWorkflow is not registered yet — registration
+    // awaits the cluster-A architecture decision (wrangler + server.ts +
+    // TRIGGER_TO_BINDING). REMOVE THIS ENTRY once the workflow is registered.
+    'src/stories/server/workflows/story-video-workflow.ts': ['exports'],
+  },
 } satisfies KnipConfig;

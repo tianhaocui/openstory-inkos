@@ -322,7 +322,7 @@ describe('StudioGenerationWorkflow video', () => {
     await expect(
       makeWorkflow().runBody(makeEvent(VIDEO), makeStep(), scopedDb)
     ).rejects.toThrow(
-      /^Content checker rejected the clip \(Seedance 2\.0\)\. Rewrite the prompt\. \(/
+      /^内容审核拒绝了视频片段（Seedance 2\.0）。请重写提示词，或重新生成静态画面。/
     );
     expect(mockDeductWorkflowCredits).not.toHaveBeenCalled();
   });
@@ -339,9 +339,7 @@ describe('StudioGenerationWorkflow video', () => {
         makeStep(),
         scopedDb
       )
-    ).rejects.toThrow(
-      'Content checker rejected a reference image (Seedance 2.0). Swap the reference image.'
-    );
+    ).rejects.toThrow('内容审核拒绝了参考图像（Seedance 2.0）。替换参考图像。');
   });
 });
 
