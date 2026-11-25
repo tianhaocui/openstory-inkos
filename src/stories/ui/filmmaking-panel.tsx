@@ -131,6 +131,72 @@ const VIDEO_STATUS_LABELS: Record<string, string> = {
   completed: '完成',
 };
 
+/** Mirror of generateVideoFn's in-flight guard: a clip that already holds a
+ *  reservation must not be queued (and paid for) a second time by a click. */
+const IN_FLIGHT_VIDEO_STATUSES: ReadonlySet<string> = new Set([
+  'pending',
+  'queued',
+  'generating',
+]);
+
+function isVideoInFlight(status: string): boolean {
+  return IN_FLIGHT_VIDEO_STATUSES.has(status);
+}
+
+interface ShotVideoButtonProps {
+  shotNumber: number;
+  keyframe: Keyframe | undefined;
+  clips: VideoClip[];
+  /** A different generation is already in progress. */
+  busy: boolean;
+  onGenerateVideo: (keyframeId: string) => Promise<void>;
+  onPlay: (url: string) => void;
+}
+
+/** The per-shot video action: play a finished clip, or queue a fresh one. */
+export function ShotVideoButton({
+  shotNumber,
+  keyframe,
+  clips,
+  busy,
+  onGenerateVideo,
+  onPlay,
+}: ShotVideoButtonProps) {
+  const clipUrl = clips.find((clip) => clip.videoUrl)?.videoUrl;
+  if (clipUrl) {
+    return (
+      <Button
+        size="sm"
+        variant="ghost"
+        onClick={() => onPlay(clipUrl)}
+        aria-label={`播放镜头 ${shotNumber} 视频`}
+      >
+        <PlayIcon className="size-4" />
+      </Button>
+    );
+  }
+  if (!keyframe) return null;
+
+  // A ready keyframe may spend credits, but never while one of its clips
+  // still holds a reservation (that would start a second paid attempt).
+  const canGenerate =
+    (keyframe.status === 'completed' || keyframe.status === 'approved') &&
+    !clips.some((clip) => isVideoInFlight(clip.status)) &&
+    !busy;
+
+  return (
+    <Button
+      size="sm"
+      variant="outline"
+      aria-label={`为镜头 ${shotNumber} 生成视频`}
+      onClick={() => void onGenerateVideo(keyframe.id)}
+      disabled={!canGenerate}
+    >
+      <VideoIcon className="size-4" />
+    </Button>
+  );
+}
+
 interface FilmmakingPanelProps {
   projectId: string;
   chapters: Array<{ chapterNumber: number; title: string; content: string }>;
@@ -164,7 +230,7 @@ export function FilmmakingPanel({
   onExtractAssets,
   onGenerateAssetImage,
   onGenerateKeyframe,
-  onGenerateVideo: _onGenerateVideo,
+  onGenerateVideo,
   onBatchGenerateSegment,
 }: FilmmakingPanelProps) {
   const [activeTab, setActiveTab] = useState('pipeline');
@@ -225,6 +291,17 @@ export function FilmmakingPanel({
     setProcessingStep('正在生成关键帧...');
     try {
       await onGenerateKeyframe(shotId);
+    } finally {
+      setIsProcessing(false);
+      setProcessingStep('');
+    }
+  };
+
+  const handleGenerateVideo = async (keyframeId: string) => {
+    setIsProcessing(true);
+    setProcessingStep('正在生成视频片段...');
+    try {
+      await onGenerateVideo(keyframeId);
     } finally {
       setIsProcessing(false);
       setProcessingStep('');
@@ -476,12 +553,11 @@ export function FilmmakingPanel({
                           const shotKeyframe = keyframes.find(
                             (k) => k.shotId === shot.id
                           );
-                          const shotVideo = shotKeyframe
-                            ? videoClips.find(
+                          const shotClips = shotKeyframe
+                            ? videoClips.filter(
                                 (v) => v.keyframeId === shotKeyframe.id
                               )
-                            : null;
-                          const shotVideoUrl = shotVideo?.videoUrl;
+                            : [];
 
                           return (
                             <div
@@ -539,26 +615,17 @@ export function FilmmakingPanel({
                                       <ImageIcon className="size-4" />
                                     </Button>
                                   )}
-                                  {shotVideoUrl ? (
-                                    <Button
-                                      size="sm"
-                                      variant="ghost"
-                                      onClick={() => {
-                                        setPreviewVideoUrl(shotVideoUrl);
-                                        setShowVideoPreview(true);
-                                      }}
-                                    >
-                                      <PlayIcon className="size-4" />
-                                    </Button>
-                                  ) : shotKeyframe ? (
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      disabled
-                                    >
-                                      <VideoIcon className="size-4" />
-                                    </Button>
-                                  ) : null}
+                                  <ShotVideoButton
+                                    shotNumber={shot.shotNumber}
+                                    keyframe={shotKeyframe}
+                                    clips={shotClips}
+                                    busy={isProcessing}
+                                    onGenerateVideo={handleGenerateVideo}
+                                    onPlay={(url) => {
+                                      setPreviewVideoUrl(url);
+                                      setShowVideoPreview(true);
+                                    }}
+                                  />
                                 </div>
                               </div>
                             </div>
