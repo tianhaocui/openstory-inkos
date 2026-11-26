@@ -48,7 +48,8 @@
   e2e 仍 11 failed（R2 上传 404×7 + 定位器/时序×4），full pipeline 超时未验证；Chromatic 为 CI 条件依赖。
 - 2026-11-25：QA 首会话卡死（连续中断无返回），已换新会话接手；e2e spec 已全量中文化并提交 `2d6f5a5f`，未 push。
 - 2026-11-26：开发 e2e 独立轨道清零历史 11 failed + P2 URL 漂移；仅改 `e2e/**` 与两份台账，7 个主跑 spec 分批全绿；`test:e2e:full` 仍超时未验证，未 push。
-- 2026-11-26：自定义 AI 端点（via:'custom'，env-only `AI_BASE_URL`/`AI_API_KEY`/`AI_MODEL`）落地 `cc83475d`（20 文件），门禁全绿、custom 单测 180/180、视频契约 12/12、安全验证通过；影片线 LLM 不再要求 OPENROUTER_KEY/FAL_KEY。待 push + 配 key 重发布。
+- 2026-11-26：自定义 AI 端点（via:'custom'，env-only `AI_BASE_URL`/`AI_API_KEY`/`AI_MODEL`）落地 `cc83475d`（20 文件），门禁全绿、custom 单测 180/180、视频契约 12/12、安全验证通过；影片线 LLM 不再要求 OPENROUTER_KEY/FAL_KEY。已 push（`e45428f`），已配 kiro key（有效的 `123456` + `claude-opus-4-5`）并重发布，LLM 实测可用。
+- 2026-11-26：用户坚持用百炼（DashScope）key 出视频。架构评估：新接 DashScope 视频 via ≈ 10–15 文件 / 1–2 人日（平台 key only + via stamp + host 进 stamp + 静态卡 unaudited + e2e hermetic 卫哨）。**边界：只解决视频，演员设定图/关键帧仍走 fal 图像通道，仍需单独解决（用户接受先做视频）**。接受路线 A，开发实现中。
 
 ## 当前阻塞（最终验收）
 
