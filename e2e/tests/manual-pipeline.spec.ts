@@ -28,13 +28,11 @@ import {
 async function confirmPortraitRights(page: Page): Promise<void> {
   const dialog = page.getByRole('dialog', { name: '检测到真人' });
   await expect(dialog).toBeVisible({ timeout: 20_000 });
-  await dialog
-    .getByRole('checkbox', { name: /authorization to use this person/i })
-    .check();
+  await dialog.getByRole('checkbox', { name: /使用此人肖像的授权/ }).check();
   await dialog
     .getByLabel('授权依据')
     .fill('E2E fixture image — synthetic, depicts no real person');
-  await dialog.getByRole('button', { name: '确认使用权' }).click();
+  await dialog.getByRole('button', { name: '确认权利' }).click();
   await expect(dialog).not.toBeVisible({ timeout: 10_000 });
 }
 
@@ -85,7 +83,7 @@ testWithUser.describe('Manual pipeline (no storyboard)', () => {
       testWithUser.setTimeout(180_000);
 
       // ---- Open the empty sequence -------------------------------------
-      await page.goto(`/sequences/${testSequence.id}/scenes`);
+      await page.goto(`/films/${testSequence.id}/scenes`);
       await waitForHydration(page);
       await expect(
         page.getByRole('heading', { name: testSequence.title })
@@ -118,16 +116,27 @@ testWithUser.describe('Manual pipeline (no storyboard)', () => {
       // ---- 2. Rename the scene -----------------------------------------
       await sceneGroups
         .first()
-        .getByRole('button', { name: /^Scene actions for/ })
+        .getByRole('button', { name: /的场景操作$/ })
         .click();
       await page.getByRole('menuitem', { name: '重命名场景' }).click();
       const titleInput = page.getByLabel('场景标题');
       await titleInput.fill('Opening');
-      await titleInput.press('Enter');
+      // The input commits on both Enter and blur and unmounts as soon as the
+      // optimistic title lands. Under dev-server latency fill() can be the
+      // last write that sticks, leaving no input for press() to target — gate
+      // the keypress on the node still being there and keep its own budget so
+      // a lost input can't burn the whole 180s test timeout.
+      if (await titleInput.count()) {
+        await titleInput
+          .press('Enter', { timeout: 5_000 })
+          .catch(() => undefined);
+      }
       // Header button reads "Opening 1 shot" (the shot card also echoes the
       // scene title, so target the header role, not text).
       await expect(
-        sceneGroups.first().getByRole('button', { name: /^Opening/ })
+        sceneGroups
+          .first()
+          .getByRole('button', { name: 'Opening', exact: true })
       ).toBeVisible({ timeout: 10_000 });
 
       // ---- 3. Select the shot and edit its visual prompt ---------------
@@ -222,7 +231,7 @@ testWithUser.describe('Manual pipeline (no storyboard)', () => {
       });
 
       // Back to the editor; soft-delete from the cast facet, then Undo.
-      await page.goto(`/sequences/${testSequence.id}/scenes`);
+      await page.goto(`/films/${testSequence.id}/scenes`);
       await waitForHydration(page);
       await expect(
         page.getByRole('heading', { name: testSequence.title })
@@ -238,7 +247,7 @@ testWithUser.describe('Manual pipeline (no storyboard)', () => {
       });
       await page
         .locator('[data-sonner-toast]')
-        .filter({ hasText: '移除d Maya' })
+        .filter({ hasText: '已移除 Maya' })
         .getByRole('button', { name: '撤销' })
         .click();
       await expect(page.getByRole('link', { name: /Maya/ })).toBeVisible({
@@ -253,7 +262,7 @@ testWithUser.describe('Manual pipeline (no storyboard)', () => {
       expect(uploadedStillUrl).toContain('/r2/');
       await shotCards.first().hover();
       await shotCards.first().getByRole('button', { name: '镜头操作' }).click();
-      await page.getByRole('menuitem', { name: '移除 shot' }).click();
+      await page.getByRole('menuitem', { name: '移除镜头' }).click();
       await page
         .getByRole('alertdialog')
         .getByRole('button', { name: '移除', exact: true })
@@ -261,7 +270,7 @@ testWithUser.describe('Manual pipeline (no storyboard)', () => {
       await expect(shotCards).toHaveCount(0, { timeout: 10_000 });
       await page
         .locator('[data-sonner-toast]')
-        .filter({ hasText: '已从 Opening 移除镜头' })
+        .filter({ hasText: '已从Opening移除镜头' })
         .getByRole('button', { name: '撤销' })
         .click();
       await expect(shotCards).toHaveCount(1, { timeout: 15_000 });
@@ -279,10 +288,12 @@ testWithUser.describe('Manual pipeline (no storyboard)', () => {
       await page.getByRole('menuitem', { name: '下移' }).click();
       // Optimistic reorder: the untitled scene takes slot 1 ("Scene 1").
       await expect(
-        sceneGroups.first().getByRole('button', { name: /^Scene 1/ })
+        sceneGroups
+          .first()
+          .getByRole('button', { name: 'Scene 1', exact: true })
       ).toBeVisible({ timeout: 10_000 });
       await expect(
-        sceneGroups.nth(1).getByRole('button', { name: /^Opening/ })
+        sceneGroups.nth(1).getByRole('button', { name: 'Opening', exact: true })
       ).toBeVisible();
       // DB first — reload SSRs the scene list with staleTime 30s, so a
       // reload before the reorder POST commits freezes Opening in slot 1
@@ -300,10 +311,12 @@ testWithUser.describe('Manual pipeline (no storyboard)', () => {
       await page.reload();
       await expect(sceneGroups).toHaveCount(2, { timeout: 15_000 });
       await expect(
-        sceneGroups.first().getByRole('button', { name: /^Scene 1/ })
+        sceneGroups
+          .first()
+          .getByRole('button', { name: 'Scene 1', exact: true })
       ).toBeVisible({ timeout: 10_000 });
       await expect(
-        sceneGroups.nth(1).getByRole('button', { name: /^Opening/ })
+        sceneGroups.nth(1).getByRole('button', { name: 'Opening', exact: true })
       ).toBeVisible();
 
       // ---- No generation traffic left the browser ----------------------

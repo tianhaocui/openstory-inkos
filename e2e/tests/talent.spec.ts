@@ -220,9 +220,7 @@ testWithUser.describe('Add Talent with Reference Media', () => {
       await dialog.getByRole('button', { name: '添加演员' }).click();
       await expect(dialog).toBeVisible();
       await expect(
-        page.getByText(
-          'Confirm you have authorization for this person’s likeness'
-        )
+        page.getByText('请确认你已获得使用此人肖像的授权')
       ).toBeVisible({ timeout: 10_000 });
     }
   );
@@ -237,7 +235,7 @@ testWithUser.describe('Add Talent with Reference Media', () => {
       await uploadNamedTalentImage(page, 'test-image.jpg');
       await waitForSubjectKind(page, '真人');
       await dialog
-        .getByRole('checkbox', { name: /authorization to use this person/i })
+        .getByRole('checkbox', { name: /使用此人肖像的授权/ })
         .check();
 
       await dialog.getByRole('button', { name: '添加演员' }).click();
@@ -315,7 +313,7 @@ testWithUser.describe('Add Talent from new sequence page', () => {
       await addTalentDialog(page).getByLabel('名称').fill(uniqueName);
       await submitAddTalent(page);
 
-      await expect(page).toHaveURL(/\/sequences\/new/);
+      await expect(page).toHaveURL(/\/films\/new/);
       await expect(picker).toBeVisible();
       await expect(picker.getByText(uniqueName)).toBeVisible({
         timeout: 10_000,
@@ -343,7 +341,7 @@ testWithUser.describe('Add Talent from new sequence page', () => {
       await attestPortraitRights(page);
       await submitAddTalent(page);
 
-      await expect(page).toHaveURL(/\/sequences\/new/);
+      await expect(page).toHaveURL(/\/films\/new/);
       await expect(picker).toBeVisible();
       await expect(picker.getByText(uniqueName)).toBeVisible({
         timeout: 10_000,
@@ -354,8 +352,8 @@ testWithUser.describe('Add Talent from new sequence page', () => {
       await expect(page.getByRole('link', { name: uniqueName })).toHaveCount(0);
       await expect(
         // CSS, not role: the picker dialog is still open so `main` is aria-hidden.
-        page.locator('main').locator('button', { hasText: 'Elements' })
-      ).toHaveText('Elements');
+        page.locator('main').locator('button', { hasText: '元素' })
+      ).toHaveText('元素');
 
       await cleanupTalentByName(testUser.teamId, uniqueName);
     }

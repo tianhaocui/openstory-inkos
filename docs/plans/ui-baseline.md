@@ -86,7 +86,7 @@
 | `src/stories/ui/filmmaking-panel.tsx`      | `56eaabbae3ef64e692551b11d11929ba74bb6a0b0fd8fd8b38fadcf4909e8f28` |
 | `src/stories/ai-filmmaking.fn.ts`          | `9bcb598d68e7d46f3139ac58500c0995a798dd9850a87e2e9e3be21a4e9248ec` |
 
-## 4. e2e 基线（❌ spec 漂移已修复，仍有 11 failed + full 超时，未伪造通过）
+## 4. e2e 基线（2026-11-26 独立轨道复跑；4.2/4.3 为历史快照，新判定见 4.5）
 
 ### 4.1 端口重生源判定与隔离方案
 
@@ -134,7 +134,10 @@
 日志留档：`/tmp/opencode/e2e-setup-3002.log`、`/tmp/opencode/e2e-main-3002.log`、
 `/tmp/opencode/e2e-full-3002.log`。
 
-### 4.3 逐条失败清单（本轮 11 failed）
+### 4.3 逐条失败清单（2026-11-25 历史 11 failed；2026-11-26 处理结果见 4.5）
+
+> 下表为历史快照，不要据此判断当前状态：第 5–11 条的上传 404 已由 `41bfe6bc` 修复，
+> 第 1–4 条及 P2 URL 漂移已由本轮 e2e 独立轨道修复，逐条结果见 §4.5。
 
 | #   | spec / 用例                                                                        | 错误摘要                                                                                          |
 | --- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
@@ -154,16 +157,70 @@
 但 runner 未输出最终用例错误/汇总（卡在收尾），11:36 终止进程。按红线记为**超时未验证通过**，
 不计为 green。未伪造通过。
 
-### 4.4 剩余根因归类
+### 4.4 根因归类（历史 → 当前）
 
 1. **已解除**：原两条硬阻塞（:3001 preview 复用导致 `/api/test/*` 404；spec 英文文案漂移）
    均已由端口隔离 + 中文选择器修复消除——setup 通过，59 did not run 降为 2 条主动 skip。
-2. **图片上传链路（7 条 talent 失败）**：页面快照显示 `R2 upload failed with status 404`，
-   上传成功后才出现的 `subject-kind` / `设定图` 断言因此全部超时。属应用/R2 测试路由问题，
-   不是英文选择器残留；本轮边界不改 `src/` 与 mock 之外的代码，未处理。
-3. **定位器与时序（4 条）**：`/生成/i` 在中文 UI 下命中多个按钮需收紧；变体弹窗 20s 未打开；
-   `waitForHydration` 的 React props fiber 探测在 manual-pipeline 页面上超时；auth 首例 60s
-   用例超时（含 context teardown）。均需逐条调 spec/调试，未伪造通过。
+2. **图片上传链路（历史 7 条 talent 失败）**：`R2 upload failed with status 404` 的根因是
+   Workerd dev 缺 `/api/storage/upload` 与 `/api/storage/multipart` 路由，已由 `41bfe6bc`
+   补 `src/routes/api/storage/` 修复；上传 200、404 归零。
+3. **定位器与时序（历史 4 条）**：`/生成/i` 已收紧为精确名称；变体弹窗改为按标题定位并给
+   用例 120s 预算；`waitForHydration` 改为扫描所有 React host 节点；auth 首例 60s 预算
+   提升到 120s。均已在 §4.5 分批复跑验证。
+4. **新暴露的测试环境依赖**：上传修好后分类器需要非空平台 LLM key 才肯路由到 aimock；
+   已在 `e2e/start-webserver.ts` 给 replay 注入 dummy `OPENROUTER_KEY` / `FAL_KEY`
+   （只在非录制模式且原值缺失时注入，不覆盖真实 key），不改产品源码。
+
+### 4.5 2026-11-26 e2e 失败清零轮（E2E_PORT=3002，分批跑，未跑全量）
+
+范围：只改 `e2e/**` 与两份台账文档；`src/`、`playwright.config.ts`、`wrangler.jsonc`、
+`package.json` 等一律未动。所有批次使用 `timeout` 硬上限，单文件独立计时。
+
+**9 条目标失败逐条结果**
+
+| #   | spec / 用例                                             | 改动（仅 e2e）                                                                                               | 结果                        |
+| --- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | --------------------------- |
+| 1   | `auth.spec.ts:16` anonymous visitor lands in the app    | Route Protection describe 超时 60s→120s；1280×720 用例的 `waitForScriptEditor` 预算 30s→60s                  | ✅ 修复（19/19 全文件通过） |
+| 2   | `manual-pipeline.spec.ts:82` full manual CRUD           | `waitForHydration` 扫描所有 React host 节点、预算 45s；场景标题 Enter 改为有界按键；修正 4 处中文文案/定位器 | ✅ 修复（2/2 通过）         |
+| 3   | `sequence-flow.spec.ts:60` suggested talent             | `getByRole('button',{name:'生成',exact:true})` 消除 4 元素 strict-mode 冲突                                  | ✅ 修复（含于 4/4 通过）    |
+| 4   | `sequence-flow.spec.ts:176` select variant from grid    | 弹窗按 `dialog[name=起始帧变体]` 定位；先等 hydration；用例超时 60s→120s（避免 afterEach 清理早于确认 POST） | ✅ 修复                     |
+| 5   | `talent.spec.ts:120` create from photo                  | 肖像勾选框文案改中文 `我已获得使用此人肖像的授权`；replay 补 dummy LLM key                                   | ✅ 修复                     |
+| 6   | `talent.spec.ts:144` character sheet / 设定图           | 中文文案对齐 + replay 分类器 key（`设定图` 由上传徽章呈现）                                                  | ✅ 修复                     |
+| 7   | `talent.spec.ts:167` creature → 其他                    | 分类器可用后 `data-testid=subject-kind` 正常出现；用例本身无需改断言                                         | ✅ 修复                     |
+| 8   | `talent.spec.ts:187` Generate from photos → 动画角色    | 同上；vision fixture `character-sheet.jpg` → `animated` + robot 描述命中                                     | ✅ 修复                     |
+| 9   | `talent.spec.ts:210/228` 肖像授权文案与勾选框           | 英文 toast/checkbox 改为产品实际中文；`确认权利`、右侧 `元素` 按钮文案对齐                                   | ✅ 修复                     |
+| 10  | （新暴露）replay 分类器 `No platform LLM key available` | `e2e/start-webserver.ts` 仅在非录制模式补 dummy `OPENROUTER_KEY`/`FAL_KEY`                                   | ✅ 修复（talent 23/23）     |
+
+**P2 URL 断言更新**（影片线 `/sequences* → /films*`，旧路径仍 307，但断言改盯新路径稳定）：
+
+- `auth.spec.ts`：`/sequences` 列表、`/sequences/new`（含 `?style=` 的 `redirectTo`）、
+  `Authenticated User` 的列表/新建/会话保持断言全部改 `/films*`。
+- `sequences.spec.ts`：列表访问、搜索记忆、`/films/new` 可访问断言改 `/films*`。
+- `sequence-flow.spec.ts`：`/films/new`、`/films/:id/scenes`、`/films/:id/cast/:characterId`。
+- `manual-pipeline.spec.ts`：`/films/:id/scenes` 两处导航。
+- `talent.spec.ts` + `fixtures/add-talent.ts`：composer 路径断言/导航改 `/films/new`。
+- `full-sequence.spec.ts`：导航与 `waitForURL`/ID 提取正则改 `/films/*`（该 spec 仍由 `test:e2e:full` 单独覆盖，未验证）。
+- `fixtures/test-utils.ts`：`Style category:` → `风格分类：`（遗漏的英文选择器）。
+
+**分批实测结果**
+
+| spec（单文件，含 setup 项目） | 结果                                                           | 耗时 | 日志                                    |
+| ----------------------------- | -------------------------------------------------------------- | ---- | --------------------------------------- |
+| `auth.spec.ts`                | **19 passed / 0 failed**                                       | 4.4m | `/tmp/opencode/e2e-auth-final.log`      |
+| `manual-pipeline.spec.ts`     | **2 passed / 0 failed**                                        | 3.8m | `/tmp/opencode/e2e-manual-final3.log`   |
+| `sequence-flow.spec.ts`       | **4 passed / 0 failed / 1 skipped**                            | 3.4m | `/tmp/opencode/e2e-seqflow-final.log`   |
+| `talent.spec.ts`              | **23 passed / 0 failed**                                       | 9.7m | `/tmp/opencode/e2e-talent-keys2.log`    |
+| `sequences.spec.ts`           | **13 passed / 0 failed**                                       | 5.1m | `/tmp/opencode/e2e-sequences-final.log` |
+| `locations.spec.ts`           | **11 passed / 0 failed**                                       | 4.3m | `/tmp/opencode/e2e-locations-final.log` |
+| `studio.spec.ts`              | **10 passed / 0 failed**                                       | 3.8m | `/tmp/opencode/e2e-studio-final2.log`   |
+| `full-sequence.spec.ts`       | 主跑 skip；`test:e2e:full` **超时未验证通过**（历史 30m 上限） | —    | `/tmp/opencode/e2e-full-3002.log`       |
+
+按主跑 project 统计口径去重（setup 只算 1 次、full-sequence 仍 skip）：预计 **77 passed /
+0 failed / 2 skipped**，但本轮是逐文件跑，未声称 `bun test:e2e` 全量一次通过。
+
+**判定**：9 条目标失败全部修复；未发现需要交给 PM 的产品功能 bug。中途遇到的
+`selectShotVariantFn → Sequence not found` 是用例在 60s 截止后触发 afterEach 清理导致，
+提高用例预算后稳定通过，不是产品缺陷。`test:e2e:full` 仍未取得最终结果，按红线记为超时未验证。
 
 ## 5. Storybook / Chromatic
 
@@ -215,37 +272,36 @@ src/ui/text-editor/markdown-editor.stories.tsx
 
 ## 6. 阻塞项清单（本轮复核）
 
-| #   | 阻塞                                    | 本轮状态                                                                                                                                                                                                                  |
-| --- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | 文档未纳入版本管理 / `format:check` = 1 | ✅ **已解除**：commit `13ccea641…`，`format:check` = 0                                                                                                                                                                    |
-| 2   | e2e 因 :3001 陈旧 preview 失败          | ⚠️ **阻塞降级但未解除**：重生源为 enabled 的 `openstory.service`（`Restart=always`），未 stop；改用 `E2E_PORT=3002` 后 404 与英文 spec 漂移已消除，重跑 66 passed / 11 failed / 2 skipped；`test:e2e:full` 超时未验证通过 |
-| 3   | Chromatic 无本地 token / 无 CI 工作流   | ⏸ **已知外部依赖**：标为 P1 条件性依赖，验收放到有 Chromatic 的 CI；本轮不解决                                                                                                                                            |
-| 4   | 环境偏差                                | ℹ️ 本地 bun 1.4.2 / node 24.22.3 vs CI bun 1.3.14；本机默认 node 18 会挂，已按要求切 PATH                                                                                                                                 |
+| #   | 阻塞                                    | 本轮状态                                                                                                                                             |
+| --- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | 文档未纳入版本管理 / `format:check` = 1 | ✅ **已解除**：commit `13ccea641…`，`format:check` = 0                                                                                               |
+| 2   | e2e 因 :3001 陈旧 preview 失败          | ✅ **已隔离**：`openstory.service` 未 stop；用 `E2E_PORT=3002` + e2e 独立轨道修复后，7 个主跑 spec 分批全绿（见 §4.5）；`test:e2e:full` 仍超时未验证 |
+| 3   | Chromatic 无本地 token / 无 CI 工作流   | ⏸ **已知外部依赖**：标为 P1 条件性依赖，验收放到有 Chromatic 的 CI；本轮不解决                                                                       |
+| 4   | 环境偏差                                | ℹ️ 本地 bun 1.4.2 / node 24.22.3 vs CI bun 1.3.14；本机默认 node 18 会挂，已按要求切 PATH                                                            |
 
 ## 7. 「基线已锁定」判定（逐条对照方案 §9，本轮复核）
 
-| §9 条目                                                                                           | 判定             | 依据                                                                                                         |
-| ------------------------------------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------ |
-| 1. 源码树 SHA / 工作树态 / 冻结路径 diff=0                                                        | ✅               | 源码基线 `d5eec391…`；冻结路径 diff 退出码 0；工作树干净；文档提交 `13ccea641…`                              |
-| 2. 暗色 Chromatic 基线（全量比对零差异、build accepted）                                          | ⏸ **条件性依赖** | 本地无 token、无 CI 工作流；暗色零差异验收由 CI 提供，不阻塞 P1 代码改动，但阻塞 P1 最终验收                 |
-| 3. 单测基线 4708 通过、0 failed；视频按钮 7/7                                                     | ✅               | 实测 4708/4708 passed；契约 1 文件 7/7 passed                                                                |
-| 4. e2e 8 spec 全绿 + `test:e2e:full`                                                              | ❌               | 本轮 66 passed / 11 failed / 2 skipped（29.4m）；`test:e2e:full` 30 分钟上限触发、无最终汇总，超时未验证通过 |
-| 5. 视频按钮契约 + 三文件 sha256 存档                                                              | ✅               | 7/7 + sha256 已记录于本文 §3                                                                                 |
-| 6. 亮色基线预留（登记 `globals.theme='light'`）                                                   | ✅               | 已登记，本阶段不出截图，P1 生成                                                                              |
-| 7. 静态门禁（db:check / db:generate 无 drift / typecheck / lint / format:check / dead-code 全 0） | ✅               | 六项全 0；`format:check` 本轮由 1 修到 0                                                                     |
-| 归档（SHA / build ID / 测试总数 / sha256）                                                        | ⚠️ 部分          | SHA、4708、sha256、story 清单、文档提交 SHA 已归档；Chromatic build ID 因外部依赖缺失                        |
-| `ui-unification.md` 纳入版本管理                                                                  | ✅               | commit `13ccea641…` 已纳入，4 份文档全部 tracked                                                             |
+| §9 条目                                                                                           | 判定             | 依据                                                                                                                |
+| ------------------------------------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------- |
+| 1. 源码树 SHA / 工作树态 / 冻结路径 diff=0                                                        | ✅               | 源码基线 `d5eec391…`；冻结路径 diff 退出码 0；工作树干净；文档提交 `13ccea641…`                                     |
+| 2. 暗色 Chromatic 基线（全量比对零差异、build accepted）                                          | ⏸ **条件性依赖** | 本地无 token、无 CI 工作流；暗色零差异验收由 CI 提供，不阻塞 P1 代码改动，但阻塞 P1 最终验收                        |
+| 3. 单测基线 4708 通过、0 failed；视频按钮 7/7                                                     | ✅               | 实测 4708/4708 passed；契约 1 文件 7/7 passed                                                                       |
+| 4. e2e 8 spec 全绿 + `test:e2e:full`                                                              | ⚠️ 部分          | 2026-11-26 分批跑 7 个主跑 spec 全绿（见 §4.5；去重后预计 77 passed / 2 skipped）；`test:e2e:full` 仍超时未验证通过 |
+| 5. 视频按钮契约 + 三文件 sha256 存档                                                              | ✅               | 7/7 + sha256 已记录于本文 §3                                                                                        |
+| 6. 亮色基线预留（登记 `globals.theme='light'`）                                                   | ✅               | 已登记，本阶段不出截图，P1 生成                                                                                     |
+| 7. 静态门禁（db:check / db:generate 无 drift / typecheck / lint / format:check / dead-code 全 0） | ✅               | 六项全 0；`format:check` 本轮由 1 修到 0                                                                            |
+| 归档（SHA / build ID / 测试总数 / sha256）                                                        | ⚠️ 部分          | SHA、4708、sha256、story 清单、文档提交 SHA 已归档；Chromatic build ID 因外部依赖缺失                               |
+| `ui-unification.md` 纳入版本管理                                                                  | ✅               | commit `13ccea641…` 已纳入，4 份文档全部 tracked                                                                    |
 
-**结论：基线仍未锁定 → 不满足 P1 开工条件。** §9 明确「任何一项不满足，禁止 P1 开工」。
-本轮已解除文档纳入版本管理、`format:check`、以及 e2e 的原两条硬阻塞（端口 404 / 英文 spec 漂移），
-但 **§9 第 4 项（e2e 全绿）仍不满足**：11 failed + full 超时未验证通过。第 2 项为条件性依赖、尚未在 CI 兑现。
+**结论（2026-11-26 更新）：历史 11 failed 已逐条清零，7 个主跑 spec 分批全绿；**
+基线锁定仍差两项：① 未做一次 `bun test:e2e` 全量单进程复跑；② `test:e2e:full` 超时未验证通过。
+Chromatic 仍是条件性依赖、尚未在 CI 兑现。
 
 还差什么（按优先级）：
 
-1. **e2e 11 failed 逐条清零（硬阻塞）**：7 条 talent 失败源于 `R2 upload failed with status 404`
-   （需 QA/开发修复测试环境的 R2 上传链路）；4 条为定位器/时序问题（`/生成/i` 歧义、变体弹窗未打开、
-   hydration 探测超时、auth 首例 60s 超时）。修复后需在 `E2E_PORT=3002` 下全量重跑。
-2. **`test:e2e:full` 取得最终结果（硬阻塞）**：本轮 30 分钟用例上限触发且 runner 卡在收尾；
+1. **全量单进程复跑（确认项）**：分批结果已全绿，但未在 `E2E_PORT=3002` 下跑完一次 79 tests 的
+   `bun test:e2e`；按红线未把分批结果冒充全量通过。
+2. **`test:e2e:full` 取得最终结果（硬阻塞）**：30 分钟用例上限触发且 runner 卡在收尾；
    需排查长 workflow 是否因 aimock 未命中而挂起，并在有超时保护的环境中重跑，拿到明确 pass/fail。
 3. **Chromatic CI 集成（条件性依赖）**：接入 CI 工作流并做一次暗色全量比对（绕过 `onlyChanged:true`），
    取得 accepted build；P1 代码改动可先做，但 P1 验收必须在该 CI 环境完成。

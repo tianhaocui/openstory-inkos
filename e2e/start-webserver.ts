@@ -20,9 +20,19 @@ execFileSync('bun', ['scripts/seed.ts', '--test'], {
 });
 
 const vite = resolve(process.cwd(), 'node_modules/.bin/vite');
+// Replay runs talk to aimock (:4010), which ignores credentials, but the
+// platform LLM-key lookup still requires a non-empty key to exist before it
+// will route the call. `playwright.config.ts` already injects dummy xAI /
+// ElevenLabs keys for exactly this reason; do the same for OpenRouter / fal
+// here, without ever overwriting a real key (recording runs keep theirs).
+const workerEnv: NodeJS.ProcessEnv = { ...process.env };
+if (process.env.E2E_RECORD !== '1') {
+  workerEnv.OPENROUTER_KEY ||= 'test-mock-key';
+  workerEnv.FAL_KEY ||= 'test-mock-key';
+}
 const child = spawn(vite, process.argv.slice(2), {
   stdio: 'inherit',
-  env: process.env,
+  env: workerEnv,
 });
 
 const shutdown = (signal: NodeJS.Signals) => {

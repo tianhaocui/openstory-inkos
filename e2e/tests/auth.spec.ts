@@ -13,6 +13,11 @@ import {
 
 // Route Protection Tests (no auth fixture needed)
 baseTest.describe('Route Protection', () => {
+  // Cold `vite dev` compiles the composer route on the first hit while two
+  // workers race it; SSR shell can paint well before the client bundle. The
+  // global 60s budget was routinely eaten by that first navigation alone.
+  baseTest.describe.configure({ timeout: 120_000 });
+
   baseTest(
     'anonymous visitor lands in the app, not a marketing page',
     async ({ page }) => {
@@ -37,7 +42,9 @@ baseTest.describe('Route Protection', () => {
     async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 720 });
       await page.goto('/');
-      await waitForScriptEditor(page);
+      // TipTap mounts only after hydration; the first hit under `vite dev`
+      // needs a longer budget than the shared 30s default.
+      await waitForScriptEditor(page, 60_000);
       const editor = page.locator('[data-slot="markdown-editor"]');
       await expect(
         page.getByText('粘贴一个剧本，或者一句话让我们为你展开——不是提示词。')
@@ -53,10 +60,11 @@ baseTest.describe('Route Protection', () => {
     'anonymous visitor can browse the shell without being redirected',
     async ({ page }) => {
       // Browsable, account-data pages show a sign-in prompt in place of data
-      // rather than bouncing to /login.
-      await page.goto('/sequences');
+      // rather than bouncing to /login. The film library lives at /films
+      // since P2; /sequences is only a 307 alias.
+      await page.goto('/films');
 
-      await expect(page).toHaveURL(/\/sequences/);
+      await expect(page).toHaveURL(/\/films(?:[/?#]|$)/);
       await expect(page).not.toHaveURL(/\/login/);
       await expect(page.getByRole('button', { name: '登录' })).toBeVisible();
     }
@@ -180,26 +188,26 @@ baseTest.describe('Route Protection', () => {
     }
   );
 
-  baseTest('anonymous /sequences/new redirects to login', async ({ page }) => {
-    // /sequences/new is the signed-in composer alias; home is at `/`.
-    await page.goto('/sequences/new');
+  baseTest('anonymous /films/new redirects to login', async ({ page }) => {
+    // /films/new is the signed-in composer route; home is at `/`.
+    await page.goto('/films/new');
 
     await expect(page).toHaveURL(/\/login/);
     await expect(page.getByLabel('邮箱')).toBeVisible();
-    // Post-login must return to the alias (path + any search preserved).
+    // Post-login must return to the composer (path + any search preserved).
     const redirectTo = new URL(page.url()).searchParams.get('redirectTo');
-    expect(redirectTo).toMatch(/\/sequences\/new/);
+    expect(redirectTo).toMatch(/\/films\/new/);
   });
 
   baseTest(
-    'anonymous /sequences/new?style= preserves redirectTo search',
+    'anonymous /films/new?style= preserves redirectTo search',
     async ({ page }) => {
-      await page.goto('/sequences/new?style=product-ad');
+      await page.goto('/films/new?style=product-ad');
 
       await expect(page).toHaveURL(/\/login/);
       const redirectTo = new URL(page.url()).searchParams.get('redirectTo');
       // Playwright encodes the redirect query; match the path + style param.
-      expect(redirectTo).toMatch(/\/sequences\/new/);
+      expect(redirectTo).toMatch(/\/films\/new/);
       expect(redirectTo).toMatch(/style=product-ad/);
     }
   );
@@ -242,18 +250,18 @@ baseTest.describe('Route Protection', () => {
 
 // Authenticated User Tests
 test.describe('Authenticated User', () => {
-  test('can access sequences page', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/sequences');
+  test('can access films page', async ({ authenticatedPage }) => {
+    await authenticatedPage.goto('/films');
 
     // Should not be redirected to login
-    await expect(authenticatedPage).toHaveURL(/\/sequences/);
+    await expect(authenticatedPage).toHaveURL(/\/films(?:[/?#]|$)/);
     await expect(authenticatedPage).not.toHaveURL(/\/login/);
   });
 
-  test('can access create new sequence page', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/sequences/new');
+  test('can access create new film page', async ({ authenticatedPage }) => {
+    await authenticatedPage.goto('/films/new');
 
-    await expect(authenticatedPage).toHaveURL('/sequences/new');
+    await expect(authenticatedPage).toHaveURL('/films/new');
   });
 
   test('can access talent page', async ({ authenticatedPage }) => {
@@ -263,17 +271,17 @@ test.describe('Authenticated User', () => {
   });
 
   test('session persists across navigation', async ({ authenticatedPage }) => {
-    // Navigate to sequences
-    await authenticatedPage.goto('/sequences');
-    await expect(authenticatedPage).toHaveURL(/\/sequences/);
+    // Navigate to films
+    await authenticatedPage.goto('/films');
+    await expect(authenticatedPage).toHaveURL(/\/films(?:[/?#]|$)/);
 
     // Navigate to talent
     await authenticatedPage.goto('/talent');
     await expect(authenticatedPage).toHaveURL(/\/talent/);
 
-    // Navigate back to sequences
-    await authenticatedPage.goto('/sequences');
-    await expect(authenticatedPage).toHaveURL(/\/sequences/);
+    // Navigate back to films
+    await authenticatedPage.goto('/films');
+    await expect(authenticatedPage).toHaveURL(/\/films(?:[/?#]|$)/);
 
     // Should still be authenticated (not redirected to login)
     await expect(authenticatedPage).not.toHaveURL(/\/login/);

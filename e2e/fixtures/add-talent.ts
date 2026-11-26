@@ -42,10 +42,10 @@ export async function openAddTalentFromSequence(page: Page): Promise<{
   picker: Locator;
   dialog: Locator;
 }> {
-  await page.goto('/sequences/new');
+  await page.goto('/films/new');
   // TipTap only mounts after hydration. Filling a short script is the same
   // live-state gate sequence-flow.spec uses — Generate-enabled is the wrong
-  // proxy here. Sample seeding on signed-in `/sequences/new` is racy (styles
+  // proxy here. Sample seeding on signed-in `/films/new` is racy (styles
   // are not SSR-prefetched), and a tile click does not write a script unless
   // the sample is already attached, so Generate can stay disabled forever.
   await fillScriptEditor(
@@ -113,9 +113,7 @@ export async function waitForSubjectKind(
 
 export async function attestPortraitRights(page: Page): Promise<void> {
   const dialog = addTalentDialog(page);
-  await dialog
-    .getByRole('checkbox', { name: /authorization to use this person/i })
-    .check();
+  await dialog.getByRole('checkbox', { name: /使用此人肖像的授权/ }).check();
   await dialog
     .getByLabel('授权依据')
     .fill('E2E fixture image — synthetic, depicts no real person');

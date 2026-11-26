@@ -201,7 +201,7 @@ testWithUser.describe('Full Sequence Pipeline', () => {
       // 1. Open the new-sequence page. Pin Quality + recorded Grok/H3 Max
       // before first paint so Turbo's Lite never hits aimock.
       await pinRecordedPipelineSettings(page);
-      await page.goto('/sequences/new');
+      await page.goto('/films/new');
 
       // 2. Recorded image/motion fixtures were captured against Product Ad.
       // The composer now defaults to Film & Cinematic (#1180), so switch
@@ -316,13 +316,10 @@ SUPER:  CORAL.  OUT NOW.
       await stopAtAlert.getByRole('button', { name: /^Generate$/i }).click();
 
       // Generate kicks off the scene-split workflow before the redirect lands.
-      await page.waitForURL(
-        /\/sequences\/[0-7][0-9A-HJKMNP-TV-Z]{25}\/scenes/,
-        {
-          timeout: t(30_000),
-        }
-      );
-      const match = page.url().match(/\/sequences\/([^/]+)\/scenes/);
+      await page.waitForURL(/\/films\/[0-7][0-9A-HJKMNP-TV-Z]{25}\/scenes/, {
+        timeout: t(30_000),
+      });
+      const match = page.url().match(/\/films\/([^/]+)\/scenes/);
       const sequenceId = match?.[1];
       if (!sequenceId) {
         throw new Error(`Failed to extract sequence id from ${page.url()}`);
@@ -439,7 +436,7 @@ SUPER:  CORAL.  OUT NOW.
       }
 
       // 12. Music playback in the Scenes editor Music facet (#986).
-      await page.goto(`/sequences/${sequenceId}/scenes?facet=music`);
+      await page.goto(`/films/${sequenceId}/scenes?facet=music`);
       await expectPlayableMedia(
         page.locator('audio').first(),
         'sequence music'
@@ -449,7 +446,7 @@ SUPER:  CORAL.  OUT NOW.
       //     selected uses SequencePlayer (mediabunny canvas + Video.js skin,
       //     #1258). Play is in the skin from first paint; the loading overlay
       //     covers it until prepare() sets meta (`data-state="ready"`).
-      await page.goto(`/sequences/${sequenceId}/scenes`);
+      await page.goto(`/films/${sequenceId}/scenes`);
 
       // Wait for prepare() (data-state=ready) or the player error state.
       // A hanging prepare() (common with raw AI-generated motion clips during

@@ -85,15 +85,25 @@ export async function waitForSequenceDraftScript(
 export async function waitForHydration(page: Page): Promise<void> {
   await page.waitForFunction(
     () => {
-      const el =
-        document.querySelector('input#email') ??
-        document.querySelector('[data-slot]');
-      return (
-        !!el && Object.keys(el).some((key) => key.startsWith('__reactProps$'))
+      // The first `[data-slot]` in the DOM is not necessarily one React owns —
+      // on the scenes page it can be a server-only wrapper (or a third-party
+      // node) while the interactive controls hydrate a moment later. Check
+      // every plausible host node rather than pinning the gate to one of them.
+      const candidates = document.querySelectorAll(
+        'input#email, [data-slot], button, main'
       );
+      for (const el of candidates) {
+        if (Object.keys(el).some((key) => key.startsWith('__reactProps$'))) {
+          return true;
+        }
+      }
+      return false;
     },
     undefined,
-    { timeout: 30_000 }
+    // Cold `vite dev` first hits (two workers compiling the same heavy route)
+    // can take >30s before React attaches; keep the budget inside the caller's
+    // own timeout (manual-pipeline sets 180s).
+    { timeout: 45_000 }
   );
 }
 
@@ -105,9 +115,12 @@ export async function waitForHydration(page: Page): Promise<void> {
  * editor initialises — this is a hydration gate, not a plain visibility check,
  * and asserting it on the default 5s timeout flakes (#827).
  */
-export async function waitForScriptEditor(page: Page): Promise<Locator> {
+export async function waitForScriptEditor(
+  page: Page,
+  timeout = HYDRATION_TIMEOUT
+): Promise<Locator> {
   const editor = page.locator('[data-slot="markdown-editor"] .ProseMirror');
-  await expect(editor).toBeVisible({ timeout: HYDRATION_TIMEOUT });
+  await expect(editor).toBeVisible({ timeout });
   return editor;
 }
 
@@ -160,7 +173,7 @@ export async function selectComposerStyle(
   family?: string
 ): Promise<void> {
   if (family) {
-    await page.getByRole('button', { name: /^Style category:/ }).click();
+    await page.getByRole('button', { name: /^风格分类：/ }).click();
     await page.getByRole('menuitemradio', { name: family }).click();
   }
   // Clicking a tile opens the detail dialog; "Use this style" applies it

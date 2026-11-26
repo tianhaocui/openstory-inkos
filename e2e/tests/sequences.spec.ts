@@ -3,7 +3,7 @@
  * Tests sequence creation and viewing flows.
  *
  * Runs under the chromium project with storageState (signed-in). Anonymous
- * routing for `/` and `/sequences/new` is covered in auth.spec.ts.
+ * routing for `/` and `/films/new` is covered in auth.spec.ts.
  */
 
 import { test, expect } from 'playwright/test';
@@ -15,16 +15,16 @@ import {
 } from '../fixtures/test-utils';
 
 test.describe('Sequences', () => {
-  test('can access sequences list page', async ({ page }) => {
-    await page.goto('/sequences');
+  test('can access films list page', async ({ page }) => {
+    await page.goto('/films');
 
-    await expect(page).toHaveURL(/\/sequences/);
+    await expect(page).toHaveURL(/\/films(?:[/?#]|$)/);
   });
 
-  test('restores remembered search when returning to a bare /sequences', async ({
+  test('restores remembered search when returning to a bare /films', async ({
     page,
   }) => {
-    await page.goto('/sequences');
+    await page.goto('/films');
     await page.evaluate(() => {
       localStorage.setItem(
         'openstory:sequences-list:v1',
@@ -39,7 +39,7 @@ test.describe('Sequences', () => {
         })
       );
     });
-    await page.goto('/sequences');
+    await page.goto('/films');
     await waitForHydration(page);
 
     await expect
@@ -60,7 +60,7 @@ test.describe('Sequences', () => {
   test('remembered support mode does not break a non-admin list', async ({
     page,
   }) => {
-    await page.goto('/sequences');
+    await page.goto('/films');
     await page.evaluate(() => {
       localStorage.setItem(
         'openstory:sequences-list:v1',
@@ -75,7 +75,7 @@ test.describe('Sequences', () => {
         })
       );
     });
-    await page.goto('/sequences');
+    await page.goto('/films');
 
     await expect(
       page.getByRole('textbox', { name: '按标题搜索…' })
@@ -315,12 +315,12 @@ test.describe('Sequences', () => {
     ).toHaveAttribute('aria-pressed', 'false');
   });
 
-  test('signed-in user can access /sequences/new', async ({ page }) => {
-    // chromium project loads e2e/.auth/user.json — this is the logged-in alias
-    // of the home composer (#1104). Anonymous redirect is in auth.spec.ts.
-    await page.goto('/sequences/new');
+  test('signed-in user can access /films/new', async ({ page }) => {
+    // chromium project loads e2e/.auth/user.json — this is the signed-in
+    // composer route (#1104, P2). Anonymous redirect is in auth.spec.ts.
+    await page.goto('/films/new');
 
-    await expect(page).toHaveURL('/sequences/new');
+    await expect(page).toHaveURL('/films/new');
     const editor = page.locator('[data-slot="markdown-editor"]');
     await expect(editor).toBeVisible();
   });

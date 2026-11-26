@@ -60,8 +60,8 @@ testWithUser.describe('Sequence Creation Flow', () => {
   testWithUser(
     'can create sequence with suggested talent',
     async ({ page }) => {
-      // Navigate to new sequence page
-      await page.goto('/sequences/new');
+      // Navigate to the new film composer (P2: /sequences/new is a 307 alias)
+      await page.goto('/films/new');
 
       // Wait for React hydration + data loading by checking the style grid is populated
       // The style grid requires useStyles() query data, which only loads after hydration
@@ -69,7 +69,7 @@ testWithUser.describe('Sequence Creation Flow', () => {
         timeout: 15000,
       });
 
-      await expect(page).toHaveURL('/sequences/new');
+      await expect(page).toHaveURL('/films/new');
 
       // Enter a simple test script
       const testScript = `
@@ -133,9 +133,12 @@ Here's your caffeine fix. How's it going?
         .click();
       await expect(talentDialog).not.toBeVisible();
 
-      // Verify submit button is ready (may have different text based on state)
+      // Verify the composer's primary submit is ready. `exact` matters: the
+      // settings trigger ("生成设置"), style matcher ("匹配剧本：根据剧本生成风格")
+      // and the motion toggle all contain 生成 too.
       const submitButton = page.getByRole('button', {
-        name: /生成/i,
+        name: '生成',
+        exact: true,
       });
       await expect(submitButton).toBeVisible();
     }
@@ -170,15 +173,22 @@ testWithUser.describe('Variant Selection', () => {
   });
 
   testWithUser('can select variant from grid', async ({ page }) => {
+    // Cold dev-server + 3×3 grid + confirm POST routinely needs more than the
+    // global 60s; at 60s the afterEach cleanup can delete the seeded sequence
+    // while the confirm mutation is still in flight ("Sequence not found").
+    testWithUser.setTimeout(120_000);
+
     // Verify initial state in database
     const shotBefore = await getTestShot(testShot.id);
     expect(shotBefore?.thumbnailUrl).toBe(originalThumbnailUrl);
 
-    // Navigate directly to the sequence scenes page
-    await page.goto(`/sequences/${testSequence.id}/scenes`);
+    // Navigate directly to the film scenes page (P2: /sequences is a 307 alias)
+    await page.goto(`/films/${testSequence.id}/scenes`);
 
-    // Don't use networkidle - the page has a realtime SSE connection that never settles
-    // Wait for the sequence title to be visible (indicates data has loaded and React is hydrated)
+    // Don't use networkidle - the page has a realtime SSE connection that never settles.
+    // Gate on React's own fiber before clicking: the canvas is SSR'd but its
+    // variant dialog is a client-only state change (#827).
+    await waitForHydration(page);
     await expect(
       page.getByRole('heading', { name: testSequence.title })
     ).toBeVisible({ timeout: 15000 });
@@ -209,15 +219,12 @@ testWithUser.describe('Variant Selection', () => {
       exact: true,
     });
     await expect(variantsButton).toBeVisible({ timeout: 10000 });
-    // Selecting the scene above is a real <a href> navigation, so this button
-    // renders server-side and stays inert until React hydrates it — a single
-    // click lands on nothing. Click until the dialog is actually up (the open
-    // dialog aria-hides the button, so ask the dialog, not the button).
-    const variantsDialog = page.getByRole('dialog');
-    await expect(async () => {
-      if (!(await variantsDialog.isVisible())) await variantsButton.click();
-      await expect(variantsDialog).toBeVisible({ timeout: 2000 });
-    }).toPass({ timeout: 20_000 });
+    await expect(variantsButton).toBeEnabled({ timeout: 10_000 });
+    // Scope by dialog title: the page can host other portaled dialogs, and a
+    // bare getByRole('dialog') either goes strict-mode or watches the wrong one.
+    const variantsDialog = page.getByRole('dialog', { name: '起始帧变体' });
+    await variantsButton.click();
+    await expect(variantsDialog).toBeVisible({ timeout: 15_000 });
 
     const variantGrid = page.getByRole('grid', { name: '变体选择' });
 
@@ -325,7 +332,7 @@ testWithUser.describe('Character Recast', () => {
       expect(characterBefore?.talentId).toBe(firstTalent.id);
 
       // Navigate to the character detail page
-      await page.goto(`/sequences/${testSequence.id}/cast/${testCharacter.id}`);
+      await page.goto(`/films/${testSequence.id}/cast/${testCharacter.id}`);
       await waitForHydration(page);
 
       // Wait for character detail to load
@@ -393,7 +400,7 @@ testWithUser.describe.skip('Empty States', () => {
     async ({ page }) => {
       await setupMockRoutes(page);
 
-      await page.goto('/sequences/new');
+      await page.goto('/films/new');
 
       // Wait for React hydration + data loading
       await expect(page.getByRole('grid', { name: '风格选择' })).toBeVisible({
