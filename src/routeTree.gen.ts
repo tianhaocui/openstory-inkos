@@ -73,6 +73,8 @@ import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiBillingWebhookRouteImport } from './routes/api/billing/webhook'
 import { Route as ApiInternalInkosSessionRouteImport } from './routes/api/internal/inkos-session'
 import { Route as ApiOpenrouterCallbackRouteImport } from './routes/api/openrouter/callback'
+import { Route as ApiStorageMultipartRouteImport } from './routes/api/storage/multipart'
+import { Route as ApiStorageUploadRouteImport } from './routes/api/storage/upload'
 import { Route as ApiTestCharacterRouteImport } from './routes/api/test/character'
 import { Route as ApiTestImageRouteImport } from './routes/api/test/image'
 import { Route as ApiTestLocationRouteImport } from './routes/api/test/location'
@@ -449,6 +451,16 @@ const ApiOpenrouterCallbackRoute = ApiOpenrouterCallbackRouteImport.update({
   path: '/api/openrouter/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiStorageMultipartRoute = ApiStorageMultipartRouteImport.update({
+  id: '/api/storage/multipart',
+  path: '/api/storage/multipart',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiStorageUploadRoute = ApiStorageUploadRouteImport.update({
+  id: '/api/storage/upload',
+  path: '/api/storage/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiTestCharacterRoute = ApiTestCharacterRouteImport.update({
   id: '/character',
   path: '/character',
@@ -800,6 +812,8 @@ export interface FileRoutesByFullPath {
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
   '/api/internal/inkos-session': typeof ApiInternalInkosSessionRoute
   '/api/openrouter/callback': typeof ApiOpenrouterCallbackRoute
+  '/api/storage/multipart': typeof ApiStorageMultipartRoute
+  '/api/storage/upload': typeof ApiStorageUploadRoute
   '/api/test/character': typeof ApiTestCharacterRoute
   '/api/test/image': typeof ApiTestImageRoute
   '/api/test/location': typeof ApiTestLocationRoute
@@ -918,6 +932,8 @@ export interface FileRoutesByTo {
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
   '/api/internal/inkos-session': typeof ApiInternalInkosSessionRoute
   '/api/openrouter/callback': typeof ApiOpenrouterCallbackRoute
+  '/api/storage/multipart': typeof ApiStorageMultipartRoute
+  '/api/storage/upload': typeof ApiStorageUploadRoute
   '/api/test/character': typeof ApiTestCharacterRoute
   '/api/test/image': typeof ApiTestImageRoute
   '/api/test/location': typeof ApiTestLocationRoute
@@ -1042,6 +1058,8 @@ export interface FileRoutesById {
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
   '/api/internal/inkos-session': typeof ApiInternalInkosSessionRoute
   '/api/openrouter/callback': typeof ApiOpenrouterCallbackRoute
+  '/api/storage/multipart': typeof ApiStorageMultipartRoute
+  '/api/storage/upload': typeof ApiStorageUploadRoute
   '/api/test/character': typeof ApiTestCharacterRoute
   '/api/test/image': typeof ApiTestImageRoute
   '/api/test/location': typeof ApiTestLocationRoute
@@ -1165,6 +1183,8 @@ export interface FileRouteTypes {
     | '/api/billing/webhook'
     | '/api/internal/inkos-session'
     | '/api/openrouter/callback'
+    | '/api/storage/multipart'
+    | '/api/storage/upload'
     | '/api/test/character'
     | '/api/test/image'
     | '/api/test/location'
@@ -1283,6 +1303,8 @@ export interface FileRouteTypes {
     | '/api/billing/webhook'
     | '/api/internal/inkos-session'
     | '/api/openrouter/callback'
+    | '/api/storage/multipart'
+    | '/api/storage/upload'
     | '/api/test/character'
     | '/api/test/image'
     | '/api/test/location'
@@ -1406,6 +1428,8 @@ export interface FileRouteTypes {
     | '/api/billing/webhook'
     | '/api/internal/inkos-session'
     | '/api/openrouter/callback'
+    | '/api/storage/multipart'
+    | '/api/storage/upload'
     | '/api/test/character'
     | '/api/test/image'
     | '/api/test/location'
@@ -1500,6 +1524,8 @@ export interface RootRouteChildren {
   ApiBillingWebhookRoute: typeof ApiBillingWebhookRoute
   ApiInternalInkosSessionRoute: typeof ApiInternalInkosSessionRoute
   ApiOpenrouterCallbackRoute: typeof ApiOpenrouterCallbackRoute
+  ApiStorageMultipartRoute: typeof ApiStorageMultipartRoute
+  ApiStorageUploadRoute: typeof ApiStorageUploadRoute
   ApiV1OpenapiDotjsonRoute: typeof ApiV1OpenapiDotjsonRoute
   ApiV1SequencesRoute: typeof ApiV1SequencesRouteWithChildren
   ApiV1StylesRoute: typeof ApiV1StylesRouteWithChildren
@@ -1959,6 +1985,20 @@ declare module '@tanstack/react-router' {
       path: '/api/openrouter/callback'
       fullPath: '/api/openrouter/callback'
       preLoaderRoute: typeof ApiOpenrouterCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/storage/multipart': {
+      id: '/api/storage/multipart'
+      path: '/api/storage/multipart'
+      fullPath: '/api/storage/multipart'
+      preLoaderRoute: typeof ApiStorageMultipartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/storage/upload': {
+      id: '/api/storage/upload'
+      path: '/api/storage/upload'
+      fullPath: '/api/storage/upload'
+      preLoaderRoute: typeof ApiStorageUploadRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/test/character': {
@@ -2672,6 +2712,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiBillingWebhookRoute: ApiBillingWebhookRoute,
   ApiInternalInkosSessionRoute: ApiInternalInkosSessionRoute,
   ApiOpenrouterCallbackRoute: ApiOpenrouterCallbackRoute,
+  ApiStorageMultipartRoute: ApiStorageMultipartRoute,
+  ApiStorageUploadRoute: ApiStorageUploadRoute,
   ApiV1OpenapiDotjsonRoute: ApiV1OpenapiDotjsonRoute,
   ApiV1SequencesRoute: ApiV1SequencesRouteWithChildren,
   ApiV1StylesRoute: ApiV1StylesRouteWithChildren,
