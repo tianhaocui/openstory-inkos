@@ -56,8 +56,9 @@
 3. **`test:e2e:full`**：仍为超时未验证通过（30 分钟用例上限触发、runner 卡在收尾），需带超时保护重跑。
 4. **replay LLM key**：上传链修好后分类器要求非空平台 key；`e2e/start-webserver.ts` 在 replay 模式注入 dummy `OPENROUTER_KEY`/`FAL_KEY`（不覆盖真实 key），产品源码未动。
 
-**用户决策（2026-11-25）**：Push；修 bug 是开发的事；暂时没有文件存储服务。
-→ 7 条 R2 失败记为**环境依赖**，不作为 UI 重构的验收阻断；整体签核在「有文件存储服务 + CI Chromatic」的环境完成。
+**用户决策（2026-11-25）**：Push；修 bug 是开发的事。
+**更新（2026-11-26）**："没有文件存储服务"的判断被推翻——项目自带本地存储，根因是 Workerd 缺上传路由；
+`41bfe6bc` 补 `src/routes/api/storage/` 后 7 条 R2 404 清零。剩余外部依赖仅 Chromatic CI + full pipeline 超时保护重跑。
 
 ## 验收签核（待填）
 
