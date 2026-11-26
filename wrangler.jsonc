@@ -20,6 +20,10 @@
   "vars": {
     "AI_BASE_URL": "https://kiro.dakalami.com/aiclient2api/claude-kiro-oauth/v1",
     "AI_MODEL": "claude-opus-4-6",
+    // DashScope (百炼) Beijing workspace. Non-secret; the key is a Worker
+    // secret (scripts/push-secrets.ts). The via stays off under E2E_TEST
+    // unless a key + record flag are wired (dashscope-config.ts).
+    "DASHSCOPE_BASE_URL": "https://llm-fmwbq2bn8uyitwyo.cn-beijing.maas.aliyuncs.com/api/v1",
   },
   "observability": {
     "enabled": true,
@@ -369,6 +373,11 @@
       // `openstory-production`, which is a DIFFERENT worker — the deploy
       // would succeed but the live site would never update.
       "name": "openstory",
+      // Non-secret DashScope workspace host. Vars are inherited from the
+      // default block, but redeclared here so the prod route is explicit.
+      "vars": {
+        "DASHSCOPE_BASE_URL": "https://llm-fmwbq2bn8uyitwyo.cn-beijing.maas.aliyuncs.com/api/v1",
+      },
       "d1_databases": [
         {
           "binding": "DB",
@@ -685,6 +694,10 @@
         // E2E_TEST gates /api/test/* routes (via testOnlyGuard) and many
         // test-specific branches in storage / workflow client code.
         "E2E_TEST": "true",
+        // Same workspace host as the other blocks. The via is still OFF in
+        // replay: dashscope-config.ts requires E2E_RECORD=1 as well, so a
+        // developer's .env.local key cannot bill a replay run.
+        "DASHSCOPE_BASE_URL": "https://llm-fmwbq2bn8uyitwyo.cn-beijing.maas.aliyuncs.com/api/v1",
         // Note: a developer's .env.local R2_PUBLIC_STORAGE_DOMAIN could leak
         // into this worker env via the env-file merge, but it can't break
         // e2e: isLocalStorageServing() (src/platform/server/storage/buckets.ts) forces

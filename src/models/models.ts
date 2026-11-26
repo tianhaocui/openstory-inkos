@@ -5,6 +5,7 @@
 
 // Value import, but one-way: grok-native imports this module type-only, so
 // there is no runtime cycle.
+import { DASHSCOPE_MODEL_ID } from './dashscope';
 import { isNativeGrokVideoModel } from './grok-native';
 import type { AnalysisModelId } from './models.config';
 import type { AspectRatio } from './aspect-ratios';
@@ -151,6 +152,27 @@ export const IMAGE_TO_VIDEO_MODELS = {
     // where the BytePlus via (with asset ingest) is live (#1519).
     requiresVia: 'byteplus' as const,
     byteplusId: 'dreamina-seedance-2-0-mini-260615' as const,
+  },
+  wan3_0_video: {
+    // Native DashScope (Alibaba Model Studio / 百炼) route. The id is the
+    // model name in the video-synthesis body — there is no fal endpoint.
+    id: DASHSCOPE_MODEL_ID,
+    name: 'Wan 3.0 Video',
+    vendor: 'Alibaba',
+    license: 'proprietary' as const,
+    qualityRank: 3,
+    maxPromptLength: 8000,
+    // Wan 3.0 emits native synchronized audio; the async task has no
+    // generate_audio switch.
+    supportsAudio: true,
+    // One take per clip; the async protocol has no multi-prompt field.
+    supportsInClipMultiShot: false,
+    performance: { estimatedGenerationTime: 120, quality: 'best' as const },
+    // Offered only when the platform DashScope key is live. The model name is
+    // the same as `id`, but kept as its own field so a future rename is a
+    // typecheck error at the request site (same shape as `byteplusId`).
+    requiresVia: 'dashscope' as const,
+    dashscopeId: DASHSCOPE_MODEL_ID,
   },
 } as const;
 
@@ -372,6 +394,21 @@ export function isNativeBytePlusVideoModel(model: ImageToVideoModel): boolean {
   return getBytePlusVideoModelId(model) !== undefined;
 }
 
+/**
+ * The DashScope model name for a motion model, or undefined when it has no
+ * native 百炼 route and always goes through fal (#dashscope).
+ */
+export function getDashScopeVideoModelId(
+  modelKey: ImageToVideoModel
+): string | undefined {
+  const config = IMAGE_TO_VIDEO_MODELS[modelKey];
+  return 'dashscopeId' in config ? config.dashscopeId : undefined;
+}
+
+export function isNativeDashScopeVideoModel(model: ImageToVideoModel): boolean {
+  return getDashScopeVideoModelId(model) !== undefined;
+}
+
 export const DEFAULT_VIDEO_MODEL: ImageToVideoModel = 'seedance_v2';
 
 /** Check if a video model supports audio output. */
@@ -511,7 +548,7 @@ function getModelsForAspectRatio(
  */
 export function isOfferedVideoModel(
   model: ImageToVideoModel,
-  vias: { byteplus?: boolean } = {}
+  vias: { byteplus?: boolean; dashscope?: boolean } = {}
 ): boolean {
   const entry = IMAGE_TO_VIDEO_MODELS[model];
   if ('hidden' in entry) return false;
@@ -948,7 +985,11 @@ export function supportsReferenceOnlyMotion(model: ImageToVideoModel): boolean {
 }
 
 /** Which native vias are reachable. Resolved per team by `getViaAvailabilityFn`. */
-export type ReferenceOnlyVias = { xai?: boolean; byteplus?: boolean };
+export type ReferenceOnlyVias = {
+  xai?: boolean;
+  byteplus?: boolean;
+  dashscope?: boolean;
+};
 
 /**
  * Can this model render a reference-only shot given the vias actually
@@ -968,7 +1009,12 @@ export function referenceOnlyCapableWith(
   vias: ReferenceOnlyVias
 ): boolean {
   if (supportsReferenceOnlyMotion(model)) return true;
-  return Boolean(vias.xai) && isNativeGrokVideoModel(model);
+  if (Boolean(vias.xai) && isNativeGrokVideoModel(model)) return true;
+  // Wan 3.0's async API takes `reference_image` / `reference_audio` media with
+  // no first frame, so a reference-only shot is valid on the DashScope via.
+  // The model has no fal schema, so it is NOT in MOTION_REFERENCE_ENDPOINTS —
+  // the via flag is the only widen (same shape as Grok's xAI widen).
+  return Boolean(vias.dashscope) && isNativeDashScopeVideoModel(model);
 }
 
 /**

@@ -10,6 +10,7 @@
 import {
   getMotionReferenceEndpoint,
   IMAGE_TO_VIDEO_MODELS,
+  isNativeDashScopeVideoModel,
   type ImageToVideoModel,
   videoModelSupportsAudio,
 } from '@/models/models';
@@ -91,7 +92,10 @@ const NO_MUSIC_NEGATIVE_PROMPTS: Partial<Record<ImageToVideoModel, string>> = {
 
 type ModelOutputMap = {
   [K in ImageToVideoModel]: z.output<
-    (typeof MOTION_TRANSFORMS)[(typeof IMAGE_TO_VIDEO_MODELS)[K]['id']]
+    (typeof MOTION_TRANSFORMS)[Extract<
+      (typeof IMAGE_TO_VIDEO_MODELS)[K]['id'],
+      MotionEndpointId
+    >]
   >;
 };
 
@@ -100,8 +104,19 @@ export function buildModelInput<T extends ImageToVideoModel>(
   modelConfig: (typeof IMAGE_TO_VIDEO_MODELS)[T],
   modelKey: T
 ): ModelOutputMap[T] {
+  // DashScope's async model has no fal schema/transform — it never reaches
+  // this builder (submit writes the HTTP body directly). Fail loudly if a new
+  // caller slips through rather than indexing a missing transform.
+  if (isNativeDashScopeVideoModel(modelKey)) {
+    throw new Error(
+      `Motion model "${modelKey}" has no fal input transform; use the DashScope submit path`
+    );
+  }
   const endpointId: (typeof IMAGE_TO_VIDEO_MODELS)[T]['id'] = modelConfig.id;
-  const transform = MOTION_TRANSFORMS[endpointId];
+  // The DashScope model has no fal transform and is rejected above; the cast
+  // only narrows the union after that guard for the generated-map lookup.
+  // oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion
+  const transform = MOTION_TRANSFORMS[endpointId as MotionEndpointId];
   // oxlint-disable-next-line typescript-eslint/no-unnecessary-condition -- defensive guard for exhaustiveness
   if (!transform) {
     throw new Error(
@@ -135,7 +150,10 @@ export function buildModelInput<T extends ImageToVideoModel>(
     imageUrl: options.imageUrl,
     aspectRatio: options.aspectRatio,
     ...QUALITY_OVERRIDES[modelKey],
-    ...resolutionOverride(endpointId, options.resolution),
+    // Same narrowing as the transform lookup above: the DashScope id is
+    // rejected before this point.
+    // oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion
+    ...resolutionOverride(endpointId as MotionEndpointId, options.resolution),
     ...(NO_MUSIC_NEGATIVE_PROMPTS[modelKey] && {
       negative_prompt: NO_MUSIC_NEGATIVE_PROMPTS[modelKey],
     }),

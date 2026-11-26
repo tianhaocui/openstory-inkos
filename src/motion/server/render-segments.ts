@@ -19,7 +19,7 @@
  * See docs/architecture/scene-shot-frame-redesign.md.
  */
 
-import { IMAGE_TO_VIDEO_MODELS, type ImageToVideoModel } from '@/models/models';
+import type { ImageToVideoModel } from '@/models/models';
 import {
   DEFAULT_SEGMENT_CAP_MS,
   tileSceneIntoSegments,
@@ -29,15 +29,14 @@ import type {
   VideoManifest,
   VideoManifestEntry,
 } from '@/platform/server/db/schema';
-import { MOTION_JSON_SCHEMAS } from './endpoint-map';
-import { getDurationValues, numericOf } from './motion-transform';
+import { durationGridForModel } from '@/motion/model-capabilities';
 
 export { DEFAULT_SEGMENT_CAP_MS, tileSceneIntoSegments, type SegmentShot };
 
 function durationValuesForModel(model: ImageToVideoModel): number[] {
-  const endpointId = IMAGE_TO_VIDEO_MODELS[model].id;
-  const jsonSchema = MOTION_JSON_SCHEMAS[endpointId];
-  return getDurationValues(jsonSchema).map(numericOf);
+  // The baked grid covers both fal schemas and hand-written via grids
+  // (DashScope), so a native model no longer fails to index a fal schema.
+  return durationGridForModel(model);
 }
 
 /**

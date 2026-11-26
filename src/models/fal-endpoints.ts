@@ -23,6 +23,14 @@ export function getFalEndpointIds(): string[] {
   ]);
   const studioVideo = studioVideoEndpointIds();
 
+  // A DashScope id is a model name, not a fal queue endpoint — it is priced
+  // by the static card, so it must not land in the local fal seed.
+  const dashScopeIds = new Set<string>(
+    Object.values(IMAGE_TO_VIDEO_MODELS)
+      .filter((m) => 'dashscopeId' in m)
+      .map((m) => m.id)
+  );
+
   return [
     ...new Set([
       ...video,
@@ -32,7 +40,7 @@ export function getFalEndpointIds(): string[] {
       ...audio,
       ...motionRef,
     ]),
-  ];
+  ].filter((id) => !dashScopeIds.has(id));
 }
 
 /**

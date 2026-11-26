@@ -9,6 +9,7 @@
 import { getDb } from '#db-client';
 import { isBytePlusConfigured } from '@/models/server/byteplus-config';
 import { BYTEPLUS_RATE_CARD } from '@/billing/byteplus-pricing';
+import { DASHSCOPE_RATE_CARD } from '@/billing/dashscope-pricing';
 import { ELEVENLABS_RATE_CARD } from '@/billing/elevenlabs-pricing';
 import {
   FAL_TYPICAL_UNITS_PER_DEFAULT_CLIP,
@@ -113,13 +114,14 @@ async function load(): Promise<NonNullable<typeof cache>> {
   const updatedAt = rows.length
     ? new Date(Math.max(...rows.map((r) => r.fetchedAt.getTime())))
     : null;
-  // BytePlus / ElevenLabs rates are static cards, not cron-refreshed rows
-  // (#1157 / #1552) — see byteplus-pricing.ts / elevenlabs-pricing.ts.
-  // Merged first so a `model_pricing` row for the same id (if the cron ever
-  // learns Ark / ElevenLabs) wins over the hand-maintained rate.
+  // BytePlus / ElevenLabs / DashScope rates are static cards, not
+  // cron-refreshed rows (#1157 / #1552 / wan) — see byteplus-pricing.ts /
+  // elevenlabs-pricing.ts / dashscope-pricing.ts. Merged first so a
+  // `model_pricing` row for the same id (if the cron ever learns them) wins.
   const map = {
     ...BYTEPLUS_RATE_CARD,
     ...ELEVENLABS_RATE_CARD,
+    ...DASHSCOPE_RATE_CARD,
     ...buildFalPricingMap(rows),
   };
   applyBytePlusRouteAliases(map);

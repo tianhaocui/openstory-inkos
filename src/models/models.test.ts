@@ -9,10 +9,12 @@ import {
   getEditEndpoint,
   getMotionReferenceEndpoint,
   isNativeBytePlusVideoModel,
+  isNativeDashScopeVideoModel,
   isOfferedVideoModel,
   isValidImageToVideoModel,
   isValidTextToImageModel,
   referenceOnlyMotionModels,
+  referenceOnlyCapableWith,
   safeImageToVideoModel,
   safeTextToImageModel,
   supportsReferenceImages,
@@ -257,6 +259,22 @@ describe('supportsReferenceOnlyMotion', () => {
     // Grok's fal route rides image-to-video, which requires `image_url` — a
     // reference-only shot has nowhere to go there. Kling qualifies via O3.
     expect(supportsReferenceOnlyMotion('grok_imagine_video_1_5')).toBe(false);
+  });
+
+  it('offers Wan only when the DashScope via is reachable', () => {
+    expect(isNativeDashScopeVideoModel('wan3_0_video')).toBe(true);
+    expect(videoModelSupportsAudio('wan3_0_video')).toBe(true);
+    expect(isOfferedVideoModel('wan3_0_video')).toBe(false);
+    expect(isOfferedVideoModel('wan3_0_video', { dashscope: true })).toBe(true);
+    // Reference-only needs the via flag: there is no fal schema to widen the
+    // model-only floor.
+    expect(referenceOnlyCapableWith('wan3_0_video', {})).toBe(false);
+    expect(referenceOnlyCapableWith('wan3_0_video', { dashscope: true })).toBe(
+      true
+    );
+    expect(referenceOnlyMotionModels({ dashscope: true })).toContain(
+      'wan3_0_video'
+    );
   });
 
   it('includes both Seedance tiers, H3 Max, Omni Flash and Kling O3', () => {

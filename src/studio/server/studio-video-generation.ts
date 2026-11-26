@@ -5,6 +5,13 @@
  */
 
 import { getEnv } from '#env';
+import { dashScopeResolution } from '@/models/dashscope';
+import { claimDashScopeVia } from '@/models/server/dashscope-config';
+import {
+  pollDashScopeVideoJob,
+  submitDashScopeVideoJob,
+  type DashScopeMedia,
+} from '@/models/server/dashscope-video';
 import { toArkFetchableUrl } from '@/models/server/byteplus-asset-ingest';
 import {
   arkUrlFor,
@@ -43,6 +50,7 @@ import {
   getBytePlusVideoModelId,
   IMAGE_TO_VIDEO_MODELS,
   isNativeBytePlusVideoModel,
+  isNativeDashScopeVideoModel,
   type ImageToVideoModel,
 } from '@/models/models';
 import { assertMediaVia, type MediaVia } from '@/models/via';
@@ -54,7 +62,10 @@ import type { AspectRatio } from '@/models/aspect-ratios';
 import type { Resolution } from '@/models/resolutions';
 import type { ResolvedApiKey } from '@/models/server/db/api-keys';
 import type { CredentialScopedDb } from '@/platform/server/db/scoped-workflow';
-import { MOTION_TRANSFORMS } from '@/motion/server/endpoint-map';
+import {
+  MOTION_TRANSFORMS,
+  type MotionEndpointId,
+} from '@/motion/server/endpoint-map';
 import {
   ensureExternallyFetchableUrls,
   toDataOrCdnUrl,
@@ -204,8 +215,11 @@ async function buildStudioImageModeInput(
   // Frames: the image-to-video endpoints the sequence path already validates
   // against (`MOTION_TRANSFORMS`), so field names, duration encoding and
   // prompt limits come from the generated schemas.
+  // This helper is the fal-only submit path; a DashScope model never reaches
+  // it. The cast keeps the generated-map index typed for the fal catalog.
   const endpointId = IMAGE_TO_VIDEO_MODELS[modelKey].id;
-  const transform = MOTION_TRANSFORMS[endpointId];
+  // oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion -- fal-only path; DashScope never reaches this helper
+  const transform = MOTION_TRANSFORMS[endpointId as MotionEndpointId];
   const stored = [options.startImageUrl, options.endImageUrl].filter(
     (url): url is string => Boolean(url)
   );
@@ -422,6 +436,12 @@ export async function submitStudioVideoJob(
   } else if (isNativeBytePlusVideoModel(modelKey) && isBytePlusConfigured()) {
     const falKey = await resolveOptionalFalKey(options.scopedDb);
     via = claimBytePlusVia({
+      native: true,
+      usingOwnFalKey: falKey?.source === 'team',
+    });
+  } else if (isNativeDashScopeVideoModel(modelKey)) {
+    const falKey = await resolveOptionalFalKey(options.scopedDb);
+    via = claimDashScopeVia({
       native: true,
       usingOwnFalKey: falKey?.source === 'team',
     });
@@ -647,6 +667,61 @@ export async function submitStudioVideoJob(
         throw error;
       }
     }
+    case 'dashscope': {
+      // Wan 3.0 forbids mixing `first_frame` with `reference_*` media. As on
+      // the sequence path, references win over a start frame.
+      const refs: DashScopeMedia[] = [
+        ...(mode === 'reference' ? (options.referenceImages ?? []) : []).map(
+          (url): DashScopeMedia => ({ type: 'reference_image', url })
+        ),
+        ...(options.referenceVideos ?? []).map((url): DashScopeMedia => ({
+          type: 'reference_video',
+          url,
+        })),
+        ...(options.referenceAudio ?? []).map((url): DashScopeMedia => ({
+          type: 'reference_audio',
+          url,
+        })),
+      ].filter((media) => media.url.length > 0);
+      const chosen: DashScopeMedia[] =
+        refs.length > 0
+          ? refs
+          : options.startImageUrl
+            ? [{ type: 'first_frame', url: options.startImageUrl }]
+            : [];
+      const media: DashScopeMedia[] = await Promise.all(
+        chosen.map(async (ref) => ({
+          ...ref,
+          url: await toDataOrCdnUrl(ref.url),
+        }))
+      );
+      const built = buildStudioVideoInput({
+        prompt:
+          mode === 'reference'
+            ? tagStudioReferences(options.prompt, modelKey)
+            : options.prompt,
+        model: modelKey,
+        duration: options.duration,
+        aspectRatio: options.aspectRatio,
+        resolution: options.resolution,
+        generateAudio: options.generateAudio,
+      });
+      const job = await submitDashScopeVideoJob({
+        prompt: built.prompt,
+        duration: built.duration,
+        resolution: dashScopeResolution(options.resolution),
+        ratio: 'adaptive',
+        media,
+      });
+      return {
+        jobId: job.jobId,
+        modelKey,
+        // Host is stamped here; poll reads only this value.
+        endpointId: job.endpointId,
+        via: 'dashscope',
+        usedOwnKey: false,
+      };
+    }
     case 'fal': {
       return submitFalStudioVideoJob(options, modelKey, mode);
     }
@@ -671,6 +746,9 @@ export async function pollStudioVideoJob(
         jobId: job.jobId,
       });
     }
+    case 'dashscope':
+      // The workspace host travels in the stamp; UNKNOWN is terminal.
+      return pollDashScopeVideoJob(job.jobId, job.endpointId);
     case 'fal': {
       const key = await resolveFalKey(scopedDb);
       return getVideoJobStatus({
@@ -770,6 +848,20 @@ export async function studioVideoCostFromUsage(
         endpointId: NATIVE_GEMINI_VIDEO_MODEL,
         unitsBilled: usage?.unitsBilled,
         cost: cost ?? ZERO_MICROS,
+        recordFalUsage: false,
+      };
+    }
+    case 'dashscope': {
+      // No cost / units in the task response — UNAUDITED, $0 exact charge.
+      reportMissingBillingCost({
+        source: 'studio-video-cost-from-usage-dashscope',
+        modelId: job.modelKey,
+        metadata: { usage },
+      });
+      return {
+        endpointId: job.endpointId,
+        unitsBilled: undefined,
+        cost: ZERO_MICROS,
         recordFalUsage: false,
       };
     }

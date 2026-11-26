@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   IMAGE_TO_VIDEO_MODELS,
+  isNativeDashScopeVideoModel,
+  isValidImageToVideoModel,
   safeImageToVideoModel,
   type ImageToVideoModel,
 } from '@/models/models';
@@ -14,6 +16,12 @@ const baseOptions: GenerateMotionOptions = {
   duration: 5,
   aspectRatio: '16:9',
 };
+
+/** All catalog models that have a fal transform (DashScope writes its own body). */
+const FAL_MODEL_KEYS = Object.keys(IMAGE_TO_VIDEO_MODELS).filter(
+  (key): key is ImageToVideoModel =>
+    isValidImageToVideoModel(key) && !isNativeDashScopeVideoModel(key)
+);
 
 function build<T extends ImageToVideoModel>(
   modelKey: T,
@@ -156,7 +164,10 @@ describe('buildModelInput', () => {
   );
 
   describe('duration snapping (1–30s)', () => {
-    const valid: Record<ImageToVideoModel, readonly (string | number)[]> = {
+    // DashScope has no fal transform, so it is not built through this helper.
+    const valid: Partial<
+      Record<ImageToVideoModel, readonly (string | number)[]>
+    > = {
       kling_v3_pro: [
         '3',
         '4',
@@ -216,7 +227,7 @@ describe('buildModelInput', () => {
     ];
 
     it('image-to-video builder never emits an elements key', () => {
-      for (const key of Object.keys(IMAGE_TO_VIDEO_MODELS)) {
+      for (const key of FAL_MODEL_KEYS) {
         const result = build(safeImageToVideoModel(key), { referenceImages });
         expect(result).not.toHaveProperty('elements');
         expect(result.prompt).toBe(baseOptions.prompt);
@@ -431,7 +442,7 @@ describe('buildModelInput', () => {
 
   describe('common behavior', () => {
     it('always includes prompt', () => {
-      for (const key of Object.keys(IMAGE_TO_VIDEO_MODELS)) {
+      for (const key of FAL_MODEL_KEYS) {
         const result = build(safeImageToVideoModel(key));
         expect(result.prompt).toBe(baseOptions.prompt);
       }

@@ -140,9 +140,15 @@ export function acceptsReference(
 }
 
 function offeredModels(): ImageToVideoModel[] {
-  return Object.keys(IMAGE_TO_VIDEO_MODELS)
-    .filter((key): key is ImageToVideoModel => key in IMAGE_TO_VIDEO_MODELS)
-    .filter((model) => isOfferedVideoModel(model, { byteplus: true }));
+  return (
+    Object.keys(IMAGE_TO_VIDEO_MODELS)
+      .filter((key): key is ImageToVideoModel => key in IMAGE_TO_VIDEO_MODELS)
+      // Widest question (what COULD take this file) — include every native via,
+      // not just the ones this process can reach.
+      .filter((model) =>
+        isOfferedVideoModel(model, { byteplus: true, dashscope: true })
+      )
+  );
 }
 
 /** Every offered video model that would actually SEND this reference. */

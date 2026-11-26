@@ -29,6 +29,9 @@ const STUDIO_TEXT_TO_VIDEO_ENDPOINTS = {
   seedance_v2: 'bytedance/seedance-2.0/enterprise/v2/text-to-video',
   seedance_v2_5: 'bytedance/seedance-2.5/text-to-video',
   seedance_v2_mini: 'bytedance/seedance-2.0/mini/text-to-video',
+  // DashScope is the only non-fal id here: it is the async model name and the
+  // static pricing card key, not a fal queue endpoint.
+  wan3_0_video: 'wan3.0-video',
 } as const satisfies Record<ImageToVideoModel, string>;
 
 const RANGE = (min: number, max: number): readonly number[] =>
@@ -43,6 +46,7 @@ const STUDIO_VIDEO_DURATIONS = {
   seedance_v2: RANGE(4, 15),
   seedance_v2_5: RANGE(4, 30),
   seedance_v2_mini: RANGE(4, 15),
+  wan3_0_video: RANGE(2, 30),
 } as const satisfies Record<ImageToVideoModel, readonly number[]>;
 
 /** Of our `AspectRatio` set, the ones the T2V sibling accepts. */
@@ -54,6 +58,7 @@ const STUDIO_VIDEO_ASPECTS = {
   seedance_v2: ['16:9', '1:1', '9:16'],
   seedance_v2_5: ['16:9', '1:1', '9:16'],
   seedance_v2_mini: ['16:9', '1:1', '9:16'],
+  wan3_0_video: ['16:9', '1:1', '9:16'],
 } as const satisfies Record<ImageToVideoModel, readonly AspectRatio[]>;
 
 const STUDIO_VIDEO_HAS_AUDIO = {
@@ -64,6 +69,7 @@ const STUDIO_VIDEO_HAS_AUDIO = {
   seedance_v2: true,
   seedance_v2_5: true,
   seedance_v2_mini: true,
+  wan3_0_video: true,
 } as const satisfies Record<ImageToVideoModel, boolean>;
 
 export const STUDIO_VIDEO_MODES = ['text', 'reference', 'frames'] as const;

@@ -222,7 +222,10 @@ export const createSequenceSchema = createInsertSchema(sequences, {
         (model) =>
           validVideoModelKeys.includes(model) &&
           // oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion -- guarded by the key check above
-          referenceOnlyCapableWith(model as ImageToVideoModel, { xai: true })
+          referenceOnlyCapableWith(model as ImageToVideoModel, {
+            xai: true,
+            dashscope: true,
+          })
       ),
     {
       path: ['generateStartFrames'],

@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   IMAGE_TO_VIDEO_MODELS,
+  isNativeDashScopeVideoModel,
   isValidImageToVideoModel,
+  type ImageToVideoModel,
 } from '@/models/models';
 import { ASPECT_RATIOS } from '@/models/aspect-ratios';
 import {
@@ -20,8 +22,15 @@ import {
 import { z } from 'zod';
 
 describe('baked motion capabilities stay in lockstep with fal schemas', () => {
-  const keys = Object.keys(IMAGE_TO_VIDEO_MODELS).filter(
+  const allKeys = Object.keys(IMAGE_TO_VIDEO_MODELS).filter(
     isValidImageToVideoModel
+  );
+  // DashScope's async model is hand-written; it has no fal generated schema,
+  // so it is not part of the codegen lockstep. Its grid is pinned separately
+  // below.
+  const keys = allKeys.filter(
+    (key): key is Exclude<ImageToVideoModel, 'wan3_0_video'> =>
+      !isNativeDashScopeVideoModel(key)
   );
 
   it('duration grids match getDurationValues on the i2v schema', () => {
@@ -86,10 +95,21 @@ describe('baked motion capabilities stay in lockstep with fal schemas', () => {
 
   it('covers every catalog model', () => {
     expect(Object.keys(MOTION_DURATION_GRID).sort()).toEqual(
-      keys.slice().sort()
+      allKeys.slice().sort()
     );
     expect(Object.keys(MOTION_ASPECT_RATIOS).sort()).toEqual(
-      keys.slice().sort()
+      allKeys.slice().sort()
     );
+  });
+
+  it('pins the hand-written DashScope grid without a fal schema', () => {
+    expect(durationGridForModel('wan3_0_video')).toEqual(
+      Array.from({ length: 29 }, (_, i) => i + 2)
+    );
+    expect([...MOTION_RESOLUTION_TOKENS.wan3_0_video]).toEqual([
+      '480P',
+      '720P',
+      '1080P',
+    ]);
   });
 });

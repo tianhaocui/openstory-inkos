@@ -33,6 +33,8 @@ describe('studioVideoEndpointId', () => {
       'bytedance/seedance-2.0/enterprise/v2/text-to-video',
       'bytedance/seedance-2.5/text-to-video',
       'bytedance/seedance-2.0/mini/text-to-video',
+      // DashScope is not a fal queue endpoint; the id is the async model name.
+      'wan3.0-video',
     ]);
     expect(ids.some((id) => id.includes('image-to-video'))).toBe(false);
     // Pricing refresh sees the reference siblings too.

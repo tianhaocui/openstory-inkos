@@ -13,6 +13,10 @@ import {
   getElevenLabsApiKey,
   isElevenLabsConfigured,
 } from '@/models/server/elevenlabs-config';
+import {
+  getDashScopeKey,
+  isDashScopeConfigured,
+} from '@/models/server/dashscope-config';
 import { nativeGeminiTextModel } from '@/models/gemini-native';
 import { nativeGrokTextModel } from '@/models/grok-native';
 import {
@@ -34,7 +38,7 @@ import { getLogger, serializeError } from '@/platform/logger';
  * `API_KEY_PROVIDERS` — no team row, no Settings UI, no BYOK. Designed
  * ElevenLabs voices live in the account that created them (#1552).
  */
-export type ResolvableProvider = ApiKeyProvider | 'elevenlabs';
+export type ResolvableProvider = ApiKeyProvider | 'elevenlabs' | 'dashscope';
 
 const logger = getLogger(['openstory', 'db', 'api-keys']);
 
@@ -328,6 +332,13 @@ export function createApiKeysReadMethods(db: Database, teamId: string) {
     if (provider === 'elevenlabs') {
       if (!isElevenLabsConfigured()) return undefined;
       const key = getElevenLabsApiKey();
+      return key ? { key, source: 'platform' } : undefined;
+    }
+    // DashScope is platform-only (no team row / Settings page), same shape as
+    // ElevenLabs. The e2e hermetic guard lives in `isDashScopeConfigured`.
+    if (provider === 'dashscope') {
+      if (!isDashScopeConfigured()) return undefined;
+      const key = getDashScopeKey();
       return key ? { key, source: 'platform' } : undefined;
     }
 

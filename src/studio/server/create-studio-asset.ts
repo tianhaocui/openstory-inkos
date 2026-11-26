@@ -13,6 +13,7 @@
  */
 
 import { claimBytePlusVia } from '@/models/server/byteplus-config';
+import { isDashScopeConfigured } from '@/models/server/dashscope-config';
 import { getEffectiveFalPricing } from '@/billing/server/fal-pricing-live';
 import { isOfferedVideoModel } from '@/models/models';
 import {
@@ -143,7 +144,8 @@ export async function createStudioAssets(
         native: true,
         usingOwnFalKey: falKey?.source === 'team',
       }) === 'byteplus';
-    if (!isOfferedVideoModel(input.videoModel, { byteplus })) {
+    const dashscope = isDashScopeConfigured();
+    if (!isOfferedVideoModel(input.videoModel, { byteplus, dashscope })) {
       throw new Error('Unknown video model');
     }
     input = {

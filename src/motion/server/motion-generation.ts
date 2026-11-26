@@ -1,4 +1,15 @@
 import { getEnv } from '#env';
+import { dashScopeDurationCost } from '@/billing/dashscope-pricing';
+import { dashScopeResolution } from '@/models/dashscope';
+import {
+  claimDashScopeVia,
+  isDashScopeConfigured,
+} from '@/models/server/dashscope-config';
+import {
+  pollDashScopeVideoJob,
+  submitDashScopeVideoJob,
+  type DashScopeMedia,
+} from '@/models/server/dashscope-video';
 import { toArkFetchableUrl } from '@/models/server/byteplus-asset-ingest';
 import {
   arkUrlFor,
@@ -42,6 +53,7 @@ import {
   getMotionReferenceEndpoint,
   IMAGE_TO_VIDEO_MODELS,
   isNativeBytePlusVideoModel,
+  isNativeDashScopeVideoModel,
   referenceOnlyCapableWith,
   supportsReferenceOnlyMotion,
   type ImageToVideoModel,
@@ -200,13 +212,14 @@ export async function canRenderReferenceOnly(
   if (supportsReferenceOnlyMotion(modelKey)) return true;
   return referenceOnlyCapableWith(modelKey, {
     xai: Boolean(await resolveOptionalXaiKey(scopedDb)),
+    dashscope: isDashScopeConfigured(),
   });
 }
 
 /**
  * Which via this model would submit to right now. Same claim order as
- * `submitMotionJob` (native xAI → native Google → BytePlus → fal). Used by
- * motion `onFailure` so a Google Omni failure is not recorded as `fal`.
+ * `submitMotionJob` (native xAI → native Google → BytePlus → DashScope → fal).
+ * Used by motion `onFailure` so a native failure is not recorded as `fal`.
  */
 export async function resolveMotionVia(
   modelKey: ImageToVideoModel,
@@ -223,6 +236,13 @@ export async function resolveMotionVia(
   if (isNativeBytePlusVideoModel(modelKey) && isBytePlusConfigured()) {
     const falKey = await resolveOptionalFalKey(scopedDb);
     return claimBytePlusVia({
+      native: true,
+      usingOwnFalKey: falKey?.source === 'team',
+    });
+  }
+  if (isNativeDashScopeVideoModel(modelKey)) {
+    const falKey = await resolveOptionalFalKey(scopedDb);
+    return claimDashScopeVia({
       native: true,
       usingOwnFalKey: falKey?.source === 'team',
     });
@@ -424,12 +444,18 @@ export async function submitMotionJob(
   // References this model can actually carry (#1559): a shot whose only
   // attachment is an audio element has nothing to send a reference endpoint,
   // which rejects a request with no reference image or video.
+  // DashScope has no fal reference endpoint (`getMotionReferenceEndpoint`
+  // returns null), so `bindableReferences` would report zero and hide the cast
+  // sheets. Its async API takes media roles directly, so count any attachable
+  // reference here instead.
   const hasReferenceImages =
-    bindableReferences(
-      getMotionReferenceEndpoint(modelKey),
-      options.referenceImages ?? [],
-      Boolean(options.imageUrl)
-    ).length > 0;
+    via === 'dashscope'
+      ? (options.referenceImages ?? []).some((ref) => ref.referenceImageUrl)
+      : bindableReferences(
+          getMotionReferenceEndpoint(modelKey),
+          options.referenceImages ?? [],
+          Boolean(options.imageUrl)
+        ).length > 0;
 
   const endpoint = resolveMotionEndpoint(
     modelKey,
@@ -587,6 +613,47 @@ export async function submitMotionJob(
       usedOwnKey = googleKey.source === 'team';
       break;
     }
+    case 'dashscope': {
+      // Wan 3.0 forbids mixing `first_frame` with any `reference_*` media
+      // (400). References win — OpenStory defaults to reference-only, and
+      // dropping the cast sheets would silently reinvent every identity.
+      const media: DashScopeMedia[] = [];
+      const refs = options.referenceImages ?? [];
+      if (refs.length > 0) {
+        for (const ref of refs) {
+          if (!ref.referenceImageUrl) continue;
+          media.push({
+            type:
+              ref.kind === 'audio'
+                ? 'reference_audio'
+                : ref.kind === 'video'
+                  ? 'reference_video'
+                  : 'reference_image',
+            url: await toDataOrCdnUrl(ref.referenceImageUrl),
+          });
+        }
+      } else if (options.imageUrl) {
+        media.push({
+          type: 'first_frame',
+          url: await toDataOrCdnUrl(options.imageUrl),
+        });
+      }
+      const job = await submitDashScopeVideoJob({
+        prompt: options.prompt,
+        duration: snapDuration(options.duration, modelKey),
+        resolution: dashScopeResolution(options.resolution),
+        // `adaptive` follows the bound media instead of guessing a ratio the
+        // app's three-value ratio enum cannot fully express.
+        ratio: 'adaptive',
+        media,
+      });
+      jobId = job.jobId;
+      usedOwnKey = false;
+      // The submit result carries the workspace host in its endpointId. Poll
+      // reads only this stamp — never a live env value.
+      stampedEndpointId = job.endpointId;
+      break;
+    }
     case 'fal': {
       const fal = await submitFalMotionJob(options, modelKey);
       jobId = fal.jobId;
@@ -736,6 +803,11 @@ export async function pollMotionJob(
       }
       return result;
     }
+    case 'dashscope':
+      // The stamped endpointId carries the workspace host; poll never
+      // re-resolves it from live env. UNKNOWN is terminal (see
+      // pollDashScopeVideoJob), so a rejected task cannot spin forever.
+      return pollDashScopeVideoJob(jobId, falEndpointId);
     case 'fal': {
       const key = await resolveFalMotionKey(scopedDb);
       // Bound a single status fetch — the workflow already budgets total poll
@@ -828,6 +900,27 @@ export async function motionCostFromUsage(
         recordFalUsage: false,
       };
     }
+    case 'dashscope': {
+      // DashScope's task response reports no cost and no billable units. The
+      // credit gate uses the advertised card at submit; the exact charge is
+      // $0 and UNAUDITED, like native xAI / Google / Ark.
+      reportMissingBillingCost({
+        source: 'motion-cost-from-usage-dashscope',
+        modelId: ctx.modelKey,
+        metadata: { usage },
+      });
+      return {
+        endpointId: resolveMotionEndpoint(
+          ctx.modelKey,
+          ctx.hasReferenceImages,
+          'dashscope',
+          ctx.referenceOnly ?? false
+        ).endpointId,
+        unitsBilled: undefined,
+        cost: ZERO_MICROS,
+        recordFalUsage: false,
+      };
+    }
     case 'fal': {
       const endpointId = resolveMotionEndpoint(
         ctx.modelKey,
@@ -898,6 +991,17 @@ export function calculateMotionMetadata(
   if (isNativeGeminiVideoModel(modelKey)) {
     return {
       cost: geminiVideoDurationCost(validatedDuration),
+      duration: validatedDuration,
+      model: modelConfig.id,
+      vendor: modelConfig.vendor,
+    };
+  }
+
+  // Wan 3.0 has no fal JSON schema / transform, so `buildMotionRequest` would
+  // throw. Price it from the advertised card by duration instead.
+  if (isNativeDashScopeVideoModel(modelKey)) {
+    return {
+      cost: dashScopeDurationCost(validatedDuration),
       duration: validatedDuration,
       model: modelConfig.id,
       vendor: modelConfig.vendor,

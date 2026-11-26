@@ -288,7 +288,7 @@ function loadSettings(): GenerationSettings {
     // back to start frames on reload.
     return !settings.generateStartFrames &&
       !settings.videoModels.every((model) =>
-        referenceOnlyCapableWith(model, { xai: true })
+        referenceOnlyCapableWith(model, { xai: true, dashscope: true })
       )
       ? { ...settings, generateStartFrames: true }
       : settings;

@@ -141,6 +141,16 @@ export default defineConfig({
       ...(process.env.E2E_RECORD === '1'
         ? []
         : ['ELEVENLABS_API_KEY=test-mock-key']),
+      // DashScope: [env.test] declares the real workspace host as a
+      // non-secret var. Clear it in REPLAY so `isDashScopeConfigured()`'s
+      // `E2E_TEST && !DASHSCOPE_BASE_URL` guard fires — a .env.local key must
+      // never bill a replay run. Record mode wires the real host (and the real
+      // key from .env.local) so fixtures can be captured.
+      ...(process.env.E2E_RECORD === '1'
+        ? [
+            `DASHSCOPE_BASE_URL=${process.env.DASHSCOPE_BASE_URL ?? 'https://llm-fmwbq2bn8uyitwyo.cn-beijing.maas.aliyuncs.com/api/v1'}`,
+          ]
+        : ['DASHSCOPE_BASE_URL=']),
       'VITE_DISABLE_DEVTOOLS=true',
     ].join(' ');
 

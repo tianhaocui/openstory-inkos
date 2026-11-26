@@ -13,6 +13,7 @@
  */
 
 import { isBytePlusPricedModel } from '@/billing/byteplus-pricing';
+import { isDashScopePricedModel } from '@/billing/dashscope-pricing';
 import { isElevenLabsPricedModel } from '@/billing/elevenlabs-pricing';
 import {
   isNativeGeminiImageEndpoint,
@@ -206,7 +207,7 @@ export async function recordFalUsage(
   // Observations are platform-global telemetry with no teamId (see
   // model_usage_observations), but the write still needs a db handle.
   if (!scopedDb) return;
-  // Native xAI / Google / Ark / ElevenLabs units are a different
+  // Native xAI / Google / Ark / ElevenLabs / DashScope units are a different
   // denomination — sampling them under a fal endpoint id would corrupt the
   // median the pricing cron reads (#1167 / #1157 / #1552 / #1069).
   if (
@@ -215,7 +216,8 @@ export async function recordFalUsage(
     isNativeGeminiImageEndpoint(usage.endpointId) ||
     usage.endpointId === NATIVE_GEMINI_VIDEO_MODEL ||
     isBytePlusPricedModel(usage.endpointId) ||
-    isElevenLabsPricedModel(usage.endpointId)
+    isElevenLabsPricedModel(usage.endpointId) ||
+    isDashScopePricedModel(usage.endpointId)
   ) {
     return;
   }

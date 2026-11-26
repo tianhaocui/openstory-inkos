@@ -18,6 +18,7 @@
 
 import { createServerFn } from '@tanstack/react-start';
 import { claimBytePlusVia } from '@/models/server/byteplus-config';
+import { isDashScopeConfigured } from '@/models/server/dashscope-config';
 import { referenceOnlyMotionModels, type ImageToVideoModel } from './models';
 import { authWithTeamMiddleware } from '@/platform/middleware.fn';
 
@@ -33,6 +34,11 @@ export type ViaAvailability = {
    * a team on its own fal key: BYOK fal stays on fal, their key, their bill.
    */
   byteplus: boolean;
+  /**
+   * DashScope (Wan) reachable — platform key only, no team BYOK. Same e2e
+   * hermetic guard as the other native vias.
+   */
+  dashscope: boolean;
   /**
    * Video models that can render reference-only shots for THIS team, resolved
    * here rather than on the client so the two cannot disagree — derived from
@@ -56,6 +62,7 @@ export const getViaAvailabilityFn = createServerFn({ method: 'GET' })
           native: true,
           usingOwnFalKey: falKey?.source === 'team',
         }) === 'byteplus',
+      dashscope: isDashScopeConfigured(),
     };
     return { ...vias, referenceOnlyModels: referenceOnlyMotionModels(vias) };
   });

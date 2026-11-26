@@ -25,6 +25,7 @@ import { useAuthSession } from '@/platform/ui/auth/session-query';
 const CONSERVATIVE: ViaAvailability = {
   xai: false,
   byteplus: false,
+  dashscope: false,
   referenceOnlyModels: referenceOnlyMotionModels(),
 };
 

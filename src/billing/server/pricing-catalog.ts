@@ -8,6 +8,7 @@
  */
 
 import type { EffectiveFalPricing } from './fal-pricing-live';
+import { dashScopeDurationCost } from '@/billing/dashscope-pricing';
 import { estimateStrategy, knownUnitsPerCall } from '@/billing/fal-cost';
 import {
   geminiImageCost,
@@ -27,6 +28,7 @@ import {
   AUDIO_MODELS,
   IMAGE_MODELS,
   IMAGE_TO_VIDEO_MODELS,
+  isNativeDashScopeVideoModel,
   isOfferedVideoModel,
   type ImageToVideoModel,
   type TextToImageModel,
@@ -39,18 +41,32 @@ import {
 import { microsToUsd, type Microdollars } from '@/billing/money';
 import { typedEntries } from '@/platform/typed-object';
 
-type PricingVia = 'fal.ai' | 'OpenRouter' | 'BytePlus' | 'xAI' | 'Google';
+type PricingVia =
+  | 'fal.ai'
+  | 'OpenRouter'
+  | 'BytePlus'
+  | 'xAI'
+  | 'Google'
+  | 'DashScope';
 
 /**
  * Which native vias the PLATFORM key reaches (#1519). Advisory, like
  * `getViaAvailabilityFn`: the page is public, so this is the platform's
  * route, not a team's BYOK one.
  */
-export type PlatformVias = { byteplus: boolean; xai: boolean; google: boolean };
+export type PlatformVias = {
+  byteplus: boolean;
+  xai: boolean;
+  google: boolean;
+  /** DashScope (Wan) — optional so older callers/tests stay valid. */
+  dashscope?: boolean;
+};
 
 const XAI_DOCS_URL = 'https://docs.x.ai/developers/models';
 const GOOGLE_DOCS_URL = 'https://ai.google.dev/gemini-api/docs/pricing';
 const BYTEPLUS_DOCS_URL = 'https://docs.byteplus.com/en/docs/ModelArk/1544106';
+const DASHSCOPE_DOCS_URL =
+  'https://help.aliyun.com/zh/model-studio/wan3-0-video';
 
 type PricingRow = {
   name: string;
@@ -224,6 +240,16 @@ function nativeVideoRoute(
       docsUrl: GOOGLE_DOCS_URL,
       price: `约 ${perUnit(geminiVideoDurationCost(1), '秒')}`,
       detail: '按 720p 视频输出 token 计费',
+    };
+  }
+  if (vias.dashscope && isNativeDashScopeVideoModel(key)) {
+    const perSecond = dashScopeDurationCost(1);
+    return {
+      via: 'DashScope',
+      docsUrl: DASHSCOPE_DOCS_URL,
+      price:
+        perSecond === null ? '查看 DashScope' : `${perUnit(perSecond, '秒')}起`,
+      detail: '480P 标示价；任务结果不报告费用，账单以阿里云为准',
     };
   }
   return undefined;

@@ -76,6 +76,9 @@ export const SECRETS = {
   BYTEPLUS_ASSET_SLOTS: { runtime: true, build: false },
   BYTEPLUS_OPENAPI_HOST: { runtime: true, build: false },
   BETTER_AUTH_SECRET: { runtime: true, build: false },
+  // Platform-only DashScope (百炼) key for Wan video. The workspace base URL
+  // is a non-secret var in wrangler.jsonc, not a secret.
+  DASHSCOPE_API_KEY: { runtime: true, build: false },
   // Designed voices live on this account; there is no team BYOK (#1552).
   ELEVENLABS_API_KEY: { runtime: true, build: false },
   ELEVENLABS_BASE_URL: { runtime: true, build: false },

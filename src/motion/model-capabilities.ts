@@ -23,6 +23,9 @@ export const MOTION_DURATION_GRID = {
     4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
     24, 25, 26, 27, 28, 29, 30,
   ],
+  // DashScope Wan 3.0: 2–30s. Not baked from a fal schema — the async API is
+  // hand-written (see dashscope-video.ts).
+  wan3_0_video: Array.from({ length: 29 }, (_, i) => i + 2),
 } as const satisfies Record<ImageToVideoModel, readonly number[]>;
 
 /** `resolution` enum on the model's image-to-video endpoint. Empty = fixed size. */
@@ -36,6 +39,8 @@ export const MOTION_RESOLUTION_TOKENS = {
   seedance_v2: ['480p', '720p', '1080p', '4k'],
   seedance_v2_mini: ['480p', '720p'],
   seedance_v2_5: ['480p', '720p', '1080p'],
+  // DashScope spells its tiers with a capital P.
+  wan3_0_video: ['480P', '720P', '1080P'],
 } as const satisfies Record<ImageToVideoModel, readonly string[]>;
 
 export function durationGridForModel(modelKey: ImageToVideoModel): number[] {
@@ -77,6 +82,10 @@ export const MOTION_ASPECT_RATIOS = {
   seedance_v2: ['16:9', '9:16', '1:1'],
   seedance_v2_mini: ['16:9', '9:16', '1:1'],
   seedance_v2_5: ['16:9', '9:16', '1:1'],
+  // Wan accepts a much wider ratio set (21:9 … 9:16) plus `adaptive`. Only the
+  // app's three ratios are listed here; the submit path pins `adaptive` so the
+  // output follows the bound reference media rather than a guessed ratio.
+  wan3_0_video: ['16:9', '9:16', '1:1'],
 } as const satisfies Record<ImageToVideoModel, readonly AspectRatio[]>;
 
 export function modelSupportsAspectRatio(

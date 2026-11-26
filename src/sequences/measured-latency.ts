@@ -66,6 +66,8 @@ export const VIDEO_WALL_CLOCK = {
   seedance_v2: { p50: 211, p90: 289, n: 631 },
   seedance_v2_5: { p50: 293, p90: 466, n: 11 },
   seedance_v2_mini: { p50: 120, p90: 180, n: 0, proxy: 'seedance_v2' },
+  // No production samples yet — nearest long-form async route.
+  wan3_0_video: { p50: 120, p90: 240, n: 0, proxy: 'seedance_v2' },
 } as const satisfies Record<ImageToVideoModel, WallClock>;
 
 export const IMAGE_WALL_CLOCK = {

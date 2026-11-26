@@ -204,4 +204,21 @@ describe('reference-only', () => {
       resolveMotionEndpoint('seedance_v2_5', false)
     );
   });
+
+  it('routes DashScope Wan to its host-free async id, not a fal endpoint', () => {
+    expect(
+      resolveMotionEndpoint('wan3_0_video', false, 'dashscope', false)
+    ).toEqual({
+      via: 'dashscope',
+      endpointId: 'dashscope:wan3.0-video',
+      references: 'none',
+    });
+    expect(
+      resolveMotionEndpoint('wan3_0_video', true, 'dashscope', true)
+    ).toEqual({
+      via: 'dashscope',
+      endpointId: 'dashscope:wan3.0-video',
+      references: 'inline',
+    });
+  });
 });

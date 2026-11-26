@@ -29,11 +29,13 @@
  * reject the empty list.
  */
 
+import { dashScopeBaseEndpointId } from '@/models/dashscope';
 import { NATIVE_GEMINI_VIDEO_MODEL } from '@/models/gemini-native';
 import { NATIVE_GROK_VIDEO_MODEL } from '@/models/grok-native';
 import {
   IMAGE_TO_VIDEO_MODELS,
   getBytePlusVideoModelId,
+  getDashScopeVideoModelId,
   getMotionReferenceEndpoint,
   type ImageToVideoModel,
   type MotionReferenceEndpointConfig,
@@ -110,6 +112,22 @@ export function resolveMotionEndpoint(
     return {
       via: 'byteplus',
       endpointId,
+      references: hasReferenceImages || referenceOnly ? 'inline' : 'none',
+    };
+  }
+  if (via === 'dashscope') {
+    // Wan 3.0 serves i2v and r2v from one async model: `input.media` carries
+    // `first_frame` OR `reference_image` / `reference_video` /
+    // `reference_audio`, never both. The submit builder makes that choice;
+    // here we only publish the host-free id (the stamped id with the workspace
+    // host is minted at submit) and whether refs are expected.
+    const modelId = getDashScopeVideoModelId(modelKey);
+    if (!modelId) {
+      throw new Error(`No DashScope model id for motion model "${modelKey}"`);
+    }
+    return {
+      via: 'dashscope',
+      endpointId: dashScopeBaseEndpointId(modelId),
       references: hasReferenceImages || referenceOnly ? 'inline' : 'none',
     };
   }

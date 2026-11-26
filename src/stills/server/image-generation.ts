@@ -392,6 +392,11 @@ async function generateImageInternal(
       cost = await falCostFromUnits(endpoint, unitsBilled);
       break;
     }
+    case 'dashscope':
+      // DashScope is a video-only via. An image model never claims it; this
+      // branch exists so a future bogus stamp fails loudly instead of falling
+      // through with an unassigned result.
+      throw new Error('DashScope does not provide an image generation route');
   }
 
   // Native Gemini always answers with inline base64 and no hosted URL, and

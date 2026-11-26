@@ -1,6 +1,7 @@
 import { getEnv } from '#env';
 import { authWithTeamMiddleware } from '@/platform/middleware.fn';
 import { isBytePlusConfigured } from '@/models/server/byteplus-config';
+import { isDashScopeConfigured } from '@/models/server/dashscope-config';
 import {
   getEffectiveFalPricing,
   getFalPricingUpdatedAt,
@@ -49,6 +50,7 @@ export const getPricingCatalogFn = createServerFn({ method: 'GET' }).handler(
         // Platform keys only — the page is public, so no team BYOK applies.
         vias: {
           byteplus: isBytePlusConfigured(),
+          dashscope: isDashScopeConfigured(),
           xai: Boolean(getEnv().XAI_API_KEY),
           google: Boolean(getEnv().GEMINI_API_KEY),
         },
