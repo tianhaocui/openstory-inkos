@@ -50,7 +50,7 @@
 
 ## 当前阻塞（最终验收）
 
-1. **e2e 11 failed**：其中 **7 条 R2 上传 404（talent）——用户确认「暂时没有文件存储服务」，属环境缺失，不是代码 bug，当前不可修**；另 4 条定位器/时序问题交开发独立轨道。
+1. **e2e 11 failed**：其中 **7 条 R2 上传 404（talent）已于 2026-11-26 修复**——根因是 Workerd dev 缺 `/api/storage/upload` 与 `/api/storage/multipart` 路由（只在 Node server 有），补 `src/routes/api/storage/` 后实测上传 200、回读一致、talent.spec 中 404 归零（提交 `41bfe6bc`）。剩余 5 条 talent 为分类器/文案断言（非上传），另 4 条定位器/时序问题交开发独立轨道。
 2. **Chromatic CI 集成**：本地无 token，暗色基线 + 全量比对需 CI 外部集成（release 负责）。
 3. e2e URL 断言（P2 影片线改 `/films` 后）交开发独立轨道更新。
 
