@@ -160,6 +160,32 @@ export function reportSkippedDeduction(ctx: SkippedDeductionContext): void {
   });
 }
 
+/**
+ * A call went to the operator's own OpenAI-compatible endpoint. Its spend is
+ * paid outside our ledger (no `usage.cost` from OpenRouter, no fal reconcile),
+ * so $0 is CORRECT here — not a missing-cost anomaly. Distinct event so the
+ * unaudited custom-endpoint volume is countable without polluting
+ * `billing_missing_cost`.
+ */
+export function reportUnauditedCustomAiCost(ctx: {
+  source: string;
+  modelId?: string;
+}): void {
+  logger.warn(
+    'Custom AI endpoint call billed $0 (spend is external/unaudited)',
+    ctx
+  );
+
+  captureBillingEvent({
+    distinctId: 'system',
+    event: 'billing_custom_endpoint_unaudited',
+    properties: {
+      source: ctx.source,
+      model_id: ctx.modelId,
+    },
+  });
+}
+
 /** Log and emit analytics when a completed generation has nothing to bill. */
 export function reportMissingBillingCost(ctx: MissingBillingCostContext): void {
   logger.warn('Completed AI generation with no billable cost reported', ctx);

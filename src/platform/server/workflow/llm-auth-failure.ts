@@ -28,6 +28,8 @@ export async function handleLlmAuthFailure(
     .resolveLlmKey(model)
     .catch(() => undefined);
   if (llmKey?.source !== 'team') return undefined;
+  // The custom endpoint is env-only — no team row can be marked invalid.
+  if (llmKey.via === 'custom') return undefined;
 
   await scopedDb.apiKeys.markKeyInvalid(llmKey.via, sanitizedError);
   return `Your ${LLM_KEY_LABELS[llmKey.via]} API key is invalid — update it in Settings.`;
@@ -39,4 +41,6 @@ const LLM_KEY_LABELS: Record<ResolvedLlmKey['via'], string> = {
   xai: 'xAI',
   google: 'Google',
   llmtr: 'LLMTR',
+  // Never a team row — kept exhaustive so adding a via can't silently drop a label.
+  custom: 'Custom AI',
 };

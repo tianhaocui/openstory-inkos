@@ -8,6 +8,7 @@
 import { createServerFn } from '@tanstack/react-start';
 import { zodValidator } from '@tanstack/zod-adapter';
 import { z } from 'zod';
+import { getEnv } from '#env';
 import { authWithTeamMiddleware } from '@/platform/middleware.fn';
 import {
   calculateFilmStatus,
@@ -793,7 +794,8 @@ export const generateStoryboardFn = createServerFn({ method: 'POST' })
     }
 
     // Get API key from environment
-    const apiKey = process.env.OPENROUTER_KEY || process.env.AI_API_KEY || '';
+    const env = getEnv();
+    const apiKey = env.OPENROUTER_KEY || env.AI_API_KEY || '';
     if (!apiKey) {
       throw new Error('未配置 AI API Key');
     }
@@ -900,7 +902,8 @@ export const reanalyzeSegmentFn = createServerFn({ method: 'POST' })
     }
 
     // Get API key
-    const apiKey = process.env.OPENROUTER_KEY || process.env.AI_API_KEY || '';
+    const env = getEnv();
+    const apiKey = env.OPENROUTER_KEY || env.AI_API_KEY || '';
     if (!apiKey) {
       throw new Error('未配置 AI API Key');
     }

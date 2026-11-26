@@ -43,6 +43,9 @@ const testEnv: {
   ELEVENLABS_API_KEY: string | undefined;
   ELEVENLABS_BASE_URL: string | undefined;
   E2E_TEST: string | undefined;
+  AI_BASE_URL: string | undefined;
+  AI_API_KEY: string | undefined;
+  AI_MODEL: string | undefined;
 } = {
   API_KEY_ENCRYPTION_KEY: 'test-secret-for-api-keys-memoization',
   OPENROUTER_KEY: 'platform-openrouter-key',
@@ -52,6 +55,9 @@ const testEnv: {
   ELEVENLABS_API_KEY: undefined,
   ELEVENLABS_BASE_URL: undefined,
   E2E_TEST: undefined,
+  AI_BASE_URL: undefined,
+  AI_API_KEY: undefined,
+  AI_MODEL: undefined,
 };
 
 vi.doMock('#env', () => ({
@@ -128,6 +134,9 @@ beforeEach(async () => {
   testEnv.ELEVENLABS_API_KEY = undefined;
   testEnv.ELEVENLABS_BASE_URL = undefined;
   testEnv.E2E_TEST = undefined;
+  testEnv.AI_BASE_URL = undefined;
+  testEnv.AI_API_KEY = undefined;
+  testEnv.AI_MODEL = undefined;
   await seed();
 });
 
@@ -601,7 +610,7 @@ describe('resolveLlmKey — LLMTR gateway', () => {
     const scope = createApiKeysReadMethods(db, teamId);
 
     await expect(scope.resolveLlmKey(CARRIED)).rejects.toThrow(
-      /No platform LLM key available \(set OPENROUTER_KEY or FAL_KEY\)/
+      /No platform LLM key available \(set OPENROUTER_KEY, FAL_KEY, or AI_BASE_URL \+ AI_API_KEY\)/
     );
   });
 
@@ -828,6 +837,48 @@ describe('resolveKey elevenlabs (platform-only, #1552)', () => {
     expect(await scope.resolveKey('elevenlabs')).toEqual({
       key: 'el-platform',
       source: 'platform',
+    });
+  });
+});
+
+describe('resolveLlmKey — env-only custom AI endpoint', () => {
+  it('uses via:"custom" when only AI_* is configured', async () => {
+    testEnv.OPENROUTER_KEY = undefined;
+    testEnv.FAL_KEY = undefined;
+    testEnv.AI_BASE_URL = 'https://ai.example.com/v1';
+    testEnv.AI_API_KEY = 'custom-platform-key';
+    const scope = createApiKeysReadMethods(db, teamId);
+
+    expect(
+      await scope.resolveLlmKey('anthropic/claude-sonnet-5')
+    ).toStrictEqual({
+      key: 'custom-platform-key',
+      source: 'platform',
+      via: 'custom',
+      fallbackReason: undefined,
+    });
+  });
+
+  it('keeps an OpenRouter key ahead of the custom endpoint', async () => {
+    testEnv.AI_BASE_URL = 'https://ai.example.com/v1';
+    testEnv.AI_API_KEY = 'custom-platform-key';
+    const scope = createApiKeysReadMethods(db, teamId);
+
+    expect((await scope.resolveLlmKey())?.via).toBe('openrouter');
+  });
+
+  it('keeps a team BYOK key ahead of the custom endpoint', async () => {
+    testEnv.OPENROUTER_KEY = undefined;
+    testEnv.FAL_KEY = undefined;
+    testEnv.AI_BASE_URL = 'https://ai.example.com/v1';
+    testEnv.AI_API_KEY = 'custom-platform-key';
+    const writeScope = createApiKeysMethods(db, teamId, userId);
+    await writeScope.saveKey({ provider: 'openrouter', apiKey: 'sk-or-team' });
+
+    expect(await writeScope.resolveLlmKey()).toEqual({
+      key: 'sk-or-team',
+      source: 'team',
+      via: 'openrouter',
     });
   });
 });

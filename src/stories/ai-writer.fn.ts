@@ -7,6 +7,7 @@
 import { createServerFn } from '@tanstack/react-start';
 import { zodValidator } from '@tanstack/zod-adapter';
 import { z } from 'zod';
+import { getCustomAiConfig } from '@/models/server/custom-ai-config';
 import { authWithTeamMiddleware } from '@/platform/middleware.fn';
 import type { ScopedDb } from '@/platform/server/db/scoped';
 import { ulid } from 'ulid';
@@ -17,13 +18,8 @@ type StoriesDb = ScopedDb['stories'];
 // Types & Constants
 // ============================================================================
 
-const AI_CONFIG = {
-  baseUrl:
-    process.env.AI_BASE_URL ||
-    'https://kiro.dakalami.com/aiclient2api/claude-kiro-oauth/v1',
-  apiKey: process.env.AI_API_KEY || '1234',
-  model: process.env.AI_MODEL || 'claude-opus-4-6',
-};
+// AI endpoint settings come from the shared getEnv()-backed module:
+// `process.env` does not see Worker secrets in production.
 
 // ============================================================================
 // Schemas
@@ -89,14 +85,15 @@ async function callAI(
   systemPrompt: string,
   userPrompt: string
 ): Promise<string> {
-  const response = await fetch(`${AI_CONFIG.baseUrl}/chat/completions`, {
+  const aiConfig = getCustomAiConfig();
+  const response = await fetch(`${aiConfig.baseUrl}/chat/completions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${AI_CONFIG.apiKey}`,
+      Authorization: `Bearer ${aiConfig.apiKey ?? ''}`,
     },
     body: JSON.stringify({
-      model: AI_CONFIG.model,
+      model: aiConfig.model,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
@@ -361,7 +358,7 @@ export const continueWritingFn = createServerFn({ method: 'POST' })
       content,
       wordCount,
       status: 'draft',
-      generatedBy: AI_CONFIG.model,
+      generatedBy: getCustomAiConfig().model,
       createdAt: now,
       updatedAt: now,
     });

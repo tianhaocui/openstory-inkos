@@ -24,6 +24,7 @@ import {
   llmtrCompatibleApi,
   llmtrTextModel,
 } from '@/models/llmtr';
+import { getCustomAiConfig } from '@/models/server/custom-ai-config';
 import type { TextModel } from '@/models/models';
 import { workersSafeFetch } from '@/platform/server/ai/workers-safe-fetch';
 import { HTTPClient } from '@openrouter/sdk/lib/http';
@@ -52,9 +53,11 @@ export type LlmKeyInfo = {
    * (Bearer auth, Grok models only — issue #1167), 'google' calls Google's
    * own Gemini API (`x-goog-api-key` auth, Gemini models only), 'llmtr' calls
    * the LLMTR gateway (Bearer auth, OpenAI Chat Completions, and only the
-   * models `LLMTR_TEXT_MODELS` maps).
+   * models `LLMTR_TEXT_MODELS` maps), 'custom' a self-hosted OpenAI-compatible
+   * Chat Completions endpoint (`AI_BASE_URL`, Bearer `AI_API_KEY`, wire name
+   * `AI_MODEL` — platform env-only, never team BYOK).
    */
-  via: 'openrouter' | 'fal' | 'xai' | 'google' | 'llmtr';
+  via: 'openrouter' | 'fal' | 'xai' | 'google' | 'llmtr' | 'custom';
 };
 
 // fal's endpoint authenticates with `Authorization: Key <FAL_KEY>` while the
@@ -71,8 +74,10 @@ function falAuthHttpClient(falKey: string): HTTPClient {
 /**
  * Resolve the platform-level LLM key from env. A Grok model prefers
  * XAI_API_KEY (#1167) and a Gemini model GEMINI_API_KEY; otherwise
- * OPENROUTER_KEY, then FAL_KEY (issue #895). LLMTR is team BYOK only —
- * there is no platform LLMTR key. Returns undefined when none is configured.
+ * OPENROUTER_KEY, then FAL_KEY (issue #895), then the env-only custom
+ * endpoint (`AI_BASE_URL` + `AI_API_KEY`) as the last resort. LLMTR is team
+ * BYOK only — there is no platform LLMTR key. Returns undefined when none
+ * is configured.
  *
  * Omitting `model` keeps the OpenRouter-first order, which every model
  * supports — a caller that can't name the model can't promise it's a Grok
@@ -93,6 +98,14 @@ export function getPlatformLlmKey(
   }
   if (env.FAL_KEY) {
     return { key: env.FAL_KEY, via: 'fal', source: 'platform' };
+  }
+  const custom = getCustomAiConfig();
+  if (custom.apiKey) {
+    return {
+      key: custom.apiKey,
+      via: 'custom',
+      source: 'platform',
+    };
   }
   return undefined;
 }
@@ -228,6 +241,32 @@ export function createAdapter(model: TextModel, keyInfo?: LlmKeyInfo) {
       ...(env.GEMINI_BASE_URL && {
         httpOptions: { baseUrl: env.GEMINI_BASE_URL },
       }),
+    });
+  }
+
+  // The custom endpoint is OpenAI Chat Completions, NOT OpenRouter. It must
+  // be intercepted before the mismatch throw and before the OpenRouter
+  // factory: an AI_API_KEY sent to openrouter.ai 401s with its generic
+  // "Missing Authentication header" message. Same shape as the LLMTR
+  // mismatch guard — fail loudly instead of guessing a fallback route.
+  if (via === 'custom') {
+    const custom = getCustomAiConfig();
+    if (!key || !custom.baseUrl) {
+      throw new Error(
+        'Custom AI endpoint requires AI_BASE_URL and AI_API_KEY. Resolve the LLM key for the model being called, not a different analysis model.'
+      );
+    }
+    // `model` stays a registry id everywhere upstream; only the wire name
+    // crosses the adapter boundary. `openaiCompatibleText` takes a plain
+    // string (unlike the catalog-backed factories), so the configured name
+    // goes over the wire verbatim — no catalog id to resolve or extend.
+    const wireModel = custom.model;
+    return openaiCompatibleText(wireModel, {
+      name: 'custom',
+      baseURL: custom.baseUrl,
+      apiKey: key,
+      api: 'chat-completions',
+      fetch: workersSafeFetch,
     });
   }
 

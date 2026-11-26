@@ -10,6 +10,7 @@
  */
 
 import { z } from 'zod';
+import { getCustomAiConfig } from '@/models/server/custom-ai-config';
 import type { StoryFilmmakingDb } from '@/platform/server/db/scoped/stories-filmmaking';
 import { getLogger } from '@/platform/logger';
 
@@ -90,16 +91,6 @@ export const StoryboardAnalysisSchema = z.object({
 export type ShotAnalysis = z.infer<typeof ShotAnalysisSchema>;
 export type SegmentAnalysis = z.infer<typeof SegmentAnalysisSchema>;
 export type StoryboardAnalysis = z.infer<typeof StoryboardAnalysisSchema>;
-
-// =============================================================================
-// AI Configuration
-// =============================================================================
-
-const AI_CONFIG = {
-  baseUrl: 'https://kiro.dakalami.com/aiclient2api/claude-kiro-oauth/v1',
-  model: 'claude-opus-4-6',
-  maxTokens: 8192,
-};
 
 // =============================================================================
 // Core Functions
@@ -213,15 +204,16 @@ ${storyText}
       segmentDuration,
     });
 
-    const response = await fetch(`${AI_CONFIG.baseUrl}/chat/completions`, {
+    const aiConfig = getCustomAiConfig();
+    const response = await fetch(`${aiConfig.baseUrl}/chat/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey || aiConfig.apiKey || ''}`,
       },
       body: JSON.stringify({
-        model: AI_CONFIG.model,
-        max_tokens: AI_CONFIG.maxTokens,
+        model: aiConfig.model,
+        max_tokens: aiConfig.maxTokens,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },

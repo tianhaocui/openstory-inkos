@@ -15,6 +15,7 @@ import {
   resolveNativeGrokModel,
   type LlmKeyInfo,
 } from './create-adapter';
+import type { ResolvedLlmKey } from '@/models/server/db/api-keys';
 import { llmtrCompatibleApi } from '@/models/llmtr';
 import {
   createUsageCapture,
@@ -206,7 +207,7 @@ function assertStructuredOutput<T>(
   );
 }
 
-/** OpenRouter vs xAI Responses vs Gemini vs LLMTR Chat Completions options.
+/** OpenRouter vs xAI Responses vs Gemini vs LLMTR/custom Chat Completions options.
  *  xAI and Google reject `streamOptions`; xAI uses `max_output_tokens` and
  *  Gemini camelCase `maxOutputTokens`. LLMTR spreads native Chat Completions
  *  names (`max_tokens`, `reasoning_effort`) — OpenRouter camelCase would
@@ -243,6 +244,18 @@ export function chatModelOptionsForCall(
   const glmEffort = isForcedGlmReasoningModel(modelId)
     ? glmReasoningEffortForCall(reasoning)
     : undefined;
+  // A custom endpoint speaks plain Chat Completions — the OpenRouter
+  // `provider` / `streamOptions` / camelCase names would be unknown fields.
+  if (llmKeyInfo.via === 'custom') {
+    return {
+      ...(glmEffort
+        ? { reasoning_effort: glmEffort }
+        : reasoning
+          ? { reasoning_effort: PROMPT_REASONING.effort }
+          : {}),
+      max_tokens: maxTokens,
+    };
+  }
   if (llmKeyInfo.via === 'llmtr') {
     if (llmtrCompatibleApi(modelId) === 'responses') {
       return {
@@ -298,7 +311,17 @@ export type DurableStreamingLLMCallContext = DurableLLMCallContext & {
   };
 };
 
-type LlmKeySource = 'team' | 'platform';
+type LlmKeySource = 'team' | 'platform' | 'custom';
+
+/**
+ * A custom endpoint is paid by the operator, not the platform, so it must
+ * never spend platform credits. It carries `source: 'platform'` from
+ * {@link getPlatformLlmKey} (there is no team row for it) but is billed like
+ * a user's own key downstream.
+ */
+function keySourceForCall(llmKeyInfo: ResolvedLlmKey): LlmKeySource {
+  return llmKeyInfo.via === 'custom' ? 'custom' : llmKeyInfo.source;
+}
 
 /**
  * Resolve the key for the LLM call — the team's key via ScopedDb, or the
@@ -319,7 +342,7 @@ async function resolveCallKey(
   const platform = getPlatformLlmKey(model);
   if (!platform) {
     throw new NonRetryableError(
-      'No platform LLM key available (set OPENROUTER_KEY or FAL_KEY)',
+      'No platform LLM key available (set OPENROUTER_KEY, FAL_KEY, or AI_BASE_URL + AI_API_KEY)',
       'WorkflowValidationError'
     );
   }
@@ -492,7 +515,7 @@ export async function durableLLMCallCf<TSchema extends z.ZodType>(
                 model,
                 llmKeyInfo.via
               ),
-              keySource: llmKeyInfo.source,
+              keySource: keySourceForCall(llmKeyInfo),
             };
           } finally {
             clearTimeout(timeout);
@@ -508,7 +531,7 @@ export async function durableLLMCallCf<TSchema extends z.ZodType>(
       await deductWorkflowCredits({
         scopedDb,
         costMicros,
-        usedOwnKey: keySource === 'team',
+        usedOwnKey: keySource !== 'platform',
         description: `LLM analysis (${modelId})`,
         idempotencyKey: `${callContext.workflowRunId}:llm-${name}`,
         reservationId: callContext.reservationId,
@@ -721,7 +744,7 @@ export async function durableStreamingLLMCallCf<TSchema extends z.ZodType>(
                 model,
                 llmKeyInfo.via
               ),
-              keySource: llmKeyInfo.source,
+              keySource: keySourceForCall(llmKeyInfo),
             };
           } finally {
             clearTimeout(timeout);
@@ -737,7 +760,7 @@ export async function durableStreamingLLMCallCf<TSchema extends z.ZodType>(
       await deductWorkflowCredits({
         scopedDb,
         costMicros,
-        usedOwnKey: keySource === 'team',
+        usedOwnKey: keySource !== 'platform',
         description: `LLM analysis (${modelId})`,
         idempotencyKey: `${callContext.workflowRunId}:llm-${name}`,
         reservationId: callContext.reservationId,

@@ -170,7 +170,7 @@ export class FramePromptWorkflow extends OpenStoryWorkflowEntrypoint<FramePrompt
       async (): Promise<{
         resultJson: string;
         costMicros: Microdollars;
-        keySource: 'team' | 'platform';
+        keySource: 'team' | 'platform' | 'custom';
       }> => {
         const llmKeyInfo =
           await scopedDb.credentials.resolveLlmKey(analysisModelId);
@@ -341,7 +341,8 @@ export class FramePromptWorkflow extends OpenStoryWorkflowEntrypoint<FramePrompt
               analysisModelId,
               llmKeyInfo.via
             ),
-            keySource: llmKeyInfo.source,
+            keySource:
+              llmKeyInfo.via === 'custom' ? 'custom' : llmKeyInfo.source,
           };
         } finally {
           clearTimeout(timeout);
@@ -357,7 +358,7 @@ export class FramePromptWorkflow extends OpenStoryWorkflowEntrypoint<FramePrompt
       await deductWorkflowCredits({
         scopedDb,
         costMicros,
-        usedOwnKey: keySource === 'team',
+        usedOwnKey: keySource !== 'platform',
         description: `LLM analysis (${analysisModelId})`,
         idempotencyKey: `${event.instanceId}:llm-${STEP_NAME}`,
         reservationId: input.reservationId,

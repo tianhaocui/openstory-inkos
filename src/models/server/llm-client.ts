@@ -1,10 +1,14 @@
 /**
  * LLM client for AI services
- * Routes through native xAI / Google, LLMTR (OpenAI-compat), or OpenRouter.
+ * Routes through native xAI / Google, LLMTR (OpenAI-compat), the env-only
+ * custom Chat Completions endpoint, or OpenRouter.
  */
 
 import type { TextModel } from '@/models/models';
-import { reportMissingBillingCost } from '@/billing/billing-observability';
+import {
+  reportMissingBillingCost,
+  reportUnauditedCustomAiCost,
+} from '@/billing/billing-observability';
 import { usdToMicros, ZERO_MICROS, type Microdollars } from '@/billing/money';
 import { aiObservabilityMiddleware } from '@/platform/server/observability/ai-otel';
 import type { ChatMessage } from '@/platform/server/ai/prompts-index';
@@ -138,6 +142,8 @@ export function createUsageCapture(): {
  *
  * Uses OpenRouter's per-request `cost` (USD) when present. LLMTR, xAI and
  * Google report tokens only, so they are priced from published rates instead.
+ * A custom endpoint is paid by the operator — always $0 with a dedicated
+ * unaudited warning, never a missing-cost alert.
  *
  * `via` is load-bearing. Pass the value the call actually resolved:
  * `llmCostFromUsage(usage, model, llmKey.via)`. LLMTR is checked first so a
@@ -155,6 +161,17 @@ export function llmCostFromUsage(
 ): Microdollars {
   if (usageHasCost(usage)) {
     return usdToMicros(usage.cost);
+  }
+
+  // The operator pays this endpoint directly. Report token counts we can see
+  // but do not invent a rate: $0 is the correct platform charge, and it must
+  // not be mistaken for a broken OpenRouter cost field.
+  if (via === 'custom') {
+    reportUnauditedCustomAiCost({
+      source: 'llm-cost-from-usage',
+      modelId,
+    });
+    return ZERO_MICROS;
   }
 
   if (via === 'llmtr') {
@@ -500,10 +517,14 @@ function toLlmtrReasoningEffort(
  * LLMTR's compatible adapter spreads `modelOptions` as native wire names.
  * Responses-only models (`max_output_tokens`, `reasoning.effort`) 400 if
  * handed Chat Completions names (`max_tokens`, `reasoning_effort`).
+ * The custom endpoint always speaks Chat Completions, so it shares this
+ * builder with an explicit `api` override.
  */
-function buildLlmtrModelOptions(params: LLMRequestParams) {
+function buildCompatibleModelOptions(
+  params: LLMRequestParams,
+  api: 'chat-completions' | 'responses'
+) {
   const allowSampling = modelAllowsClassicSampling(params.model);
-  const api = llmtrCompatibleApi(params.model);
   const glmEffort = isForcedGlmReasoningModel(params.model)
     ? glmReasoningEffortForCall(params.reasoning)
     : undefined;
@@ -544,6 +565,16 @@ function buildLlmtrModelOptions(params: LLMRequestParams) {
     ...(params.max_tokens != null && { max_tokens: params.max_tokens }),
     ...sampling,
   };
+}
+
+function buildLlmtrModelOptions(params: LLMRequestParams) {
+  return buildCompatibleModelOptions(params, llmtrCompatibleApi(params.model));
+}
+
+/** Custom Chat Completions endpoint — never OpenRouter's `provider`,
+ *  `serviceTier`, `maxTokens` or `streamOptions`. */
+function buildCustomModelOptions(params: LLMRequestParams) {
+  return buildCompatibleModelOptions(params, 'chat-completions');
 }
 
 /**
@@ -647,12 +678,13 @@ function buildModelOptions(params: LLMRequestParams) {
 
 /** Which API a chat call routes to — decided once in {@link baseChatOptions}
  *  so the adapter, options object, and tools always agree. */
-type ChatRoute = 'xai' | 'google' | 'openrouter' | 'llmtr';
+type ChatRoute = 'xai' | 'google' | 'openrouter' | 'llmtr' | 'custom';
 
 function resolveChatRoute(params: LLMRequestParams): ChatRoute {
   if (resolveNativeGrokModel(params.model, params.apiKey)) return 'xai';
   if (resolveNativeGeminiModel(params.model, params.apiKey)) return 'google';
   if (params.apiKey?.via === 'llmtr') return 'llmtr';
+  if (params.apiKey?.via === 'custom') return 'custom';
   return 'openrouter';
 }
 
@@ -663,12 +695,12 @@ function resolveChatRoute(params: LLMRequestParams): ChatRoute {
  *
  * xAI's and Google's web search are on/off — no engine/result-count/prompt
  * knobs — so those options are dropped on the native routes rather than
- * failing the call. LLMTR is OpenAI Chat Completions and does not run
- * OpenRouter server tools (`openrouter:web_search`).
+ * failing the call. LLMTR and the custom endpoint are OpenAI Chat
+ * Completions and do not run OpenRouter server tools (`openrouter:web_search`).
  */
 function buildTools(params: LLMRequestParams, route: ChatRoute) {
   if (!params.webSearch) return undefined;
-  if (route === 'llmtr') return undefined;
+  if (route === 'llmtr' || route === 'custom') return undefined;
   if (route === 'xai') return [grokWebSearchTool()];
   if (route === 'google') return [googleSearchTool()];
   const opts = params.webSearch === true ? {} : params.webSearch;
@@ -720,7 +752,9 @@ function baseChatOptions(params: LLMRequestParams) {
         ? buildGeminiModelOptions(params)
         : route === 'llmtr'
           ? buildLlmtrModelOptions(params)
-          : buildModelOptions(params);
+          : route === 'custom'
+            ? buildCustomModelOptions(params)
+            : buildModelOptions(params);
   return {
     route,
     adapter: createAdapter(params.model, params.apiKey),

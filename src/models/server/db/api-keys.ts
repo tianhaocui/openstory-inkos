@@ -63,9 +63,11 @@ export type ResolvedApiKey =
 // fal key still covers LLM calls (issue #895), 'xai' = xAI's own Responses
 // API for Grok models (issue #1167), 'google' = Google's own Gemini API for
 // Gemini models, 'llmtr' = the LLMTR gateway (Bearer auth, OpenAI Chat
-// Completions, models per `LLMTR_TEXT_MODELS`).
+// Completions, models per `LLMTR_TEXT_MODELS`), 'custom' = the env-only
+// OpenAI-compatible endpoint (`AI_BASE_URL` / `AI_API_KEY` / `AI_MODEL`;
+// platform fallback only, never a team BYOK row).
 export type ResolvedLlmKey = ResolvedApiKey & {
-  via: 'openrouter' | 'fal' | 'xai' | 'google' | 'llmtr';
+  via: 'openrouter' | 'fal' | 'xai' | 'google' | 'llmtr' | 'custom';
 };
 
 // The cached shape of a `team_api_keys` lookup. Holds the *encrypted* row
@@ -461,7 +463,7 @@ export function createApiKeysReadMethods(db: Database, teamId: string) {
     const platform = getPlatformLlmKey(model);
     if (!platform) {
       throw new Error(
-        'No platform LLM key available (set OPENROUTER_KEY or FAL_KEY)'
+        'No platform LLM key available (set OPENROUTER_KEY, FAL_KEY, or AI_BASE_URL + AI_API_KEY)'
       );
     }
     if (fallbackReason) {

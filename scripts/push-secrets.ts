@@ -64,6 +64,8 @@ export type SecretNeed = {
  */
 export const SECRETS = {
   ADMIN_EMAILS: { runtime: true, build: false },
+  // Last-resort LLM fallback for the film line (no Settings UI / team BYOK).
+  AI_API_KEY: { runtime: true, build: false },
   API_KEY_ENCRYPTION_KEY: { runtime: true, build: false },
   // Live `ARK_API_KEY` on the Worker is what claims the BytePlus via (#1519).
   ARK_API_KEY: { runtime: true, build: false },

@@ -35,6 +35,21 @@ vi.doMock('./create-adapter', () => ({
   resolveNativeGeminiModel: () => undefined,
 }));
 
+// Spy on billing warnings without losing the real module (other tests call
+// reportMissingBillingCost through llmCostFromUsage).
+const unauditedSpy = vi.fn();
+const missingCostSpy = vi.fn();
+vi.doMock('@/billing/billing-observability', async () => {
+  const actual = await vi.importActual<
+    typeof import('@/billing/billing-observability')
+  >('@/billing/billing-observability');
+  return {
+    ...actual,
+    reportUnauditedCustomAiCost: unauditedSpy,
+    reportMissingBillingCost: missingCostSpy,
+  };
+});
+
 // Mock the PostHog OTel middleware factory — observability hints are
 // forwarded to it rather than to chat() metadata. It returns a SENTINEL rather
 // than `[]` so the assertions below can prove the result is actually spread
@@ -76,6 +91,8 @@ describe('llm-client', () => {
     mockChat.mockClear();
     mockCreateAdapter.mockClear();
     mockAIObservabilityMiddleware.mockClear();
+    unauditedSpy.mockClear();
+    missingCostSpy.mockClear();
   });
 
   describe('callLLMStream', () => {
@@ -1389,6 +1406,61 @@ describe('llm-client', () => {
       expect(
         llmCostFromUsage(usage(0.0123), 'google/gemini-3.1-pro-preview')
       ).toBe(usdToMicros(0.0123));
+    });
+
+    it('charges $0 on a custom endpoint with one dedicated unaudited warning', () => {
+      const tokens = {
+        promptTokens: 1_000_000,
+        completionTokens: 100_000,
+        totalTokens: 1_100_000,
+      };
+      expect(
+        llmCostFromUsage(tokens, 'anthropic/claude-sonnet-5', 'custom')
+      ).toBe(ZERO_MICROS);
+      expect(unauditedSpy).toHaveBeenCalledTimes(1);
+      expect(unauditedSpy).toHaveBeenCalledWith({
+        source: 'llm-cost-from-usage',
+        modelId: 'anthropic/claude-sonnet-5',
+      });
+      expect(missingCostSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('custom AI endpoint route', () => {
+    it('uses Chat Completions options and never OpenRouter-only fields or web search', async () => {
+      mockChat.mockReturnValue(
+        (async function* () {
+          yield { type: 'TEXT_MESSAGE_CONTENT', delta: 'ok' };
+        })()
+      );
+
+      const stream = callLLMStream({
+        model: 'anthropic/claude-sonnet-5',
+        messages: [{ role: 'user', content: 'test' }],
+        max_tokens: 300,
+        temperature: 0.7,
+        webSearch: true,
+        reasoning: { enabled: true, effort: 'low' },
+        apiKey: { key: 'custom-key', via: 'custom' },
+      });
+      for await (const _chunk of stream) {
+        // exhaust the generator
+      }
+
+      expect(mockCreateAdapter).toHaveBeenCalledWith(
+        'anthropic/claude-sonnet-5',
+        { key: 'custom-key', via: 'custom' }
+      );
+      const callArgs = mockChat.mock.calls[0]?.[0];
+      if (!callArgs) throw new Error('expected mockChat to have been called');
+      expect(callArgs.modelOptions).toEqual({
+        reasoning_effort: 'low',
+        max_tokens: 300,
+        temperature: 0.7,
+      });
+      expect(callArgs.modelOptions.provider).toBeUndefined();
+      expect(callArgs.modelOptions.streamOptions).toBeUndefined();
+      expect(callArgs.tools).toBeUndefined();
     });
   });
 

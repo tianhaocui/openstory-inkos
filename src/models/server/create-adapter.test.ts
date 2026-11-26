@@ -22,6 +22,9 @@ const testEnv: {
   E2E_RECORD: string | undefined;
   VITE_APP_URL: string;
   VITE_APP_NAME: string;
+  AI_BASE_URL: string | undefined;
+  AI_API_KEY: string | undefined;
+  AI_MODEL: string | undefined;
 } = {
   OPENROUTER_KEY: undefined,
   FAL_KEY: undefined,
@@ -33,6 +36,9 @@ const testEnv: {
   E2E_RECORD: undefined,
   VITE_APP_URL: 'http://localhost:3000',
   VITE_APP_NAME: 'OpenStory',
+  AI_BASE_URL: undefined,
+  AI_API_KEY: undefined,
+  AI_MODEL: undefined,
 };
 
 vi.doMock('#env', () => ({
@@ -172,6 +178,9 @@ beforeEach(() => {
   testEnv.XAI_BASE_URL = undefined;
   testEnv.GEMINI_API_KEY = undefined;
   testEnv.GEMINI_BASE_URL = undefined;
+  testEnv.AI_BASE_URL = undefined;
+  testEnv.AI_API_KEY = undefined;
+  testEnv.AI_MODEL = undefined;
   adapterCalls.length = 0;
   grokCalls.length = 0;
   geminiCalls.length = 0;
@@ -569,5 +578,85 @@ describe('getPlatformLlmKey with XAI_API_KEY (issue #1167)', () => {
     testEnv.OPENROUTER_KEY = 'platform-or';
 
     expect(getPlatformLlmKey()?.via).toBe('openrouter');
+  });
+});
+
+describe('custom AI endpoint (film line)', () => {
+  const CUSTOM_URL = 'https://ai.example.com/v1';
+
+  it('uses AI_* as the last platform fallback when no other key exists', () => {
+    testEnv.AI_BASE_URL = CUSTOM_URL;
+    testEnv.AI_API_KEY = 'custom-key';
+
+    expect(getPlatformLlmKey('anthropic/claude-sonnet-5')).toStrictEqual({
+      key: 'custom-key',
+      via: 'custom',
+      source: 'platform',
+    });
+  });
+
+  it('never displaces an OpenRouter or fal platform key', () => {
+    testEnv.AI_BASE_URL = CUSTOM_URL;
+    testEnv.AI_API_KEY = 'custom-key';
+    testEnv.OPENROUTER_KEY = 'platform-or';
+    expect(getPlatformLlmKey()?.via).toBe('openrouter');
+
+    testEnv.OPENROUTER_KEY = undefined;
+    testEnv.FAL_KEY = 'platform-fal';
+    expect(getPlatformLlmKey()?.via).toBe('fal');
+  });
+
+  it('routes via:"custom" through openaiCompatibleText with the wire model name', () => {
+    testEnv.AI_BASE_URL = CUSTOM_URL;
+    testEnv.AI_MODEL = 'my-private-model';
+    createAdapter(MODEL, { key: 'custom-key', via: 'custom' });
+
+    const call = lastLlmtrCall();
+    expect(call.config).toMatchObject({
+      name: 'custom',
+      baseURL: CUSTOM_URL,
+      apiKey: 'custom-key',
+      api: 'chat-completions',
+      fetch: expect.any(Function),
+    });
+    // The registry id stays upstream; only the wire name is swapped.
+    expect(call.model).toBe('my-private-model');
+    expect(createOpenRouterTextMock).not.toHaveBeenCalled();
+    expect(openRouterTextMock).not.toHaveBeenCalled();
+  });
+
+  it('defaults the wire model when AI_MODEL is unset', () => {
+    testEnv.AI_BASE_URL = CUSTOM_URL;
+    createAdapter(MODEL, { key: 'custom-key', via: 'custom' });
+    expect(lastLlmtrCall().model).toBe('claude-opus-4-6');
+  });
+
+  it('does not let OPENROUTER_BASE_URL steal custom traffic', () => {
+    testEnv.OPENROUTER_BASE_URL = 'http://localhost:4010/v1';
+    testEnv.AI_BASE_URL = CUSTOM_URL;
+    createAdapter(MODEL, { key: 'custom-key', via: 'custom' });
+    expect(lastLlmtrCall().config.baseURL).toBe(CUSTOM_URL);
+    expect(createOpenRouterTextMock).not.toHaveBeenCalled();
+  });
+
+  it('throws when a custom route has no key instead of falling through to OpenRouter', () => {
+    expect(() => createAdapter(MODEL, { key: '', via: 'custom' })).toThrow(
+      /AI_BASE_URL and AI_API_KEY/
+    );
+    expect(openaiCompatibleTextMock).not.toHaveBeenCalled();
+    expect(createOpenRouterTextMock).not.toHaveBeenCalled();
+    expect(openRouterTextMock).not.toHaveBeenCalled();
+  });
+
+  it('rejects a non-HTTPS base URL and userinfo, but allows loopback HTTP for e2e', () => {
+    testEnv.AI_API_KEY = 'custom-key';
+    testEnv.AI_BASE_URL = 'http://ai.example.com/v1';
+    expect(() => getPlatformLlmKey()).toThrow(/must use https/);
+
+    testEnv.AI_BASE_URL = 'https://user:pass@ai.example.com/v1';
+    expect(() => getPlatformLlmKey()).toThrow(/userinfo/);
+
+    testEnv.AI_BASE_URL = 'http://localhost:4010/v1';
+    expect(getPlatformLlmKey()?.via).toBe('custom');
   });
 });

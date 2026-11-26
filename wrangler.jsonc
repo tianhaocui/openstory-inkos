@@ -14,6 +14,13 @@
     // (#1635).
     "crons": ["*/5 * * * *", "17 3 * * *", "37 * * * *", "53 * * * *"],
   },
+  // Env-only custom AI endpoint (last LLM fallback, after OPENROUTER_KEY /
+  // FAL_KEY; never a team BYOK row). AI_API_KEY is a Worker secret — see
+  // scripts/push-secrets.ts. These defaults mirror custom-ai-config.ts.
+  "vars": {
+    "AI_BASE_URL": "https://kiro.dakalami.com/aiclient2api/claude-kiro-oauth/v1",
+    "AI_MODEL": "claude-opus-4-6",
+  },
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1,

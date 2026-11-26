@@ -1191,7 +1191,7 @@ export class SceneSplitWorkflow extends OpenStoryWorkflowEntrypoint<SceneSplitWo
       await deductWorkflowCredits({
         scopedDb,
         costMicros: streamResult.llmCostMicros,
-        usedOwnKey: streamResult.llmKeySource === 'team',
+        usedOwnKey: streamResult.llmKeySource !== 'platform',
         description: `LLM analysis (${SCENE_SPLIT_MODEL})`,
         idempotencyKey: `${event.instanceId}:llm-${STEP_NAME}`,
         reservationId: input.reservationId,
@@ -1209,7 +1209,7 @@ export class SceneSplitWorkflow extends OpenStoryWorkflowEntrypoint<SceneSplitWo
       await deductWorkflowCredits({
         scopedDb,
         costMicros: biblesResult.llmCostMicros,
-        usedOwnKey: biblesResult.llmKeySource === 'team',
+        usedOwnKey: biblesResult.llmKeySource !== 'platform',
         description: `LLM analysis (${modelId})`,
         idempotencyKey: `${event.instanceId}:llm-${BIBLES_STEP_NAME}`,
         reservationId: input.reservationId,
@@ -1227,7 +1227,7 @@ export class SceneSplitWorkflow extends OpenStoryWorkflowEntrypoint<SceneSplitWo
       await deductWorkflowCredits({
         scopedDb,
         costMicros: shotListStep.llmCostMicros,
-        usedOwnKey: shotListStep.llmKeySource === 'team',
+        usedOwnKey: shotListStep.llmKeySource !== 'platform',
         description: `LLM analysis (${modelId})`,
         idempotencyKey: `${event.instanceId}:llm-${SHOT_LIST_STEP_NAME}`,
         reservationId: input.reservationId,

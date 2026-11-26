@@ -7,6 +7,7 @@
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { zodValidator } from '@tanstack/zod-adapter';
+import { getCustomAiConfig } from '@/models/server/custom-ai-config';
 import { authWithTeamMiddleware } from '@/platform/middleware.fn';
 import {
   DEFAULT_IMAGE_MODEL,
@@ -47,13 +48,8 @@ import type { ScopedDb } from '@/platform/server/db/scoped';
 // AI 配置
 // ============================================================================
 
-const AI_CONFIG = {
-  baseUrl:
-    process.env.AI_BASE_URL ||
-    'https://kiro.dakalami.com/aiclient2api/claude-kiro-oauth/v1',
-  apiKey: process.env.AI_API_KEY,
-  model: process.env.AI_MODEL || 'claude-opus-4-6',
-};
+// Single env source: see custom-ai-config.ts (getEnv-backed, sees Worker
+// secrets); `process.env` does not.
 
 const chatCompletionResponseSchema = z.object({
   choices: z.array(z.object({ message: z.object({ content: z.string() }) })),
@@ -153,17 +149,18 @@ async function callAI(
   userPrompt: string,
   maxTokens = 8000
 ): Promise<string> {
-  if (!AI_CONFIG.apiKey) {
+  const aiConfig = getCustomAiConfig();
+  if (!aiConfig.apiKey) {
     throw new Error('AI_API_KEY is not configured');
   }
-  const response = await fetch(`${AI_CONFIG.baseUrl}/chat/completions`, {
+  const response = await fetch(`${aiConfig.baseUrl}/chat/completions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${AI_CONFIG.apiKey}`,
+      Authorization: `Bearer ${aiConfig.apiKey}`,
     },
     body: JSON.stringify({
-      model: AI_CONFIG.model,
+      model: aiConfig.model,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },

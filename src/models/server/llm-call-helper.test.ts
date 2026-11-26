@@ -1,6 +1,7 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 import type { WorkflowStep } from 'cloudflare:workers';
+import type { WorkflowScopedDb } from '@/platform/server/db/scoped-workflow';
 
 // Import real modules before vi.doMock so mocks can re-export the rest.
 import * as tanstackAi from '@tanstack/ai';
@@ -14,15 +15,32 @@ vi.doMock('@tanstack/ai', () => ({
   chat: mockChat,
 }));
 
+type TestLlmKey = {
+  key: string;
+  source: 'platform' | 'team';
+  via: 'openrouter' | 'custom';
+};
+let currentKey: TestLlmKey = {
+  key: 'test-key',
+  source: 'platform',
+  via: 'openrouter',
+};
+
 vi.doMock('./create-adapter', () => ({
   ...createAdapterModule,
   createAdapter: () => ({ kind: 'text', name: 'mock' }),
-  getPlatformLlmKey: () => ({
-    key: 'test-key',
-    source: 'platform' as const,
-    via: 'openrouter' as const,
-  }),
+  getPlatformLlmKey: () => currentKey,
 }));
+
+// Capture credit deductions without touching D1 — the assertion is the
+// `usedOwnKey` / $0 pair a custom endpoint must produce.
+const deductSpy = vi.fn();
+vi.doMock('@/billing/server/workflow-deduction', async () => {
+  const actual = await vi.importActual<
+    typeof import('@/billing/server/workflow-deduction')
+  >('@/billing/server/workflow-deduction');
+  return { ...actual, deductWorkflowCredits: deductSpy };
+});
 
 vi.doMock('@/platform/server/ai/prompts-index', () => ({
   ...promptsModule,
@@ -86,6 +104,12 @@ const nonStreamContext = {
   workflowRunId: 'wf-test',
 };
 
+beforeEach(() => {
+  currentKey = { key: 'test-key', source: 'platform', via: 'openrouter' };
+  mockChat.mockClear();
+  deductSpy.mockClear();
+});
+
 describe('chatModelOptionsForCall', () => {
   it('uses Responses wire names for LLMTR Luna, not Chat Completions', () => {
     const options = chatModelOptionsForCall(
@@ -135,6 +159,20 @@ describe('chatModelOptionsForCall', () => {
       reasoning_effort: 'low',
       max_tokens: expect.any(Number),
     });
+  });
+
+  it('uses Chat Completions wire names on a custom endpoint', () => {
+    const options = chatModelOptionsForCall(
+      'anthropic/claude-sonnet-5',
+      { key: 'k', via: 'custom' },
+      true
+    );
+    expect(options).toEqual({
+      reasoning_effort: 'medium',
+      max_tokens: expect.any(Number),
+    });
+    expect(options).not.toHaveProperty('provider');
+    expect(options).not.toHaveProperty('streamOptions');
   });
 });
 
@@ -280,6 +318,46 @@ describe('durableLLMCallCf usage cost capture', () => {
       durableLLMCallCf(step, callConfig, nonStreamContext)
     ).rejects.toThrow(/empty-response/);
     expect(cancelled).toBe(false);
+  });
+});
+
+describe('custom endpoint credit attribution', () => {
+  it('charges $0 and marks usedOwnKey so no platform credits are spent', async () => {
+    currentKey = { key: 'custom-key', source: 'platform', via: 'custom' };
+    const validObject = { visual: { fullPrompt: 'Custom endpoint shot' } };
+    mockChat.mockReturnValue(
+      (async function* () {
+        yield {
+          type: 'CUSTOM',
+          name: 'structured-output.complete',
+          value: { object: validObject, raw: JSON.stringify(validObject) },
+        };
+        yield {
+          type: 'RUN_FINISHED',
+          usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 },
+        };
+      })()
+    );
+    // oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion -- minimal ScopedDb stub: the helper only reads resolveLlmKey
+    const scopedDb = {
+      credentials: { resolveLlmKey: async () => currentKey },
+    } as unknown as WorkflowScopedDb;
+
+    const result = await durableLLMCallCf(step, callConfig, {
+      ...nonStreamContext,
+      scopedDb,
+    });
+
+    expect(result).toEqual(validObject);
+    const options = mockChat.mock.calls[0]?.[0]?.modelOptions;
+    expect(options).toEqual({ max_tokens: expect.any(Number) });
+    expect(options).not.toHaveProperty('provider');
+    expect(options).not.toHaveProperty('streamOptions');
+    expect(deductSpy).toHaveBeenCalledTimes(1);
+    expect(deductSpy.mock.calls[0]?.[0]).toMatchObject({
+      usedOwnKey: true,
+      costMicros: ZERO_MICROS,
+    });
   });
 });
 
