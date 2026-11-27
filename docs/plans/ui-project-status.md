@@ -49,7 +49,9 @@
 - 2026-11-25：QA 首会话卡死（连续中断无返回），已换新会话接手；e2e spec 已全量中文化并提交 `2d6f5a5f`，未 push。
 - 2026-11-26：开发 e2e 独立轨道清零历史 11 failed + P2 URL 漂移；仅改 `e2e/**` 与两份台账，7 个主跑 spec 分批全绿；`test:e2e:full` 仍超时未验证，未 push。
 - 2026-11-26：自定义 AI 端点（via:'custom'，env-only `AI_BASE_URL`/`AI_API_KEY`/`AI_MODEL`）落地 `cc83475d`（20 文件），门禁全绿、custom 单测 180/180、视频契约 12/12、安全验证通过；影片线 LLM 不再要求 OPENROUTER_KEY/FAL_KEY。已 push（`e45428f`），已配 kiro key（有效的 `123456` + `claude-opus-4-5`）并重发布，LLM 实测可用。
-- 2026-11-26：用户坚持用百炼（DashScope）key 出视频。架构评估：新接 DashScope 视频 via ≈ 10–15 文件 / 1–2 人日（平台 key only + via stamp + host 进 stamp + 静态卡 unaudited + e2e hermetic 卫哨）。**边界：只解决视频，演员设定图/关键帧仍走 fal 图像通道，仍需单独解决（用户接受先做视频）**。接受路线 A，开发实现中。
+- 2026-11-26：用户坚持用百炼（DashScope）key 出视频。架构评估：新接 DashScope 视频 via ≈ 10–15 文件 / 1–2 人日（平台 key only + via stamp + host 进 stamp + 静态卡 unaudited + e2e hermetic 卫哨）。**边界：只解决视频，演员设定图/关键帧仍走 fal 图像通道，仍需单独解决（用户接受先做视频）**。接受路线 A，已实现 `78e01ac0` 并实测真实 T2V 出片（5.04s/480P/带音频），已 push 发布。
+- 2026-11-27：测试账号 `test-k5e0n539@e2e.test`（100M 积分，session 至 2027-02-25）。卡住任务 `01M8DCE6WQ2CN4SP4S4DZHQD27`（Elena Morning Routine）排查：kiro 端点 fenced JSON + workflow 重启变孤儿 + preview 不跑 cron；已解锁 failed + terminate 三层实例 + 释放 240000 预占 + 转给 Test User team，真机验证可见 Retry。
+- 2026-11-27：fenced JSON 修复链：① `267b1f7e` 修 callLLMStream（boundaries 已通过）；② `f6fb59c3`（未 push）硬化 bibles prompt + 钉三个顶层键 + 加诊断 warn。真实单调用验证：键漂移已治好（不再出 characters），但**暴露第二个堵塞点**——bibles schema 要求 `characterId`/`locationId`/`lightingSetup`/`ambiance` 四个必填字符串，而 prompt 从未要求模型输出（只有自然语言描述）→ Zod 拒绝。待 PM/架构拍板：prompt 补键 vs 服务端生成 id vs schema 调整。**不建议放宽 catch 吞掉 schema 违规**。
 
 ## 当前阻塞（最终验收）
 
