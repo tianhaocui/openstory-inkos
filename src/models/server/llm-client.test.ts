@@ -371,6 +371,95 @@ describe('llm-client', () => {
       });
     });
 
+    it('recovers fenced JSON from a custom endpoint structured-output parse failure', async () => {
+      // kiro ignores `response_format: json_schema` and answers with a
+      // ```json fenced block. TanStack emits only RUN_ERROR — no
+      // structured-output.complete — so `parsed` would stay undefined.
+      const schema = z.object({ title: z.string() });
+      mockChat.mockReturnValue(
+        (async function* () {
+          yield {
+            type: 'TEXT_MESSAGE_CONTENT',
+            delta: '```json\n{"title":"Hello"}\n```',
+          };
+          yield { type: 'RUN_FINISHED' };
+          yield {
+            type: 'RUN_ERROR',
+            message: 'Failed to parse structured output as JSON.',
+            code: 'structured-output-parse-failed',
+          };
+        })()
+      );
+
+      let parsed: { title: string } | undefined;
+      for await (const chunk of callLLMStream({
+        model: 'anthropic/claude-sonnet-5',
+        messages: [{ role: 'user', content: 'test' }],
+        responseSchema: schema,
+        apiKey: { key: 'custom-key', via: 'custom' },
+      })) {
+        if (chunk.done) parsed = chunk.parsed;
+      }
+
+      expect(parsed).toEqual({ title: 'Hello' });
+    });
+
+    it('does not mask a schema violation in fenced custom JSON', async () => {
+      const schema = z.object({ title: z.string() });
+      mockChat.mockReturnValue(
+        (async function* () {
+          yield {
+            type: 'TEXT_MESSAGE_CONTENT',
+            delta: '```json\n{"wrong":"field"}\n```',
+          };
+          yield {
+            type: 'RUN_ERROR',
+            message: 'Failed to parse structured output as JSON.',
+            code: 'structured-output-parse-failed',
+          };
+        })()
+      );
+
+      await expect(
+        drain(
+          callLLMStream({
+            model: 'anthropic/claude-sonnet-5',
+            messages: [{ role: 'user', content: 'test' }],
+            responseSchema: schema,
+            apiKey: { key: 'custom-key', via: 'custom' },
+          })
+        )
+      ).rejects.toThrow(/structured-output-parse-failed/);
+    });
+
+    it('does not recover fenced JSON on a non-custom route', async () => {
+      const schema = z.object({ title: z.string() });
+      mockChat.mockReturnValue(
+        (async function* () {
+          yield {
+            type: 'TEXT_MESSAGE_CONTENT',
+            delta: '```json\n{"title":"Hello"}\n```',
+          };
+          yield {
+            type: 'RUN_ERROR',
+            message: 'Failed to parse structured output as JSON.',
+            code: 'structured-output-parse-failed',
+          };
+        })()
+      );
+
+      await expect(
+        drain(
+          callLLMStream({
+            model: 'anthropic/claude-sonnet-5',
+            messages: [{ role: 'user', content: 'test' }],
+            responseSchema: schema,
+            apiKey: { key: 'openrouter-key', via: 'openrouter' },
+          })
+        )
+      ).rejects.toThrow(/structured-output-parse-failed/);
+    });
+
     it('drains chat() after RUN_ERROR so otel onError can end the span', async () => {
       let cancelled = false;
       mockChat.mockReturnValue({

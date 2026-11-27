@@ -49,6 +49,7 @@ import {
   contentFilterLlmMessage,
   isContentFilterFinish,
 } from '@/models/content-rejection';
+import { stripCodeFences } from '@/sequences/server/streaming-scene-parser';
 
 import { getLogger } from '@/platform/logger';
 
@@ -1146,6 +1147,33 @@ async function* callLLMStreamOnce<T>(
         yield { delta: '', accumulated, reasoning: event.delta, done: false };
         continue;
       }
+    }
+  }
+  // An env-only custom endpoint can ignore `response_format: json_schema` and
+  // wrap its JSON in a markdown code fence. TanStack then emits only a
+  // RUN_ERROR (`structured-output-parse-failed` / `parse-error`) — no
+  // `structured-output.complete` — leaving `parsed` undefined. Recover from
+  // the accumulated text on that route ONLY: other vias honour the contract,
+  // and we must not mask a genuine schema violation or a truncated stream.
+  if (
+    responseSchema &&
+    parsed === undefined &&
+    !contentFiltered &&
+    route === 'custom' &&
+    accumulated.length > 0 &&
+    (runError?.code === 'structured-output-parse-failed' ||
+      runError?.code === 'parse-error')
+  ) {
+    try {
+      parsed = responseSchema.parse(JSON.parse(stripCodeFences(accumulated)));
+      logger.warn(
+        `Custom endpoint ${params.model} returned fenced/non-raw JSON; recovered structured output`,
+        { observationName: params.observationName }
+      );
+      runError = null;
+    } catch {
+      // Leave the original RUN_ERROR in place — a missing field or an
+      // unparseable body is still a real failure, not something to hide.
     }
   }
   // A content-filter stop cuts the output mid-token, which TanStack reports

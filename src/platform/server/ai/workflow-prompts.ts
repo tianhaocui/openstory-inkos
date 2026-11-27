@@ -1005,7 +1005,7 @@ Detect boundaries using:
 {{script}}
 </USER_SCRIPT>
 
-IMPORTANT: each boundary's quote must be copied character-for-character from the script (no gutter, no paraphrase, no smart-quote substitution). Respond with ONLY valid JSON matching the schema.`,
+IMPORTANT: each boundary's quote must be copied character-for-character from the script (no gutter, no paraphrase, no smart-quote substitution). Respond with ONLY a raw JSON object matching the schema — no markdown code fences, no prose, no explanation.`,
     },
   ],
 
