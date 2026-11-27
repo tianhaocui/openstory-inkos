@@ -432,6 +432,69 @@ describe('llm-client', () => {
       ).rejects.toThrow(/structured-output-parse-failed/);
     });
 
+    it('logs the stripped preview and Zod paths when fenced recovery fails', async () => {
+      const schema = z.object({ title: z.string() });
+      mockChat.mockReturnValue(
+        (async function* () {
+          yield {
+            type: 'TEXT_MESSAGE_CONTENT',
+            delta: '```json\n{"characters":[{"name":"x"}]}\n```',
+          };
+          yield {
+            type: 'RUN_ERROR',
+            message: 'Failed to parse structured output as JSON.',
+            code: 'structured-output-parse-failed',
+          };
+        })()
+      );
+
+      // getLogger caches by category, so this is the same logger instance the
+      // (already imported) llm-client holds. No module mock needed.
+      const { getLogger } = await import('@/platform/logger');
+      const warn = vi.spyOn(
+        getLogger(['openstory', 'ai', 'llm-client']),
+        'warn'
+      );
+      const warnings: Array<{ message: string; properties: unknown }> = [];
+      // LogTape's `warn` is heavily overloaded (the last overload takes a
+      // callback), so capture args as unknown instead of indexing its tuple.
+      warn.mockImplementation((...args: unknown[]) => {
+        const [message, properties] = args;
+        if (
+          typeof message === 'string' &&
+          properties &&
+          typeof properties === 'object'
+        ) {
+          warnings.push({ message, properties });
+        }
+      });
+      try {
+        await expect(
+          drain(
+            callLLMStream({
+              model: 'anthropic/claude-sonnet-5',
+              messages: [{ role: 'user', content: 'test' }],
+              responseSchema: schema,
+              apiKey: { key: 'custom-key', via: 'custom' },
+            })
+          )
+        ).rejects.toThrow(/structured-output-parse-failed/);
+
+        const diagnostic = warnings.find((w) =>
+          w.message.includes('failed structured-output recovery')
+        );
+        expect(diagnostic?.properties).toMatchObject({
+          preview: expect.stringContaining('"characters"'),
+          zodIssuePaths: expect.arrayContaining(['title']),
+        });
+        expect(diagnostic?.properties).toMatchObject({
+          preview: expect.not.stringContaining('```json'),
+        });
+      } finally {
+        warn.mockRestore();
+      }
+    });
+
     it('does not recover fenced JSON on a non-custom route', async () => {
       const schema = z.object({ title: z.string() });
       mockChat.mockReturnValue(

@@ -1171,9 +1171,25 @@ async function* callLLMStreamOnce<T>(
         { observationName: params.observationName }
       );
       runError = null;
-    } catch {
+    } catch (error) {
       // Leave the original RUN_ERROR in place — a missing field or an
       // unparseable body is still a real failure, not something to hide.
+      // Log WHY recovery failed: a truncated stream and schema drift (e.g.
+      // the model renaming the top-level keys) look identical to the caller
+      // until the raw body is inspected.
+      const preview = stripCodeFences(accumulated).slice(0, 200);
+      const zodIssuePaths =
+        error instanceof z.ZodError
+          ? error.issues.map((issue) => issue.path.join('.'))
+          : undefined;
+      logger.warn(
+        `Custom endpoint ${params.model} fenced/non-raw JSON failed structured-output recovery; original RUN_ERROR preserved`,
+        {
+          observationName: params.observationName,
+          preview,
+          ...(zodIssuePaths ? { zodIssuePaths } : {}),
+        }
+      );
     }
   }
   // A content-filter stop cuts the output mid-token, which TanStack reports

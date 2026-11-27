@@ -1183,7 +1183,8 @@ For each unique location:
 4. Specify the color palette and lighting setup
 5. Create a consistencyTag starting with the core location name
 
-Respond with ONLY valid JSON matching the schema.`,
+Respond with ONLY a raw JSON object matching the schema — no markdown code fences, no prose, no explanation.
+The top-level keys MUST be exactly "characterBible", "locationBible", and "elementBible", each an array — never "characters", "locations", or "elements".`,
     },
   ],
 

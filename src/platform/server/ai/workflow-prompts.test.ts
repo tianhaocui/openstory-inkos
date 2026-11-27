@@ -24,6 +24,21 @@ describe('scene-splitting-boundaries-chat — shots vs scenes (#1486)', () => {
   });
 });
 
+describe('phase/scene-bibles-chat — raw JSON contract', () => {
+  const user =
+    WORKFLOW_CHAT_PROMPTS['phase/scene-bibles-chat']?.[1]?.content ?? '';
+
+  it('asks for a raw JSON object and pins the three top-level keys', () => {
+    expect(user).toContain(
+      'Respond with ONLY a raw JSON object matching the schema — no markdown code fences, no prose, no explanation.'
+    );
+    expect(user).toContain('"characterBible"');
+    expect(user).toContain('"locationBible"');
+    expect(user).toContain('"elementBible"');
+    expect(user).toContain('never "characters", "locations", or "elements"');
+  });
+});
+
 describe('scene-shot-list-chat', () => {
   it('is registered and covers scenes as a director, not a script splitter', () => {
     const prompt = WORKFLOW_CHAT_PROMPTS['phase/scene-shot-list-chat'];
