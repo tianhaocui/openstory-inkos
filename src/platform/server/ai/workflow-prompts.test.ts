@@ -25,8 +25,9 @@ describe('scene-splitting-boundaries-chat — shots vs scenes (#1486)', () => {
 });
 
 describe('phase/scene-bibles-chat — raw JSON contract', () => {
-  const user =
-    WORKFLOW_CHAT_PROMPTS['phase/scene-bibles-chat']?.[1]?.content ?? '';
+  const prompt = WORKFLOW_CHAT_PROMPTS['phase/scene-bibles-chat'] ?? [];
+  const system = prompt[0]?.content ?? '';
+  const user = prompt[1]?.content ?? '';
 
   it('asks for a raw JSON object and pins the three top-level keys', () => {
     expect(user).toContain(
@@ -36,6 +37,22 @@ describe('phase/scene-bibles-chat — raw JSON contract', () => {
     expect(user).toContain('"locationBible"');
     expect(user).toContain('"elementBible"');
     expect(user).toContain('never "characters", "locations", or "elements"');
+  });
+
+  // The wire schema requires these strings; without naming them in the
+  // prompt a non-enforcing endpoint omits them and Zod fails with
+  // `invalid_type: expected string, received undefined`.
+  it('requires the schema fields the model otherwise omits', () => {
+    for (const field of [
+      'characterId',
+      'locationId',
+      'keyFeatures',
+      'lightingSetup',
+      'ambiance',
+    ]) {
+      expect(system).toContain(`- ${field} — REQUIRED string:`);
+      expect(user).toContain(field);
+    }
   });
 });
 

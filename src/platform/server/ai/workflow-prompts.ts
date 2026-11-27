@@ -1094,6 +1094,7 @@ User country (ISO country code; fallback only, unavailable when empty): {{userCo
 ## Character Bible
 
 Build a complete character bible. For each character:
+- characterId — REQUIRED string: a short stable identifier for this character, unique within the bible. Use the snake_case slug of the character's name as written in the script (the same value as consistencyTag). Never omit it, not even for a voice-only entry.
 - Name (from script or inferred)
 - Age (exact or range like "30s")
 - Gender, ethnicity (if relevant)
@@ -1115,15 +1116,16 @@ Track first mentions:
 ## Location Bible
 
 Build a complete location bible. For each unique location:
+- locationId — REQUIRED string: a short stable identifier for this location, unique within the bible. Use the snake_case slug of the core location name (the same value as consistencyTag). Never omit it.
 - Name as written in the script (e.g., "INT. OFFICE - DAY")
 - Type: interior, exterior, or both
 - Time of day: day, night, dusk, dawn, etc.
 - Description: detailed visual description including layout, size, atmosphere
 - Architectural style and design aesthetic
-- Key visual features that define the space
+- keyFeatures — REQUIRED string: the key visual features that define the space described above
 - Color palette and dominant colors
-- Lighting characteristics
-- Mood and ambiance
+- lightingSetup — REQUIRED string: the lighting characteristics described above (key/fill sources, direction, quality, colour temperature)
+- ambiance — REQUIRED string: the mood and atmosphere described above
 - consistencyTag — HARD FORMAT CONTRACT: snake_case, starting with the core location name ("office_modern_steel_glass")
 - firstMention: { text, lineNumber } — the exact script text and gutter line where the location first appears
 
@@ -1184,7 +1186,8 @@ For each unique location:
 5. Create a consistencyTag starting with the core location name
 
 Respond with ONLY a raw JSON object matching the schema — no markdown code fences, no prose, no explanation.
-The top-level keys MUST be exactly "characterBible", "locationBible", and "elementBible", each an array — never "characters", "locations", or "elements".`,
+The top-level keys MUST be exactly "characterBible", "locationBible", and "elementBible", each an array — never "characters", "locations", or "elements".
+Every entry MUST include every required field: characterId on each character, and locationId, keyFeatures, lightingSetup and ambiance on each location. Never leave them out.`,
     },
   ],
 
